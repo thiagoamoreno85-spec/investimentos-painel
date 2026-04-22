@@ -140,3 +140,31 @@ export const alerts = mysqlTable("alerts", {
 
 export type Alert = typeof alerts.$inferSelect;
 export type InsertAlert = typeof alerts.$inferInsert;
+
+/**
+ * Histórico de análises de melhor compra geradas pela IA
+ */
+export const analysisHistory = mysqlTable("analysisHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  /** Valor disponível informado pelo usuário */
+  availableAmount: decimal("availableAmount", { precision: 18, scale: 2 }).notNull(),
+  /** Foco da análise: brasil, eua ou todos */
+  focus: mysqlEnum("focus", ["brasil", "eua", "todos"]).notNull(),
+  /** Contexto adicional fornecido pelo usuário */
+  userContext: text("userContext"),
+  /** Texto completo da análise gerada pela IA (markdown) */
+  analysisText: text("analysisText").notNull(),
+  /** Ticker do ativo recomendado (extraído da análise) */
+  recommendedTicker: varchar("recommendedTicker", { length: 32 }),
+  /** Snapshot das cotações no momento da análise (JSON) */
+  quotesSnapshot: text("quotesSnapshot"),
+  /** Câmbio USD/BRL no momento da análise */
+  usdBrl: decimal("usdBrl", { precision: 10, scale: 4 }),
+  /** Número de ativos analisados */
+  assetsAnalyzed: int("assetsAnalyzed"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AnalysisHistory = typeof analysisHistory.$inferSelect;
+export type InsertAnalysisHistory = typeof analysisHistory.$inferInsert;

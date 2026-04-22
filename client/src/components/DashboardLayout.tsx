@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, PieChart, TrendingUp, Wallet, Settings, LogOut, ArrowLeftRight, Bell, DollarSign, Sparkles, Menu, X } from "lucide-react";
+import { LayoutDashboard, PieChart, TrendingUp, Wallet, Settings, LogOut, ArrowLeftRight, Bell, DollarSign, Sparkles, Menu, X, Globe } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -26,6 +26,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { href: "/alertas", icon: Bell, label: "Alertas", badge: alertCounts?.triggered ?? 0, highlight: false },
     { href: "/aportes", icon: Wallet, label: "Aportes", badge: 0, highlight: false },
     { href: "/melhor-compra", icon: Sparkles, label: "Melhor Compra", badge: 0, highlight: true },
+    { href: "/mercado", icon: Globe, label: "Dashboard Mercado", badge: 0, highlight: false },
   ];
 
   return (

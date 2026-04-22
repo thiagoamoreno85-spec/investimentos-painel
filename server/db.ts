@@ -1,6 +1,6 @@
 import { eq, and, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction } from "../drizzle/schema";
+import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction, analysisHistory, InsertAnalysisHistory } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -184,6 +184,40 @@ export async function deleteTransaction(txId: number, userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(transactions).where(and(eq(transactions.id, txId), eq(transactions.userId, userId)));
+}
+
+// ========== ANALYSIS HISTORY ==========
+
+export async function createAnalysisHistory(data: InsertAnalysisHistory) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(analysisHistory).values(data);
+  return result[0].insertId;
+}
+
+export async function getAnalysisHistoryByUser(userId: number, limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(analysisHistory)
+    .where(eq(analysisHistory.userId, userId))
+    .orderBy(desc(analysisHistory.createdAt))
+    .limit(limit);
+}
+
+export async function getAnalysisHistoryById(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(analysisHistory)
+    .where(and(eq(analysisHistory.id, id), eq(analysisHistory.userId, userId)))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function deleteAnalysisHistory(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(analysisHistory)
+    .where(and(eq(analysisHistory.id, id), eq(analysisHistory.userId, userId)));
 }
 
 /**

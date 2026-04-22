@@ -34,3 +34,17 @@
 - [x] Router tRPC para análise de melhor compra com LLM
 - [x] Integrar cotações em tempo real na análise de IA
 - [x] Integrar no menu lateral com destaque dourado
+- [x] Tabela analysisHistory no schema do banco
+- [x] Salvar cada análise gerada no banco automaticamente
+- [x] Procedure tRPC para listar histórico com paginação
+- [x] Procedure tRPC para deletar análise do histórico
+- [x] Painel de histórico na página Melhor Compra com filtros
+- [x] Visualização completa de análise passada em modal/expansão
+- [x] Router tRPC para índices globais (Ibovespa, S&P500, Nasdaq, Dólar, Euro, Ouro, Petróleo)
+- [x] Router tRPC para taxas DI/Selic/IPCA via API do Banco Central
+- [x] Router tRPC para notícias sobre ativos da carteira
+- [x] Página Dashboard de Mercado com módulo de índices
+- [x] Módulo de taxas macro (DI, Selic, IPCA, Juro Real)
+- [x] Módulo de notícias filtradas por ativos da carteira
+- [ ] Módulo de calendário de resultados/eventos (futuro)
+- [x] Integrar Dashboard de Mercado no menu lateral

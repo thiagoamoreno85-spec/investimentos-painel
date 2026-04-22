@@ -1,26 +1,47 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
-import { getAssetsByUser } from "../db";
+import {
+  getAssetsByUser,
+  createAnalysisHistory,
+  getAnalysisHistoryByUser,
+  getAnalysisHistoryById,
+  deleteAnalysisHistory,
+} from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
 import { invokeLLM } from "../_core/llm";
 
+/** Tenta extrair o ticker recomendado do texto da análise */
+function extractRecommendedTicker(text: string): string | null {
+  // Padrões comuns: **SBSP3**, SBSP3 é, comprar SBSP3, VALE3:
+  const patterns = [
+    /\*\*([A-Z]{3,6}[0-9]{1,2})\*\*/,   // **SBSP3**
+    /comprar?\s+([A-Z]{3,6}[0-9]{1,2})/i,
+    /recomend[ao]\w*\s+([A-Z]{3,6}[0-9]{1,2})/i,
+    /ativo[:\s]+([A-Z]{3,6}[0-9]{1,2})/i,
+    /([A-Z]{3,6}[0-9]{1,2})\s+é a melhor/i,
+    /([A-Z]{3,6}[0-9]{1,2})\s+—\s+\*\*RECOMENDA/i,
+  ];
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1]) return match[1].toUpperCase();
+  }
+  return null;
+}
+
 export const buyAdvisorRouter = router({
   /**
-   * Analisa a carteira do usuário e recomenda qual ativo comprar
-   * com o valor informado, usando LLM com contexto de cotações em tempo real.
+   * Analisa a carteira do usuário e recomenda qual ativo comprar.
+   * Salva automaticamente o resultado no histórico.
    */
   analyze: protectedProcedure
     .input(
       z.object({
         availableAmount: z.number().positive(),
-        /** Foco opcional: "brasil" | "eua" | "todos" */
         focus: z.enum(["brasil", "eua", "todos"]).default("brasil"),
-        /** Contexto adicional fornecido pelo usuário */
         userContext: z.string().max(500).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // 1. Buscar ativos do usuário
       const assets = await getAssetsByUser(ctx.user.id);
 
       if (assets.length === 0) {
@@ -28,10 +49,10 @@ export const buyAdvisorRouter = router({
           analysis: "Sua carteira está vazia. Importe seus ativos primeiro na página de Transações.",
           updatedAt: new Date(),
           quotesSnapshot: {},
+          historyId: null,
         };
       }
 
-      // 2. Filtrar por foco
       const filteredAssets = assets.filter((a) => {
         if (input.focus === "brasil") return a.assetClass !== "rv_eua";
         if (input.focus === "eua") return a.assetClass === "rv_eua";
@@ -43,10 +64,10 @@ export const buyAdvisorRouter = router({
           analysis: `Nenhum ativo encontrado para o foco "${input.focus}". Verifique sua carteira.`,
           updatedAt: new Date(),
           quotesSnapshot: {},
+          historyId: null,
         };
       }
 
-      // 3. Buscar cotações em tempo real
       const tickerList = filteredAssets.map((a) => ({
         ticker: a.ticker,
         assetClass: a.assetClass,
@@ -64,13 +85,11 @@ export const buyAdvisorRouter = router({
         quotes = new Map();
       }
 
-      // 4. Montar snapshot de cotações para retorno
       const quotesSnapshot: Record<string, { price: number; changePercent: number }> = {};
       quotes.forEach((q, ticker) => {
         quotesSnapshot[ticker] = { price: q.price, changePercent: q.changePercent };
       });
 
-      // 5. Montar contexto da carteira para o LLM
       const today = new Date().toLocaleDateString("pt-BR", {
         weekday: "long",
         year: "numeric",
@@ -87,8 +106,6 @@ export const buyAdvisorRouter = router({
         const totalValue = lastPrice * qty;
         const profitPct = avgCost > 0 ? ((lastPrice - avgCost) / avgCost) * 100 : 0;
         const changeToday = quote?.changePercent ?? 0;
-
-        // Quantas cotas o usuário pode comprar com o valor disponível
         const cotas = lastPrice > 0 ? Math.floor(input.availableAmount / lastPrice) : 0;
         const valorCotas = cotas * lastPrice;
 
@@ -102,8 +119,8 @@ export const buyAdvisorRouter = router({
       }).join("\n\n");
 
       const systemPrompt = `Você é um Consultor de Investimentos Sênior especialista em renda variável brasileira e internacional.
-Seu perfil do investidor: visão de longo prazo (10+ anos), tolera volatilidade, prefere empresas sólidas com potencial de crescimento e dividendos, realiza aportes mensais recorrentes, prefere comprar ativos já presentes na carteira.
-Objetivo de longo prazo: independência financeira dos filhos e crescimento patrimonial consistente.
+Perfil do investidor: visão de longo prazo (10+ anos), tolera volatilidade, prefere empresas sólidas com potencial de crescimento e dividendos, realiza aportes mensais recorrentes, prefere comprar ativos já presentes na carteira.
+Objetivo: independência financeira dos filhos e crescimento patrimonial consistente.
 Diretrizes: nunca recomendar "all in", sempre avaliar downside, evitar viés de confirmação, considerar risco macro, priorizar dados sobre narrativas.
 
 Responda SEMPRE em português brasileiro, de forma estruturada com markdown.
@@ -130,7 +147,6 @@ Com base nos dados acima, responda:
 
 Seja direto. Não repita os dados da carteira. Foque na recomendação e justificativa.`;
 
-      // 6. Chamar o LLM
       const llmResponse = await invokeLLM({
         messages: [
           { role: "system", content: systemPrompt },
@@ -141,12 +157,68 @@ Seja direto. Não repita os dados da carteira. Foque na recomendação e justifi
       const analysis =
         llmResponse?.choices?.[0]?.message?.content ?? "Não foi possível gerar a análise. Tente novamente.";
 
+      const analysisText = typeof analysis === "string" ? analysis : JSON.stringify(analysis);
+
+      // Extrair ticker recomendado
+      const recommendedTicker = extractRecommendedTicker(analysisText);
+
+      // Salvar no histórico
+      let historyId: number | null = null;
+      try {
+        historyId = await createAnalysisHistory({
+          userId: ctx.user.id,
+          availableAmount: input.availableAmount.toFixed(2),
+          focus: input.focus,
+          userContext: input.userContext ?? null,
+          analysisText,
+          recommendedTicker,
+          quotesSnapshot: JSON.stringify(quotesSnapshot),
+          usdBrl: usdBrl.toFixed(4),
+          assetsAnalyzed: filteredAssets.length,
+        });
+      } catch (err) {
+        console.error("[buyAdvisor] Failed to save analysis history:", err);
+      }
+
       return {
-        analysis: typeof analysis === "string" ? analysis : JSON.stringify(analysis),
+        analysis: analysisText,
         updatedAt: new Date(),
         quotesSnapshot,
         usdBrl,
         assetsAnalyzed: filteredAssets.length,
+        historyId,
+        recommendedTicker,
       };
+    }),
+
+  // ========== HISTÓRICO ==========
+
+  /** Lista o histórico de análises do usuário */
+  getHistory: protectedProcedure
+    .input(z.object({ limit: z.number().min(1).max(100).default(50) }))
+    .query(async ({ ctx, input }) => {
+      return getAnalysisHistoryByUser(ctx.user.id, input.limit);
+    }),
+
+  /** Busca uma análise específica pelo ID */
+  getHistoryById: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const record = await getAnalysisHistoryById(input.id, ctx.user.id);
+      if (!record) return null;
+      return {
+        ...record,
+        quotesSnapshot: record.quotesSnapshot
+          ? (JSON.parse(record.quotesSnapshot) as Record<string, { price: number; changePercent: number }>)
+          : {},
+      };
+    }),
+
+  /** Remove uma análise do histórico */
+  deleteHistory: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      await deleteAnalysisHistory(input.id, ctx.user.id);
+      return { success: true };
     }),
 });

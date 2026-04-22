@@ -12,6 +12,7 @@ import Transacoes from "./pages/Transacoes";
 import Dividendos from "./pages/Dividendos";
 import Alertas from "./pages/Alertas";
 import MelhorCompra from "./pages/MelhorCompra";
+import DashboardMercado from "./pages/DashboardMercado";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -24,6 +25,7 @@ function Router() {
       <Route path={"/dividendos"} component={Dividendos} />
       <Route path={"/alertas"} component={Alertas} />
       <Route path={"/melhor-compra"} component={MelhorCompra} />
+      <Route path={"/mercado"} component={DashboardMercado} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

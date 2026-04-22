@@ -1,0 +1,24 @@
+# Project TODO
+
+- [x] Basic homepage layout (Visão Geral)
+- [x] Dashboard Layout com sidebar
+- [x] Página de Alocação por classe
+- [x] Página de Rentabilidade com gráficos
+- [x] Página de Simulador de Aportes
+- [x] Tema Manus Dark aplicado
+- [x] Dados estáticos da carteira
+- [x] Upgrade para full-stack (web-db-user)
+- [x] Resolver conflitos do upgrade e restaurar páginas
+- [x] Schema de banco de dados para ativos e transações
+- [x] API backend (tRPC) para CRUD de ativos e transações
+- [x] Cálculo automático de preço médio ponderado
+- [x] API de cotações em tempo real via backend (Yahoo Finance)
+- [x] Página de registro de compras/vendas (Transações)
+- [x] Integrar dados do banco nas páginas existentes (Home, Alocação, Rentabilidade)
+- [x] Fallback para dados estáticos quando banco vazio
+- [x] Botão de importação da carteira completa (seed)
+- [x] Botão de atualização de cotações em tempo real
+- [x] Menu mobile responsivo com hamburger
+- [x] Cotação USD/BRL para conversão de ativos internacionais
+- [x] Testes vitest (11 testes passando)
+- [x] Logout funcional no sidebar

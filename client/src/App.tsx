@@ -8,14 +8,16 @@ import Home from "./pages/Home";
 import Alocacao from "./pages/Alocacao";
 import Rentabilidade from "./pages/Rentabilidade";
 import Aportes from "./pages/Aportes";
-
+import Transacoes from "./pages/Transacoes";
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/alocacao"} component={Alocacao} />
       <Route path={"/rentabilidade"} component={Rentabilidade} />
       <Route path={"/aportes"} component={Aportes} />
+      <Route path={"/transacoes"} component={Transacoes} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

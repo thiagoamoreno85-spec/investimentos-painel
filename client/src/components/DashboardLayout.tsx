@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, PieChart, TrendingUp, Wallet, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, PieChart, TrendingUp, Wallet, Settings, LogOut, ArrowLeftRight, RefreshCw, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -9,10 +11,14 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [location] = useLocation();
 
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { logout } = useAuth();
+
   const navItems = [
     { href: "/", icon: LayoutDashboard, label: "Visão Geral" },
     { href: "/alocacao", icon: PieChart, label: "Alocação" },
     { href: "/rentabilidade", icon: TrendingUp, label: "Rentabilidade" },
+    { href: "/transacoes", icon: ArrowLeftRight, label: "Transações" },
     { href: "/aportes", icon: Wallet, label: "Aportes" },
   ];
 
@@ -52,7 +58,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <Settings className="w-5 h-5" />
             Configurações
           </button>
-          <button className="flex items-center gap-3 px-3 py-2.5 rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive w-full transition-colors">
+          <button
+            onClick={() => logout()}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive w-full transition-colors"
+          >
             <LogOut className="w-5 h-5" />
             Sair
           </button>
@@ -62,11 +71,38 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Mobile Header */}
-        <header className="h-16 border-b border-border bg-card flex items-center px-4 md:hidden">
+        <header className="h-16 border-b border-border bg-card flex items-center justify-between px-4 md:hidden">
           <h1 className="text-lg font-bold text-primary">
             Manus<span className="text-foreground">Invest</span>
           </h1>
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="text-muted-foreground hover:text-foreground">
+            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </header>
+
+        {/* Mobile Nav */}
+        {mobileOpen && (
+          <nav className="md:hidden bg-card border-b border-border px-4 py-2 space-y-1">
+            {navItems.map((item) => {
+              const isActive = location === item.href;
+              return (
+                <Link key={item.href} href={item.href}>
+                  <a
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors ${
+                      isActive
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    {item.label}
+                  </a>
+                </Link>
+              );
+            })}
+          </nav>
+        )}
 
         <div className="flex-1 overflow-auto p-4 md:p-8">
           <div className="max-w-6xl mx-auto">

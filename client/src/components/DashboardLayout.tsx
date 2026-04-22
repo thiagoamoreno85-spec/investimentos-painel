@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, PieChart, TrendingUp, Wallet, Settings, LogOut, ArrowLeftRight, Bell, DollarSign, Menu, X } from "lucide-react";
+import { LayoutDashboard, PieChart, TrendingUp, Wallet, Settings, LogOut, ArrowLeftRight, Bell, DollarSign, Sparkles, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -18,13 +18,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { data: alertCounts } = trpc.alerts.getAlertCounts.useQuery();
 
   const navItems = [
-    { href: "/", icon: LayoutDashboard, label: "Visão Geral", badge: 0 },
-    { href: "/alocacao", icon: PieChart, label: "Alocação", badge: 0 },
-    { href: "/rentabilidade", icon: TrendingUp, label: "Rentabilidade", badge: 0 },
-    { href: "/transacoes", icon: ArrowLeftRight, label: "Transações", badge: 0 },
-    { href: "/dividendos", icon: DollarSign, label: "Dividendos", badge: 0 },
-    { href: "/alertas", icon: Bell, label: "Alertas", badge: alertCounts?.triggered ?? 0 },
-    { href: "/aportes", icon: Wallet, label: "Aportes", badge: 0 },
+    { href: "/", icon: LayoutDashboard, label: "Visão Geral", badge: 0, highlight: false },
+    { href: "/alocacao", icon: PieChart, label: "Alocação", badge: 0, highlight: false },
+    { href: "/rentabilidade", icon: TrendingUp, label: "Rentabilidade", badge: 0, highlight: false },
+    { href: "/transacoes", icon: ArrowLeftRight, label: "Transações", badge: 0, highlight: false },
+    { href: "/dividendos", icon: DollarSign, label: "Dividendos", badge: 0, highlight: false },
+    { href: "/alertas", icon: Bell, label: "Alertas", badge: alertCounts?.triggered ?? 0, highlight: false },
+    { href: "/aportes", icon: Wallet, label: "Aportes", badge: 0, highlight: false },
+    { href: "/melhor-compra", icon: Sparkles, label: "Melhor Compra", badge: 0, highlight: true },
   ];
 
   return (
@@ -47,10 +48,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors ${
                     isActive
                       ? "bg-primary/10 text-primary font-medium"
+                      : item.highlight
+                      ? "text-amber-400 hover:bg-amber-500/10 hover:text-amber-300 border border-amber-500/20 bg-amber-500/5"
                       : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                   }`}
                 >
-                  <item.icon className="w-5 h-5" />
+                  <item.icon className={`w-5 h-5 ${item.highlight && !isActive ? "text-amber-400" : ""}`} />
                   <span className="flex-1">{item.label}</span>
                   {item.badge > 0 && (
                     <span className="ml-auto px-1.5 py-0.5 text-xs rounded-full bg-amber-500 text-black font-bold min-w-[20px] text-center">

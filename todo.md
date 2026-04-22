@@ -30,3 +30,7 @@
 - [x] Página de Alertas com lista e badge de notificação
 - [x] Badge de alertas disparados no sidebar
 - [x] Testes vitest para dividendos e alertas (15 novos testes, 26 total)
+- [x] Página "Melhor Compra do Dia" com campo de valor e análise por IA
+- [x] Router tRPC para análise de melhor compra com LLM
+- [x] Integrar cotações em tempo real na análise de IA
+- [x] Integrar no menu lateral com destaque dourado

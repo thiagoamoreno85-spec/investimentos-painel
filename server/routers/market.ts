@@ -55,57 +55,46 @@ const MARKET_INDICES = [
   { symbol: "ETH-USD",   name: "Ethereum",     category: "crypto" as const,     currency: "USD" },
 ];
 
-async function fetchMarketIndices(): Promise<IndexQuote[]> {
-  const symbols = MARKET_INDICES.map((i) => i.symbol);
-  const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(",")}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent,currency`;
-
+async function fetchSingleIndex(symbol: string): Promise<{ price: number; change: number; changePercent: number; currency: string }> {
   try {
+    const encoded = encodeURIComponent(symbol);
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encoded}?interval=1d&range=1d`;
     const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0" },
-      signal: AbortSignal.timeout(10000),
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+      signal: AbortSignal.timeout(8000),
     });
+    if (!res.ok) return { price: 0, change: 0, changePercent: 0, currency: "USD" };
+    const json = await res.json() as { chart: { result: Array<{ meta: Record<string, number | string> }> } };
+    const meta = json?.chart?.result?.[0]?.meta;
+    if (!meta) return { price: 0, change: 0, changePercent: 0, currency: "USD" };
+    const price = (meta.regularMarketPrice as number) ?? 0;
+    const prevClose = (meta.chartPreviousClose as number) ?? (meta.previousClose as number) ?? price;
+    const change = price - prevClose;
+    const changePercent = prevClose > 0 ? (change / prevClose) * 100 : 0;
+    const currency = (meta.currency as string) || "USD";
+    return { price, change, changePercent, currency };
+  } catch {
+    return { price: 0, change: 0, changePercent: 0, currency: "USD" };
+  }
+}
 
-    if (!res.ok) throw new Error(`Yahoo Finance error: ${res.status}`);
-    const json = await res.json() as {
-      quoteResponse: {
-        result: Array<{
-          symbol: string;
-          regularMarketPrice: number;
-          regularMarketChange: number;
-          regularMarketChangePercent: number;
-          currency: string;
-        }>;
-      };
-    };
-
-    const results = json.quoteResponse?.result ?? [];
-    const map = new Map(results.map((r) => [r.symbol, r]));
-
-    return MARKET_INDICES.map((idx) => {
-      const q = map.get(idx.symbol);
+async function fetchMarketIndices(): Promise<IndexQuote[]> {
+  // Busca em paralelo usando v8 (v7 retorna 401)
+  const results = await Promise.all(
+    MARKET_INDICES.map(async (idx) => {
+      const q = await fetchSingleIndex(idx.symbol);
       return {
         symbol: idx.symbol,
         name: idx.name,
-        price: q?.regularMarketPrice ?? 0,
-        change: q?.regularMarketChange ?? 0,
-        changePercent: q?.regularMarketChangePercent ?? 0,
-        currency: q?.currency ?? idx.currency,
+        price: q.price,
+        change: q.change,
+        changePercent: q.changePercent,
+        currency: q.currency || idx.currency,
         category: idx.category,
-      };
-    });
-  } catch (err) {
-    console.error("[market] fetchMarketIndices error:", err);
-    // Retorna estrutura vazia para não quebrar a UI
-    return MARKET_INDICES.map((idx) => ({
-      symbol: idx.symbol,
-      name: idx.name,
-      price: 0,
-      change: 0,
-      changePercent: 0,
-      currency: idx.currency,
-      category: idx.category,
-    }));
-  }
+      } as IndexQuote;
+    })
+  );
+  return results;
 }
 
 // ─── Taxas macro via API do Banco Central ────────────────────────────────────

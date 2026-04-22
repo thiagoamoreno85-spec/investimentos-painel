@@ -22,3 +22,11 @@
 - [x] Cotação USD/BRL para conversão de ativos internacionais
 - [x] Testes vitest (11 testes passando)
 - [x] Logout funcional no sidebar
+- [x] Schema de banco para dividendos (tabela dividends)
+- [x] Schema de banco para alertas (tabela alerts)
+- [x] tRPC router para dividendos (CRUD + Yield on Cost)
+- [x] tRPC router para alertas (CRUD + verificação automática)
+- [x] Página de Dividendos com formulário e resumo por ativo
+- [x] Página de Alertas com lista e badge de notificação
+- [x] Badge de alertas disparados no sidebar
+- [x] Testes vitest para dividendos e alertas (15 novos testes, 26 total)

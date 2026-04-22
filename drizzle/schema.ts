@@ -78,3 +78,65 @@ export const transactions = mysqlTable("transactions", {
 
 export type Transaction = typeof transactions.$inferSelect;
 export type InsertTransaction = typeof transactions.$inferInsert;
+
+/**
+ * Dividendos e proventos recebidos por ativo
+ */
+export const dividends = mysqlTable("dividends", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  assetId: int("assetId").notNull(),
+  /** Tipo de provento */
+  type: mysqlEnum("type", ["dividendo", "jcp", "rendimento", "amortizacao", "bonificacao", "outro"]).notNull(),
+  /** Valor por cota/ação */
+  valuePerShare: decimal("valuePerShare", { precision: 18, scale: 8 }).notNull(),
+  /** Quantidade de cotas na data COM */
+  quantity: decimal("quantity", { precision: 18, scale: 8 }).notNull(),
+  /** Valor total recebido */
+  totalValue: decimal("totalValue", { precision: 18, scale: 2 }).notNull(),
+  /** Moeda do provento */
+  currency: mysqlEnum("currency", ["BRL", "USD"]).default("BRL").notNull(),
+  /** Data COM (data de corte) */
+  exDate: timestamp("exDate").notNull(),
+  /** Data de pagamento */
+  paymentDate: timestamp("paymentDate"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Dividend = typeof dividends.$inferSelect;
+export type InsertDividend = typeof dividends.$inferInsert;
+
+/**
+ * Alertas de monitoramento de ativos
+ */
+export const alerts = mysqlTable("alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  assetId: int("assetId").notNull(),
+  /** Tipo de alerta */
+  type: mysqlEnum("type", [
+    "price_drop",        // Queda percentual > threshold
+    "price_rise",        // Alta percentual > threshold
+    "below_avg_cost",    // Preço abaixo do custo médio
+    "above_target",      // Preço acima do preço-alvo
+    "below_target",      // Preço abaixo do preço-alvo
+    "buy_opportunity",   // Preço < custo médio * (1 - margin)
+  ]).notNull(),
+  /** Valor de referência (percentual ou preço) */
+  threshold: decimal("threshold", { precision: 18, scale: 4 }).notNull(),
+  /** Preço-alvo (para alertas de preço absoluto) */
+  targetPrice: decimal("targetPrice", { precision: 18, scale: 8 }),
+  /** Status do alerta */
+  status: mysqlEnum("status", ["active", "triggered", "dismissed"]).default("active").notNull(),
+  /** Mensagem gerada quando o alerta foi disparado */
+  triggeredMessage: text("triggeredMessage"),
+  /** Quando foi disparado */
+  triggeredAt: timestamp("triggeredAt"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Alert = typeof alerts.$inferSelect;
+export type InsertAlert = typeof alerts.$inferInsert;

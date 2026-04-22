@@ -9,6 +9,8 @@ import Alocacao from "./pages/Alocacao";
 import Rentabilidade from "./pages/Rentabilidade";
 import Aportes from "./pages/Aportes";
 import Transacoes from "./pages/Transacoes";
+import Dividendos from "./pages/Dividendos";
+import Alertas from "./pages/Alertas";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -18,6 +20,8 @@ function Router() {
       <Route path={"/rentabilidade"} component={Rentabilidade} />
       <Route path={"/aportes"} component={Aportes} />
       <Route path={"/transacoes"} component={Transacoes} />
+      <Route path={"/dividendos"} component={Dividendos} />
+      <Route path={"/alertas"} component={Alertas} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

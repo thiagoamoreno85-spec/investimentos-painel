@@ -1,8 +1,9 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, PieChart, TrendingUp, Wallet, Settings, LogOut, ArrowLeftRight, RefreshCw, Menu, X } from "lucide-react";
+import { LayoutDashboard, PieChart, TrendingUp, Wallet, Settings, LogOut, ArrowLeftRight, Bell, DollarSign, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -14,12 +15,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { logout } = useAuth();
 
+  const { data: alertCounts } = trpc.alerts.getAlertCounts.useQuery();
+
   const navItems = [
-    { href: "/", icon: LayoutDashboard, label: "Visão Geral" },
-    { href: "/alocacao", icon: PieChart, label: "Alocação" },
-    { href: "/rentabilidade", icon: TrendingUp, label: "Rentabilidade" },
-    { href: "/transacoes", icon: ArrowLeftRight, label: "Transações" },
-    { href: "/aportes", icon: Wallet, label: "Aportes" },
+    { href: "/", icon: LayoutDashboard, label: "Visão Geral", badge: 0 },
+    { href: "/alocacao", icon: PieChart, label: "Alocação", badge: 0 },
+    { href: "/rentabilidade", icon: TrendingUp, label: "Rentabilidade", badge: 0 },
+    { href: "/transacoes", icon: ArrowLeftRight, label: "Transações", badge: 0 },
+    { href: "/dividendos", icon: DollarSign, label: "Dividendos", badge: 0 },
+    { href: "/alertas", icon: Bell, label: "Alertas", badge: alertCounts?.triggered ?? 0 },
+    { href: "/aportes", icon: Wallet, label: "Aportes", badge: 0 },
   ];
 
   return (
@@ -46,7 +51,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   }`}
                 >
                   <item.icon className="w-5 h-5" />
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {item.badge > 0 && (
+                    <span className="ml-auto px-1.5 py-0.5 text-xs rounded-full bg-amber-500 text-black font-bold min-w-[20px] text-center">
+                      {item.badge}
+                    </span>
+                  )}
                 </a>
               </Link>
             );
@@ -96,7 +106,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     }`}
                   >
                     <item.icon className="w-5 h-5" />
-                    {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {item.badge > 0 && (
+                    <span className="ml-auto px-1.5 py-0.5 text-xs rounded-full bg-amber-500 text-black font-bold min-w-[20px] text-center">
+                      {item.badge}
+                    </span>
+                  )}
                   </a>
                 </Link>
               );

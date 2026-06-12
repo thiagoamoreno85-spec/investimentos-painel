@@ -21,6 +21,11 @@ import {
   BarChart2,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Category = "all" | "brasil" | "global" | "cripto" | "tech" | "politica" | "macro";
 type ImpactLevel = "all" | "alto" | "medio" | "baixo";
@@ -42,14 +47,14 @@ interface NewsItem {
   isRead: number;
 }
 
-const PRICE_DIRECTION_CONFIG: Record<string, { label: string; icon: string; color: string; bg: string; border: string }> = {
-  alta_forte:  { label: "Alta Forte",  icon: "⬆️", color: "text-emerald-300", bg: "bg-emerald-500/15", border: "border-emerald-400/40" },
-  alta_media:  { label: "Alta Média",  icon: "↗️", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30" },
-  alta_fraca:  { label: "Alta Fraca",  icon: "↗",     color: "text-emerald-500", bg: "bg-emerald-500/5",  border: "border-emerald-600/20" },
-  neutro:      { label: "Neutro",      icon: "↔️", color: "text-muted-foreground", bg: "bg-secondary",       border: "border-border" },
-  baixa_fraca: { label: "Baixa Fraca", icon: "↘",     color: "text-red-500",   bg: "bg-red-500/5",    border: "border-red-600/20" },
-  baixa_media: { label: "Baixa Média", icon: "↘️", color: "text-red-400",   bg: "bg-red-500/10",   border: "border-red-500/30" },
-  baixa_forte: { label: "Baixa Forte", icon: "⬇️", color: "text-red-300",   bg: "bg-red-500/15",   border: "border-red-400/40" },
+const PRICE_DIRECTION_CONFIG: Record<string, { label: string; icon: string; color: string; bg: string; border: string; tooltip: string }> = {
+  alta_forte:  { label: "Alta Forte",  icon: "⬆️", color: "text-emerald-300", bg: "bg-emerald-500/15", border: "border-emerald-400/40", tooltip: "Previsão de alta forte: potencial de valorização acima de 5% no curto prazo" },
+  alta_media:  { label: "Alta Média",  icon: "↗️", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30", tooltip: "Previsão de alta média: potencial de valorização entre 2% e 5% no curto prazo" },
+  alta_fraca:  { label: "Alta Fraca",  icon: "↗",     color: "text-emerald-500", bg: "bg-emerald-500/5",  border: "border-emerald-600/20", tooltip: "Previsão de alta fraca: potencial de valorização abaixo de 2% no curto prazo" },
+  neutro:      { label: "Neutro",      icon: "↔️", color: "text-muted-foreground", bg: "bg-secondary",       border: "border-border",          tooltip: "Sem direção clara: impacto equilibrado ou incerto sobre o preço" },
+  baixa_fraca: { label: "Baixa Fraca", icon: "↘",     color: "text-red-500",   bg: "bg-red-500/5",    border: "border-red-600/20",      tooltip: "Previsão de baixa fraca: potencial de desvalorização abaixo de 2% no curto prazo" },
+  baixa_media: { label: "Baixa Média", icon: "↘️", color: "text-red-400",   bg: "bg-red-500/10",   border: "border-red-500/30",      tooltip: "Previsão de baixa média: potencial de desvalorização entre 2% e 5% no curto prazo" },
+  baixa_forte: { label: "Baixa Forte", icon: "⬇️", color: "text-red-300",   bg: "bg-red-500/15",   border: "border-red-400/40",      tooltip: "Previsão de baixa forte: potencial de desvalorização acima de 5% no curto prazo" },
 };
 
 const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string }> = {
@@ -138,17 +143,27 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
                 <SentimentIcon className="w-3 h-3" />
                 {sentiment.label}
               </span>
-              {/* Badge de direção de preço */}
+              {/* Badge de direção de preço com tooltip */}
               {item.priceDirection && item.priceDirection !== "neutro" && (() => {
                 const dir = PRICE_DIRECTION_CONFIG[item.priceDirection] ?? PRICE_DIRECTION_CONFIG.neutro;
                 return (
-                  <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border ${dir.bg} ${dir.color} ${dir.border}`}
-                    title="Previsão de movimento de preço"
-                  >
-                    <span>{dir.icon}</span>
-                    {dir.label}
-                  </span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border cursor-help ${dir.bg} ${dir.color} ${dir.border}`}
+                      >
+                        <span>{dir.icon}</span>
+                        {dir.label}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="top"
+                      className="max-w-[220px] text-center bg-popover text-popover-foreground border border-border shadow-lg"
+                    >
+                      <p className="font-semibold mb-0.5">{dir.label}</p>
+                      <p className="text-xs opacity-90">{dir.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
                 );
               })()}
             </div>

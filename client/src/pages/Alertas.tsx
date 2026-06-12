@@ -27,6 +27,11 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const ALERT_TYPES = [
   {
@@ -479,22 +484,33 @@ export default function Alertas() {
                                 {alert.type === "news_alert" && alert.notes && (() => {
                                   const dirMatch = alert.notes.match(/Direção de preço: ([\w_]+)/);
                                   const dir = dirMatch?.[1];
-                                  const PRICE_DIR: Record<string, { label: string; icon: string; color: string; bg: string }> = {
-                                    alta_forte:  { label: "Alta Forte (>5%)",  icon: "⬆️", color: "text-emerald-300", bg: "bg-emerald-500/15" },
-                                    alta_media:  { label: "Alta Média (2-5%)",  icon: "↗️", color: "text-emerald-400", bg: "bg-emerald-500/10" },
-                                    alta_fraca:  { label: "Alta Fraca (<2%)",   icon: "↗",     color: "text-emerald-500", bg: "bg-emerald-500/5" },
-                                    neutro:      { label: "Neutro",             icon: "↔️", color: "text-muted-foreground", bg: "bg-secondary" },
-                                    baixa_fraca: { label: "Baixa Fraca (<2%)",  icon: "↘",     color: "text-red-500",   bg: "bg-red-500/5" },
-                                    baixa_media: { label: "Baixa Média (2-5%)", icon: "↘️", color: "text-red-400",   bg: "bg-red-500/10" },
-                                    baixa_forte: { label: "Baixa Forte (>5%)",  icon: "⬇️", color: "text-red-300",   bg: "bg-red-500/15" },
+                                  const PRICE_DIR: Record<string, { label: string; icon: string; color: string; bg: string; tooltip: string }> = {
+                                    alta_forte:  { label: "Alta Forte (>5%)",  icon: "⬆️", color: "text-emerald-300", bg: "bg-emerald-500/15", tooltip: "Previsão de alta forte: potencial de valorização acima de 5% no curto prazo" },
+                                    alta_media:  { label: "Alta Média (2-5%)",  icon: "↗️", color: "text-emerald-400", bg: "bg-emerald-500/10", tooltip: "Previsão de alta média: potencial de valorização entre 2% e 5% no curto prazo" },
+                                    alta_fraca:  { label: "Alta Fraca (<2%)",   icon: "↗",     color: "text-emerald-500", bg: "bg-emerald-500/5",  tooltip: "Previsão de alta fraca: potencial de valorização abaixo de 2% no curto prazo" },
+                                    neutro:      { label: "Neutro",             icon: "↔️", color: "text-muted-foreground", bg: "bg-secondary",      tooltip: "Sem direção clara: impacto equilibrado ou incerto sobre o preço" },
+                                    baixa_fraca: { label: "Baixa Fraca (<2%)",  icon: "↘",     color: "text-red-500",   bg: "bg-red-500/5",    tooltip: "Previsão de baixa fraca: potencial de desvalorização abaixo de 2% no curto prazo" },
+                                    baixa_media: { label: "Baixa Média (2-5%)", icon: "↘️", color: "text-red-400",   bg: "bg-red-500/10",   tooltip: "Previsão de baixa média: potencial de desvalorização entre 2% e 5% no curto prazo" },
+                                    baixa_forte: { label: "Baixa Forte (>5%)",  icon: "⬇️", color: "text-red-300",   bg: "bg-red-500/15",   tooltip: "Previsão de baixa forte: potencial de desvalorização acima de 5% no curto prazo" },
                                   };
                                   const cfg = dir ? PRICE_DIR[dir] : null;
                                   if (!cfg || dir === "neutro") return null;
                                   return (
-                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold mt-1 ${cfg.bg} ${cfg.color}`}>
-                                      <span>{cfg.icon}</span>
-                                      Previsão: {cfg.label}
-                                    </span>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold mt-1 cursor-help ${cfg.bg} ${cfg.color}`}>
+                                          <span>{cfg.icon}</span>
+                                          Previsão: {cfg.label}
+                                        </span>
+                                      </TooltipTrigger>
+                                      <TooltipContent
+                                        side="top"
+                                        className="max-w-[220px] text-center bg-popover text-popover-foreground border border-border shadow-lg"
+                                      >
+                                        <p className="font-semibold mb-0.5">{cfg.label}</p>
+                                        <p className="text-xs opacity-90">{cfg.tooltip}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
                                   );
                                 })()}
                                 {alert.triggeredAt && (

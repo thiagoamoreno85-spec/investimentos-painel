@@ -63,11 +63,11 @@
 - [x] 12 novos testes vitest para handler de cron e refresh service (83 total)
 
 ## Previsão Direcional de Preço (Sprint atual)
-- [ ] Adicionar coluna priceDirection ao schema newsItems (alta_forte, alta_media, alta_fraca, baixa_fraca, baixa_media, baixa_forte, neutro)
-- [ ] Migrar banco de dados com pnpm db:push
-- [ ] Atualizar newsRefreshService: incluir priceDirection no prompt LLM e no JSON schema
-- [ ] Atualizar db.ts helpers para incluir priceDirection
-- [ ] Atualizar cards de notícias com badge direcional (seta + cor + label)
-- [ ] Incluir priceDirection na mensagem de alerta gerado automaticamente
-- [ ] Atualizar tela de Alertas para exibir direção do preço nos alertas news_alert
-- [ ] Testes vitest para priceDirection
+- [x] Adicionar coluna priceDirection ao schema newsItems (alta_forte, alta_media, alta_fraca, baixa_fraca, baixa_media, baixa_forte, neutro)
+- [x] Migrar banco de dados com pnpm db:push
+- [x] Atualizar newsRefreshService: incluir priceDirection no prompt LLM e no JSON schema
+- [x] Atualizar db.ts helpers para incluir priceDirection
+- [x] Atualizar cards de notícias com badge direcional (seta + cor + label)
+- [x] Incluir priceDirection na mensagem de alerta gerado automaticamente
+- [x] Atualizar tela de Alertas para exibir direção do preço nos alertas news_alert
+- [x] Testes vitest para priceDirection (7 novos testes, 90 total)

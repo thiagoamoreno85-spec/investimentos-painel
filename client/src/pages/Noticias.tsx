@@ -334,11 +334,11 @@ export default function Noticias() {
       <div className="flex flex-col h-full min-h-0">
 
         {/* ── CABEÇALHO FIXO ── */}
-        <div className="flex-shrink-0 space-y-4 pb-4">
+        <div className="flex-shrink-0 space-y-3 pb-3">
           {/* Título + botões */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+              <h2 className="text-lg md:text-2xl font-bold tracking-tight flex items-center gap-2">
                 <Newspaper className="w-6 h-6 text-primary" />
                 Notícias & Análise de Impacto
                 {unreadCount > 0 && (
@@ -419,9 +419,9 @@ export default function Noticias() {
             </div>
           )}
 
-          {/* Filtros */}
-          <div className="flex flex-wrap gap-2">
-            <div className="flex flex-wrap gap-1.5">
+          {/* Filtros — scroll horizontal em mobile */}
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex gap-1.5 flex-shrink-0">
               {categories.map(({ value, label, icon: Icon }) => (
                 <button
                   key={value}
@@ -438,9 +438,9 @@ export default function Noticias() {
               ))}
             </div>
 
-            <div className="w-px bg-border self-stretch hidden sm:block" />
+            <div className="w-px bg-border self-stretch flex-shrink-0" />
 
-            <div className="flex gap-1.5">
+            <div className="flex gap-1.5 flex-shrink-0">
               {(["all", "alto", "medio", "baixo"] as ImpactLevel[]).map((level) => (
                 <button
                   key={level}
@@ -464,7 +464,7 @@ export default function Noticias() {
 
             <button
               onClick={handleUrgentFilter}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                 activeImpact === "alto"
                   ? "bg-red-500/20 text-red-400 border border-red-500/40"
                   : "bg-secondary text-muted-foreground hover:text-foreground"
@@ -476,7 +476,7 @@ export default function Noticias() {
 
             <button
               onClick={() => setOnlyUnread(!onlyUnread)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                 onlyUnread
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground hover:text-foreground"
@@ -488,7 +488,7 @@ export default function Noticias() {
         </div>
 
         {/* ── ÁREA SCROLLÁVEL ── */}
-        <div className="flex flex-1 gap-6 min-h-0">
+        <div className="flex flex-1 gap-4 min-h-0">
 
           {/* Lista de notícias com scroll próprio */}
           <div className="flex-1 min-h-0">

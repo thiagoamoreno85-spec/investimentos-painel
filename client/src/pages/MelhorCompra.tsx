@@ -110,11 +110,11 @@ export default function MelhorCompra() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Header */}
         <div>
-          <h2 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-            <Sparkles className="w-8 h-8 text-amber-400" />
+          <h2 className="text-xl md:text-3xl font-bold tracking-tight flex items-center gap-2 md:gap-3">
+            <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-amber-400" />
             Melhor Compra do Dia
           </h2>
           <p className="text-muted-foreground mt-1">
@@ -123,7 +123,7 @@ export default function MelhorCompra() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1 bg-secondary/50 rounded-lg w-fit border border-border/50">
+        <div className="flex gap-1 p-1 bg-secondary/50 rounded-lg w-full sm:w-fit border border-border/50">
           {[
             { id: "analyze", label: "Nova Análise", icon: Sparkles },
             { id: "history", label: `Histórico (${history?.length ?? 0})`, icon: History },
@@ -145,9 +145,9 @@ export default function MelhorCompra() {
 
         {/* ===== TAB: NOVA ANÁLISE ===== */}
         {activeTab === "analyze" && (
-          <div className="grid gap-6 lg:grid-cols-5">
+          <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-5">
             {/* Formulário */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="col-span-1 lg:col-span-2 space-y-4">
               <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">

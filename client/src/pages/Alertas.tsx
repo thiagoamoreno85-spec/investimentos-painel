@@ -219,9 +219,9 @@ export default function Alertas() {
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full gap-0">
-        <div className="flex-shrink-0 flex items-start justify-between pb-4">
+        <div className="flex-shrink-0 flex items-start justify-between pb-3">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Alertas de Monitoramento</h2>
+            <h2 className="text-xl md:text-3xl font-bold tracking-tight">Alertas de Monitoramento</h2>
             <p className="text-muted-foreground mt-1">
               Configure alertas automáticos para oportunidades de compra e riscos na carteira.
             </p>
@@ -242,44 +242,44 @@ export default function Alertas() {
         </div>
 
         {/* Cards de contagem — fixos */}
-        <div className="flex-shrink-0 grid gap-4 md:grid-cols-3">
+        <div className="flex-shrink-0 grid grid-cols-3 gap-2 md:gap-4">
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Alertas Ativos</CardTitle>
-              <Bell className="h-4 w-4 text-blue-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3 md:px-6 md:pt-6 md:pb-2">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Ativos</CardTitle>
+              <Bell className="h-3 w-3 md:h-4 md:w-4 text-blue-500" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-500">{counts?.active ?? 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Monitorando preços</p>
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <div className="text-xl md:text-2xl font-bold text-blue-500">{counts?.active ?? 0}</div>
+              <p className="text-xs text-muted-foreground mt-1 hidden sm:block">Monitorando</p>
             </CardContent>
           </Card>
 
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Disparados</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-amber-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3 md:px-6 md:pt-6 md:pb-2">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Disparados</CardTitle>
+              <AlertTriangle className="h-3 w-3 md:h-4 md:w-4 text-amber-500" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-amber-500">{counts?.triggered ?? 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">Aguardando ação</p>
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <div className="text-xl md:text-2xl font-bold text-amber-500">{counts?.triggered ?? 0}</div>
+              <p className="text-xs text-muted-foreground mt-1 hidden sm:block">Aguardando ação</p>
             </CardContent>
           </Card>
 
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Configurados</CardTitle>
-              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3 md:px-6 md:pt-6 md:pb-2">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Total</CardTitle>
+              <CheckCircle2 className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <div className="text-xl md:text-2xl font-bold">
                 {(counts?.active ?? 0) + (counts?.triggered ?? 0)}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Ativos + disparados</p>
+              <p className="text-xs text-muted-foreground mt-1 hidden sm:block">Ativos + disparados</p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3 flex-1 min-h-0 mt-4">
+        <div className="grid gap-3 md:gap-6 grid-cols-1 lg:grid-cols-3 flex-1 min-h-0 mt-3">
           {/* Formulário */}
           <Card className="lg:col-span-1 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader>

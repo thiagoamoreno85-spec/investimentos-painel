@@ -71,3 +71,16 @@
 - [x] Incluir priceDirection na mensagem de alerta gerado automaticamente
 - [x] Atualizar tela de Alertas para exibir direção do preço nos alertas news_alert
 - [x] Testes vitest para priceDirection (7 novos testes, 90 total)
+
+## Adaptação Mobile (Sprint atual)
+- [ ] DashboardLayout: topbar mobile com botão hambúrguer, sidebar colapsável com overlay
+- [ ] DashboardLayout: fechar sidebar ao clicar em item do menu no mobile
+- [ ] Visão Geral: cards em grid 2x2 no mobile, gráficos responsivos
+- [ ] Alocação: tabela com scroll horizontal no mobile, tabs compactas
+- [ ] Rentabilidade: gráficos responsivos, cards empilhados no mobile
+- [ ] Transações: formulário e tabela responsivos no mobile
+- [ ] Dividendos: gráfico e tabela YoC responsivos no mobile
+- [ ] Alertas: formulário e lista responsivos no mobile
+- [ ] Notícias: cards verticais no mobile, painel lateral abaixo
+- [ ] Aportes: formulário e tabela responsivos no mobile
+- [ ] Melhor Compra: layout responsivo no mobile

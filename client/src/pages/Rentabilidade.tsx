@@ -161,9 +161,9 @@ export default function Rentabilidade() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-4 md:space-y-8">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">
+          <h2 className="text-xl md:text-3xl font-bold tracking-tight">
             Análise de Rentabilidade
           </h2>
           <p className="text-muted-foreground mt-1">
@@ -171,14 +171,14 @@ export default function Rentabilidade() {
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <div className="grid gap-3 md:gap-4 grid-cols-1 lg:grid-cols-7">
           {/* Profit by Class Chart */}
-          <Card className="col-span-full lg:col-span-4 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+          <Card className="col-span-1 lg:col-span-4 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader>
               <CardTitle>Lucro/Prejuízo por Classe</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[350px] w-full mt-4">
+              <div className="h-[220px] md:h-[350px] w-full mt-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={profitByClass}
@@ -230,7 +230,7 @@ export default function Rentabilidade() {
           </Card>
 
           {/* Winners and Losers */}
-          <div className="col-span-full lg:col-span-3 space-y-4">
+          <div className="col-span-1 lg:col-span-3 space-y-4">
             <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center gap-2">

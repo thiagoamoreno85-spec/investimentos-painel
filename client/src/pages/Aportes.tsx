@@ -46,17 +46,17 @@ export default function Aportes() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-4 md:space-y-8">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Simulador de Aportes</h2>
+          <h2 className="text-xl md:text-3xl font-bold tracking-tight">Simulador de Aportes</h2>
           <p className="text-muted-foreground mt-1">
             Projete o crescimento do seu patrimônio para a independência financeira dos filhos.
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-12">
+        <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-12">
           {/* Calculator Form */}
-          <Card className="md:col-span-4 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+          <Card className="col-span-1 md:col-span-4 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calculator className="h-5 w-5 text-primary" />
@@ -111,7 +111,7 @@ export default function Aportes() {
           </Card>
 
           {/* Projection Chart & Results */}
-          <div className="md:col-span-8 space-y-6">
+          <div className="col-span-1 md:col-span-8 space-y-4 md:space-y-6">
             <div className="grid gap-4 md:grid-cols-2">
               <Card className="bg-primary/5 border-primary/20 shadow-sm">
                 <CardHeader className="pb-2">

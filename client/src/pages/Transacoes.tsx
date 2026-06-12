@@ -207,7 +207,7 @@ export default function Transacoes() {
         {/* Cabeçalho fixo */}
         <div className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Transações</h2>
+            <h2 className="text-xl md:text-3xl font-bold tracking-tight">Transações</h2>
             <p className="text-muted-foreground mt-1">
               Registre compras e vendas de ativos. O preço médio é calculado
               automaticamente.
@@ -229,7 +229,7 @@ export default function Transacoes() {
           </Button>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3 flex-1 min-h-0">
+        <div className="grid gap-3 md:gap-6 grid-cols-1 lg:grid-cols-3 flex-1 min-h-0">
           {/* Formulário de Transação */}
           <Card className="lg:col-span-1 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader>
@@ -483,8 +483,8 @@ export default function Transacoes() {
                     </div>
                     {/* Corpo com scroll */}
                     <ScrollArea className="flex-1 min-h-0">
-                    <table className="w-full text-sm">
-                      <tbody>
+                      <table className="w-full text-sm">
+                        <tbody>
                         {assetSummary.map((asset) => {
                           const qty = parseFloat(asset.totalQuantity);
                           const avgCost = parseFloat(asset.averageCost);
@@ -540,8 +540,8 @@ export default function Transacoes() {
                             </tr>
                           );
                         })}
-                      </tbody>
-                    </table>
+                        </tbody>
+                      </table>
                     </ScrollArea>
                   </div>
                 )}

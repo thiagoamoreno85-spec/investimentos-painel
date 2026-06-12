@@ -161,8 +161,8 @@ export default function Alocacao() {
       {/* Layout fixo: header + tabs no topo, apenas a tabela rola */}
       <div className="flex flex-col h-full gap-0">
         {/* Cabeçalho fixo */}
-        <div className="flex-shrink-0 pb-4">
-          <h2 className="text-3xl font-bold tracking-tight">Alocação Detalhada</h2>
+        <div className="flex-shrink-0 pb-3">
+          <h2 className="text-xl md:text-3xl font-bold tracking-tight">Alocação Detalhada</h2>
           <p className="text-muted-foreground mt-1">
             Visualize a composição da sua carteira por classe de ativo.
           </p>
@@ -183,12 +183,12 @@ export default function Alocacao() {
             className="flex flex-col flex-1 min-h-0"
           >
             {/* Tabs fixas */}
-            <TabsList className="flex-shrink-0 w-full justify-start overflow-x-auto bg-card/50 border border-border/50 h-auto p-1 flex-wrap">
+            <TabsList className="flex-shrink-0 w-full justify-start overflow-x-auto bg-card/50 border border-border/50 h-auto p-1 flex-nowrap">
               {categories.map((category) => (
                 <TabsTrigger
                   key={category.id}
                   value={category.id}
-                  className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary px-4 py-2"
+                  className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary px-3 py-1.5 text-xs md:text-sm whitespace-nowrap"
                 >
                   {category.name}
                 </TabsTrigger>
@@ -203,31 +203,31 @@ export default function Alocacao() {
               >
                 <Card className="flex flex-col flex-1 min-h-0 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
                   {/* Header do card fixo */}
-                  <CardHeader className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <CardHeader className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-3 md:px-6 py-3 md:py-4">
                     <div>
                       <CardTitle>{category.name}</CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
                         {category.percentage.toFixed(1)}% do patrimônio total
                       </p>
                     </div>
-                    <div className="text-2xl font-bold font-mono">
+                    <div className="text-lg md:text-2xl font-bold font-mono">
                       {formatBRL(category.totalValue)}
                     </div>
                   </CardHeader>
 
-                  <CardContent className="flex flex-col flex-1 min-h-0 pt-0">
+                  <CardContent className="flex flex-col flex-1 min-h-0 pt-0 px-2 md:px-6">
                     <div className="rounded-md border border-border/50 flex flex-col flex-1 min-h-0 overflow-hidden">
                       {/* Cabeçalho da tabela fixo */}
-                      <div className="overflow-x-auto flex-shrink-0">
+                      <div className="overflow-x-auto flex-shrink-0 min-w-0">
                         <table className="w-full text-sm text-left">
                           <thead className="bg-secondary/50 text-muted-foreground">
                             <tr>
-                              <th className="px-4 py-3 font-medium">Ativo</th>
-                              <th className="px-4 py-3 font-medium text-right">Posição</th>
-                              <th className="px-4 py-3 font-medium text-right">Custo Médio</th>
-                              <th className="px-4 py-3 font-medium text-right">Preço Atual</th>
-                              <th className="px-4 py-3 font-medium text-right">Valor Total</th>
-                              <th className="px-4 py-3 font-medium text-right">Lucro/Prejuízo</th>
+                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">Ativo</th>
+                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Qtd</th>
+                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm hidden sm:table-cell">Custo Médio</th>
+                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Preço</th>
+                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Total</th>
+                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">L/P</th>
                             </tr>
                           </thead>
                         </table>
@@ -241,22 +241,22 @@ export default function Alocacao() {
                                 key={asset.id}
                                 className="hover:bg-secondary/20 transition-colors"
                               >
-                                <td className="px-4 py-3 font-medium w-[18%]">{asset.name}</td>
-                                <td className="px-4 py-3 text-right font-mono w-[14%]">
+                                <td className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">{asset.name}</td>
+                                <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
                                   {asset.position < 1
-                                    ? asset.position.toFixed(6)
+                                    ? asset.position.toFixed(4)
                                     : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
                                 </td>
-                                <td className="px-4 py-3 text-right font-mono w-[16%]">
+                                <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm hidden sm:table-cell">
                                   {formatCurrency(asset.cost, asset.currency)}
                                 </td>
-                                <td className="px-4 py-3 text-right font-mono w-[16%]">
+                                <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
                                   {formatCurrency(asset.price, asset.currency)}
                                 </td>
-                                <td className="px-4 py-3 text-right font-mono font-medium w-[16%]">
+                                <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono font-medium text-xs md:text-sm">
                                   {formatBRL(asset.totalValue)}
                                 </td>
-                                <td className="px-4 py-3 text-right w-[20%]">
+                                <td className="px-2 md:px-4 py-2 md:py-3 text-right text-xs md:text-sm">
                                   <div
                                     className={`flex items-center justify-end gap-1 font-mono ${
                                       asset.profit >= 0 ? "text-emerald-500" : "text-red-400"

@@ -160,74 +160,74 @@ export default function Dividendos() {
     <DashboardLayout>
       <div className="flex flex-col h-full gap-0">
         {/* Cabeçalho fixo */}
-        <div className="flex-shrink-0 pb-4">
-          <h2 className="text-3xl font-bold tracking-tight">Dividendos & Proventos</h2>
+        <div className="flex-shrink-0 pb-3">
+          <h2 className="text-xl md:text-3xl font-bold tracking-tight">Dividendos & Proventos</h2>
           <p className="text-muted-foreground mt-1">
             Registre dividendos, JCP e rendimentos. Calcule Yield on Cost e Current Yield por ativo.
           </p>
         </div>
 
         {/* Cards de resumo fixos */}
-        <div className="flex-shrink-0 grid gap-4 md:grid-cols-3">
+        <div className="flex-shrink-0 grid grid-cols-3 gap-2 md:gap-4">
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3 md:px-6 md:pt-6 md:pb-2">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
                 Total Recebido
               </CardTitle>
-              <DollarSign className="h-4 w-4 text-emerald-500" />
+              <DollarSign className="h-3 w-3 md:h-4 md:w-4 text-emerald-500" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold font-mono text-emerald-500">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <div className="text-base md:text-2xl font-bold font-mono text-emerald-500">
                 {summaryLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   formatCurrency(totals?.total || 0)
                 )}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {totals?.count || 0} lançamentos registrados
+              <p className="text-xs text-muted-foreground mt-1 hidden sm:block">
+                {totals?.count || 0} lançamentos
               </p>
             </CardContent>
           </Card>
 
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Ativos com Proventos
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3 md:px-6 md:pt-6 md:pb-2">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                Ativos
               </CardTitle>
-              <BarChart2 className="h-4 w-4 text-muted-foreground" />
+              <BarChart2 className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <div className="text-xl md:text-2xl font-bold">
                 {summary?.length || 0}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Ativos com histórico de dividendos
+              <p className="text-xs text-muted-foreground mt-1 hidden sm:block">
+                Com histórico
               </p>
             </CardContent>
           </Card>
 
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3 md:px-6 md:pt-6 md:pb-2">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
                 Melhor YoC
               </CardTitle>
-              <TrendingUp className="h-4 w-4 text-emerald-500" />
+              <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-emerald-500" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold font-mono text-emerald-500">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <div className="text-xl md:text-2xl font-bold font-mono text-emerald-500">
                 {summary && summary.length > 0
                   ? `${Math.max(...summary.map((s) => s.yieldOnCost)).toFixed(1)}%`
                   : "—"}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Yield on Cost histórico máximo
+              <p className="text-xs text-muted-foreground mt-1 hidden sm:block">
+                YoC máximo
               </p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3 flex-1 min-h-0 mt-4">
+        <div className="grid gap-3 md:gap-6 grid-cols-1 lg:grid-cols-3 flex-1 min-h-0 mt-3">
           {/* Formulário */}
           <Card className="lg:col-span-1 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader>

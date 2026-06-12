@@ -55,8 +55,9 @@
 - [x] Filtros: Todas / Brasil / Global / Cripto / Urgentes
 - [x] Painel lateral: Sentimento por setor e ativos mais citados
 - [x] Integração automática: notícia de impacto Alto dispara alerta na tela de Alertas
-- [ ] Atualização automática de notícias a cada 30 minutos (futuro)
+- [x] Atualização automática de notícias a cada 30 minutos (Heartbeat cron: mo73QzPooGL6nY47EsXaer)
 - [x] Integrar Notícias no menu lateral do dashboard
 - [x] Tabela newsItems no schema do banco
 - [x] Tipo news_alert adicionado ao enum de alertas
-- [x] 18 novos testes vitest para módulo de notícias (71 total)
+- [x] 18 novos testes vitest para módulo de notícias
+- [x] 12 novos testes vitest para handler de cron e refresh service (83 total)

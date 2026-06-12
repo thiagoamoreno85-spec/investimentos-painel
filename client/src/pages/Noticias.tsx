@@ -550,24 +550,26 @@ export default function Noticias() {
                     <BarChart2 className="w-4 h-4 text-primary" />
                     Ativos Mais Citados
                   </h4>
-                  <div className="space-y-2">
-                    {stats.topTickers.map(([ticker, count]) => (
-                      <div key={ticker} className="flex items-center justify-between">
-                        <span className="text-xs font-mono font-bold text-foreground">{ticker}</span>
-                        <div className="flex items-center gap-2">
-                          <div className="h-1.5 bg-primary/20 rounded-full overflow-hidden w-16">
-                            <div
-                              className="h-full bg-primary rounded-full"
-                              style={{
-                                width: `${Math.min(100, (count / (stats.topTickers[0]?.[1] ?? 1)) * 100)}%`,
-                              }}
-                            />
+                  <ScrollArea className="h-48 pr-2">
+                    <div className="space-y-2">
+                      {stats.topTickers.map(([ticker, count]) => (
+                        <div key={ticker} className="flex items-center justify-between">
+                          <span className="text-xs font-mono font-bold text-foreground">{ticker}</span>
+                          <div className="flex items-center gap-2">
+                            <div className="h-1.5 bg-primary/20 rounded-full overflow-hidden w-16">
+                              <div
+                                className="h-full bg-primary rounded-full"
+                                style={{
+                                  width: `${Math.min(100, (count / (stats.topTickers[0]?.[1] ?? 1)) * 100)}%`,
+                                }}
+                              />
+                            </div>
+                            <span className="text-xs text-muted-foreground w-4 text-right">{count}</span>
                           </div>
-                          <span className="text-xs text-muted-foreground w-4 text-right">{count}</span>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 </CardContent>
               </Card>
 

@@ -488,7 +488,7 @@ export default function Noticias() {
         </div>
 
         {/* ── ÁREA SCROLLÁVEL ── */}
-        <div className="flex flex-1 gap-4 min-h-0">
+        <div className="flex flex-col lg:flex-row flex-1 gap-4 min-h-0">
 
           {/* Lista de notícias com scroll próprio */}
           <div className="flex-1 min-h-0">
@@ -540,7 +540,7 @@ export default function Noticias() {
             </ScrollArea>
           </div>
 
-          {/* Painel lateral fixo (sem scroll próprio, acompanha a altura disponível) */}
+          {/* Painel lateral — desktop: coluna lateral; mobile: abaixo da lista (oculto por padrão, visível em lg) */}
           {news.length > 0 && (
             <div className="hidden lg:flex lg:w-64 flex-col gap-4 flex-shrink-0">
               {/* Top tickers */}

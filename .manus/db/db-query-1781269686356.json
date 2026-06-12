@@ -1,0 +1,170 @@
+{
+  "query": "SELECT id, ticker, currency FROM assets WHERE ticker IN ('CMIN3','MBRF3','KEPL3','CYRE3','VALE3','BBAS3','AXIA6','CXSE3','SBSP3','AGRO3','SUZB3','BPAC11','BRAV3','SOJA3','TTEN3','XPML11','INBR32','BBDC4','ORVR3','FLRY3','KLBN11','TSM','BAC','URNM','AURE3','MSFT','BANC','ABBV','UNH','AAPL','NEE','NVIDIA') ORDER BY ticker;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZcBuoEvFxiRzn.f8fe4a2ca095 --database inNn2GrYAEeStrPTZHgZq4 --execute SELECT id, ticker, currency FROM assets WHERE ticker IN ('CMIN3','MBRF3','KEPL3','CYRE3','VALE3','BBAS3','AXIA6','CXSE3','SBSP3','AGRO3','SUZB3','BPAC11','BRAV3','SOJA3','TTEN3','XPML11','INBR32','BBDC4','ORVR3','FLRY3','KLBN11','TSM','BAC','URNM','AURE3','MSFT','BANC','ABBV','UNH','AAPL','NEE','NVIDIA') ORDER BY ticker;",
+  "rows": [
+    {
+      "id": "48",
+      "ticker": "AAPL",
+      "currency": "USD"
+    },
+    {
+      "id": "50",
+      "ticker": "ABBV",
+      "currency": "USD"
+    },
+    {
+      "id": "18",
+      "ticker": "AGRO3",
+      "currency": "BRL"
+    },
+    {
+      "id": "24",
+      "ticker": "AURE3",
+      "currency": "BRL"
+    },
+    {
+      "id": "7",
+      "ticker": "AXIA6",
+      "currency": "BRL"
+    },
+    {
+      "id": "42",
+      "ticker": "BAC",
+      "currency": "USD"
+    },
+    {
+      "id": "44",
+      "ticker": "BANC",
+      "currency": "USD"
+    },
+    {
+      "id": "9",
+      "ticker": "BBAS3",
+      "currency": "BRL"
+    },
+    {
+      "id": "16",
+      "ticker": "BBDC4",
+      "currency": "BRL"
+    },
+    {
+      "id": "6",
+      "ticker": "BPAC11",
+      "currency": "BRL"
+    },
+    {
+      "id": "10",
+      "ticker": "BRAV3",
+      "currency": "BRL"
+    },
+    {
+      "id": "3",
+      "ticker": "CMIN3",
+      "currency": "BRL"
+    },
+    {
+      "id": "15",
+      "ticker": "CXSE3",
+      "currency": "BRL"
+    },
+    {
+      "id": "5",
+      "ticker": "CYRE3",
+      "currency": "BRL"
+    },
+    {
+      "id": "22",
+      "ticker": "FLRY3",
+      "currency": "BRL"
+    },
+    {
+      "id": "12",
+      "ticker": "INBR32",
+      "currency": "BRL"
+    },
+    {
+      "id": "13",
+      "ticker": "KEPL3",
+      "currency": "BRL"
+    },
+    {
+      "id": "23",
+      "ticker": "KLBN11",
+      "currency": "BRL"
+    },
+    {
+      "id": "4",
+      "ticker": "MBRF3",
+      "currency": "BRL"
+    },
+    {
+      "id": "37",
+      "ticker": "MSFT",
+      "currency": "USD"
+    },
+    {
+      "id": "51",
+      "ticker": "NEE",
+      "currency": "USD"
+    },
+    {
+      "id": "39",
+      "ticker": "NVIDIA",
+      "currency": "USD"
+    },
+    {
+      "id": "8",
+      "ticker": "ORVR3",
+      "currency": "BRL"
+    },
+    {
+      "id": "2",
+      "ticker": "SBSP3",
+      "currency": "BRL"
+    },
+    {
+      "id": "21",
+      "ticker": "SOJA3",
+      "currency": "BRL"
+    },
+    {
+      "id": "14",
+      "ticker": "SUZB3",
+      "currency": "BRL"
+    },
+    {
+      "id": "33",
+      "ticker": "TSM",
+      "currency": "USD"
+    },
+    {
+      "id": "11",
+      "ticker": "TTEN3",
+      "currency": "BRL"
+    },
+    {
+      "id": "46",
+      "ticker": "UNH",
+      "currency": "USD"
+    },
+    {
+      "id": "78",
+      "ticker": "URNM",
+      "currency": "USD"
+    },
+    {
+      "id": "1",
+      "ticker": "VALE3",
+      "currency": "BRL"
+    },
+    {
+      "id": "20",
+      "ticker": "XPML11",
+      "currency": "BRL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tticker\tcurrency\n48\tAAPL\tUSD\n50\tABBV\tUSD\n18\tAGRO3\tBRL\n24\tAURE3\tBRL\n7\tAXIA6\tBRL\n42\tBAC\tUSD\n44\tBANC\tUSD\n9\tBBAS3\tBRL\n16\tBBDC4\tBRL\n6\tBPAC11\tBRL\n10\tBRAV3\tBRL\n3\tCMIN3\tBRL\n15\tCXSE3\tBRL\n5\tCYRE3\tBRL\n22\tFLRY3\tBRL\n12\tINBR32\tBRL\n13\tKEPL3\tBRL\n23\tKLBN11\tBRL\n4\tMBRF3\tBRL\n37\tMSFT\tUSD\n51\tNEE\tUSD\n39\tNVIDIA\tUSD\n8\tORVR3\tBRL\n2\tSBSP3\tBRL\n21\tSOJA3\tBRL\n14\tSUZB3\tBRL\n33\tTSM\tUSD\n11\tTTEN3\tBRL\n46\tUNH\tUSD\n78\tURNM\tUSD\n1\tVALE3\tBRL\n20\tXPML11\tBRL\n",
+  "stderr": "",
+  "execution_time_ms": 268
+}

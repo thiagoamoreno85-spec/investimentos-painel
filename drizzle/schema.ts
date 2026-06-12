@@ -122,6 +122,7 @@ export const alerts = mysqlTable("alerts", {
     "above_target",      // Preço acima do preço-alvo
     "below_target",      // Preço abaixo do preço-alvo
     "buy_opportunity",   // Preço < custo médio * (1 - margin)
+    "news_alert",        // Alerta gerado por notícia de alto impacto
   ]).notNull(),
   /** Valor de referência (percentual ou preço) */
   threshold: decimal("threshold", { precision: 18, scale: 4 }).notNull(),
@@ -168,3 +169,37 @@ export const analysisHistory = mysqlTable("analysisHistory", {
 
 export type AnalysisHistory = typeof analysisHistory.$inferSelect;
 export type InsertAnalysisHistory = typeof analysisHistory.$inferInsert;
+
+/**
+ * Notícias analisadas pela IA com impacto nos ativos da carteira
+ */
+export const newsItems = mysqlTable("newsItems", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  /** Título da notícia */
+  title: text("title").notNull(),
+  /** Resumo da notícia gerado pela IA */
+  summary: text("summary"),
+  /** Análise de impacto gerada pela IA */
+  impactAnalysis: text("impactAnalysis"),
+  /** Fonte da notícia */
+  source: varchar("source", { length: 100 }),
+  /** URL da fonte original */
+  sourceUrl: text("sourceUrl"),
+  /** Categoria da notícia */
+  category: mysqlEnum("category", ["brasil", "global", "cripto", "tech", "politica", "macro"]).default("global"),
+  /** Nível de impacto nos ativos da carteira */
+  impactLevel: mysqlEnum("impactLevel", ["alto", "medio", "baixo"]).default("baixo"),
+  /** Sentimento: positivo, negativo ou neutro */
+  sentiment: mysqlEnum("sentiment", ["positivo", "negativo", "neutro"]).default("neutro"),
+  /** Tickers afetados (JSON array string) */
+  affectedTickers: text("affectedTickers"),
+  /** Data de publicação da notícia */
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  /** Se o usuário já leu */
+  isRead: int("isRead").default(0).notNull(),
+});
+
+export type NewsItem = typeof newsItems.$inferSelect;
+export type InsertNewsItem = typeof newsItems.$inferInsert;

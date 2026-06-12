@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, ticker, name, totalQuantity, averageCost, totalCost, currency, sector FROM assets ORDER BY sector, ticker;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZcBuoEvFxiRzn.f8fe4a2ca095 --database inNn2GrYAEeStrPTZHgZq4 --execute SELECT id, ticker, name, totalQuantity, averageCost, totalCost, currency, sector FROM assets ORDER BY sector, ticker;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'sector' in 'field list'"
+  ]
+}

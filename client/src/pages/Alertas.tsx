@@ -95,6 +95,17 @@ const ALERT_TYPES = [
     thresholdLabel: "Threshold (%)",
     showTarget: true,
   },
+  {
+    value: "news_alert",
+    label: "Alerta de Notícia",
+    description: "Gerado automaticamente por notícia de alto impacto na carteira",
+    icon: Bell,
+    color: "text-cyan-500",
+    bg: "bg-cyan-500/10",
+    border: "border-cyan-500/20",
+    thresholdLabel: "Threshold (%)",
+    showTarget: false,
+  },
 ] as const;
 
 export default function Alertas() {

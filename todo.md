@@ -48,3 +48,15 @@
 - [x] Módulo de notícias filtradas por ativos da carteira
 - [ ] Módulo de calendário de resultados/eventos (futuro)
 - [x] Integrar Dashboard de Mercado no menu lateral
+- [x] Página de Notícias dedicada com cards horizontais estilo TradersClub
+- [x] Backend: procedure tRPC para buscar e analisar notícias via LLM com impacto por ativo
+- [x] Cards de notícias com badges dos ativos impactados, link para fonte original
+- [x] Avaliação de impacto: Alto (vermelho) / Médio (amarelo) / Baixo (verde)
+- [x] Filtros: Todas / Brasil / Global / Cripto / Urgentes
+- [x] Painel lateral: Sentimento por setor e ativos mais citados
+- [x] Integração automática: notícia de impacto Alto dispara alerta na tela de Alertas
+- [ ] Atualização automática de notícias a cada 30 minutos (futuro)
+- [x] Integrar Notícias no menu lateral do dashboard
+- [x] Tabela newsItems no schema do banco
+- [x] Tipo news_alert adicionado ao enum de alertas
+- [x] 18 novos testes vitest para módulo de notícias (71 total)

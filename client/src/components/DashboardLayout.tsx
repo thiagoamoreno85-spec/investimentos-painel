@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, PieChart, TrendingUp, Wallet, Settings, LogOut, ArrowLeftRight, Bell, DollarSign, Sparkles, Menu, X, Globe } from "lucide-react";
+import { LayoutDashboard, PieChart, TrendingUp, Wallet, Settings, LogOut, ArrowLeftRight, Bell, DollarSign, Sparkles, Menu, X, Globe, Newspaper } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -16,6 +16,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { logout } = useAuth();
 
   const { data: alertCounts } = trpc.alerts.getAlertCounts.useQuery();
+  const { data: unreadNewsCount } = trpc.news.unreadCount.useQuery();
 
   const navItems = [
     { href: "/", icon: LayoutDashboard, label: "Visão Geral", badge: 0, highlight: false },
@@ -25,6 +26,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { href: "/dividendos", icon: DollarSign, label: "Dividendos", badge: 0, highlight: false },
     { href: "/alertas", icon: Bell, label: "Alertas", badge: alertCounts?.triggered ?? 0, highlight: false },
     { href: "/aportes", icon: Wallet, label: "Aportes", badge: 0, highlight: false },
+    { href: "/noticias", icon: Newspaper, label: "Notícias", badge: unreadNewsCount ?? 0, highlight: false },
     { href: "/melhor-compra", icon: Sparkles, label: "Melhor Compra", badge: 0, highlight: true },
     { href: "/mercado", icon: Globe, label: "Dashboard Mercado", badge: 0, highlight: false },
   ];
@@ -40,7 +42,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <p className="text-xs text-muted-foreground mt-1">Dr. Thiago Moreno</p>
         </div>
 
-        <nav className="flex-1 px-4 space-y-2 mt-4">
+        <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = location === item.href;
             return (
@@ -55,11 +57,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                 }`}
               >
-                <item.icon className={`w-5 h-5 ${item.highlight && !isActive ? "text-amber-400" : ""}`} />
+                <item.icon className={`w-5 h-5 flex-shrink-0 ${item.highlight && !isActive ? "text-amber-400" : ""}`} />
                 <span className="flex-1">{item.label}</span>
                 {item.badge > 0 && (
                   <span className="ml-auto px-1.5 py-0.5 text-xs rounded-full bg-amber-500 text-black font-bold min-w-[20px] text-center">
-                    {item.badge}
+                    {item.badge > 99 ? "99+" : item.badge}
                   </span>
                 )}
               </Link>
@@ -96,7 +98,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* Mobile Nav */}
         {mobileOpen && (
-          <nav className="md:hidden bg-card border-b border-border px-4 py-2 space-y-1">
+          <nav className="md:hidden bg-card border-b border-border px-4 py-2 space-y-1 max-h-[70vh] overflow-y-auto">
             {navItems.map((item) => {
               const isActive = location === item.href;
               return (
@@ -110,11 +112,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                   }`}
                 >
-                  <item.icon className="w-5 h-5" />
+                  <item.icon className="w-5 h-5 flex-shrink-0" />
                   <span className="flex-1">{item.label}</span>
                   {item.badge > 0 && (
                     <span className="ml-auto px-1.5 py-0.5 text-xs rounded-full bg-amber-500 text-black font-bold min-w-[20px] text-center">
-                      {item.badge}
+                      {item.badge > 99 ? "99+" : item.badge}
                     </span>
                   )}
                 </Link>

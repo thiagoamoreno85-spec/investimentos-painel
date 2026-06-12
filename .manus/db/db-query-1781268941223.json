@@ -1,0 +1,64 @@
+{
+  "query": "SELECT id, ticker, name, totalQuantity, averageCost, totalCost, currency FROM assets WHERE ticker IN ('SBSP3', 'TTEN3', 'PLTR', 'LMT', 'URNM', 'INDA', 'INDA ETF') ORDER BY ticker;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZcBuoEvFxiRzn.f8fe4a2ca095 --database inNn2GrYAEeStrPTZHgZq4 --execute SELECT id, ticker, name, totalQuantity, averageCost, totalCost, currency FROM assets WHERE ticker IN ('SBSP3', 'TTEN3', 'PLTR', 'LMT', 'URNM', 'INDA', 'INDA ETF') ORDER BY ticker;",
+  "rows": [
+    {
+      "id": "80",
+      "ticker": "INDA",
+      "name": "INDA ETF",
+      "totalQuantity": "9.83000000",
+      "averageCost": "53.53000000",
+      "totalCost": "526.20",
+      "currency": "USD"
+    },
+    {
+      "id": "30001",
+      "ticker": "LMT",
+      "name": "Lockheed Martin",
+      "totalQuantity": "1.21952000",
+      "averageCost": "2550.92987405",
+      "totalCost": "3110.91",
+      "currency": "USD"
+    },
+    {
+      "id": "30002",
+      "ticker": "PLTR",
+      "name": "Palantir Technologies",
+      "totalQuantity": "2.93492000",
+      "averageCost": "679.93740000",
+      "totalCost": "2003.04",
+      "currency": "USD"
+    },
+    {
+      "id": "2",
+      "ticker": "SBSP3",
+      "name": "SBSP3",
+      "totalQuantity": "3385.00000000",
+      "averageCost": "13.16174003",
+      "totalCost": "44552.49",
+      "currency": "BRL"
+    },
+    {
+      "id": "11",
+      "ticker": "TTEN3",
+      "name": "TTEN3",
+      "totalQuantity": "2615.00000000",
+      "averageCost": "11.17000000",
+      "totalCost": "29209.55",
+      "currency": "BRL"
+    },
+    {
+      "id": "78",
+      "ticker": "URNM",
+      "name": "URNM",
+      "totalQuantity": "112.20000000",
+      "averageCost": "58.95000000",
+      "totalCost": "6614.19",
+      "currency": "USD"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tticker\tname\ttotalQuantity\taverageCost\ttotalCost\tcurrency\n80\tINDA\tINDA ETF\t9.83000000\t53.53000000\t526.20\tUSD\n30001\tLMT\tLockheed Martin\t1.21952000\t2550.92987405\t3110.91\tUSD\n30002\tPLTR\tPalantir Technologies\t2.93492000\t679.93740000\t2003.04\tUSD\n2\tSBSP3\tSBSP3\t3385.00000000\t13.16174003\t44552.49\tBRL\n11\tTTEN3\tTTEN3\t2615.00000000\t11.17000000\t29209.55\tBRL\n78\tURNM\tURNM\t112.20000000\t58.95000000\t6614.19\tUSD\n",
+  "stderr": "",
+  "execution_time_ms": 342
+}

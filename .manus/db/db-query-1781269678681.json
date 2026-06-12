@@ -1,0 +1,532 @@
+{
+  "query": "SELECT id, ticker, name, currency FROM assets ORDER BY ticker;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZcBuoEvFxiRzn.f8fe4a2ca095 --database inNn2GrYAEeStrPTZHgZq4 --execute SELECT id, ticker, name, currency FROM assets ORDER BY ticker;",
+  "rows": [
+    {
+      "id": "62",
+      "ticker": "15_55",
+      "name": "15,55%",
+      "currency": "BRL"
+    },
+    {
+      "id": "48",
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "currency": "USD"
+    },
+    {
+      "id": "50",
+      "ticker": "ABBV",
+      "name": "ABBV",
+      "currency": "USD"
+    },
+    {
+      "id": "18",
+      "ticker": "AGRO3",
+      "name": "AGRO3",
+      "currency": "BRL"
+    },
+    {
+      "id": "43",
+      "ticker": "AMZN",
+      "name": "AMZN",
+      "currency": "USD"
+    },
+    {
+      "id": "24",
+      "ticker": "AURE3",
+      "name": "AURE3",
+      "currency": "BRL"
+    },
+    {
+      "id": "61",
+      "ticker": "AVAX",
+      "name": "AVAX",
+      "currency": "USD"
+    },
+    {
+      "id": "7",
+      "ticker": "AXIA6",
+      "name": "AXIA6",
+      "currency": "BRL"
+    },
+    {
+      "id": "19",
+      "ticker": "AXIA7",
+      "name": "AXIA7",
+      "currency": "BRL"
+    },
+    {
+      "id": "26",
+      "ticker": "AZ_QUEST",
+      "name": "AZ Quest Valore FIR",
+      "currency": "BRL"
+    },
+    {
+      "id": "42",
+      "ticker": "BAC",
+      "name": "BAC",
+      "currency": "USD"
+    },
+    {
+      "id": "44",
+      "ticker": "BANC",
+      "name": "BANC",
+      "currency": "USD"
+    },
+    {
+      "id": "9",
+      "ticker": "BBAS3",
+      "name": "BBAS3",
+      "currency": "BRL"
+    },
+    {
+      "id": "16",
+      "ticker": "BBDC4",
+      "name": "BBDC4",
+      "currency": "BRL"
+    },
+    {
+      "id": "57",
+      "ticker": "BNB",
+      "name": "BNB",
+      "currency": "USD"
+    },
+    {
+      "id": "27",
+      "ticker": "BNP_RUBI",
+      "name": "BNP PARIBAS RUBI",
+      "currency": "BRL"
+    },
+    {
+      "id": "6",
+      "ticker": "BPAC11",
+      "name": "BPAC11",
+      "currency": "BRL"
+    },
+    {
+      "id": "10",
+      "ticker": "BRAV3",
+      "name": "BRAV3",
+      "currency": "BRL"
+    },
+    {
+      "id": "54",
+      "ticker": "BTC",
+      "name": "BTC - BITCOIN",
+      "currency": "USD"
+    },
+    {
+      "id": "58",
+      "ticker": "BTC_BIN",
+      "name": "BTC - BINANCE",
+      "currency": "USD"
+    },
+    {
+      "id": "84",
+      "ticker": "CAIXA",
+      "name": "Caixa Disponível",
+      "currency": "BRL"
+    },
+    {
+      "id": "76",
+      "ticker": "CDI_ISENTO",
+      "name": "99,5% CDI ISENTO",
+      "currency": "BRL"
+    },
+    {
+      "id": "3",
+      "ticker": "CMIN3",
+      "name": "CMIN3",
+      "currency": "BRL"
+    },
+    {
+      "id": "41",
+      "ticker": "CRWD",
+      "name": "CRWD",
+      "currency": "USD"
+    },
+    {
+      "id": "49",
+      "ticker": "CRWV",
+      "name": "CRWV",
+      "currency": "USD"
+    },
+    {
+      "id": "38",
+      "ticker": "CVX",
+      "name": "CVX",
+      "currency": "USD"
+    },
+    {
+      "id": "15",
+      "ticker": "CXSE3",
+      "name": "CXSE3",
+      "currency": "BRL"
+    },
+    {
+      "id": "5",
+      "ticker": "CYRE3",
+      "name": "CYRE3",
+      "currency": "BRL"
+    },
+    {
+      "id": "17",
+      "ticker": "CYRE4",
+      "name": "CYRE4",
+      "currency": "BRL"
+    },
+    {
+      "id": "85",
+      "ticker": "DIVIDENDOS",
+      "name": "Dividendos a Receber",
+      "currency": "BRL"
+    },
+    {
+      "id": "52",
+      "ticker": "ENPH",
+      "name": "ENPH",
+      "currency": "USD"
+    },
+    {
+      "id": "55",
+      "ticker": "ETH",
+      "name": "ETHEREUM",
+      "currency": "USD"
+    },
+    {
+      "id": "59",
+      "ticker": "ETH_BIN",
+      "name": "ETH - BINANCE",
+      "currency": "USD"
+    },
+    {
+      "id": "29",
+      "ticker": "FGTS",
+      "name": "FGTS",
+      "currency": "BRL"
+    },
+    {
+      "id": "22",
+      "ticker": "FLRY3",
+      "name": "FLRY3",
+      "currency": "BRL"
+    },
+    {
+      "id": "35",
+      "ticker": "GOOGL",
+      "name": "GOOGL",
+      "currency": "USD"
+    },
+    {
+      "id": "82",
+      "ticker": "HDB",
+      "name": "HDB ADR",
+      "currency": "USD"
+    },
+    {
+      "id": "83",
+      "ticker": "IBN",
+      "name": "IBN ADR",
+      "currency": "USD"
+    },
+    {
+      "id": "12",
+      "ticker": "INBR32",
+      "name": "INBR32",
+      "currency": "BRL"
+    },
+    {
+      "id": "80",
+      "ticker": "INDA",
+      "name": "INDA ETF",
+      "currency": "USD"
+    },
+    {
+      "id": "81",
+      "ticker": "INFY",
+      "name": "INFY ADR",
+      "currency": "USD"
+    },
+    {
+      "id": "63",
+      "ticker": "IPCA_6_55",
+      "name": "IPCA+6,55%",
+      "currency": "BRL"
+    },
+    {
+      "id": "66",
+      "ticker": "IPCA_6_85",
+      "name": "IPCA+6,85",
+      "currency": "BRL"
+    },
+    {
+      "id": "67",
+      "ticker": "IPCA_7_01",
+      "name": "IPCA+7,01%",
+      "currency": "BRL"
+    },
+    {
+      "id": "68",
+      "ticker": "IPCA_7_4",
+      "name": "IPCA+7,4%",
+      "currency": "BRL"
+    },
+    {
+      "id": "64",
+      "ticker": "IPCA_7_95",
+      "name": "IPCA+7,95%",
+      "currency": "BRL"
+    },
+    {
+      "id": "75",
+      "ticker": "IPCA_8_25_1",
+      "name": "IPCA+8,25%",
+      "currency": "BRL"
+    },
+    {
+      "id": "65",
+      "ticker": "IPCA_8_25_2",
+      "name": "IPCA+8,25%",
+      "currency": "BRL"
+    },
+    {
+      "id": "77",
+      "ticker": "IPCA_8_3",
+      "name": "IPCA+8,3%",
+      "currency": "BRL"
+    },
+    {
+      "id": "74",
+      "ticker": "IPCA_8_8",
+      "name": "IPCA+8,8%",
+      "currency": "BRL"
+    },
+    {
+      "id": "13",
+      "ticker": "KEPL3",
+      "name": "KEPL3",
+      "currency": "BRL"
+    },
+    {
+      "id": "25",
+      "ticker": "KINEA_GAMA",
+      "name": "KINEA GAMA FIFI CI",
+      "currency": "BRL"
+    },
+    {
+      "id": "23",
+      "ticker": "KLBN11",
+      "name": "KLBN11",
+      "currency": "BRL"
+    },
+    {
+      "id": "30001",
+      "ticker": "LMT",
+      "name": "Lockheed Martin",
+      "currency": "USD"
+    },
+    {
+      "id": "4",
+      "ticker": "MBRF3",
+      "name": "MBRF3",
+      "currency": "BRL"
+    },
+    {
+      "id": "37",
+      "ticker": "MSFT",
+      "name": "MSFT",
+      "currency": "USD"
+    },
+    {
+      "id": "34",
+      "ticker": "MU",
+      "name": "MU",
+      "currency": "USD"
+    },
+    {
+      "id": "51",
+      "ticker": "NEE",
+      "name": "NEE",
+      "currency": "USD"
+    },
+    {
+      "id": "40",
+      "ticker": "NET",
+      "name": "NET",
+      "currency": "USD"
+    },
+    {
+      "id": "39",
+      "ticker": "NVIDIA",
+      "name": "NVIDIA",
+      "currency": "USD"
+    },
+    {
+      "id": "8",
+      "ticker": "ORVR3",
+      "name": "ORVR3",
+      "currency": "BRL"
+    },
+    {
+      "id": "45",
+      "ticker": "PGEN",
+      "name": "PGEN",
+      "currency": "USD"
+    },
+    {
+      "id": "30002",
+      "ticker": "PLTR",
+      "name": "Palantir Technologies",
+      "currency": "USD"
+    },
+    {
+      "id": "72",
+      "ticker": "PRE_14_90",
+      "name": "PRÉ 14,90% AA",
+      "currency": "BRL"
+    },
+    {
+      "id": "70",
+      "ticker": "PRE_15",
+      "name": "PRÉ 15%",
+      "currency": "BRL"
+    },
+    {
+      "id": "71",
+      "ticker": "PRE_15_05",
+      "name": "PRÉ 15,05% AA",
+      "currency": "BRL"
+    },
+    {
+      "id": "73",
+      "ticker": "PRE_15_31",
+      "name": "PRÉ 15,31% AA",
+      "currency": "BRL"
+    },
+    {
+      "id": "2",
+      "ticker": "SBSP3",
+      "name": "SBSP3",
+      "currency": "BRL"
+    },
+    {
+      "id": "69",
+      "ticker": "SELIC_31",
+      "name": "TESOURO SELIC 31",
+      "currency": "BRL"
+    },
+    {
+      "id": "31",
+      "ticker": "SISPRIME",
+      "name": "SISPRIME",
+      "currency": "BRL"
+    },
+    {
+      "id": "21",
+      "ticker": "SOJA3",
+      "name": "SOJA3",
+      "currency": "BRL"
+    },
+    {
+      "id": "56",
+      "ticker": "SOL",
+      "name": "SOL",
+      "currency": "USD"
+    },
+    {
+      "id": "60",
+      "ticker": "SOL_BIN",
+      "name": "SOL - BINANCE",
+      "currency": "USD"
+    },
+    {
+      "id": "53",
+      "ticker": "SOUN",
+      "name": "SOUN",
+      "currency": "USD"
+    },
+    {
+      "id": "14",
+      "ticker": "SUZB3",
+      "name": "SUZB3",
+      "currency": "BRL"
+    },
+    {
+      "id": "30",
+      "ticker": "TC_COSMOS",
+      "name": "TC COSMOS - GENIA",
+      "currency": "BRL"
+    },
+    {
+      "id": "32",
+      "ticker": "TREND_INV",
+      "name": "TREND INVESTBACK",
+      "currency": "BRL"
+    },
+    {
+      "id": "36",
+      "ticker": "TSLA",
+      "name": "TSLA",
+      "currency": "USD"
+    },
+    {
+      "id": "33",
+      "ticker": "TSM",
+      "name": "TSM",
+      "currency": "USD"
+    },
+    {
+      "id": "11",
+      "ticker": "TTEN3",
+      "name": "TTEN3",
+      "currency": "BRL"
+    },
+    {
+      "id": "47",
+      "ticker": "TWST",
+      "name": "TWST",
+      "currency": "USD"
+    },
+    {
+      "id": "46",
+      "ticker": "UNH",
+      "name": "UNH",
+      "currency": "USD"
+    },
+    {
+      "id": "79",
+      "ticker": "URA",
+      "name": "URA",
+      "currency": "USD"
+    },
+    {
+      "id": "78",
+      "ticker": "URNM",
+      "name": "URNM",
+      "currency": "USD"
+    },
+    {
+      "id": "1",
+      "ticker": "VALE3",
+      "name": "VALE3",
+      "currency": "BRL"
+    },
+    {
+      "id": "28",
+      "ticker": "XP_ELET3",
+      "name": "XP FMP ELET3",
+      "currency": "BRL"
+    },
+    {
+      "id": "20",
+      "ticker": "XPML11",
+      "name": "XPML11",
+      "currency": "BRL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tticker\tname\tcurrency\n62\t15_55\t15,55%\tBRL\n48\tAAPL\tAAPL\tUSD\n50\tABBV\tABBV\tUSD\n18\tAGRO3\tAGRO3\tBRL\n43\tAMZN\tAMZN\tUSD\n24\tAURE3\tAURE3\tBRL\n61\tAVAX\tAVAX\tUSD\n7\tAXIA6\tAXIA6\tBRL\n19\tAXIA7\tAXIA7\tBRL\n26\tAZ_QUEST\tAZ Quest Valore FIR\tBRL\n42\tBAC\tBAC\tUSD\n44\tBANC\tBANC\tUSD\n9\tBBAS3\tBBAS3\tBRL\n16\tBBDC4\tBBDC4\tBRL\n57\tBNB\tBNB\tUSD\n27\tBNP_RUBI\tBNP PARIBAS RUBI\tBRL\n6\tBPAC11\tBPAC11\tBRL\n10\tBRAV3\tBRAV3\tBRL\n54\tBTC\tBTC - BITCOIN\tUSD\n58\tBTC_BIN\tBTC - BINANCE\tUSD\n84\tCAIXA\tCaixa Disponível\tBRL\n76\tCDI_ISENTO\t99,5% CDI ISENTO\tBRL\n3\tCMIN3\tCMIN3\tBRL\n41\tCRWD\tCRWD\tUSD\n49\tCRWV\tCRWV\tUSD\n38\tCVX\tCVX\tUSD\n15\tCXSE3\tCXSE3\tBRL\n5\tCYRE3\tCYRE3\tBRL\n17\tCYRE4\tCYRE4\tBRL\n85\tDIVIDENDOS\tDividendos a Receber\tBRL\n52\tENPH\tENPH\tUSD\n55\tETH\tETHEREUM\tUSD\n59\tETH_BIN\tETH - BINANCE\tUSD\n29\tFGTS\tFGTS\tBRL\n22\tFLRY3\tFLRY3\tBRL\n35\tGOOGL\tGOOGL\tUSD\n82\tHDB\tHDB ADR\tUSD\n83\tIBN\tIBN ADR\tUSD\n12\tINBR32\tINBR32\tBRL\n80\tINDA\tINDA ETF\tUSD\n81\tINFY\tINFY ADR\tUSD\n63\tIPCA_6_55\tIPCA+6,55%\tBRL\n66\tIPCA_6_85\tIPCA+6,85\tBRL\n67\tIPCA_7_01\tIPCA+7,01%\tBRL\n68\tIPCA_7_4\tIPCA+7,4%\tBRL\n64\tIPCA_7_95\tIPCA+7,95%\tBRL\n75\tIPCA_8_25_1\tIPCA+8,25%\tBRL\n65\tIPCA_8_25_2\tIPCA+8,25%\tBRL\n77\tIPCA_8_3\tIPCA+8,3%\tBRL\n74\tIPCA_8_8\tIPCA+8,8%\tBRL\n13\tKEPL3\tKEPL3\tBRL\n25\tKINEA_GAMA\tKINEA GAMA FIFI CI\tBRL\n23\tKLBN11\tKLBN11\tBRL\n30001\tLMT\tLockheed Martin\tUSD\n4\tMBRF3\tMBRF3\tBRL\n37\tMSFT\tMSFT\tUSD\n34\tMU\tMU\tUSD\n51\tNEE\tNEE\tUSD\n40\tNET\tNET\tUSD\n39\tNVIDIA\tNVIDIA\tUSD\n8\tORVR3\tORVR3\tBRL\n45\tPGEN\tPGEN\tUSD\n30002\tPLTR\tPalantir Technologies\tUSD\n72\tPRE_14_90\tPRÉ 14,90% AA\tBRL\n70\tPRE_15\tPRÉ 15%\tBRL\n71\tPRE_15_05\tPRÉ 15,05% AA\tBRL\n73\tPRE_15_31\tPRÉ 15,31% AA\tBRL\n2\tSBSP3\tSBSP3\tBRL\n69\tSELIC_31\tTESOURO SELIC 31\tBRL\n31\tSISPRIME\tSISPRIME\tBRL\n21\tSOJA3\tSOJA3\tBRL\n56\tSOL\tSOL\tUSD\n60\tSOL_BIN\tSOL - BINANCE\tUSD\n53\tSOUN\tSOUN\tUSD\n14\tSUZB3\tSUZB3\tBRL\n30\tTC_COSMOS\tTC COSMOS - GENIA\tBRL\n32\tTREND_INV\tTREND INVESTBACK\tBRL\n36\tTSLA\tTSLA\tUSD\n33\tTSM\tTSM\tUSD\n11\tTTEN3\tTTEN3\tBRL\n47\tTWST\tTWST\tUSD\n46\tUNH\tUNH\tUSD\n79\tURA\tURA\tUSD\n78\tURNM\tURNM\tUSD\n1\tVALE3\tVALE3\tBRL\n28\tXP_ELET3\tXP FMP ELET3\tBRL\n20\tXPML11\tXPML11\tBRL\n",
+  "stderr": "",
+  "execution_time_ms": 264
+}

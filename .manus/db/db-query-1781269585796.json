@@ -1,0 +1,17 @@
+{
+  "query": "SELECT \n  SUM(CASE WHEN currency = 'BRL' THEN CAST(totalQuantity AS DECIMAL(18,8)) * CAST(lastPrice AS DECIMAL(18,8)) ELSE 0 END) as total_brl_market,\n  SUM(CASE WHEN currency = 'USD' THEN CAST(totalQuantity AS DECIMAL(18,8)) * CAST(lastPrice AS DECIMAL(18,8)) ELSE 0 END) as total_usd_market,\n  SUM(CASE WHEN currency = 'BRL' THEN CAST(totalCost AS DECIMAL(18,2)) ELSE 0 END) as total_brl_cost,\n  SUM(CASE WHEN currency = 'USD' THEN CAST(totalCost AS DECIMAL(18,2)) ELSE 0 END) as total_usd_cost,\n  COUNT(*) as total_ativos\nFROM assets;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZcBuoEvFxiRzn.f8fe4a2ca095 --database inNn2GrYAEeStrPTZHgZq4 --execute SELECT \n  SUM(CASE WHEN currency = 'BRL' THEN CAST(totalQuantity AS DECIMAL(18,8)) * CAST(lastPrice AS DECIMAL(18,8)) ELSE 0 END) as total_brl_market,\n  SUM(CASE WHEN currency = 'USD' THEN CAST(totalQuantity AS DECIMAL(18,8)) * CAST(lastPrice AS DECIMAL(18,8)) ELSE 0 END) as total_usd_market,\n  SUM(CASE WHEN currency = 'BRL' THEN CAST(totalCost AS DECIMAL(18,2)) ELSE 0 END) as total_brl_cost,\n  SUM(CASE WHEN currency = 'USD' THEN CAST(totalCost AS DECIMAL(18,2)) ELSE 0 END) as total_usd_cost,\n  COUNT(*) as total_ativos\nFROM assets;",
+  "rows": [
+    {
+      "total_brl_market": "1370666.1700000000000000",
+      "total_usd_market": "85228.3522860800000000",
+      "total_brl_cost": "1195509.03",
+      "total_usd_cost": "70295.52",
+      "total_ativos": "87"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_brl_market\ttotal_usd_market\ttotal_brl_cost\ttotal_usd_cost\ttotal_ativos\n1370666.1700000000000000\t85228.3522860800000000\t1195509.03\t70295.52\t87\n",
+  "stderr": "",
+  "execution_time_ms": 256
+}

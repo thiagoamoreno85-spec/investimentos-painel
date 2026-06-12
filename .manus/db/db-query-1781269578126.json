@@ -1,0 +1,706 @@
+{
+  "query": "SELECT ticker, totalQuantity, averageCost, totalCost, lastPrice, currency FROM assets ORDER BY ticker LIMIT 100;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZcBuoEvFxiRzn.f8fe4a2ca095 --database inNn2GrYAEeStrPTZHgZq4 --execute SELECT ticker, totalQuantity, averageCost, totalCost, lastPrice, currency FROM assets ORDER BY ticker LIMIT 100;",
+  "rows": [
+    {
+      "ticker": "15_55",
+      "totalQuantity": "1.00000000",
+      "averageCost": "5000.00000000",
+      "totalCost": "5000.00",
+      "lastPrice": "5918.36000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "AAPL",
+      "totalQuantity": "2.08000000",
+      "averageCost": "212.43000000",
+      "totalCost": "441.85",
+      "lastPrice": "295.63000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "ABBV",
+      "totalQuantity": "0.85000000",
+      "averageCost": "203.48000000",
+      "totalCost": "172.96",
+      "lastPrice": "224.77000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "AGRO3",
+      "totalQuantity": "735.00000000",
+      "averageCost": "23.94000000",
+      "totalCost": "17595.90",
+      "lastPrice": "18.84000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "AMZN",
+      "totalQuantity": "9.42617000",
+      "averageCost": "186.79991765",
+      "totalCost": "1760.81",
+      "lastPrice": "241.51000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "AURE3",
+      "totalQuantity": "353.00000000",
+      "averageCost": "11.74000000",
+      "totalCost": "4144.22",
+      "lastPrice": "11.75000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "AVAX",
+      "totalQuantity": "31.39455000",
+      "averageCost": "38.65000000",
+      "totalCost": "1213.40",
+      "lastPrice": "6.62000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "AXIA6",
+      "totalQuantity": "967.00000000",
+      "averageCost": "41.05000000",
+      "totalCost": "39695.35",
+      "lastPrice": "55.78000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "AXIA7",
+      "totalQuantity": "246.00000000",
+      "averageCost": "30.10000000",
+      "totalCost": "7404.60",
+      "lastPrice": "50.87000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "AZ_QUEST",
+      "totalQuantity": "1.00000000",
+      "averageCost": "54605.13000000",
+      "totalCost": "54605.13",
+      "lastPrice": "55402.73000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "BAC",
+      "totalQuantity": "33.97000000",
+      "averageCost": "31.76000000",
+      "totalCost": "1078.89",
+      "lastPrice": "55.16000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "BANC",
+      "totalQuantity": "59.64000000",
+      "averageCost": "14.52000000",
+      "totalCost": "865.97",
+      "lastPrice": "19.87000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "BBAS3",
+      "totalQuantity": "2130.00000000",
+      "averageCost": "20.41000000",
+      "totalCost": "43473.30",
+      "lastPrice": "19.41000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "BBDC4",
+      "totalQuantity": "1042.00000000",
+      "averageCost": "14.83000000",
+      "totalCost": "15452.86",
+      "lastPrice": "17.68000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "BNB",
+      "totalQuantity": "1.56109000",
+      "averageCost": "3602.00000000",
+      "totalCost": "5623.05",
+      "lastPrice": "605.29000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "BNP_RUBI",
+      "totalQuantity": "1.00000000",
+      "averageCost": "52589.76000000",
+      "totalCost": "52589.76",
+      "lastPrice": "53380.86000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "BPAC11",
+      "totalQuantity": "1122.00000000",
+      "averageCost": "34.11000000",
+      "totalCost": "38271.42",
+      "lastPrice": "50.48000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "BRAV3",
+      "totalQuantity": "2241.00000000",
+      "averageCost": "29.85000000",
+      "totalCost": "66893.85",
+      "lastPrice": "21.05000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "BTC",
+      "totalQuantity": "0.09997200",
+      "averageCost": "69558.53741572",
+      "totalCost": "6953.91",
+      "lastPrice": "63385.30000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "BTC_BIN",
+      "totalQuantity": "0.01407000",
+      "averageCost": "0.00000000",
+      "totalCost": "0.00",
+      "lastPrice": "63385.30000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "CAIXA",
+      "totalQuantity": "1.00000000",
+      "averageCost": "36533.64000000",
+      "totalCost": "36533.64",
+      "lastPrice": "36533.64000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "CDI_ISENTO",
+      "totalQuantity": "1.00000000",
+      "averageCost": "1054.30000000",
+      "totalCost": "1054.30",
+      "lastPrice": "1051.98000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "CMIN3",
+      "totalQuantity": "21817.00000000",
+      "averageCost": "4.85986249",
+      "totalCost": "106027.62",
+      "lastPrice": "4.34000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "CRWD",
+      "totalQuantity": "4.00000000",
+      "averageCost": "307.44000000",
+      "totalCost": "1229.76",
+      "lastPrice": "691.53000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "CRWV",
+      "totalQuantity": "3.08000000",
+      "averageCost": "119.55000000",
+      "totalCost": "368.21",
+      "lastPrice": "95.74000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "CVX",
+      "totalQuantity": "16.29000000",
+      "averageCost": "161.62000000",
+      "totalCost": "2632.79",
+      "lastPrice": "185.82000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "CXSE3",
+      "totalQuantity": "1733.00000000",
+      "averageCost": "12.12000000",
+      "totalCost": "21003.96",
+      "lastPrice": "18.64000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "CYRE3",
+      "totalQuantity": "2679.00000000",
+      "averageCost": "20.83000000",
+      "totalCost": "55803.57",
+      "lastPrice": "21.10000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "CYRE4",
+      "totalQuantity": "507.00000000",
+      "averageCost": "26.00000000",
+      "totalCost": "13182.00",
+      "lastPrice": "19.21000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "DIVIDENDOS",
+      "totalQuantity": "1.00000000",
+      "averageCost": "5392.27000000",
+      "totalCost": "5392.27",
+      "lastPrice": "5392.27000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "ENPH",
+      "totalQuantity": "1.90000000",
+      "averageCost": "42.46000000",
+      "totalCost": "80.67",
+      "lastPrice": "54.93000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "ETH",
+      "totalQuantity": "2.64753000",
+      "averageCost": "3123.58818058",
+      "totalCost": "8269.79",
+      "lastPrice": "1664.63000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "ETH_BIN",
+      "totalQuantity": "0.30950000",
+      "averageCost": "0.00000000",
+      "totalCost": "0.00",
+      "lastPrice": "1664.63000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "FGTS",
+      "totalQuantity": "1.00000000",
+      "averageCost": "0.00000000",
+      "totalCost": "0.00",
+      "lastPrice": "38717.65000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "FLRY3",
+      "totalQuantity": "641.00000000",
+      "averageCost": "17.39000000",
+      "totalCost": "11146.99",
+      "lastPrice": "15.16000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "GOOGL",
+      "totalQuantity": "18.23012000",
+      "averageCost": "262.78435907",
+      "totalCost": "4790.59",
+      "lastPrice": "357.77000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "HDB",
+      "totalQuantity": "2.93000000",
+      "averageCost": "35.48000000",
+      "totalCost": "103.96",
+      "lastPrice": "23.81000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "IBN",
+      "totalQuantity": "1.04000000",
+      "averageCost": "31.73000000",
+      "totalCost": "33.00",
+      "lastPrice": "27.46000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "INBR32",
+      "totalQuantity": "1037.00000000",
+      "averageCost": "36.02000000",
+      "totalCost": "37352.74",
+      "lastPrice": "29.22000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "INDA",
+      "totalQuantity": "18.07384000",
+      "averageCost": "51.16500000",
+      "totalCost": "925.20",
+      "lastPrice": "47.79000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "INFY",
+      "totalQuantity": "11.54000000",
+      "averageCost": "17.64000000",
+      "totalCost": "203.57",
+      "lastPrice": "11.60000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "IPCA_6_55",
+      "totalQuantity": "1.00000000",
+      "averageCost": "5000.00000000",
+      "totalCost": "5000.00",
+      "lastPrice": "5848.39000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "IPCA_6_85",
+      "totalQuantity": "1.00000000",
+      "averageCost": "4000.00000000",
+      "totalCost": "4000.00",
+      "lastPrice": "4757.97000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "IPCA_7_01",
+      "totalQuantity": "1.00000000",
+      "averageCost": "4234.47000000",
+      "totalCost": "4234.47",
+      "lastPrice": "4567.47000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "IPCA_7_4",
+      "totalQuantity": "1.00000000",
+      "averageCost": "7818.69000000",
+      "totalCost": "7818.69",
+      "lastPrice": "3418.08000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "IPCA_7_95",
+      "totalQuantity": "1.00000000",
+      "averageCost": "5000.00000000",
+      "totalCost": "5000.00",
+      "lastPrice": "5682.97000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "IPCA_8_25_1",
+      "totalQuantity": "1.00000000",
+      "averageCost": "877.49000000",
+      "totalCost": "877.49",
+      "lastPrice": "1108.12000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "IPCA_8_25_2",
+      "totalQuantity": "1.00000000",
+      "averageCost": "3999.95000000",
+      "totalCost": "3999.95",
+      "lastPrice": "5008.39000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "IPCA_8_3",
+      "totalQuantity": "1.00000000",
+      "averageCost": "499.69000000",
+      "totalCost": "499.69",
+      "lastPrice": "338.03000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "IPCA_8_8",
+      "totalQuantity": "1.00000000",
+      "averageCost": "974.77000000",
+      "totalCost": "974.77",
+      "lastPrice": "1204.77000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "KEPL3",
+      "totalQuantity": "4612.00000000",
+      "averageCost": "8.31000000",
+      "totalCost": "38325.72",
+      "lastPrice": "6.49000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "KINEA_GAMA",
+      "totalQuantity": "1.00000000",
+      "averageCost": "105666.39000000",
+      "totalCost": "105666.39",
+      "lastPrice": "103553.74000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "KLBN11",
+      "totalQuantity": "432.00000000",
+      "averageCost": "18.79000000",
+      "totalCost": "8117.28",
+      "lastPrice": "16.78000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "LMT",
+      "totalQuantity": "2.91014000",
+      "averageCost": "517.37303000",
+      "totalCost": "1505.64",
+      "lastPrice": "548.68000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "MBRF3",
+      "totalQuantity": "4120.00000000",
+      "averageCost": "13.30000000",
+      "totalCost": "54796.00",
+      "lastPrice": "16.00000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "MSFT",
+      "totalQuantity": "15.74254000",
+      "averageCost": "419.56266031",
+      "totalCost": "6604.98",
+      "lastPrice": "390.34000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "MU",
+      "totalQuantity": "12.77000000",
+      "averageCost": "89.79000000",
+      "totalCost": "1146.62",
+      "lastPrice": "995.87000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "NEE",
+      "totalQuantity": "1.56000000",
+      "averageCost": "70.41000000",
+      "totalCost": "109.84",
+      "lastPrice": "84.84000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "NET",
+      "totalQuantity": "10.22000000",
+      "averageCost": "76.36000000",
+      "totalCost": "780.40",
+      "lastPrice": "227.44000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "NVIDIA",
+      "totalQuantity": "26.09021000",
+      "averageCost": "194.83596451",
+      "totalCost": "5083.31",
+      "lastPrice": "204.87000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "ORVR3",
+      "totalQuantity": "677.00000000",
+      "averageCost": "31.66000000",
+      "totalCost": "21433.82",
+      "lastPrice": "77.86000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "PGEN",
+      "totalQuantity": "206.41000000",
+      "averageCost": "1.99000000",
+      "totalCost": "410.76",
+      "lastPrice": "4.53000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "PLTR",
+      "totalQuantity": "7.03404000",
+      "averageCost": "136.95502000",
+      "totalCost": "963.08",
+      "lastPrice": "131.08000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "PRE_14_90",
+      "totalQuantity": "1.00000000",
+      "averageCost": "1146.71000000",
+      "totalCost": "1146.71",
+      "lastPrice": "1529.83000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "PRE_15",
+      "totalQuantity": "1.00000000",
+      "averageCost": "2949.31000000",
+      "totalCost": "2949.31",
+      "lastPrice": "3271.62000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "PRE_15_05",
+      "totalQuantity": "1.00000000",
+      "averageCost": "1058.98000000",
+      "totalCost": "1058.98",
+      "lastPrice": "1534.77000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "PRE_15_31",
+      "totalQuantity": "1.00000000",
+      "averageCost": "930.94000000",
+      "totalCost": "930.94",
+      "lastPrice": "1426.52000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "SBSP3",
+      "totalQuantity": "3685.00000000",
+      "averageCost": "14.52133000",
+      "totalCost": "53511.10",
+      "lastPrice": "27.85000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "SELIC_31",
+      "totalQuantity": "1.00000000",
+      "averageCost": "3208.66000000",
+      "totalCost": "3208.66",
+      "lastPrice": "3350.30000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "SISPRIME",
+      "totalQuantity": "1.00000000",
+      "averageCost": "4550.00000000",
+      "totalCost": "4550.00",
+      "lastPrice": "6689.16000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "SOJA3",
+      "totalQuantity": "1503.00000000",
+      "averageCost": "11.74000000",
+      "totalCost": "17645.22",
+      "lastPrice": "6.31000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "SOL",
+      "totalQuantity": "32.63626000",
+      "averageCost": "138.06219500",
+      "totalCost": "4505.83",
+      "lastPrice": "66.77000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "SOL_BIN",
+      "totalQuantity": "7.10772400",
+      "averageCost": "0.00000000",
+      "totalCost": "0.00",
+      "lastPrice": "66.77000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "SOUN",
+      "totalQuantity": "6.14000000",
+      "averageCost": "9.45000000",
+      "totalCost": "58.02",
+      "lastPrice": "7.00000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "SUZB3",
+      "totalQuantity": "758.00000000",
+      "averageCost": "58.84000000",
+      "totalCost": "44600.72",
+      "lastPrice": "41.29000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "TC_COSMOS",
+      "totalQuantity": "1.00000000",
+      "averageCost": "19796.10000000",
+      "totalCost": "19796.10",
+      "lastPrice": "35652.15000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "TREND_INV",
+      "totalQuantity": "1.00000000",
+      "averageCost": "59.98000000",
+      "totalCost": "59.98",
+      "lastPrice": "63.42000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "TSLA",
+      "totalQuantity": "10.57000000",
+      "averageCost": "194.77000000",
+      "totalCost": "2058.72",
+      "lastPrice": "399.15000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "TSM",
+      "totalQuantity": "16.62000000",
+      "averageCost": "141.96000000",
+      "totalCost": "2359.38",
+      "lastPrice": "421.07000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "TTEN3",
+      "totalQuantity": "2735.00000000",
+      "averageCost": "11.41631000",
+      "totalCost": "31223.60",
+      "lastPrice": "14.70000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "TWST",
+      "totalQuantity": "9.14000000",
+      "averageCost": "29.16000000",
+      "totalCost": "266.52",
+      "lastPrice": "74.05000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "UNH",
+      "totalQuantity": "1.72000000",
+      "averageCost": "318.12000000",
+      "totalCost": "547.17",
+      "lastPrice": "405.55000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "URA",
+      "totalQuantity": "4.44000000",
+      "averageCost": "52.45000000",
+      "totalCost": "232.88",
+      "lastPrice": "44.83000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "URNM",
+      "totalQuantity": "117.28996000",
+      "averageCost": "58.94631000",
+      "totalCost": "6913.99",
+      "lastPrice": "54.29000000",
+      "currency": "USD"
+    },
+    {
+      "ticker": "VALE3",
+      "totalQuantity": "1346.00000000",
+      "averageCost": "63.45000000",
+      "totalCost": "85403.70",
+      "lastPrice": "78.80000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "XP_ELET3",
+      "totalQuantity": "1.00000000",
+      "averageCost": "24477.28000000",
+      "totalCost": "24477.28",
+      "lastPrice": "46582.55000000",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "XPML11",
+      "totalQuantity": "114.00000000",
+      "averageCost": "101.57000000",
+      "totalCost": "11578.98",
+      "lastPrice": "104.30000000",
+      "currency": "BRL"
+    }
+  ],
+  "messages": [],
+  "stdout": "ticker\ttotalQuantity\taverageCost\ttotalCost\tlastPrice\tcurrency\n15_55\t1.00000000\t5000.00000000\t5000.00\t5918.36000000\tBRL\nAAPL\t2.08000000\t212.43000000\t441.85\t295.63000000\tUSD\nABBV\t0.85000000\t203.48000000\t172.96\t224.77000000\tUSD\nAGRO3\t735.00000000\t23.94000000\t17595.90\t18.84000000\tBRL\nAMZN\t9.42617000\t186.79991765\t1760.81\t241.51000000\tUSD\nAURE3\t353.00000000\t11.74000000\t4144.22\t11.75000000\tBRL\nAVAX\t31.39455000\t38.65000000\t1213.40\t6.62000000\tUSD\nAXIA6\t967.00000000\t41.05000000\t39695.35\t55.78000000\tBRL\nAXIA7\t246.00000000\t30.10000000\t7404.60\t50.87000000\tBRL\nAZ_QUEST\t1.00000000\t54605.13000000\t54605.13\t55402.73000000\tBRL\nBAC\t33.97000000\t31.76000000\t1078.89\t55.16000000\tUSD\nBANC\t59.64000000\t14.52000000\t865.97\t19.87000000\tUSD\nBBAS3\t2130.00000000\t20.41000000\t43473.30\t19.41000000\tBRL\nBBDC4\t1042.00000000\t14.83000000\t15452.86\t17.68000000\tBRL\nBNB\t1.56109000\t3602.00000000\t5623.05\t605.29000000\tUSD\nBNP_RUBI\t1.00000000\t52589.76000000\t52589.76\t53380.86000000\tBRL\nBPAC11\t1122.00000000\t34.11000000\t38271.42\t50.48000000\tBRL\nBRAV3\t2241.00000000\t29.85000000\t66893.85\t21.05000000\tBRL\nBTC\t0.09997200\t69558.53741572\t6953.91\t63385.30000000\tUSD\nBTC_BIN\t0.01407000\t0.00000000\t0.00\t63385.30000000\tUSD\nCAIXA\t1.00000000\t36533.64000000\t36533.64\t36533.64000000\tBRL\nCDI_ISENTO\t1.00000000\t1054.30000000\t1054.30\t1051.98000000\tBRL\nCMIN3\t21817.00000000\t4.85986249\t106027.62\t4.34000000\tBRL\nCRWD\t4.00000000\t307.44000000\t1229.76\t691.53000000\tUSD\nCRWV\t3.08000000\t119.55000000\t368.21\t95.74000000\tUSD\nCVX\t16.29000000\t161.62000000\t2632.79\t185.82000000\tUSD\nCXSE3\t1733.00000000\t12.12000000\t21003.96\t18.64000000\tBRL\nCYRE3\t2679.00000000\t20.83000000\t55803.57\t21.10000000\tBRL\nCYRE4\t507.00000000\t26.00000000\t13182.00\t19.21000000\tBRL\nDIVIDENDOS\t1.00000000\t5392.27000000\t5392.27\t5392.27000000\tBRL\nENPH\t1.90000000\t42.46000000\t80.67\t54.93000000\tUSD\nETH\t2.64753000\t3123.58818058\t8269.79\t1664.63000000\tUSD\nETH_BIN\t0.30950000\t0.00000000\t0.00\t1664.63000000\tUSD\nFGTS\t1.00000000\t0.00000000\t0.00\t38717.65000000\tBRL\nFLRY3\t641.00000000\t17.39000000\t11146.99\t15.16000000\tBRL\nGOOGL\t18.23012000\t262.78435907\t4790.59\t357.77000000\tUSD\nHDB\t2.93000000\t35.48000000\t103.96\t23.81000000\tUSD\nIBN\t1.04000000\t31.73000000\t33.00\t27.46000000\tUSD\nINBR32\t1037.00000000\t36.02000000\t37352.74\t29.22000000\tBRL\nINDA\t18.07384000\t51.16500000\t925.20\t47.79000000\tUSD\nINFY\t11.54000000\t17.64000000\t203.57\t11.60000000\tUSD\nIPCA_6_55\t1.00000000\t5000.00000000\t5000.00\t5848.39000000\tBRL\nIPCA_6_85\t1.00000000\t4000.00000000\t4000.00\t4757.97000000\tBRL\nIPCA_7_01\t1.00000000\t4234.47000000\t4234.47\t4567.47000000\tBRL\nIPCA_7_4\t1.00000000\t7818.69000000\t7818.69\t3418.08000000\tBRL\nIPCA_7_95\t1.00000000\t5000.00000000\t5000.00\t5682.97000000\tBRL\nIPCA_8_25_1\t1.00000000\t877.49000000\t877.49\t1108.12000000\tBRL\nIPCA_8_25_2\t1.00000000\t3999.95000000\t3999.95\t5008.39000000\tBRL\nIPCA_8_3\t1.00000000\t499.69000000\t499.69\t338.03000000\tBRL\nIPCA_8_8\t1.00000000\t974.77000000\t974.77\t1204.77000000\tBRL\nKEPL3\t4612.00000000\t8.31000000\t38325.72\t6.49000000\tBRL\nKINEA_GAMA\t1.00000000\t105666.39000000\t105666.39\t103553.74000000\tBRL\nKLBN11\t432.00000000\t18.79000000\t8117.28\t16.78000000\tBRL\nLMT\t2.91014000\t517.37303000\t1505.64\t548.68000000\tUSD\nMBRF3\t4120.00000000\t13.30000000\t54796.00\t16.00000000\tBRL\nMSFT\t15.74254000\t419.56266031\t6604.98\t390.34000000\tUSD\nMU\t12.77000000\t89.79000000\t1146.62\t995.87000000\tUSD\nNEE\t1.56000000\t70.41000000\t109.84\t84.84000000\tUSD\nNET\t10.22000000\t76.36000000\t780.40\t227.44000000\tUSD\nNVIDIA\t26.09021000\t194.83596451\t5083.31\t204.87000000\tUSD\nORVR3\t677.00000000\t31.66000000\t21433.82\t77.86000000\tBRL\nPGEN\t206.41000000\t1.99000000\t410.76\t4.53000000\tUSD\nPLTR\t7.03404000\t136.95502000\t963.08\t131.08000000\tUSD\nPRE_14_90\t1.00000000\t1146.71000000\t1146.71\t1529.83000000\tBRL\nPRE_15\t1.00000000\t2949.31000000\t2949.31\t3271.62000000\tBRL\nPRE_15_05\t1.00000000\t1058.98000000\t1058.98\t1534.77000000\tBRL\nPRE_15_31\t1.00000000\t930.94000000\t930.94\t1426.52000000\tBRL\nSBSP3\t3685.00000000\t14.52133000\t53511.10\t27.85000000\tBRL\nSELIC_31\t1.00000000\t3208.66000000\t3208.66\t3350.30000000\tBRL\nSISPRIME\t1.00000000\t4550.00000000\t4550.00\t6689.16000000\tBRL\nSOJA3\t1503.00000000\t11.74000000\t17645.22\t6.31000000\tBRL\nSOL\t32.63626000\t138.06219500\t4505.83\t66.77000000\tUSD\nSOL_BIN\t7.10772400\t0.00000000\t0.00\t66.77000000\tUSD\nSOUN\t6.14000000\t9.45000000\t58.02\t7.00000000\tUSD\nSUZB3\t758.00000000\t58.84000000\t44600.72\t41.29000000\tBRL\nTC_COSMOS\t1.00000000\t19796.10000000\t19796.10\t35652.15000000\tBRL\nTREND_INV\t1.00000000\t59.98000000\t59.98\t63.42000000\tBRL\nTSLA\t10.57000000\t194.77000000\t2058.72\t399.15000000\tUSD\nTSM\t16.62000000\t141.96000000\t2359.38\t421.07000000\tUSD\nTTEN3\t2735.00000000\t11.41631000\t31223.60\t14.70000000\tBRL\nTWST\t9.14000000\t29.16000000\t266.52\t74.05000000\tUSD\nUNH\t1.72000000\t318.12000000\t547.17\t405.55000000\tUSD\nURA\t4.44000000\t52.45000000\t232.88\t44.83000000\tUSD\nURNM\t117.28996000\t58.94631000\t6913.99\t54.29000000\tUSD\nVALE3\t1346.00000000\t63.45000000\t85403.70\t78.80000000\tBRL\nXP_ELET3\t1.00000000\t24477.28000000\t24477.28\t46582.55000000\tBRL\nXPML11\t114.00000000\t101.57000000\t11578.98\t104.30000000\tBRL\n",
+  "stderr": "",
+  "execution_time_ms": 4961
+}

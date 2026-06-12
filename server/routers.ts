@@ -7,6 +7,7 @@ import { dividendsRouter } from "./routers/dividends";
 import { alertsRouter } from "./routers/alertsRouter";
 import { buyAdvisorRouter } from "./routers/buyAdvisor";
 import { marketRouter } from "./routers/market";
+import { newsRouter } from "./routers/newsRouter";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -27,6 +28,7 @@ export const appRouter = router({
   alerts: alertsRouter,
   buyAdvisor: buyAdvisorRouter,
   market: marketRouter,
+  news: newsRouter,
 });
 
 export type AppRouter = typeof appRouter;

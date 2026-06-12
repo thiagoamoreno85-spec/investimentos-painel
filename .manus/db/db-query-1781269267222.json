@@ -1,0 +1,52 @@
+{
+  "query": "SELECT ticker, totalQuantity, averageCost, totalCost, currency FROM assets WHERE ticker IN ('SBSP3', 'TTEN3', 'PLTR', 'LMT', 'URNM', 'INDA') ORDER BY ticker;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZcBuoEvFxiRzn.f8fe4a2ca095 --database inNn2GrYAEeStrPTZHgZq4 --execute SELECT ticker, totalQuantity, averageCost, totalCost, currency FROM assets WHERE ticker IN ('SBSP3', 'TTEN3', 'PLTR', 'LMT', 'URNM', 'INDA') ORDER BY ticker;",
+  "rows": [
+    {
+      "ticker": "INDA",
+      "totalQuantity": "18.07384000",
+      "averageCost": "51.16500000",
+      "totalCost": "925.20",
+      "currency": "USD"
+    },
+    {
+      "ticker": "LMT",
+      "totalQuantity": "2.91014000",
+      "averageCost": "517.37303000",
+      "totalCost": "1505.64",
+      "currency": "USD"
+    },
+    {
+      "ticker": "PLTR",
+      "totalQuantity": "7.03404000",
+      "averageCost": "136.95502000",
+      "totalCost": "963.08",
+      "currency": "USD"
+    },
+    {
+      "ticker": "SBSP3",
+      "totalQuantity": "3685.00000000",
+      "averageCost": "14.52133000",
+      "totalCost": "53511.10",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "TTEN3",
+      "totalQuantity": "2735.00000000",
+      "averageCost": "11.41631000",
+      "totalCost": "31223.60",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "URNM",
+      "totalQuantity": "117.28996000",
+      "averageCost": "58.94631000",
+      "totalCost": "6913.99",
+      "currency": "USD"
+    }
+  ],
+  "messages": [],
+  "stdout": "ticker\ttotalQuantity\taverageCost\ttotalCost\tcurrency\nINDA\t18.07384000\t51.16500000\t925.20\tUSD\nLMT\t2.91014000\t517.37303000\t1505.64\tUSD\nPLTR\t7.03404000\t136.95502000\t963.08\tUSD\nSBSP3\t3685.00000000\t14.52133000\t53511.10\tBRL\nTTEN3\t2735.00000000\t11.41631000\t31223.60\tBRL\nURNM\t117.28996000\t58.94631000\t6913.99\tUSD\n",
+  "stderr": "",
+  "execution_time_ms": 261
+}

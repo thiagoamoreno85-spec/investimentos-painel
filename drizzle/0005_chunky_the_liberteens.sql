@@ -1,0 +1,1 @@
+ALTER TABLE `alerts` MODIFY COLUMN `type` enum('price_drop','price_rise','below_avg_cost','above_target','below_target','buy_opportunity','news_alert') NOT NULL;

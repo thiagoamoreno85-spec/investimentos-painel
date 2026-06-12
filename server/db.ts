@@ -1,6 +1,6 @@
 import { eq, and, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction, analysisHistory, InsertAnalysisHistory } from "../drizzle/schema";
+import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction, analysisHistory, InsertAnalysisHistory, newsItems, InsertNewsItem } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -260,4 +260,61 @@ export async function recalculateAsset(assetId: number, userId: number) {
   );
 
   return { totalQuantity: totalQty, averageCost: avgCost, totalCost: totalCostAccum };
+}
+
+// ========== NEWS ITEMS ==========
+
+export async function createNewsItem(data: InsertNewsItem) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(newsItems).values(data);
+  return result[0].insertId;
+}
+
+export async function getNewsItemsByUser(userId: number, limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(newsItems)
+    .where(eq(newsItems.userId, userId))
+    .orderBy(desc(newsItems.createdAt))
+    .limit(limit);
+}
+
+export async function markNewsItemRead(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(newsItems)
+    .set({ isRead: 1 })
+    .where(and(eq(newsItems.id, id), eq(newsItems.userId, userId)));
+}
+
+export async function markAllNewsRead(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(newsItems)
+    .set({ isRead: 1 })
+    .where(eq(newsItems.userId, userId));
+}
+
+export async function countUnreadNews(userId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const rows = await db.select().from(newsItems)
+    .where(and(eq(newsItems.userId, userId), eq(newsItems.isRead, 0)));
+  return rows.length;
+}
+
+export async function deleteOldNewsItems(userId: number, keepLast = 100) {
+  const db = await getDb();
+  if (!db) return;
+  const rows = await db.select().from(newsItems)
+    .where(eq(newsItems.userId, userId))
+    .orderBy(desc(newsItems.createdAt))
+    .limit(keepLast + 50);
+  if (rows.length > keepLast) {
+    const toDelete = rows.slice(keepLast);
+    for (const row of toDelete) {
+      await db.delete(newsItems).where(eq(newsItems.id, row.id));
+    }
+  }
 }

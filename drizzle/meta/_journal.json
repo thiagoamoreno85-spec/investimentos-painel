@@ -29,6 +29,20 @@
       "when": 1776884474113,
       "tag": "0003_great_agent_zero",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1781270366061,
+      "tag": "0004_living_eternals",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1781270730539,
+      "tag": "0005_chunky_the_liberteens",
+      "breakpoints": true
     }
   ]
 }

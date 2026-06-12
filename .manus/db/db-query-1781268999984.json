@@ -1,0 +1,52 @@
+{
+  "query": "SELECT ticker, totalQuantity, averageCost, totalCost, currency FROM assets WHERE ticker IN ('SBSP3', 'TTEN3', 'PLTR', 'LMT', 'URNM', 'INDA') ORDER BY ticker;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZcBuoEvFxiRzn.f8fe4a2ca095 --database inNn2GrYAEeStrPTZHgZq4 --execute SELECT ticker, totalQuantity, averageCost, totalCost, currency FROM assets WHERE ticker IN ('SBSP3', 'TTEN3', 'PLTR', 'LMT', 'URNM', 'INDA') ORDER BY ticker;",
+  "rows": [
+    {
+      "ticker": "INDA",
+      "totalQuantity": "13.95371000",
+      "averageCost": "52.04349488",
+      "totalCost": "726.20",
+      "currency": "USD"
+    },
+    {
+      "ticker": "LMT",
+      "totalQuantity": "1.96899000",
+      "averageCost": "518.05321429",
+      "totalCost": "1020.04",
+      "currency": "USD"
+    },
+    {
+      "ticker": "PLTR",
+      "totalQuantity": "4.98448000",
+      "averageCost": "137.01835000",
+      "totalCost": "682.97",
+      "currency": "USD"
+    },
+    {
+      "ticker": "SBSP3",
+      "totalQuantity": "3485.00000000",
+      "averageCost": "13.62080057",
+      "totalCost": "47468.49",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "TTEN3",
+      "totalQuantity": "2675.00000000",
+      "averageCost": "11.29583178",
+      "totalCost": "30216.35",
+      "currency": "BRL"
+    },
+    {
+      "ticker": "URNM",
+      "totalQuantity": "114.74626000",
+      "averageCost": "58.94822477",
+      "totalCost": "6764.09",
+      "currency": "USD"
+    }
+  ],
+  "messages": [],
+  "stdout": "ticker\ttotalQuantity\taverageCost\ttotalCost\tcurrency\nINDA\t13.95371000\t52.04349488\t726.20\tUSD\nLMT\t1.96899000\t518.05321429\t1020.04\tUSD\nPLTR\t4.98448000\t137.01835000\t682.97\tUSD\nSBSP3\t3485.00000000\t13.62080057\t47468.49\tBRL\nTTEN3\t2675.00000000\t11.29583178\t30216.35\tBRL\nURNM\t114.74626000\t58.94822477\t6764.09\tUSD\n",
+  "stderr": "",
+  "execution_time_ms": 259
+}

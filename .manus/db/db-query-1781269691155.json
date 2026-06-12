@@ -1,0 +1,75 @@
+{
+  "query": "SELECT id, ticker, currency FROM assets WHERE ticker IN ('NEE','NVIDIA','ORVR3','SBSP3','SOJA3','SUZB3','TTEN3','TSM','UNH','URNM','VALE3','XPML11','BBAS3') ORDER BY ticker;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZcBuoEvFxiRzn.f8fe4a2ca095 --database inNn2GrYAEeStrPTZHgZq4 --execute SELECT id, ticker, currency FROM assets WHERE ticker IN ('NEE','NVIDIA','ORVR3','SBSP3','SOJA3','SUZB3','TTEN3','TSM','UNH','URNM','VALE3','XPML11','BBAS3') ORDER BY ticker;",
+  "rows": [
+    {
+      "id": "9",
+      "ticker": "BBAS3",
+      "currency": "BRL"
+    },
+    {
+      "id": "51",
+      "ticker": "NEE",
+      "currency": "USD"
+    },
+    {
+      "id": "39",
+      "ticker": "NVIDIA",
+      "currency": "USD"
+    },
+    {
+      "id": "8",
+      "ticker": "ORVR3",
+      "currency": "BRL"
+    },
+    {
+      "id": "2",
+      "ticker": "SBSP3",
+      "currency": "BRL"
+    },
+    {
+      "id": "21",
+      "ticker": "SOJA3",
+      "currency": "BRL"
+    },
+    {
+      "id": "14",
+      "ticker": "SUZB3",
+      "currency": "BRL"
+    },
+    {
+      "id": "33",
+      "ticker": "TSM",
+      "currency": "USD"
+    },
+    {
+      "id": "11",
+      "ticker": "TTEN3",
+      "currency": "BRL"
+    },
+    {
+      "id": "46",
+      "ticker": "UNH",
+      "currency": "USD"
+    },
+    {
+      "id": "78",
+      "ticker": "URNM",
+      "currency": "USD"
+    },
+    {
+      "id": "1",
+      "ticker": "VALE3",
+      "currency": "BRL"
+    },
+    {
+      "id": "20",
+      "ticker": "XPML11",
+      "currency": "BRL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tticker\tcurrency\n9\tBBAS3\tBRL\n51\tNEE\tUSD\n39\tNVIDIA\tUSD\n8\tORVR3\tBRL\n2\tSBSP3\tBRL\n21\tSOJA3\tBRL\n14\tSUZB3\tBRL\n33\tTSM\tUSD\n11\tTTEN3\tBRL\n46\tUNH\tUSD\n78\tURNM\tUSD\n1\tVALE3\tBRL\n20\tXPML11\tBRL\n",
+  "stderr": "",
+  "execution_time_ms": 262
+}

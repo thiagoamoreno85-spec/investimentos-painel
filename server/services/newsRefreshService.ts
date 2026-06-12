@@ -24,6 +24,7 @@ interface NewsItem {
   category: string;
   impactLevel: string;
   sentiment: string;
+  priceDirection: string;
   affectedTickers: string[];
 }
 
@@ -68,6 +69,7 @@ Responda APENAS com JSON válido no seguinte formato (sem markdown, sem texto ex
       "category": "brasil|global|cripto|tech|politica|macro",
       "impactLevel": "alto|medio|baixo",
       "sentiment": "positivo|negativo|neutro",
+      "priceDirection": "alta_forte|alta_media|alta_fraca|neutro|baixa_fraca|baixa_media|baixa_forte",
       "affectedTickers": ["TICKER1", "TICKER2"]
     }
   ]
@@ -77,6 +79,15 @@ Critérios de impacto:
 - "alto": afeta diretamente um ativo da carteira com potencial de variação > 3%
 - "medio": contexto macro relevante que pode influenciar 1-2 ativos
 - "baixo": informação de fundo, tendência de longo prazo
+
+Critérios de priceDirection (previsão de movimento de preço para os ativos afetados):
+- "alta_forte": notícia muito positiva, potencial de alta > 5% no curto prazo
+- "alta_media": notícia positiva, potencial de alta entre 2% e 5%
+- "alta_fraca": notícia levemente positiva, potencial de alta < 2%
+- "neutro": notícia sem direção clara ou impacto equilibrado
+- "baixa_fraca": notícia levemente negativa, potencial de queda < 2%
+- "baixa_media": notícia negativa, potencial de queda entre 2% e 5%
+- "baixa_forte": notícia muito negativa, potencial de queda > 5%
 
 Certifique-se que os affectedTickers sejam EXATAMENTE os tickers da carteira listada acima.`;
 
@@ -113,6 +124,18 @@ Certifique-se que os affectedTickers sejam EXATAMENTE os tickers da carteira lis
                   },
                   impactLevel: { type: "string", enum: ["alto", "medio", "baixo"] },
                   sentiment: { type: "string", enum: ["positivo", "negativo", "neutro"] },
+                  priceDirection: {
+                    type: "string",
+                    enum: [
+                      "alta_forte",
+                      "alta_media",
+                      "alta_fraca",
+                      "neutro",
+                      "baixa_fraca",
+                      "baixa_media",
+                      "baixa_forte",
+                    ],
+                  },
                   affectedTickers: { type: "array", items: { type: "string" } },
                 },
                 required: [
@@ -124,6 +147,7 @@ Certifique-se que os affectedTickers sejam EXATAMENTE os tickers da carteira lis
                   "category",
                   "impactLevel",
                   "sentiment",
+                  "priceDirection",
                   "affectedTickers",
                 ],
                 additionalProperties: false,
@@ -160,6 +184,7 @@ Certifique-se que os affectedTickers sejam EXATAMENTE os tickers da carteira lis
     category: item.category || "global",
     impactLevel: item.impactLevel || "baixo",
     sentiment: item.sentiment || "neutro",
+    priceDirection: item.priceDirection || "neutro",
     affectedTickers: Array.isArray(item.affectedTickers) ? item.affectedTickers : [],
   }));
 }
@@ -208,13 +233,21 @@ export async function runNewsRefresh(userId: number): Promise<{
       category: news.category as "brasil" | "global" | "cripto" | "tech" | "politica" | "macro",
       impactLevel: news.impactLevel as "alto" | "medio" | "baixo",
       sentiment: news.sentiment as "positivo" | "negativo" | "neutro",
+      priceDirection: news.priceDirection as
+        | "alta_forte"
+        | "alta_media"
+        | "alta_fraca"
+        | "neutro"
+        | "baixa_fraca"
+        | "baixa_media"
+        | "baixa_forte",
       affectedTickers: JSON.stringify(news.affectedTickers),
       publishedAt: new Date(),
       isRead: 0,
     });
     savedIds.push(id);
 
-    // Se impacto alto, criar alerta automático
+    // Se impacto alto, criar alerta automático com direção de preço
     if (news.impactLevel === "alto") {
       const firstTicker = news.affectedTickers[0];
       if (firstTicker) {
@@ -223,15 +256,16 @@ export async function runNewsRefresh(userId: number): Promise<{
         );
         if (affectedAsset) {
           try {
+            const directionLabel = getPriceDirectionLabel(news.priceDirection);
             const alertResult = await db.insert(alerts).values({
               userId,
               assetId: affectedAsset.id,
               type: "news_alert",
               threshold: "0",
               status: "triggered",
-              triggeredMessage: `🔴 NOTÍCIA DE ALTO IMPACTO: ${news.title}\n\n${news.impactAnalysis}\n\nFonte: ${news.source}`,
+              triggeredMessage: `🔴 NOTÍCIA DE ALTO IMPACTO: ${news.title}\n\n📊 Direção esperada: ${directionLabel}\n\n${news.impactAnalysis}\n\nFonte: ${news.source}`,
               triggeredAt: new Date(),
-              notes: `Gerado automaticamente pela análise de notícias. Ativos afetados: ${news.affectedTickers.join(", ")}`,
+              notes: `Direção de preço: ${news.priceDirection} | Ativos afetados: ${news.affectedTickers.join(", ")}`,
             });
             alertsCreated.push(alertResult[0].insertId);
           } catch (e) {
@@ -250,4 +284,18 @@ export async function runNewsRefresh(userId: number): Promise<{
     alertsCreated: alertsCreated.length,
     message: `${savedIds.length} notícias geradas com análise de impacto. ${alertsCreated.length} alertas de alto impacto criados.`,
   };
+}
+
+/** Converte o código de direção para texto legível */
+function getPriceDirectionLabel(direction: string): string {
+  const labels: Record<string, string> = {
+    alta_forte: "🟢⬆️ Alta Forte (>5%)",
+    alta_media: "🟢↗️ Alta Média (2-5%)",
+    alta_fraca: "🟡↗️ Alta Fraca (<2%)",
+    neutro: "⚪ Neutro",
+    baixa_fraca: "🟡↘️ Baixa Fraca (<2%)",
+    baixa_media: "🔴↘️ Baixa Média (2-5%)",
+    baixa_forte: "🔴⬇️ Baixa Forte (>5%)",
+  };
+  return labels[direction] ?? "⚪ Neutro";
 }

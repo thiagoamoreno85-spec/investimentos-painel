@@ -192,6 +192,16 @@ export const newsItems = mysqlTable("newsItems", {
   impactLevel: mysqlEnum("impactLevel", ["alto", "medio", "baixo"]).default("baixo"),
   /** Sentimento: positivo, negativo ou neutro */
   sentiment: mysqlEnum("sentiment", ["positivo", "negativo", "neutro"]).default("neutro"),
+  /** Previsão direcional do preço do ativo principal afetado */
+  priceDirection: mysqlEnum("priceDirection", [
+    "alta_forte",
+    "alta_media",
+    "alta_fraca",
+    "neutro",
+    "baixa_fraca",
+    "baixa_media",
+    "baixa_forte",
+  ]).default("neutro"),
   /** Tickers afetados (JSON array string) */
   affectedTickers: text("affectedTickers"),
   /** Data de publicação da notícia */

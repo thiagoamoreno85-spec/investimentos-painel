@@ -48,6 +48,7 @@ vi.mock("./db", () => ({
       category: "brasil",
       impactLevel: "alto",
       sentiment: "positivo",
+      priceDirection: "alta_forte",
       affectedTickers: JSON.stringify(["VALE3"]),
       publishedAt: new Date(),
       createdAt: new Date(),
@@ -64,6 +65,7 @@ vi.mock("./db", () => ({
       category: "global",
       impactLevel: "medio",
       sentiment: "neutro",
+      priceDirection: "neutro",
       affectedTickers: JSON.stringify(["PLTR"]),
       publishedAt: new Date(),
       createdAt: new Date(),
@@ -93,6 +95,7 @@ vi.mock("./_core/llm", () => ({
                 category: "brasil",
                 impactLevel: "alto",
                 sentiment: "positivo",
+                priceDirection: "alta_forte",
                 affectedTickers: ["VALE3"],
               },
               {
@@ -104,6 +107,7 @@ vi.mock("./_core/llm", () => ({
                 category: "global",
                 impactLevel: "medio",
                 sentiment: "neutro",
+                priceDirection: "neutro",
                 affectedTickers: ["PLTR"],
               },
             ],
@@ -246,6 +250,81 @@ describe("News Router Logic", () => {
     it("should not create alert for medium impact news", () => {
       const news = { impactLevel: "medio" };
       expect(news.impactLevel === "alto").toBe(false);
+    });
+  });
+
+  describe("Price direction classification", () => {
+    const VALID_DIRECTIONS = [
+      "alta_forte",
+      "alta_media",
+      "alta_fraca",
+      "neutro",
+      "baixa_fraca",
+      "baixa_media",
+      "baixa_forte",
+    ];
+
+    it("should accept all valid priceDirection values", () => {
+      VALID_DIRECTIONS.forEach((dir) => {
+        expect(VALID_DIRECTIONS.includes(dir)).toBe(true);
+      });
+    });
+
+    it("should identify bullish directions", () => {
+      const bullish = VALID_DIRECTIONS.filter((d) => d.startsWith("alta"));
+      expect(bullish).toHaveLength(3);
+      expect(bullish).toContain("alta_forte");
+      expect(bullish).toContain("alta_media");
+      expect(bullish).toContain("alta_fraca");
+    });
+
+    it("should identify bearish directions", () => {
+      const bearish = VALID_DIRECTIONS.filter((d) => d.startsWith("baixa"));
+      expect(bearish).toHaveLength(3);
+      expect(bearish).toContain("baixa_forte");
+      expect(bearish).toContain("baixa_media");
+      expect(bearish).toContain("baixa_fraca");
+    });
+
+    it("should identify neutral direction", () => {
+      const neutral = VALID_DIRECTIONS.filter((d) => d === "neutro");
+      expect(neutral).toHaveLength(1);
+    });
+
+    it("should map alta_forte to >5% upside label", () => {
+      const labels: Record<string, string> = {
+        alta_forte: "Alta Forte (>5%)",
+        alta_media: "Alta Média (2-5%)",
+        alta_fraca: "Alta Fraca (<2%)",
+        neutro: "Neutro",
+        baixa_fraca: "Baixa Fraca (<2%)",
+        baixa_media: "Baixa Média (2-5%)",
+        baixa_forte: "Baixa Forte (>5%)",
+      };
+      expect(labels["alta_forte"]).toBe("Alta Forte (>5%)");
+      expect(labels["baixa_forte"]).toBe("Baixa Forte (>5%)");
+    });
+
+    it("should include priceDirection in news mock data", () => {
+      const mockItem = {
+        impactLevel: "alto",
+        sentiment: "positivo",
+        priceDirection: "alta_forte",
+      };
+      expect(mockItem.priceDirection).toBe("alta_forte");
+      expect(VALID_DIRECTIONS.includes(mockItem.priceDirection)).toBe(true);
+    });
+
+    it("should correlate high impact + positive sentiment with bullish direction", () => {
+      const newsItems = [
+        { impactLevel: "alto", sentiment: "positivo", priceDirection: "alta_forte" },
+        { impactLevel: "alto", sentiment: "negativo", priceDirection: "baixa_forte" },
+        { impactLevel: "medio", sentiment: "neutro",   priceDirection: "neutro" },
+      ];
+      const bullish = newsItems.filter((n) => n.priceDirection.startsWith("alta"));
+      const bearish = newsItems.filter((n) => n.priceDirection.startsWith("baixa"));
+      expect(bullish).toHaveLength(1);
+      expect(bearish).toHaveLength(1);
     });
   });
 

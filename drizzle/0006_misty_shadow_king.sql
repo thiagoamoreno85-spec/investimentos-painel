@@ -1,0 +1,1 @@
+ALTER TABLE `newsItems` ADD `priceDirection` enum('alta_forte','alta_media','alta_fraca','neutro','baixa_fraca','baixa_media','baixa_forte') DEFAULT 'neutro';

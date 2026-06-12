@@ -35,11 +35,22 @@ interface NewsItem {
   category: string | null;
   impactLevel: string | null;
   sentiment: string | null;
+  priceDirection: string | null;
   affectedTickers: string[];
   publishedAt: Date | null;
   createdAt: Date;
   isRead: number;
 }
+
+const PRICE_DIRECTION_CONFIG: Record<string, { label: string; icon: string; color: string; bg: string; border: string }> = {
+  alta_forte:  { label: "Alta Forte",  icon: "⬆️", color: "text-emerald-300", bg: "bg-emerald-500/15", border: "border-emerald-400/40" },
+  alta_media:  { label: "Alta Média",  icon: "↗️", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30" },
+  alta_fraca:  { label: "Alta Fraca",  icon: "↗",     color: "text-emerald-500", bg: "bg-emerald-500/5",  border: "border-emerald-600/20" },
+  neutro:      { label: "Neutro",      icon: "↔️", color: "text-muted-foreground", bg: "bg-secondary",       border: "border-border" },
+  baixa_fraca: { label: "Baixa Fraca", icon: "↘",     color: "text-red-500",   bg: "bg-red-500/5",    border: "border-red-600/20" },
+  baixa_media: { label: "Baixa Média", icon: "↘️", color: "text-red-400",   bg: "bg-red-500/10",   border: "border-red-500/30" },
+  baixa_forte: { label: "Baixa Forte", icon: "⬇️", color: "text-red-300",   bg: "bg-red-500/15",   border: "border-red-400/40" },
+};
 
 const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string }> = {
   brasil: { label: "Brasil", icon: Flag, color: "text-green-400" },
@@ -127,6 +138,19 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
                 <SentimentIcon className="w-3 h-3" />
                 {sentiment.label}
               </span>
+              {/* Badge de direção de preço */}
+              {item.priceDirection && item.priceDirection !== "neutro" && (() => {
+                const dir = PRICE_DIRECTION_CONFIG[item.priceDirection] ?? PRICE_DIRECTION_CONFIG.neutro;
+                return (
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border ${dir.bg} ${dir.color} ${dir.border}`}
+                    title="Previsão de movimento de preço"
+                  >
+                    <span>{dir.icon}</span>
+                    {dir.label}
+                  </span>
+                );
+              })()}
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {item.isRead === 0 && (

@@ -61,3 +61,13 @@
 - [x] Tipo news_alert adicionado ao enum de alertas
 - [x] 18 novos testes vitest para módulo de notícias
 - [x] 12 novos testes vitest para handler de cron e refresh service (83 total)
+
+## Previsão Direcional de Preço (Sprint atual)
+- [ ] Adicionar coluna priceDirection ao schema newsItems (alta_forte, alta_media, alta_fraca, baixa_fraca, baixa_media, baixa_forte, neutro)
+- [ ] Migrar banco de dados com pnpm db:push
+- [ ] Atualizar newsRefreshService: incluir priceDirection no prompt LLM e no JSON schema
+- [ ] Atualizar db.ts helpers para incluir priceDirection
+- [ ] Atualizar cards de notícias com badge direcional (seta + cor + label)
+- [ ] Incluir priceDirection na mensagem de alerta gerado automaticamente
+- [ ] Atualizar tela de Alertas para exibir direção do preço nos alertas news_alert
+- [ ] Testes vitest para priceDirection

@@ -471,10 +471,32 @@ export default function Alertas() {
                                   )}
                                 </p>
                                 {alert.triggeredMessage && (
-                                  <p className="text-xs text-amber-500 mt-1 font-medium">
+                                  <p className="text-xs text-amber-500 mt-1 font-medium whitespace-pre-line">
                                     {alert.triggeredMessage}
                                   </p>
                                 )}
+                                {/* Badge de direção de preço para alertas de notícia */}
+                                {alert.type === "news_alert" && alert.notes && (() => {
+                                  const dirMatch = alert.notes.match(/Direção de preço: ([\w_]+)/);
+                                  const dir = dirMatch?.[1];
+                                  const PRICE_DIR: Record<string, { label: string; icon: string; color: string; bg: string }> = {
+                                    alta_forte:  { label: "Alta Forte (>5%)",  icon: "⬆️", color: "text-emerald-300", bg: "bg-emerald-500/15" },
+                                    alta_media:  { label: "Alta Média (2-5%)",  icon: "↗️", color: "text-emerald-400", bg: "bg-emerald-500/10" },
+                                    alta_fraca:  { label: "Alta Fraca (<2%)",   icon: "↗",     color: "text-emerald-500", bg: "bg-emerald-500/5" },
+                                    neutro:      { label: "Neutro",             icon: "↔️", color: "text-muted-foreground", bg: "bg-secondary" },
+                                    baixa_fraca: { label: "Baixa Fraca (<2%)",  icon: "↘",     color: "text-red-500",   bg: "bg-red-500/5" },
+                                    baixa_media: { label: "Baixa Média (2-5%)", icon: "↘️", color: "text-red-400",   bg: "bg-red-500/10" },
+                                    baixa_forte: { label: "Baixa Forte (>5%)",  icon: "⬇️", color: "text-red-300",   bg: "bg-red-500/15" },
+                                  };
+                                  const cfg = dir ? PRICE_DIR[dir] : null;
+                                  if (!cfg || dir === "neutro") return null;
+                                  return (
+                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold mt-1 ${cfg.bg} ${cfg.color}`}>
+                                      <span>{cfg.icon}</span>
+                                      Previsão: {cfg.label}
+                                    </span>
+                                  );
+                                })()}
                                 {alert.triggeredAt && (
                                   <p className="text-xs text-muted-foreground mt-0.5">
                                     Disparado em: {new Date(alert.triggeredAt).toLocaleString("pt-BR")}

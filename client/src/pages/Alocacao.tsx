@@ -3,6 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { portfolioData } from "@/lib/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowUpRight, ArrowDownRight, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
@@ -157,11 +158,11 @@ export default function Alocacao() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">
-            Alocação Detalhada
-          </h2>
+      {/* Layout fixo: header + tabs no topo, apenas a tabela rola */}
+      <div className="flex flex-col h-full gap-0">
+        {/* Cabeçalho fixo */}
+        <div className="flex-shrink-0 pb-4">
+          <h2 className="text-3xl font-bold tracking-tight">Alocação Detalhada</h2>
           <p className="text-muted-foreground mt-1">
             Visualize a composição da sua carteira por classe de ativo.
           </p>
@@ -179,9 +180,10 @@ export default function Alocacao() {
         ) : (
           <Tabs
             defaultValue={categories[0]?.id || "rv_nacional"}
-            className="w-full"
+            className="flex flex-col flex-1 min-h-0"
           >
-            <TabsList className="w-full justify-start overflow-x-auto bg-card/50 border border-border/50 h-auto p-1 flex-wrap">
+            {/* Tabs fixas */}
+            <TabsList className="flex-shrink-0 w-full justify-start overflow-x-auto bg-card/50 border border-border/50 h-auto p-1 flex-wrap">
               {categories.map((category) => (
                 <TabsTrigger
                   key={category.id}
@@ -197,10 +199,11 @@ export default function Alocacao() {
               <TabsContent
                 key={category.id}
                 value={category.id}
-                className="mt-6"
+                className="flex flex-col flex-1 min-h-0 mt-4"
               >
-                <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-                  <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <Card className="flex flex-col flex-1 min-h-0 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+                  {/* Header do card fixo */}
+                  <CardHeader className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
                       <CardTitle>{category.name}</CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -211,77 +214,70 @@ export default function Alocacao() {
                       {formatBRL(category.totalValue)}
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="rounded-md border border-border/50 overflow-x-auto">
-                      <table className="w-full text-sm text-left">
-                        <thead className="bg-secondary/50 text-muted-foreground">
-                          <tr>
-                            <th className="px-4 py-3 font-medium">Ativo</th>
-                            <th className="px-4 py-3 font-medium text-right">
-                              Posição
-                            </th>
-                            <th className="px-4 py-3 font-medium text-right">
-                              Custo Médio
-                            </th>
-                            <th className="px-4 py-3 font-medium text-right">
-                              Preço Atual
-                            </th>
-                            <th className="px-4 py-3 font-medium text-right">
-                              Valor Total
-                            </th>
-                            <th className="px-4 py-3 font-medium text-right">
-                              Lucro/Prejuízo
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border/50">
-                          {category.assets.map((asset) => (
-                            <tr
-                              key={asset.id}
-                              className="hover:bg-secondary/20 transition-colors"
-                            >
-                              <td className="px-4 py-3 font-medium">
-                                {asset.name}
-                              </td>
-                              <td className="px-4 py-3 text-right font-mono">
-                                {asset.position < 1
-                                  ? asset.position.toFixed(6)
-                                  : asset.position.toLocaleString("pt-BR", {
-                                      maximumFractionDigits: 2,
-                                    })}
-                              </td>
-                              <td className="px-4 py-3 text-right font-mono">
-                                {formatCurrency(asset.cost, asset.currency)}
-                              </td>
-                              <td className="px-4 py-3 text-right font-mono">
-                                {formatCurrency(asset.price, asset.currency)}
-                              </td>
-                              <td className="px-4 py-3 text-right font-mono font-medium">
-                                {formatBRL(asset.totalValue)}
-                              </td>
-                              <td className="px-4 py-3 text-right">
-                                <div
-                                  className={`flex items-center justify-end gap-1 font-mono ${
-                                    asset.profit >= 0
-                                      ? "text-emerald-500"
-                                      : "text-red-400"
-                                  }`}
-                                >
-                                  {asset.profit >= 0 ? (
-                                    <ArrowUpRight className="h-3 w-3" />
-                                  ) : (
-                                    <ArrowDownRight className="h-3 w-3" />
-                                  )}
-                                  {formatBRL(Math.abs(asset.profit))}
-                                  <span className="text-xs ml-1 opacity-80">
-                                    ({asset.profitPercentage.toFixed(1)}%)
-                                  </span>
-                                </div>
-                              </td>
+
+                  <CardContent className="flex flex-col flex-1 min-h-0 pt-0">
+                    <div className="rounded-md border border-border/50 flex flex-col flex-1 min-h-0 overflow-hidden">
+                      {/* Cabeçalho da tabela fixo */}
+                      <div className="overflow-x-auto flex-shrink-0">
+                        <table className="w-full text-sm text-left">
+                          <thead className="bg-secondary/50 text-muted-foreground">
+                            <tr>
+                              <th className="px-4 py-3 font-medium">Ativo</th>
+                              <th className="px-4 py-3 font-medium text-right">Posição</th>
+                              <th className="px-4 py-3 font-medium text-right">Custo Médio</th>
+                              <th className="px-4 py-3 font-medium text-right">Preço Atual</th>
+                              <th className="px-4 py-3 font-medium text-right">Valor Total</th>
+                              <th className="px-4 py-3 font-medium text-right">Lucro/Prejuízo</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                        </table>
+                      </div>
+                      {/* Corpo da tabela com scroll */}
+                      <ScrollArea className="flex-1 min-h-0">
+                        <table className="w-full text-sm text-left">
+                          <tbody className="divide-y divide-border/50">
+                            {category.assets.map((asset) => (
+                              <tr
+                                key={asset.id}
+                                className="hover:bg-secondary/20 transition-colors"
+                              >
+                                <td className="px-4 py-3 font-medium w-[18%]">{asset.name}</td>
+                                <td className="px-4 py-3 text-right font-mono w-[14%]">
+                                  {asset.position < 1
+                                    ? asset.position.toFixed(6)
+                                    : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
+                                </td>
+                                <td className="px-4 py-3 text-right font-mono w-[16%]">
+                                  {formatCurrency(asset.cost, asset.currency)}
+                                </td>
+                                <td className="px-4 py-3 text-right font-mono w-[16%]">
+                                  {formatCurrency(asset.price, asset.currency)}
+                                </td>
+                                <td className="px-4 py-3 text-right font-mono font-medium w-[16%]">
+                                  {formatBRL(asset.totalValue)}
+                                </td>
+                                <td className="px-4 py-3 text-right w-[20%]">
+                                  <div
+                                    className={`flex items-center justify-end gap-1 font-mono ${
+                                      asset.profit >= 0 ? "text-emerald-500" : "text-red-400"
+                                    }`}
+                                  >
+                                    {asset.profit >= 0 ? (
+                                      <ArrowUpRight className="h-3 w-3" />
+                                    ) : (
+                                      <ArrowDownRight className="h-3 w-3" />
+                                    )}
+                                    {formatBRL(Math.abs(asset.profit))}
+                                    <span className="text-xs ml-1 opacity-80">
+                                      ({asset.profitPercentage.toFixed(1)}%)
+                                    </span>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </ScrollArea>
                     </div>
                   </CardContent>
                 </Card>

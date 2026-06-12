@@ -125,8 +125,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </nav>
         )}
 
-        <div className="flex-1 overflow-auto p-4 md:p-8">
-          <div className="max-w-6xl mx-auto">
+        <div className="flex-1 overflow-hidden flex flex-col p-4 md:p-8">
+          <div className="max-w-6xl mx-auto w-full flex flex-col flex-1 min-h-0">
             {children}
           </div>
         </div>

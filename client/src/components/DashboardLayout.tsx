@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="h-screen bg-background flex overflow-hidden">
       {/* Sidebar */}
       <aside className="w-64 border-r border-border bg-card hidden md:flex flex-col">
         <div className="p-6">
@@ -85,7 +85,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden h-full">
         {/* Mobile Header */}
         <header className="h-16 border-b border-border bg-card flex items-center justify-between px-4 md:hidden">
           <h1 className="text-lg font-bold text-primary">
@@ -125,8 +125,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </nav>
         )}
 
-        <div className="flex-1 overflow-hidden flex flex-col p-4 md:p-8">
-          <div className="max-w-6xl mx-auto w-full flex flex-col flex-1 min-h-0">
+        <div className="flex-1 overflow-hidden flex flex-col p-4 md:p-8 min-h-0">
+          <div className="max-w-6xl mx-auto w-full flex flex-col flex-1 min-h-0 h-full">
             {children}
           </div>
         </div>

@@ -331,7 +331,7 @@ export default function Noticias() {
         O DashboardLayout já tem overflow-hidden no main, então
         este container precisa ser h-full para preencher o espaço.
       */}
-      <div className="flex flex-col h-full" style={{ height: "calc(100vh - 4rem)" }}>
+      <div className="flex flex-col h-full min-h-0">
 
         {/* ── CABEÇALHO FIXO ── */}
         <div className="flex-shrink-0 space-y-4 pb-4">

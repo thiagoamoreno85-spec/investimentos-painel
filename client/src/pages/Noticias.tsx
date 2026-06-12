@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Newspaper,
   RefreshCw,
@@ -98,7 +99,7 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
 
   return (
     <Card
-      className={`border transition-all duration-200 hover:border-primary/30 ${
+      className={`border transition-all duration-200 hover:border-primary/30 cursor-pointer ${
         item.isRead === 0
           ? "bg-card/80 border-border"
           : "bg-card/40 border-border/50 opacity-75"
@@ -112,27 +113,21 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
           {/* Header row */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-2 flex-wrap">
-              {/* Impact badge */}
               <span
                 className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${impact.bg} ${impact.color} ${impact.border}`}
               >
                 {item.impactLevel === "alto" && <AlertTriangle className="w-3 h-3" />}
                 {impact.label}
               </span>
-
-              {/* Category badge */}
               <span className={`inline-flex items-center gap-1 text-xs ${category.color}`}>
                 <CategoryIcon className="w-3 h-3" />
                 {category.label}
               </span>
-
-              {/* Sentiment */}
               <span className={`inline-flex items-center gap-1 text-xs ${sentiment.color}`}>
                 <SentimentIcon className="w-3 h-3" />
                 {sentiment.label}
               </span>
             </div>
-
             <div className="flex items-center gap-2 flex-shrink-0">
               {item.isRead === 0 && (
                 <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0" title="Não lida" />
@@ -171,7 +166,6 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
 
           {/* Footer: tickers + source */}
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            {/* Affected tickers */}
             <div className="flex items-center gap-1.5 flex-wrap">
               {item.affectedTickers.slice(0, 6).map((ticker) => (
                 <Badge
@@ -192,8 +186,6 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
                 <span className="text-xs text-muted-foreground">+{item.affectedTickers.length - 6}</span>
               )}
             </div>
-
-            {/* Source */}
             <div className="flex items-center gap-1">
               {item.sourceUrl ? (
                 <a
@@ -259,7 +251,6 @@ export default function Noticias() {
     },
   });
 
-  // Stats
   const stats = useMemo(() => {
     const all = news as NewsItem[];
     const alto = all.filter((n) => n.impactLevel === "alto").length;
@@ -267,7 +258,6 @@ export default function Noticias() {
     const positivo = all.filter((n) => n.sentiment === "positivo").length;
     const negativo = all.filter((n) => n.sentiment === "negativo").length;
 
-    // Most cited tickers
     const tickerCount: Record<string, number> = {};
     all.forEach((n) => {
       n.affectedTickers.forEach((t) => {
@@ -290,7 +280,6 @@ export default function Noticias() {
     { value: "macro", label: "Macro", icon: BarChart2 },
   ];
 
-  // Filtro rápido de urgentes (alto impacto)
   const handleUrgentFilter = () => {
     setActiveCategory("all");
     setActiveImpact(activeImpact === "alto" ? "all" : "alto");
@@ -298,216 +287,223 @@ export default function Noticias() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-              <Newspaper className="w-6 h-6 text-primary" />
-              Notícias & Análise de Impacto
+      {/*
+        Layout: flex column que ocupa toda a altura disponível.
+        O DashboardLayout já tem overflow-hidden no main, então
+        este container precisa ser h-full para preencher o espaço.
+      */}
+      <div className="flex flex-col h-full" style={{ height: "calc(100vh - 4rem)" }}>
+
+        {/* ── CABEÇALHO FIXO ── */}
+        <div className="flex-shrink-0 space-y-4 pb-4">
+          {/* Título + botões */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                <Newspaper className="w-6 h-6 text-primary" />
+                Notícias & Análise de Impacto
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 text-xs rounded-full bg-primary text-primary-foreground font-bold">
+                    {unreadCount} novas
+                  </span>
+                )}
+              </h2>
+              <p className="text-muted-foreground text-sm mt-1">
+                Notícias analisadas pela IA com impacto direto nos ativos da sua carteira
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 text-xs rounded-full bg-primary text-primary-foreground font-bold">
-                  {unreadCount} novas
-                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => markAllReadMutation.mutate()}
+                  disabled={markAllReadMutation.isPending}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <CheckCheck className="w-4 h-4 mr-1" />
+                  Marcar todas como lidas
+                </Button>
               )}
-            </h2>
-            <p className="text-muted-foreground text-sm mt-1">
-              Notícias analisadas pela IA com impacto direto nos ativos da sua carteira
-            </p>
+              <Button
+                onClick={() => refreshMutation.mutate()}
+                disabled={refreshMutation.isPending}
+                size="sm"
+                className="bg-primary hover:bg-primary/90"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
+                {refreshMutation.isPending ? "Analisando..." : "Atualizar Notícias"}
+              </Button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {unreadCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => markAllReadMutation.mutate()}
-                disabled={markAllReadMutation.isPending}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <CheckCheck className="w-4 h-4 mr-1" />
-                Marcar todas como lidas
-              </Button>
-            )}
-            <Button
-              onClick={() => refreshMutation.mutate()}
-              disabled={refreshMutation.isPending}
-              size="sm"
-              className="bg-primary hover:bg-primary/90"
+          {/* Stats row */}
+          {news.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <Card className="bg-red-500/5 border-red-500/20">
+                <CardContent className="p-3 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Alto Impacto</p>
+                    <p className="text-lg font-bold text-red-400">{stats.alto}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-amber-500/5 border-amber-500/20">
+                <CardContent className="p-3 flex items-center gap-2">
+                  <BarChart2 className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Médio Impacto</p>
+                    <p className="text-lg font-bold text-amber-400">{stats.medio}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-emerald-500/5 border-emerald-500/20">
+                <CardContent className="p-3 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Positivas</p>
+                    <p className="text-lg font-bold text-emerald-400">{stats.positivo}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-red-500/5 border-red-500/20">
+                <CardContent className="p-3 flex items-center gap-2">
+                  <TrendingDown className="w-4 h-4 text-red-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Negativas</p>
+                    <p className="text-lg font-bold text-red-400">{stats.negativo}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Filtros */}
+          <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
+              {categories.map(({ value, label, icon: Icon }) => (
+                <button
+                  key={value}
+                  onClick={() => setActiveCategory(value)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    activeCategory === value
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80"
+                  }`}
+                >
+                  <Icon className="w-3 h-3" />
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div className="w-px bg-border self-stretch hidden sm:block" />
+
+            <div className="flex gap-1.5">
+              {(["all", "alto", "medio", "baixo"] as ImpactLevel[]).map((level) => (
+                <button
+                  key={level}
+                  onClick={() => setActiveImpact(level)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    activeImpact === level
+                      ? level === "alto"
+                        ? "bg-red-500/20 text-red-400 border border-red-500/40"
+                        : level === "medio"
+                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
+                        : level === "baixo"
+                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                        : "bg-primary text-primary-foreground"
+                      : "bg-secondary text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {level === "all" ? "Todos" : level === "alto" ? "🔴 Alto" : level === "medio" ? "🟡 Médio" : "🟢 Baixo"}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleUrgentFilter}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                activeImpact === "alto"
+                  ? "bg-red-500/20 text-red-400 border border-red-500/40"
+                  : "bg-secondary text-muted-foreground hover:text-foreground"
+              }`}
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
-              {refreshMutation.isPending ? "Analisando..." : "Atualizar Notícias"}
-            </Button>
+              <AlertTriangle className="w-3 h-3" />
+              Urgentes {stats.alto > 0 && `(${stats.alto})`}
+            </button>
+
+            <button
+              onClick={() => setOnlyUnread(!onlyUnread)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                onlyUnread
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Não lidas {unreadCount > 0 && `(${unreadCount})`}
+            </button>
           </div>
         </div>
 
-        {/* Stats row */}
-        {news.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <Card className="bg-red-500/5 border-red-500/20">
-              <CardContent className="p-3 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Alto Impacto</p>
-                  <p className="text-lg font-bold text-red-400">{stats.alto}</p>
+        {/* ── ÁREA SCROLLÁVEL ── */}
+        <div className="flex flex-1 gap-6 min-h-0">
+
+          {/* Lista de notícias com scroll próprio */}
+          <div className="flex-1 min-h-0">
+            <ScrollArea className="h-full pr-1">
+              {isLoading ? (
+                <div className="space-y-3 pb-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <Card key={i} className="animate-pulse">
+                      <CardContent className="p-4">
+                        <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+                        <div className="h-3 bg-muted rounded w-full mb-1" />
+                        <div className="h-3 bg-muted rounded w-2/3" />
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-amber-500/5 border-amber-500/20">
-              <CardContent className="p-3 flex items-center gap-2">
-                <BarChart2 className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Médio Impacto</p>
-                  <p className="text-lg font-bold text-amber-400">{stats.medio}</p>
+              ) : news.length === 0 ? (
+                <Card className="border-dashed">
+                  <CardContent className="p-12 text-center">
+                    <Newspaper className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Nenhuma notícia encontrada</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      {onlyUnread
+                        ? "Todas as notícias já foram lidas."
+                        : "Clique em \"Atualizar Notícias\" para buscar e analisar as últimas notícias do mercado."}
+                    </p>
+                    {!onlyUnread && (
+                      <Button
+                        onClick={() => refreshMutation.mutate()}
+                        disabled={refreshMutation.isPending}
+                      >
+                        <RefreshCw className={`w-4 h-4 mr-2 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
+                        {refreshMutation.isPending ? "Analisando..." : "Buscar Notícias com IA"}
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-3 pb-4">
+                  {(news as NewsItem[]).map((item) => (
+                    <NewsCard
+                      key={item.id}
+                      item={item}
+                      onMarkRead={(id) => markReadMutation.mutate({ id })}
+                    />
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-emerald-500/5 border-emerald-500/20">
-              <CardContent className="p-3 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Positivas</p>
-                  <p className="text-lg font-bold text-emerald-400">{stats.positivo}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-red-500/5 border-red-500/20">
-              <CardContent className="p-3 flex items-center gap-2">
-                <TrendingDown className="w-4 h-4 text-red-400 flex-shrink-0" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Negativas</p>
-                  <p className="text-lg font-bold text-red-400">{stats.negativo}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Main content */}
-          <div className="flex-1 space-y-4">
-            {/* Filters */}
-            <div className="flex flex-wrap gap-2">
-              {/* Category filters */}
-              <div className="flex flex-wrap gap-1.5">
-                {categories.map(({ value, label, icon: Icon }) => (
-                  <button
-                    key={value}
-                    onClick={() => setActiveCategory(value)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      activeCategory === value
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80"
-                    }`}
-                  >
-                    <Icon className="w-3 h-3" />
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Divider */}
-              <div className="w-px bg-border self-stretch hidden sm:block" />
-
-              {/* Impact filter */}
-              <div className="flex gap-1.5">
-                {(["all", "alto", "medio", "baixo"] as ImpactLevel[]).map((level) => (
-                  <button
-                    key={level}
-                    onClick={() => setActiveImpact(level)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      activeImpact === level
-                        ? level === "alto"
-                          ? "bg-red-500/20 text-red-400 border border-red-500/40"
-                          : level === "medio"
-                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
-                          : level === "baixo"
-                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                          : "bg-primary text-primary-foreground"
-                        : "bg-secondary text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {level === "all" ? "Todos" : level === "alto" ? "🔴 Alto" : level === "medio" ? "🟡 Médio" : "🟢 Baixo"}
-                  </button>
-                ))}
-              </div>
-
-              {/* Urgentes filter */}
-              <button
-                onClick={handleUrgentFilter}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  activeImpact === "alto"
-                    ? "bg-red-500/20 text-red-400 border border-red-500/40"
-                    : "bg-secondary text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <AlertTriangle className="w-3 h-3" />
-                Urgentes {stats.alto > 0 && `(${stats.alto})`}
-              </button>
-
-              {/* Unread toggle */}
-              <button
-                onClick={() => setOnlyUnread(!onlyUnread)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  onlyUnread
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Não lidas {unreadCount > 0 && `(${unreadCount})`}
-              </button>
-            </div>
-
-            {/* News list */}
-            {isLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <Card key={i} className="animate-pulse">
-                    <CardContent className="p-4">
-                      <div className="h-4 bg-muted rounded w-3/4 mb-2" />
-                      <div className="h-3 bg-muted rounded w-full mb-1" />
-                      <div className="h-3 bg-muted rounded w-2/3" />
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : news.length === 0 ? (
-              <Card className="border-dashed">
-                <CardContent className="p-12 text-center">
-                  <Newspaper className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Nenhuma notícia encontrada</h3>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    {onlyUnread
-                      ? "Todas as notícias já foram lidas."
-                      : "Clique em \"Atualizar Notícias\" para buscar e analisar as últimas notícias do mercado."}
-                  </p>
-                  {!onlyUnread && (
-                    <Button
-                      onClick={() => refreshMutation.mutate()}
-                      disabled={refreshMutation.isPending}
-                    >
-                      <RefreshCw className={`w-4 h-4 mr-2 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
-                      {refreshMutation.isPending ? "Analisando..." : "Buscar Notícias com IA"}
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {(news as NewsItem[]).map((item) => (
-                  <NewsCard
-                    key={item.id}
-                    item={item}
-                    onMarkRead={(id) => markReadMutation.mutate({ id })}
-                  />
-                ))}
-              </div>
-            )}
+              )}
+            </ScrollArea>
           </div>
 
-          {/* Sidebar panel */}
+          {/* Painel lateral fixo (sem scroll próprio, acompanha a altura disponível) */}
           {news.length > 0 && (
-            <div className="lg:w-64 space-y-4">
+            <div className="hidden lg:flex lg:w-64 flex-col gap-4 flex-shrink-0">
               {/* Top tickers */}
               <Card>
                 <CardContent className="p-4">
@@ -536,7 +532,7 @@ export default function Noticias() {
                 </CardContent>
               </Card>
 
-              {/* Sentiment summary */}
+              {/* Sentimento geral */}
               <Card>
                 <CardContent className="p-4">
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
@@ -565,8 +561,6 @@ export default function Noticias() {
                       </span>
                     </div>
                   </div>
-
-                  {/* Sentiment bar */}
                   {news.length > 0 && (
                     <div className="mt-3 h-2 rounded-full overflow-hidden flex">
                       <div
@@ -588,7 +582,7 @@ export default function Noticias() {
                 </CardContent>
               </Card>
 
-              {/* Impact summary */}
+              {/* Distribuição de impacto */}
               <Card>
                 <CardContent className="p-4">
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">

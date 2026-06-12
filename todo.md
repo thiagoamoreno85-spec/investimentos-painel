@@ -46,7 +46,7 @@
 - [x] Página Dashboard de Mercado com módulo de índices
 - [x] Módulo de taxas macro (DI, Selic, IPCA, Juro Real)
 - [x] Módulo de notícias filtradas por ativos da carteira
-- [ ] Módulo de calendário de resultados/eventos (futuro)
+- [ ] Módulo de calendário de resultados/eventos (BACKLOG — próxima sprint)
 - [x] Integrar Dashboard de Mercado no menu lateral
 - [x] Página de Notícias dedicada com cards horizontais estilo TradersClub
 - [x] Backend: procedure tRPC para buscar e analisar notícias via LLM com impacto por ativo

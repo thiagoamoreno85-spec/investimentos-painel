@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -217,8 +218,8 @@ export default function Alertas() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        <div className="flex items-start justify-between">
+      <div className="flex flex-col h-full gap-0">
+        <div className="flex-shrink-0 flex items-start justify-between pb-4">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Alertas de Monitoramento</h2>
             <p className="text-muted-foreground mt-1">
@@ -240,8 +241,8 @@ export default function Alertas() {
           </Button>
         </div>
 
-        {/* Cards de contagem */}
-        <div className="grid gap-4 md:grid-cols-3">
+        {/* Cards de contagem — fixos */}
+        <div className="flex-shrink-0 grid gap-4 md:grid-cols-3">
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Alertas Ativos</CardTitle>
@@ -278,7 +279,7 @@ export default function Alertas() {
           </Card>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3 flex-1 min-h-0 mt-4">
           {/* Formulário */}
           <Card className="lg:col-span-1 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader>
@@ -391,8 +392,8 @@ export default function Alertas() {
             </CardContent>
           </Card>
 
-          {/* Lista de alertas */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* Lista de alertas — coluna com scroll interno */}
+          <div className="lg:col-span-2 flex flex-col min-h-0 gap-4">
             {/* Filtros */}
             <div className="flex gap-2 flex-wrap">
               {(["all", "active", "triggered", "dismissed"] as const).map((s) => (
@@ -417,8 +418,8 @@ export default function Alertas() {
               ))}
             </div>
 
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-              <CardContent className="pt-6">
+            <Card className="flex flex-col flex-1 min-h-0 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+              <CardContent className="flex flex-col flex-1 min-h-0 pt-6">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -433,7 +434,8 @@ export default function Alertas() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <ScrollArea className="flex-1 min-h-0">
+                  <div className="space-y-3 pr-2">
                     {alertsList.map((alert) => {
                       const typeInfo = getAlertTypeInfo(alert.type);
                       const Icon = typeInfo.icon;
@@ -566,6 +568,7 @@ export default function Alertas() {
                       );
                     })}
                   </div>
+                  </ScrollArea>
                 )}
               </CardContent>
             </Card>

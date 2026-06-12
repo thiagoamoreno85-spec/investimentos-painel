@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -157,16 +158,17 @@ export default function Dividendos() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        <div>
+      <div className="flex flex-col h-full gap-0">
+        {/* Cabeçalho fixo */}
+        <div className="flex-shrink-0 pb-4">
           <h2 className="text-3xl font-bold tracking-tight">Dividendos & Proventos</h2>
           <p className="text-muted-foreground mt-1">
             Registre dividendos, JCP e rendimentos. Calcule Yield on Cost e Current Yield por ativo.
           </p>
         </div>
 
-        {/* Cards de resumo */}
-        <div className="grid gap-4 md:grid-cols-3">
+        {/* Cards de resumo fixos */}
+        <div className="flex-shrink-0 grid gap-4 md:grid-cols-3">
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -225,7 +227,7 @@ export default function Dividendos() {
           </Card>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3 flex-1 min-h-0 mt-4">
           {/* Formulário */}
           <Card className="lg:col-span-1 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader>
@@ -381,18 +383,18 @@ export default function Dividendos() {
           </Card>
 
           {/* Conteúdo principal */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Gráfico por mês */}
+          <div className="lg:col-span-2 flex flex-col min-h-0 gap-4">
+            {/* Gráfico por mês — menor, fixo */}
             {chartData.length > 0 && (
-              <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
+              <Card className="flex-shrink-0 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sm">
+                    <Calendar className="w-4 h-4" />
                     Proventos por Mês
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-[200px] w-full">
+                <CardContent className="pt-0">
+                  <div className="h-[130px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                         <CartesianGrid
@@ -434,12 +436,12 @@ export default function Dividendos() {
               </Card>
             )}
 
-            {/* Resumo por ativo com YoC */}
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-              <CardHeader>
+            {/* Yield on Cost — expandido com scroll interno */}
+            <Card className="flex flex-col flex-1 min-h-0 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+              <CardHeader className="flex-shrink-0">
                 <CardTitle>Yield on Cost por Ativo</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col flex-1 min-h-0 pt-0">
                 {summaryLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -451,58 +453,66 @@ export default function Dividendos() {
                     </p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-border/50 text-muted-foreground">
-                          <th className="text-left py-2 px-2">Ativo</th>
-                          <th className="text-right py-2 px-2">Total Recebido</th>
-                          <th className="text-right py-2 px-2">YoC Total</th>
-                          <th className="text-right py-2 px-2">YoC 12m</th>
-                          <th className="text-right py-2 px-2">Yield Atual</th>
-                          <th className="text-right py-2 px-2">Qtd</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {summary.map((s) => (
-                          <tr
-                            key={s.assetId}
-                            className="border-b border-border/30 hover:bg-secondary/20 transition-colors"
-                          >
-                            <td className="py-2 px-2">
-                              <p className="font-medium">{s.ticker}</p>
-                              <p className="text-xs text-muted-foreground">{s.name}</p>
-                            </td>
-                            <td className="py-2 px-2 text-right font-mono text-emerald-500">
-                              {formatCurrency(s.totalDividends, s.currency)}
-                            </td>
-                            <td className="py-2 px-2 text-right font-mono">
-                              <span className={s.yieldOnCost > 0 ? "text-emerald-500" : "text-muted-foreground"}>
-                                {s.yieldOnCost.toFixed(2)}%
-                              </span>
-                            </td>
-                            <td className="py-2 px-2 text-right font-mono">
-                              <span className={s.yieldOnCostAnnualized > 0 ? "text-emerald-500" : "text-muted-foreground"}>
-                                {s.yieldOnCostAnnualized.toFixed(2)}%
-                              </span>
-                            </td>
-                            <td className="py-2 px-2 text-right font-mono text-xs">
-                              {s.currentYield > 0 ? `${s.currentYield.toFixed(2)}%` : "—"}
-                            </td>
-                            <td className="py-2 px-2 text-right font-mono text-xs text-muted-foreground">
-                              {s.dividendCount}
-                            </td>
+                  <div className="flex flex-col flex-1 min-h-0 overflow-hidden rounded-md border border-border/50">
+                    {/* Cabeçalho da tabela fixo */}
+                    <div className="flex-shrink-0 overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-secondary/50">
+                          <tr className="border-b border-border/50 text-muted-foreground">
+                            <th className="text-left py-2 px-2">Ativo</th>
+                            <th className="text-right py-2 px-2">Total Recebido</th>
+                            <th className="text-right py-2 px-2">YoC Total</th>
+                            <th className="text-right py-2 px-2">YoC 12m</th>
+                            <th className="text-right py-2 px-2">Yield Atual</th>
+                            <th className="text-right py-2 px-2">Qtd</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                      </table>
+                    </div>
+                    {/* Corpo com scroll */}
+                    <ScrollArea className="flex-1 min-h-0">
+                      <table className="w-full text-sm">
+                        <tbody>
+                          {summary.map((s) => (
+                            <tr
+                              key={s.assetId}
+                              className="border-b border-border/30 hover:bg-secondary/20 transition-colors"
+                            >
+                              <td className="py-2 px-2 w-[22%]">
+                                <p className="font-medium">{s.ticker}</p>
+                                <p className="text-xs text-muted-foreground">{s.name}</p>
+                              </td>
+                              <td className="py-2 px-2 text-right font-mono text-emerald-500 w-[20%]">
+                                {formatCurrency(s.totalDividends, s.currency)}
+                              </td>
+                              <td className="py-2 px-2 text-right font-mono w-[15%]">
+                                <span className={s.yieldOnCost > 0 ? "text-emerald-500" : "text-muted-foreground"}>
+                                  {s.yieldOnCost.toFixed(2)}%
+                                </span>
+                              </td>
+                              <td className="py-2 px-2 text-right font-mono w-[15%]">
+                                <span className={s.yieldOnCostAnnualized > 0 ? "text-emerald-500" : "text-muted-foreground"}>
+                                  {s.yieldOnCostAnnualized.toFixed(2)}%
+                                </span>
+                              </td>
+                              <td className="py-2 px-2 text-right font-mono text-xs w-[13%]">
+                                {s.currentYield > 0 ? `${s.currentYield.toFixed(2)}%` : "—"}
+                              </td>
+                              <td className="py-2 px-2 text-right font-mono text-xs text-muted-foreground w-[10%]">
+                                {s.dividendCount}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </ScrollArea>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Histórico de lançamentos */}
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+            {/* Histórico de lançamentos — fixo abaixo */}
+            <Card className="flex-shrink-0 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
               <CardHeader>
                 <CardTitle>Histórico de Proventos</CardTitle>
               </CardHeader>

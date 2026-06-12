@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -202,8 +203,9 @@ export default function Transacoes() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col h-full gap-0">
+        {/* Cabeçalho fixo */}
+        <div className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Transações</h2>
             <p className="text-muted-foreground mt-1">
@@ -227,7 +229,7 @@ export default function Transacoes() {
           </Button>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3 flex-1 min-h-0">
           {/* Formulário de Transação */}
           <Card className="lg:col-span-1 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader>
@@ -443,13 +445,13 @@ export default function Transacoes() {
           </Card>
 
           {/* Resumo por Ativo + Histórico */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Resumo dos Ativos */}
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-              <CardHeader>
+          <div className="lg:col-span-2 flex flex-col min-h-0 gap-4">
+            {/* Resumo dos Ativos — flex-1 com scroll interno */}
+            <Card className="flex flex-col flex-1 min-h-0 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+              <CardHeader className="flex-shrink-0">
                 <CardTitle>Posições Atuais</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col flex-1 min-h-0 pt-0">
                 {assetsLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -462,19 +464,26 @@ export default function Transacoes() {
                     </p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
+                  <div className="flex flex-col flex-1 min-h-0 overflow-hidden rounded-md border border-border/50">
+                    {/* Cabeçalho fixo */}
+                    <div className="flex-shrink-0">
+                      <table className="w-full text-sm">
+                        <thead className="bg-secondary/50">
+                          <tr className="border-b border-border/50 text-muted-foreground">
+                            <th className="text-left py-2 px-2">Ticker</th>
+                            <th className="text-left py-2 px-2 hidden sm:table-cell">Classe</th>
+                            <th className="text-right py-2 px-2">Qtd</th>
+                            <th className="text-right py-2 px-2">PM</th>
+                            <th className="text-right py-2 px-2">Último</th>
+                            <th className="text-right py-2 px-2">Valor</th>
+                            <th className="text-right py-2 px-2">Lucro</th>
+                          </tr>
+                        </thead>
+                      </table>
+                    </div>
+                    {/* Corpo com scroll */}
+                    <ScrollArea className="flex-1 min-h-0">
                     <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-border/50 text-muted-foreground">
-                          <th className="text-left py-2 px-2">Ticker</th>
-                          <th className="text-left py-2 px-2 hidden sm:table-cell">Classe</th>
-                          <th className="text-right py-2 px-2">Qtd</th>
-                          <th className="text-right py-2 px-2">PM</th>
-                          <th className="text-right py-2 px-2">Último</th>
-                          <th className="text-right py-2 px-2">Valor</th>
-                          <th className="text-right py-2 px-2">Lucro</th>
-                        </tr>
-                      </thead>
                       <tbody>
                         {assetSummary.map((asset) => {
                           const qty = parseFloat(asset.totalQuantity);
@@ -533,13 +542,14 @@ export default function Transacoes() {
                         })}
                       </tbody>
                     </table>
+                    </ScrollArea>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Histórico de Transações */}
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+            {/* Histórico de Transações — fixo abaixo */}
+            <Card className="flex-shrink-0 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
               <CardHeader>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <CardTitle>Histórico de Transações</CardTitle>

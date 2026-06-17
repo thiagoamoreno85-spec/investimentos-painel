@@ -266,6 +266,53 @@ export const marketRouter = router({
       return { news: news.slice(0, input.limit), updatedAt: new Date() };
     }),
 
+  /** Busca histórico de rentabilidade da carteira vs benchmarks (CDI e Ibovespa) */
+  getBenchmarkHistory: protectedProcedure
+    .input(z.object({ fromDate: z.string() }))
+    .query(async ({ input }) => {
+      try {
+        const from = Math.floor(new Date(input.fromDate).getTime() / 1000);
+        const to = Math.floor(Date.now() / 1000);
+
+        // Buscar Ibovespa histórico
+        const ibovRes = await fetch(
+          `https://query1.finance.yahoo.com/v8/finance/chart/%5EBVSP?interval=1mo&period1=${from}&period2=${to}`
+        );
+        const ibovData = await ibovRes.json();
+        const ibovTimestamps = ibovData.chart.result[0].timestamp;
+        const ibovClose = ibovData.chart.result[0].indicators.quote[0].close;
+
+        // Normalizar para base 100 (retorno acumulado percentual)
+        const ibovBase = ibovClose[0];
+        const ibov = ibovTimestamps.map((ts: number, i: number) => ({
+          date: new Date(ts * 1000).toISOString().slice(0, 7), // "2023-01"
+          value: ((ibovClose[i] / ibovBase) - 1) * 100, // % acumulado
+        }));
+
+        // Buscar taxa CDI mensal da API Banco Central
+        // Série 4390 = CDI diário acumulado mensal
+        const cdiRes = await fetch(
+          `https://api.bcb.gov.br/dados/serie/bcdata.sgs.4390/dados?formato=json&dataInicial=${input.fromDate.split('-').reverse().join('/')}&dataFinal=${new Date().toLocaleDateString('pt-BR')}`
+        );
+        const cdiRaw = await cdiRes.json();
+
+        // Acumular CDI mês a mês
+        let cdiAcum = 0;
+        const cdi = cdiRaw.map((item: { data: string; valor: string }) => {
+          cdiAcum += parseFloat(item.valor);
+          return {
+            date: item.data.slice(6) + '-' + item.data.slice(3, 5), // "2023-01"
+            value: cdiAcum,
+          };
+        });
+
+        return { ibov, cdi };
+      } catch (err) {
+        console.error("[getBenchmarkHistory] Error:", err);
+        return { ibov: [], cdi: [] };
+      }
+    }),
+
   /** Busca cotações dos ativos da carteira com variação do dia */
   getPortfolioQuotes: protectedProcedure.query(async ({ ctx }) => {
     const assets = await getAssetsByUser(ctx.user.id);

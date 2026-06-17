@@ -246,6 +246,51 @@ export const portfolioRouter = router({
     return { rate };
   }),
 
+  /** Calcula histórico de rentabilidade da carteira mês a mês */
+  getReturnHistory: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const db = await getDb();
+      if (!db) return { history: [], fromDate: null };
+
+      // Buscar todas as transações do usuário ordenadas por data
+      const transactions = await getTransactionsByUser(ctx.user.id);
+
+      if (transactions.length === 0) return { history: [], fromDate: null };
+
+      // Agrupar patrimônio estimado por mês
+      // Simplificação: usar custo acumulado por mês como proxy do patrimônio
+      const monthlyMap: Record<string, number> = {};
+      let cumCost = 0;
+
+      for (const tx of transactions) {
+        const txDate = new Date(tx.transactionDate);
+        const month = txDate.toISOString().slice(0, 7); // "2023-01"
+        const totalCost = parseFloat(tx.totalValue || "0");
+        
+        if (tx.type === "buy") cumCost += totalCost;
+        if (tx.type === "sell") cumCost -= totalCost;
+        
+        monthlyMap[month] = cumCost;
+      }
+
+      const months = Object.keys(monthlyMap).sort();
+      if (months.length === 0) return { history: [], fromDate: null };
+
+      const base = monthlyMap[months[0]];
+      if (base === 0) return { history: [], fromDate: null };
+
+      const history = months.map(month => ({
+        date: month,
+        value: ((monthlyMap[month] / base) - 1) * 100,
+      }));
+
+      return { history, fromDate: months[0] + "-01" };
+    } catch (err) {
+      console.error("[getReturnHistory] Error:", err);
+      return { history: [], fromDate: null };
+    }
+  }),
+
   // ========== SEED ==========
 
   /** Importa a carteira completa do Dr. Thiago a partir dos dados estáticos */

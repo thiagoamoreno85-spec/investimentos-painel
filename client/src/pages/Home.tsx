@@ -26,6 +26,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { BenchmarkChart } from "@/components/BenchmarkChart";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
   rv_nacional: "RV Nacional",
@@ -508,6 +509,11 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Benchmark Chart */}
+        <div className="mt-6">
+          <BenchmarkChart />
         </div>
       </div>
     </DashboardLayout>

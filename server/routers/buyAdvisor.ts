@@ -6,9 +6,12 @@ import {
   getAnalysisHistoryByUser,
   getAnalysisHistoryById,
   deleteAnalysisHistory,
+  getDb,
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
 import { invokeLLM } from "../_core/llm";
+import { analysisHistory } from "../../drizzle/schema";
+import { eq, and, gte, desc } from "drizzle-orm";
 
 /** Tenta extrair o ticker recomendado do texto da análise */
 function extractRecommendedTicker(text: string): string | null {
@@ -42,6 +45,42 @@ export const buyAdvisorRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // Cache TTL: 10 minutos
+      const CACHE_TTL_MS = 10 * 60 * 1000;
+      const now = new Date();
+
+      // Buscar análise recente com os mesmos parâmetros
+      const db = await getDb();
+      if (db) {
+        const recent = await db
+          .select()
+          .from(analysisHistory)
+          .where(
+            and(
+              eq(analysisHistory.userId, ctx.user.id),
+              eq(analysisHistory.focus, input.focus),
+              gte(analysisHistory.createdAt, new Date(now.getTime() - CACHE_TTL_MS))
+            )
+          )
+          .orderBy(desc(analysisHistory.createdAt))
+          .limit(1);
+
+        if (recent.length > 0) {
+          const cached = recent[0];
+          return {
+            analysis: cached.analysisText,
+            updatedAt: cached.createdAt,
+            quotesSnapshot: JSON.parse(cached.quotesSnapshot || "{}"),
+            usdBrl: parseFloat(cached.usdBrl || "5.7"),
+            assetsAnalyzed: cached.assetsAnalyzed ?? undefined,
+            recommendedTicker: cached.recommendedTicker ?? undefined,
+            historyId: cached.id ?? undefined,
+            fromCache: true,
+            message: "Retornando análise recente (menos de 10 minutos).",
+          };
+        }
+      }
+
       const assets = await getAssetsByUser(ctx.user.id);
 
       if (assets.length === 0) {

@@ -58,6 +58,8 @@ export default function MelhorCompra() {
   const [userContext, setUserContext] = useState("");
   const [activeTab, setActiveTab] = useState<"analyze" | "history">("analyze");
   const [selectedHistoryId, setSelectedHistoryId] = useState<number | null>(null);
+  const [cooldown, setCooldown] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
   const [result, setResult] = useState<{
     analysis: string;
@@ -67,6 +69,8 @@ export default function MelhorCompra() {
     assetsAnalyzed?: number;
     recommendedTicker?: string | null;
     historyId?: number | null;
+    fromCache?: boolean;
+    message?: string;
   } | null>(null);
 
   const utils = trpc.useUtils();
@@ -98,12 +102,29 @@ export default function MelhorCompra() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (cooldown) return;
+
     const parsed = parseFloat(amount.replace(",", "."));
     if (isNaN(parsed) || parsed <= 0) {
       toast.error("Informe um valor válido.");
       return;
     }
+    
     analyze.mutate({ availableAmount: parsed, focus, userContext: userContext.trim() || undefined });
+
+    // Ativar cooldown de 30s
+    setCooldown(true);
+    setCooldownSeconds(30);
+    const interval = setInterval(() => {
+      setCooldownSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setCooldown(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   }
 
   const totalAssets = assets?.length ?? 0;
@@ -228,9 +249,11 @@ export default function MelhorCompra() {
                     <Button
                       type="submit"
                       className="w-full h-12 gap-2 bg-amber-500 hover:bg-amber-600 text-black font-semibold text-base"
-                      disabled={analyze.isPending || totalAssets === 0}
+                      disabled={cooldown || analyze.isPending || totalAssets === 0}
                     >
-                      {analyze.isPending ? (
+                      {cooldown ? (
+                        <><Clock className="w-5 h-5" /> Aguarde {cooldownSeconds}s</>
+                      ) : analyze.isPending ? (
                         <><Loader2 className="w-5 h-5 animate-spin" /> Analisando...</>
                       ) : (
                         <><Sparkles className="w-5 h-5" /> Analisar Melhor Compra</>
@@ -343,10 +366,17 @@ export default function MelhorCompra() {
                       </p>
                     </div>
                     <div className="mt-4 flex justify-between items-center">
-                      <span className="text-xs text-emerald-500 flex items-center gap-1">
-                        <History className="w-3.5 h-3.5" />
-                        Salvo no histórico
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-emerald-500 flex items-center gap-1">
+                          <History className="w-3.5 h-3.5" />
+                          Salvo no histórico
+                        </span>
+                        {result.fromCache && (
+                          <span className="text-xs text-amber-500 flex items-center gap-1">
+                            ⚡ Análise em cache — clique novamente em {cooldownSeconds}s para forçar nova análise
+                          </span>
+                        )}
+                      </div>
                       <Button
                         variant="outline"
                         size="sm"

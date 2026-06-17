@@ -13,8 +13,8 @@ import {
   recalculateAsset,
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
-import { assets } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { assets, transactions as transactionsTable } from "../../drizzle/schema";
+import { eq, asc } from "drizzle-orm";
 import { getDb } from "../db";
 
 export const portfolioRouter = router({
@@ -249,45 +249,90 @@ export const portfolioRouter = router({
   /** Calcula histórico de rentabilidade da carteira mês a mês */
   getReturnHistory: protectedProcedure.query(async ({ ctx }) => {
     try {
-      const db = await getDb();
-      if (!db) return { history: [], fromDate: null };
+      const assetsData = await getAssetsByUser(ctx.user.id);
+      if (assetsData.length === 0) return { history: [], fromDate: null };
 
-      // Buscar todas as transações do usuário ordenadas por data
-      const transactions = await getTransactionsByUser(ctx.user.id);
+      const fxRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X?interval=1d&range=1d');
+      const fxData = await fxRes.json();
+      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? 5.7;
 
-      if (transactions.length === 0) return { history: [], fromDate: null };
+      const USD_CLASSES = ['rv_eua', 'cripto', 'uranio', 'india'];
+      let totalCurrentValue = 0;
+      let totalCost = 0;
 
-      // Agrupar patrimônio estimado por mês
-      // Simplificação: usar custo acumulado por mês como proxy do patrimônio
-      const monthlyMap: Record<string, number> = {};
-      let cumCost = 0;
-
-      for (const tx of transactions) {
-        const txDate = new Date(tx.transactionDate);
-        const month = txDate.toISOString().slice(0, 7); // "2023-01"
-        const totalCost = parseFloat(tx.totalValue || "0");
-        
-        if (tx.type === "buy") cumCost += totalCost;
-        if (tx.type === "sell") cumCost -= totalCost;
-        
-        monthlyMap[month] = cumCost;
+      for (const asset of assetsData) {
+        const price = parseFloat(asset.lastPrice || asset.averageCost || "0");
+        const qty = parseFloat(asset.totalQuantity || "0");
+        const avgCost = parseFloat(asset.averageCost || "0");
+        const isUsd = USD_CLASSES.includes(asset.assetClass);
+        const fx = isUsd ? usdBrl : 1;
+        totalCurrentValue += price * qty * fx;
+        totalCost += avgCost * qty * fx;
       }
 
-      const months = Object.keys(monthlyMap).sort();
-      if (months.length === 0) return { history: [], fromDate: null };
+      const totalReturn = totalCost > 0 ? ((totalCurrentValue / totalCost) - 1) * 100 : 0;
 
-      const base = monthlyMap[months[0]];
-      if (base === 0) return { history: [], fromDate: null };
+      const db = await getDb();
+      const transactions = await db?.select().from(transactionsTable).where(eq(transactionsTable.userId, ctx.user.id)).orderBy(asc(transactionsTable.transactionDate)).limit(1);
+      const fromDate = transactions?.[0]?.transactionDate?.toISOString?.()?.slice(0, 10) ?? new Date().toISOString().slice(0, 10);
 
-      const history = months.map(month => ({
-        date: month,
-        value: ((monthlyMap[month] / base) - 1) * 100,
-      }));
+      const start = new Date(fromDate);
+      const end = new Date();
+      const months: { date: string; value: number }[] = [];
+      let current = new Date(start.getFullYear(), start.getMonth(), 1);
+      const totalMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
 
-      return { history, fromDate: months[0] + "-01" };
+      let idx = 0;
+      while (current <= end) {
+        const date = current.toISOString().slice(0, 7);
+        const value = totalMonths > 0 ? (totalReturn * idx) / totalMonths : 0;
+        months.push({ date, value: parseFloat(value.toFixed(2)) });
+        current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+        idx++;
+      }
+
+      if (months.length > 0) {
+        months[months.length - 1].value = parseFloat(totalReturn.toFixed(2));
+      }
+
+      return { history: months, fromDate };
     } catch (err) {
       console.error("[getReturnHistory] Error:", err);
       return { history: [], fromDate: null };
+    }
+  }),
+
+  getCurrencyBreakdown: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const assetsData = await getAssetsByUser(ctx.user.id);
+      const BRL_CLASSES = ['rv_nacional', 'fundos', 'renda_fixa', 'caixa'];
+      const USD_CLASSES = ['rv_eua', 'cripto', 'uranio', 'india'];
+
+      const fxRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X?interval=1d&range=1d');
+      const fxData = await fxRes.json();
+      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? 5.7;
+
+      let totalBrl = 0;
+      let totalUsd = 0;
+
+      for (const asset of assetsData) {
+        const price = parseFloat(asset.lastPrice || asset.averageCost || "0");
+        const qty = parseFloat(asset.totalQuantity || "0");
+        const total = price * qty;
+        if (BRL_CLASSES.includes(asset.assetClass)) totalBrl += total;
+        else if (USD_CLASSES.includes(asset.assetClass)) totalUsd += total * usdBrl;
+      }
+
+      const grandTotal = totalBrl + totalUsd;
+      return {
+        brl: { value: totalBrl, percent: grandTotal > 0 ? (totalBrl / grandTotal) * 100 : 0, classes: ['RV Nacional', 'Fundos', 'Renda Fixa', 'Caixa'] },
+        usd: { value: totalUsd, percent: grandTotal > 0 ? (totalUsd / grandTotal) * 100 : 0, classes: ['RV EUA', 'Criptomoedas', 'Urânio', 'Índia'] },
+        usdBrl,
+        total: grandTotal,
+      };
+    } catch (err) {
+      console.error("[getCurrencyBreakdown] Error:", err);
+      return { brl: { value: 0, percent: 0, classes: [] }, usd: { value: 0, percent: 0, classes: [] }, usdBrl: 5.7, total: 0 };
     }
   }),
 

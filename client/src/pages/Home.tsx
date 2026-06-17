@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BenchmarkChart } from "@/components/BenchmarkChart";
+import { CurrencyBreakdownChart } from "@/components/CurrencyBreakdownChart";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
   rv_nacional: "RV Nacional",
@@ -509,6 +510,11 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Currency Breakdown Chart */}
+        <div className="mt-6">
+          <CurrencyBreakdownChart />
         </div>
 
         {/* Benchmark Chart */}

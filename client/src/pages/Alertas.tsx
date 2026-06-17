@@ -218,7 +218,7 @@ export default function Alertas() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full gap-0">
+      <div className="space-y-6">
         <div className="flex-shrink-0 flex items-start justify-between pb-3">
           <div>
             <h2 className="text-xl md:text-3xl font-bold tracking-tight">Alertas de Monitoramento</h2>

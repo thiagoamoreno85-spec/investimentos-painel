@@ -327,11 +327,10 @@ export default function Noticias() {
   return (
     <DashboardLayout>
       {/*
-        Layout: flex column que ocupa toda a altura disponível.
-        O DashboardLayout já tem overflow-hidden no main, então
-        este container precisa ser h-full para preencher o espaço.
+        Layout: flex column com scroll natural.
+        O DashboardLayout agora permite scroll no main.
       */}
-      <div className="flex flex-col h-full min-h-0">
+      <div className="space-y-6">
 
         {/* ── CABEÇALHO FIXO ── */}
         <div className="flex-shrink-0 space-y-3 pb-3">

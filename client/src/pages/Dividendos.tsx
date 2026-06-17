@@ -158,7 +158,7 @@ export default function Dividendos() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full gap-0">
+      <div className="space-y-6">
         {/* Cabeçalho fixo */}
         <div className="flex-shrink-0 pb-3">
           <h2 className="text-xl md:text-3xl font-bold tracking-tight">Dividendos & Proventos</h2>

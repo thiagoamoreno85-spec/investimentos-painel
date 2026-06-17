@@ -187,7 +187,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </aside>
 
       {/* ── MAIN CONTENT ── */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden h-full">
+      <main className="flex-1 flex flex-col min-w-0 h-screen">
 
         {/* Mobile topbar */}
         <header className="h-14 border-b border-border bg-card flex items-center justify-between px-4 md:hidden flex-shrink-0 z-30">
@@ -224,9 +224,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </header>
 
-        {/* Page content */}
-        <div className="flex-1 overflow-hidden flex flex-col p-3 md:p-8 min-h-0">
-          <div className="max-w-6xl mx-auto w-full flex flex-col flex-1 min-h-0 h-full">
+        {/* Page content — scrollable */}
+        <div className="flex-1 overflow-y-auto p-3 md:p-8">
+          <div className="max-w-6xl mx-auto w-full">
             {children}
           </div>
         </div>

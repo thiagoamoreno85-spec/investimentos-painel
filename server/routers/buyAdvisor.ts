@@ -54,7 +54,7 @@ export const buyAdvisorRouter = router({
       }
 
       const filteredAssets = assets.filter((a) => {
-        if (input.focus === "brasil") return a.assetClass !== "rv_eua";
+        if (input.focus === "brasil") return ["rv_nacional", "fundos", "renda_fixa", "caixa"].includes(a.assetClass);
         if (input.focus === "eua") return a.assetClass === "rv_eua";
         return true;
       });

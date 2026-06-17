@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { Calculator, Target, Calendar } from "lucide-react";
+import { summaryData } from "@/lib/data";
 
 export default function Aportes() {
   const [aporteMensal, setAporteMensal] = useState(10000);
   const [anos, setAnos] = useState(10);
   const [taxaAnual, setTaxaAnual] = useState(12);
-  const patrimonioAtual = 1914184;
+  const patrimonioAtual = summaryData.totalPatrimony;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -99,13 +100,10 @@ export default function Aportes() {
               </div>
 
               <div className="pt-4 border-t border-border/50">
-                <div className="flex items-center justify-between text-sm mb-2">
+                <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Patrimônio Atual Base:</span>
                   <span className="font-mono font-medium">{formatCurrency(patrimonioAtual)}</span>
                 </div>
-                <Button className="w-full mt-4" variant="default">
-                  Atualizar Projeção
-                </Button>
               </div>
             </CardContent>
           </Card>

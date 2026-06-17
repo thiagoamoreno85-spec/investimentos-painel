@@ -121,10 +121,12 @@ export default function Alocacao() {
       ...cat,
       assets: cat.assets.map((a) => ({
         ...a,
-        currency: "BRL",
+        currency: CLASS_CURRENCY[cat.id] || "BRL",
       })),
     }));
   }, [hasDbData, dbAssets, usdBrl]);
+
+
 
   function formatCurrency(value: number, currency: string = "BRL") {
     if (currency === "USD") {

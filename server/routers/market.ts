@@ -242,7 +242,7 @@ async function fetchNewsForTickers(tickers: string[]): Promise<NewsItem[]> {
 
 export const marketRouter = router({
   /** Busca índices globais (Ibovespa, S&P500, Nasdaq, Dólar, Ouro, etc.) */
-  getIndices: publicProcedure.query(async () => {
+  getIndices: protectedProcedure.query(async () => {
     const [indices, usdBrl] = await Promise.all([
       fetchMarketIndices(),
       fetchUsdBrl().catch(() => 5.7),

@@ -24,6 +24,8 @@ import {
 } from "recharts";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
   rv_nacional: "RV Nacional",
@@ -62,11 +64,13 @@ export default function Home() {
   const utils = trpc.useUtils();
   const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const refreshPrices = trpc.portfolio.refreshPrices.useMutation({
     onSuccess: (result) => {
+      setLastUpdated(new Date());
       toast.success(
-        `${result.updated} cotações atualizadas. USD/BRL: R$ ${result.usdBrl.toFixed(2)}`
+        `${result.updated} cotações atualizadas (${result.cached} em cache). USD/BRL: R$ ${result.usdBrl.toFixed(2)}`
       );
       utils.portfolio.getAssets.invalidate();
     },
@@ -247,7 +251,13 @@ export default function Home() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-4 md:space-y-8">
+      <div className="space-y-8">
+        {!hasDbData && (
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-sm">
+            <span>\u26a0\ufe0f</span>
+            <span>Exibindo dados de demonstra\u00e7\u00e3o. Importe sua carteira para ver valores reais.</span>
+          </div>
+        )}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Visão Geral</h2>
@@ -283,20 +293,27 @@ export default function Home() {
               </Button>
             )}
             {hasDbData && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => refreshPrices.mutate()}
-                disabled={refreshPrices.isPending}
-                className="gap-2"
-              >
-                {refreshPrices.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="w-4 h-4" />
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => refreshPrices.mutate()}
+                  disabled={refreshPrices.isPending}
+                  className="gap-2"
+                >
+                  {refreshPrices.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4" />
+                  )}
+                  Atualizar Cotações
+                </Button>
+                {lastUpdated && (
+                  <span className="text-xs text-muted-foreground">
+                    Atualizado {formatDistanceToNow(lastUpdated, { addSuffix: true, locale: ptBR })}
+                  </span>
                 )}
-                Atualizar Cotações
-              </Button>
+              </div>
             )}
           </div>
         </div>

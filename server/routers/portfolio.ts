@@ -11,9 +11,11 @@ import {
   createTransaction,
   deleteTransaction,
   recalculateAsset,
-  updateAssetPricesBulk,
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
+import { assets } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
+import { getDb } from "../db";
 
 export const portfolioRouter = router({
   // ========== ASSETS ==========
@@ -164,46 +166,78 @@ export const portfolioRouter = router({
 
   /** Busca cotações atualizadas para todos os ativos do usuário */
   refreshPrices: protectedProcedure.mutation(async ({ ctx }) => {
+    const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutos
+    const now = new Date();
+
     const userAssets = await getAssetsByUser(ctx.user.id);
-    if (userAssets.length === 0) return { updated: 0, usdBrl: 5.7 };
+    if (userAssets.length === 0) return { updated: 0, cached: 0, usdBrl: 5.7, message: "Nenhum ativo na carteira." };
 
-    const tickerList = userAssets.map((a) => ({
-      ticker: a.ticker,
-      assetClass: a.assetClass,
-    }));
+    // Filtrar apenas ativos com preço desatualizado ou sem preço
+    const stale = userAssets.filter((a) => {
+      if (!a.lastPriceUpdatedAt) return true;
+      return (now.getTime() - new Date(a.lastPriceUpdatedAt).getTime()) > CACHE_TTL_MS;
+    });
 
-    const [quotes, usdBrl] = await Promise.all([
-      fetchQuotes(tickerList),
-      fetchUsdBrl(),
-    ]);
+    if (stale.length === 0) {
+      return {
+        updated: 0,
+        cached: userAssets.length,
+        usdBrl: 5.7,
+        message: "Cotações em cache, nenhuma atualização necessária.",
+      };
+    }
 
+    // Buscar cotações apenas dos ativos desatualizados, em lotes de 10
+    const BATCH_SIZE = 10;
+    let updated = 0;
     const updates: { id: number; lastPrice: string }[] = [];
-    for (const asset of userAssets) {
-      const quote = quotes.get(asset.ticker);
-      if (quote) {
-        updates.push({ id: asset.id, lastPrice: quote.price.toFixed(8) });
+
+    for (let i = 0; i < stale.length; i += BATCH_SIZE) {
+      const batch = stale.slice(i, i + BATCH_SIZE);
+      const tickerList = batch.map((a) => ({
+        ticker: a.ticker,
+        assetClass: a.assetClass,
+      }));
+
+      try {
+        const quotes = await fetchQuotes(tickerList);
+
+        for (const asset of batch) {
+          const quote = quotes.get(asset.ticker);
+          if (quote) {
+            updates.push({ id: asset.id, lastPrice: quote.price.toFixed(8) });
+            updated++;
+          }
+        }
+      } catch (e) {
+        // silenciar erro individual — não quebrar o batch inteiro
+        console.warn("[refreshPrices] Erro ao buscar lote:", e);
+      }
+
+      // Pausa entre lotes para não sobrecarregar o Yahoo Finance
+      if (i + BATCH_SIZE < stale.length) {
+        await new Promise((r) => setTimeout(r, 500));
       }
     }
 
+    // Atualizar preços e timestamps
     if (updates.length > 0) {
-      await updateAssetPricesBulk(updates);
+      const db = await getDb();
+      if (db) {
+        for (const update of updates) {
+          await db.update(assets).set({ lastPrice: update.lastPrice, lastPriceUpdatedAt: now }).where(eq(assets.id, update.id));
+        }
+      }
     }
 
-    // Retorna as cotações para o frontend
-    const quotesObj: Record<
-      string,
-      { price: number; change: number; changePercent: number; currency: string }
-    > = {};
-    quotes.forEach((q, ticker) => {
-      quotesObj[ticker] = {
-        price: q.price,
-        change: q.change,
-        changePercent: q.changePercent,
-        currency: q.currency,
-      };
-    });
+    const usdBrl = await fetchUsdBrl().catch(() => 5.7);
 
-    return { updated: updates.length, usdBrl, quotes: quotesObj };
+    return {
+      updated,
+      cached: userAssets.length - stale.length,
+      usdBrl,
+      message: `${updated} cotações atualizadas, ${userAssets.length - stale.length} em cache.`,
+    };
   }),
 
   /** Busca cotação do dólar */

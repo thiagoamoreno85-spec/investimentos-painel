@@ -57,6 +57,13 @@
       "when": 1781791029762,
       "tag": "0007_new_loners",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1781792576495,
+      "tag": "0008_brave_adam_warlock",
+      "breakpoints": true
     }
   ]
 }

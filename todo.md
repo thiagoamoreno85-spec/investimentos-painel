@@ -93,3 +93,11 @@
 - [x] Adicionar estados de loading, erro e vazio no calendário
 - [x] Adicionar testes Vitest para CRUD de eventos (5+ testes)
 - [x] Zerar valor de caixa hardcoded
+
+## Controle de Caixa (Sprint atual)
+- [x] Tabelas cash_balance e cash_movements no schema
+- [x] Migração do banco com pnpm db:push
+- [x] Router cash.ts com procedures: getBalance, setBalance, addMovement, listMovements, deleteMovement
+- [x] Registrar cashRouter no appRouter
+- [x] Componente CaixaCard com saldo dinâmico, formulário de movimentação e histórico
+- [x] Substituir card estático de Caixa pelo CaixaCard dinâmico na Home

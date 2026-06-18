@@ -256,3 +256,37 @@ export const events = mysqlTable("events", {
 export type Event = typeof events.$inferSelect;
 export type InsertEvent = typeof events.$inferInsert;
 
+
+// ===== CAIXA =====
+
+export const cashBalance = mysqlTable("cash_balance", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  balance: decimal("balance", { precision: 14, scale: 2 }).notNull().default("0"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CashBalance = typeof cashBalance.$inferSelect;
+export type InsertCashBalance = typeof cashBalance.$inferInsert;
+
+export const cashMovements = mysqlTable("cash_movements", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  type: mysqlEnum("type", ["entrada", "saida"]).notNull(),
+  category: mysqlEnum("category", [
+    "dividendo_recebido",
+    "vencimento_rf",
+    "aporte_externo",
+    "compra_ativo",
+    "resgate",
+    "taxa",
+    "outro",
+  ]).notNull(),
+  amount: decimal("amount", { precision: 14, scale: 2 }).notNull(),
+  description: text("description"),
+  date: timestamp("date").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CashMovement = typeof cashMovements.$inferSelect;
+export type InsertCashMovement = typeof cashMovements.$inferInsert;

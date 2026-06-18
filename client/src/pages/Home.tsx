@@ -14,6 +14,7 @@ import {
   Upload,
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
+import CaixaCard from "@/components/CaixaCard";
 import {
   ResponsiveContainer,
   PieChart as RechartsPieChart,
@@ -398,22 +399,7 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
-              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-                Caixa Disponível
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div className="text-lg md:text-2xl font-bold font-mono tracking-tight">
-                {formatCurrency(cashValue)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1 hidden sm:block">
-                Pronto para novos aportes
-              </p>
-            </CardContent>
-          </Card>
+          <CaixaCard />
         </div>
 
         {/* Charts and Tables Area */}

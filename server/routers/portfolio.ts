@@ -21,7 +21,7 @@ import {
   getUpcomingEvents,
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
-import { assets, transactions as transactionsTable } from "../../drizzle/schema";
+import { assets, transactions as transactionsTable, dividends } from "../../drizzle/schema";
 import { eq, asc, and } from "drizzle-orm";
 import { getDb } from "../db";
 import { parseCSV } from "../lib/csvParser";
@@ -280,9 +280,19 @@ export const portfolioRouter = router({
         totalCost += avgCost * qty * fx;
       }
 
-      const totalReturn = totalCost > 0 ? ((totalCurrentValue / totalCost) - 1) * 100 : 0;
+      const totalReturnPrice = totalCost > 0 ? ((totalCurrentValue / totalCost) - 1) * 100 : 0;
 
       const db = await getDb();
+      const dividendRows = await db?.select().from(dividends).where(eq(dividends.userId, ctx.user.id));
+      const totalProventosBRL = dividendRows?.reduce((sum, d) => sum + Number(d.totalValue), 0) ?? 0;
+
+      // Rentabilidade total = (ganho_capital + proventos) / custo_total
+      const ganhoCapital = totalCurrentValue - totalCost;
+      const totalReturn = totalCost > 0 
+        ? ((ganhoCapital + totalProventosBRL) / totalCost) * 100 
+        : 0;
+      const totalProventosYield = totalCost > 0 ? (totalProventosBRL / totalCost) * 100 : 0;
+
       const transactions = await db?.select().from(transactionsTable).where(eq(transactionsTable.userId, ctx.user.id)).orderBy(asc(transactionsTable.transactionDate)).limit(1);
       const fromDate = transactions?.[0]?.transactionDate?.toISOString?.()?.slice(0, 10) ?? new Date().toISOString().slice(0, 10);
 
@@ -305,7 +315,14 @@ export const portfolioRouter = router({
         months[months.length - 1].value = parseFloat(totalReturn.toFixed(2));
       }
 
-      return { history: months, fromDate };
+      return { 
+        history: months, 
+        fromDate,
+        totalReturn,
+        totalReturnPrice,
+        totalProventos: totalProventosBRL,
+        totalProventosYield
+      };
     } catch (err) {
       console.error("[getReturnHistory] Error:", err);
       return { history: [], fromDate: null };

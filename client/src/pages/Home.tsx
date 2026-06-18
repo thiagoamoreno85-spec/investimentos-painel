@@ -347,7 +347,7 @@ export default function Home() {
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-                Lucro Estimado
+                Rentabilidade Total
               </CardTitle>
               <TrendingUp
                 className={`h-4 w-4 ${
@@ -376,7 +376,7 @@ export default function Home() {
                 ) : (
                   <ArrowDownRight className="h-3 w-3" />
                 )}
-                {Math.abs(profitPct).toFixed(1)}% histórico
+                {Math.abs(profitPct).toFixed(1)}% (capital + proventos)
               </p>
             </CardContent>
           </Card>

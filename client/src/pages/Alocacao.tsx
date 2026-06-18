@@ -4,7 +4,7 @@ import { portfolioData } from "@/lib/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowUpRight, ArrowDownRight, Loader2 } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Loader2, Wallet } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
@@ -50,15 +50,21 @@ interface ClassGroup {
 export default function Alocacao() {
   const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
+  const { data: cashData } = trpc.cash.getBalance.useQuery();
+  const { data: cashMovements } = trpc.cash.listMovements.useQuery({ limit: 8 });
   const usdBrl = usdBrlData?.rate ?? 5.7;
   const hasDbData = dbAssets && dbAssets.length > 0;
+  const cashBalance = Number(cashData?.balance ?? 0);
 
   const categories: ClassGroup[] = useMemo(() => {
     if (hasDbData) {
       const classMap = new Map<string, ClassGroup>();
-      let totalPatrimony = 0;
+      let totalPatrimony = cashBalance; // inclui caixa real no total
 
       for (const asset of dbAssets!) {
+        // Ignorar ativos de classe caixa (agora gerenciados pelo cash_balance)
+        if (asset.assetClass === "caixa") continue;
+
         const qty = parseFloat(asset.totalQuantity);
         const avgCost = parseFloat(asset.averageCost);
         const lastPrice = parseFloat(asset.lastPrice);
@@ -104,6 +110,15 @@ export default function Alocacao() {
         });
       }
 
+      // Adicionar grupo de caixa dinâmico
+      classMap.set("caixa", {
+        id: "caixa",
+        name: "Caixa",
+        totalValue: cashBalance,
+        percentage: 0,
+        assets: [],
+      });
+
       // Calcular percentuais
       const result = Array.from(classMap.values())
         .map((g) => ({
@@ -124,7 +139,7 @@ export default function Alocacao() {
         currency: CLASS_CURRENCY[cat.id] || "BRL",
       })),
     }));
-  }, [hasDbData, dbAssets, usdBrl]);
+  }, [hasDbData, dbAssets, usdBrl, cashBalance]);
 
 
 
@@ -218,69 +233,147 @@ export default function Alocacao() {
                   </CardHeader>
 
                   <CardContent className="flex flex-col flex-1 min-h-0 pt-0 px-2 md:px-6">
-                    <div className="rounded-md border border-border/50 flex flex-col flex-1 min-h-0 overflow-hidden">
-                      {/* Cabeçalho da tabela fixo */}
-                      <div className="overflow-x-auto flex-shrink-0 min-w-0">
-                        <table className="w-full text-sm text-left">
-                          <thead className="bg-secondary/50 text-muted-foreground">
-                            <tr>
-                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">Ativo</th>
-                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Qtd</th>
-                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm hidden sm:table-cell">Custo Médio</th>
-                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Preço</th>
-                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Total</th>
-                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">L/P</th>
-                            </tr>
-                          </thead>
-                        </table>
+                    {/* Renderização especial para aba Caixa */}
+                    {category.id === "caixa" ? (
+                      <div className="space-y-4">
+                        {/* Card de saldo real */}
+                        <div className="flex items-center justify-between p-4 rounded-lg bg-card border border-border">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-full bg-emerald-500/10">
+                              <Wallet className="h-5 w-5 text-emerald-400" />
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Caixa Disponível</p>
+                              <p className="text-2xl font-bold text-emerald-400 font-mono">
+                                {formatBRL(cashBalance)}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {cashData?.updatedAt
+                                  ? `Atualizado em ${new Date(cashData.updatedAt).toLocaleDateString("pt-BR")}`
+                                  : "Saldo real do cash_balance"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-muted-foreground">% do patrimônio</p>
+                            <p className="text-lg font-semibold font-mono">
+                              {category.percentage.toFixed(1)}%
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Últimas movimentações */}
+                        {cashMovements && cashMovements.length > 0 ? (
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground mb-2">
+                              Últimas movimentações
+                            </p>
+                            <div className="rounded-md border border-border/50 overflow-hidden">
+                              <ScrollArea className="max-h-72">
+                                <table className="w-full text-sm">
+                                  <thead className="bg-secondary/50 text-muted-foreground">
+                                    <tr>
+                                      <th className="text-left px-3 py-2 text-xs font-medium">Data</th>
+                                      <th className="text-left px-3 py-2 text-xs font-medium hidden sm:table-cell">Categoria</th>
+                                      <th className="text-left px-3 py-2 text-xs font-medium">Descrição</th>
+                                      <th className="text-right px-3 py-2 text-xs font-medium">Valor</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-border/50">
+                                    {cashMovements.map((m) => (
+                                      <tr key={m.id} className="hover:bg-secondary/20 transition-colors">
+                                        <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                                          {new Date(m.date).toLocaleDateString("pt-BR")}
+                                        </td>
+                                        <td className="px-3 py-2 text-xs capitalize hidden sm:table-cell">
+                                          {String(m.category).replace(/_/g, " ")}
+                                        </td>
+                                        <td className="px-3 py-2 text-xs text-muted-foreground">
+                                          {m.description ?? "—"}
+                                        </td>
+                                        <td className={`px-3 py-2 text-right text-xs font-mono font-medium ${m.type === "entrada" ? "text-emerald-400" : "text-red-400"}`}>
+                                          {m.type === "entrada" ? "+" : "-"}
+                                          {formatBRL(Number(m.amount))}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </ScrollArea>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground text-center py-8">
+                            Nenhuma movimentação registrada. Use o card de Caixa na Visão Geral para registrar entradas e saídas.
+                          </p>
+                        )}
                       </div>
-                      {/* Corpo da tabela com scroll */}
-                      <ScrollArea className="flex-1 min-h-0">
-                        <table className="w-full text-sm text-left">
-                          <tbody className="divide-y divide-border/50">
-                            {category.assets.map((asset) => (
-                              <tr
-                                key={asset.id}
-                                className="hover:bg-secondary/20 transition-colors"
-                              >
-                                <td className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">{asset.name}</td>
-                                <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
-                                  {asset.position < 1
-                                    ? asset.position.toFixed(4)
-                                    : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
-                                </td>
-                                <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm hidden sm:table-cell">
-                                  {formatCurrency(asset.cost, asset.currency)}
-                                </td>
-                                <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
-                                  {formatCurrency(asset.price, asset.currency)}
-                                </td>
-                                <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono font-medium text-xs md:text-sm">
-                                  {formatBRL(asset.totalValue)}
-                                </td>
-                                <td className="px-2 md:px-4 py-2 md:py-3 text-right text-xs md:text-sm">
-                                  <div
-                                    className={`flex items-center justify-end gap-1 font-mono ${
-                                      asset.profit >= 0 ? "text-emerald-500" : "text-red-400"
-                                    }`}
-                                  >
-                                    {asset.profit >= 0 ? (
-                                      <ArrowUpRight className="h-3 w-3" />
-                                    ) : (
-                                      <ArrowDownRight className="h-3 w-3" />
-                                    )}
-                                    {formatBRL(Math.abs(asset.profit))}
-                                    <span className="text-xs ml-1 opacity-80">
-                                      ({asset.profitPercentage.toFixed(1)}%)
-                                    </span>
-                                  </div>
-                                </td>
+                    ) : (
+                      /* Tabela padrão para outras classes */
+                      <div className="rounded-md border border-border/50 flex flex-col flex-1 min-h-0 overflow-hidden">
+                        {/* Cabeçalho da tabela fixo */}
+                        <div className="overflow-x-auto flex-shrink-0 min-w-0">
+                          <table className="w-full text-sm text-left">
+                            <thead className="bg-secondary/50 text-muted-foreground">
+                              <tr>
+                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">Ativo</th>
+                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Qtd</th>
+                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm hidden sm:table-cell">Custo Médio</th>
+                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Preço</th>
+                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Total</th>
+                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">L/P</th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </ScrollArea>
-                    </div>
+                            </thead>
+                          </table>
+                        </div>
+                        {/* Corpo da tabela com scroll */}
+                        <ScrollArea className="flex-1 min-h-0">
+                          <table className="w-full text-sm text-left">
+                            <tbody className="divide-y divide-border/50">
+                              {category.assets.map((asset) => (
+                                <tr
+                                  key={asset.id}
+                                  className="hover:bg-secondary/20 transition-colors"
+                                >
+                                  <td className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">{asset.name}</td>
+                                  <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
+                                    {asset.position < 1
+                                      ? asset.position.toFixed(4)
+                                      : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
+                                  </td>
+                                  <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm hidden sm:table-cell">
+                                    {formatCurrency(asset.cost, asset.currency)}
+                                  </td>
+                                  <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
+                                    {formatCurrency(asset.price, asset.currency)}
+                                  </td>
+                                  <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono font-medium text-xs md:text-sm">
+                                    {formatBRL(asset.totalValue)}
+                                  </td>
+                                  <td className="px-2 md:px-4 py-2 md:py-3 text-right text-xs md:text-sm">
+                                    <div
+                                      className={`flex items-center justify-end gap-1 font-mono ${
+                                        asset.profit >= 0 ? "text-emerald-500" : "text-red-400"
+                                      }`}
+                                    >
+                                      {asset.profit >= 0 ? (
+                                        <ArrowUpRight className="h-3 w-3" />
+                                      ) : (
+                                        <ArrowDownRight className="h-3 w-3" />
+                                      )}
+                                      {formatBRL(Math.abs(asset.profit))}
+                                      <span className="text-xs ml-1 opacity-80">
+                                        ({asset.profitPercentage.toFixed(1)}%)
+                                      </span>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </ScrollArea>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>

@@ -68,6 +68,7 @@ export default function Home() {
   const utils = trpc.useUtils();
   const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
+  const { data: cashBalanceData } = trpc.cash.getBalance.useQuery();
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const refreshPrices = trpc.portfolio.refreshPrices.useMutation({
@@ -92,17 +93,16 @@ export default function Home() {
   });
 
   const usdBrl = usdBrlData?.rate ?? 5.7;
+  const cashBalance = Number(cashBalanceData?.balance ?? 0);
   const hasDbData = dbAssets && dbAssets.length > 0;
-
   // Computar dados a partir do banco ou dados estáticos
   const { totalPatrimony, totalProfit, profitPct, pieData, topAssets, cashValue, largestClass, largestClassPct } =
     useMemo(() => {
       if (hasDbData) {
         // Dados do banco
         const classMap = new Map<string, number>();
-        let patrimony = 0;
+        let patrimony = cashBalance; // inclui caixa dinâmico
         let cost = 0;
-
         const assetValues: {
           ticker: string;
           name: string;
@@ -110,36 +110,25 @@ export default function Home() {
           valueBRL: number;
           profitPct: number;
         }[] = [];
-
-        let cash = 0;
-
         for (const asset of dbAssets!) {
+          // Ignorar ativos de classe caixa (agora gerenciados pelo cash_balance)
+          if (asset.assetClass === "caixa") continue;
           const qty = parseFloat(asset.totalQuantity);
           const avgCost = parseFloat(asset.averageCost);
           const lastPrice = parseFloat(asset.lastPrice);
           const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
-
           let valueBRL = qty * lastPrice;
           let costBRL = qty * avgCost;
-
           if (currency === "USD") {
             valueBRL *= usdBrl;
             costBRL *= usdBrl;
           }
-
           patrimony += valueBRL;
           cost += costBRL;
-
           const classLabel = ASSET_CLASS_LABELS[asset.assetClass] || asset.assetClass;
           classMap.set(classLabel, (classMap.get(classLabel) || 0) + valueBRL);
-
-          if (asset.assetClass === "caixa") {
-            cash += valueBRL;
-          }
-
           const profitVal = valueBRL - costBRL;
           const profitP = costBRL > 0 ? (profitVal / costBRL) * 100 : 0;
-
           assetValues.push({
             ticker: asset.ticker,
             name: asset.name || asset.ticker,
@@ -147,6 +136,10 @@ export default function Home() {
             valueBRL,
             profitPct: profitP,
           });
+        }
+        // Adicionar caixa dinâmico ao mapa de classes
+        if (cashBalance > 0) {
+          classMap.set("Caixa", (classMap.get("Caixa") || 0) + cashBalance);
         }
 
         const profit = patrimony - cost;
@@ -173,7 +166,7 @@ export default function Home() {
             value: a.valueBRL,
             profit: a.profitPct,
           })),
-          cashValue: cash,
+          cashValue: cashBalance,
           largestClass: largest?.name || "—",
           largestClassPct: patrimony > 0 ? ((largest?.value || 0) / patrimony) * 100 : 0,
         };
@@ -201,7 +194,7 @@ export default function Home() {
         largestClass: "RV Nacional",
         largestClassPct: 58.8,
       };
-    }, [hasDbData, dbAssets, usdBrl]);
+    }, [hasDbData, dbAssets, usdBrl, cashBalance]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {

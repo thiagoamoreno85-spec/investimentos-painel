@@ -101,3 +101,14 @@
 - [x] Registrar cashRouter no appRouter
 - [x] Componente CaixaCard com saldo dinâmico, formulário de movimentação e histórico
 - [x] Substituir card estático de Caixa pelo CaixaCard dinâmico na Home
+
+## Correção Aba Caixa em Alocação (Sprint atual)
+- [x] Remover ativos estáticos de caixa do banco (ids 84 e 85)
+- [x] Reescrever Alocacao.tsx com queries trpc.cash.getBalance e trpc.cash.listMovements
+- [x] Renderização especial para aba Caixa: card de saldo + tabela de movimentações
+- [x] Ignorar ativos de classe 'caixa' do dbAssets (evitar duplicação)
+- [x] Incluir cashBalance no totalPatrimony e pieData em Alocacao.tsx
+- [x] Corrigir Home.tsx: adicionar trpc.cash.getBalance, incluir cashBalance no patrimônio e pieData
+- [x] Corrigir Home.tsx: ignorar ativos de classe 'caixa' do dbAssets (evitar duplicação)
+- [x] Build sem erros TypeScript (pnpm build ✅)
+- [x] 90 testes vitest passando

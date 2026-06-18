@@ -123,10 +123,12 @@
 - [x] Build sem erros TypeScript (pnpm build ✅)
 - [x] 90 testes vitest passando
 
-## Importação Automática de Dividendos via CSV (Sprint próximo)
-- [ ] Estender csvParser.ts para detectar formato de dividendos (B3, XP, Rico, Clear)
-- [ ] Adicionar procedure importDividends em dividends.ts
-- [ ] Modal de importação de dividendos na página Dividendos
-- [ ] Preview dos dividendos antes de confirmar importação
-- [ ] Deduplicação automática (não importar dividendo já registrado)
-- [ ] Testes vitest para importação de dividendos
+## Importação Automática de Dividendos via PDF XP (Sprint atual - CONCLUÍDO)
+- [x] Criar parser XP PDF (pdfDividendParser.ts) com extração de seção Proventos
+- [x] Mapear tipos de proventos (JURO/JCP, DIVI/Dividendo, etc)
+- [x] Adicionar procedure previewDividendsFromPDF em dividends.ts (query)
+- [x] Adicionar procedure importDividendsFromPDF em dividends.ts (mutation)
+- [x] Deduplicação automática por (ticker, tipo, data)
+- [x] Validação de ativos na carteira
+- [x] Build sem erros TypeScript (pnpm build ✅)
+- [x] 90 testes vitest passando

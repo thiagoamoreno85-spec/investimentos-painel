@@ -3,6 +3,8 @@ import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { dividends, assets, type Dividend } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
+import { parseXPDividendsPDF, deduplicateDividends } from "../lib/pdfDividendParser";
+import { TRPCError } from "@trpc/server";
 
 export const dividendsRouter = router({
   /**
@@ -250,4 +252,111 @@ export const dividendsRouter = router({
     const total = rows.reduce((sum: number, d: Dividend) => sum + parseFloat(d.totalValue), 0);
     return { total, count: rows.length };
   }),
+
+  /**
+   * Preview de dividendos extraídos de PDF XP
+   */
+  previewDividendsFromPDF: protectedProcedure
+    .input(z.object({ pdfPath: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const parsed = parseXPDividendsPDF(input.pdfPath);
+        const deduplicated = deduplicateDividends(parsed);
+        const db = await getDb();
+        if (!db) return { preview: [], warnings: [] };
+        const userAssets = await db
+          .select()
+          .from(assets)
+          .where(eq(assets.userId, ctx.user.id));
+        const warnings: string[] = [];
+        const preview = deduplicated.map((div) => {
+          const asset = userAssets.find((a) => a.ticker === div.ticker);
+          if (!asset) {
+            warnings.push(`Ativo ${div.ticker} não encontrado na carteira`);
+          }
+          return {
+            ticker: div.ticker,
+            assetId: asset?.id,
+            type: div.type,
+            paymentDate: div.paymentDate,
+            quantity: div.quantity,
+            totalValue: div.totalValue,
+            valuePerShare: div.valuePerShare,
+            found: !!asset,
+          };
+        });
+        return { preview, warnings };
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Erro ao processar PDF: ${error instanceof Error ? error.message : "Desconhecido"}`,
+        });
+      }
+    }),
+
+  /**
+   * Importar dividendos de PDF XP (confirmar e salvar)
+   */
+  importDividendsFromPDF: protectedProcedure
+    .input(z.object({ pdfPath: z.string(), selectedIndices: z.array(z.number()) }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const parsed = parseXPDividendsPDF(input.pdfPath);
+        const deduplicated = deduplicateDividends(parsed);
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        const userAssets = await db
+          .select()
+          .from(assets)
+          .where(eq(assets.userId, ctx.user.id));
+        let imported = 0;
+        let skipped = 0;
+        const errors: string[] = [];
+        for (let i = 0; i < deduplicated.length; i++) {
+          if (!input.selectedIndices.includes(i)) continue;
+          const div = deduplicated[i];
+          const asset = userAssets.find((a) => a.ticker === div.ticker);
+          if (!asset) {
+            skipped++;
+            errors.push(`${div.ticker}: ativo não encontrado`);
+            continue;
+          }
+          const existing = await db
+            .select()
+            .from(dividends)
+            .where(
+              and(
+                eq(dividends.userId, ctx.user.id),
+                eq(dividends.assetId, asset.id),
+                eq(dividends.type, div.type),
+                eq(dividends.exDate, div.paymentDate)
+              )
+            )
+            .limit(1);
+          if (existing.length > 0) {
+            skipped++;
+            continue;
+          }
+          await db.insert(dividends).values({
+            userId: ctx.user.id,
+            assetId: asset.id,
+            type: div.type,
+            valuePerShare: div.valuePerShare.toFixed(8),
+            quantity: div.quantity.toString(),
+            totalValue: div.totalValue.toFixed(2),
+            currency: "BRL",
+            exDate: div.paymentDate,
+            paymentDate: div.paymentDate,
+            notes: "Importado de PDF XP",
+          });
+          imported++;
+        }
+        return { imported, skipped, errors };
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Erro ao importar dividendos: ${error instanceof Error ? error.message : "Desconhecido"}`,
+        });
+      }
+    }),
 });

@@ -1,0 +1,44 @@
+Fonte: /home/ubuntu/upload/historico_31_05_2026.pdf
+Data da análise: 2026-06-18
+
+Achados iniciais após inspeção visual das páginas 1-5:
+- O documento é da XP e se intitula "Relatório Posição Consolidada".
+- Referência temporal: maio/2026, com data de referência 31/05/2026.
+- Conta identificada: 496056; assessor: Diogo Yamassake (A67774).
+- As páginas iniciais mostram principalmente posição consolidada dos ativos, não um extrato específico de proventos/dividendos.
+- Há listagem de ações com tickers e quantidades, incluindo exemplos como AGRO3, AURE3, AXIA6, AXIA7, BBAS3, BBDC4, BPAC11, BRAV3, CMIN3, CXSE3, CYRE3, CYRE4, FLRY3, NBR32, KEPL3, KLBN11, MBRF3, ORVR3, SBSP3, SOJA3, SUZB3, TTEN3 e VALE3.
+- A página 3 contém seção "Custódia Remunerada", com papel, quantidade, vencimento, última cotação e financeiro.
+- A página 4 contém renda fixa (CDB), não relacionada diretamente à importação de dividendos.
+
+Hipótese de trabalho:
+- O PDF provavelmente contém informações úteis para mapear a carteira e talvez eventos/proventos em páginas posteriores, mas ainda não ficou evidenciado um extrato de dividendos com campos padrão como tipo do provento, data de pagamento e valor líquido por ativo.
+- Próximo passo: extrair texto integral do PDF e procurar termos como "dividendo", "JCP", "provento", "rendimento", "amortização", "crédito" e seções com valores creditados.
+
+Estrutura de Proventos Encontrada:
+Seção "Proventos" (0.31% | Ações) com colunas:
+- Ativo (ticker)
+- Indexador (tipo: JURO, JUROS SOBRE CAPITAL PROPRIO, DIVI, DIVIDENDO)
+- Data Provisão (data esperada do pagamento)
+- Quantidade Provisionada (quantidade de ações)
+- Provisionado (valor total em R$)
+
+Exemplos extraídos:
+- BBDC4 | JURO | 01/06/2026 | 1042 | R$ 19,77
+- BBDC4 | JUROS SOBRE CAPITAL PROPRIO | 31/07/2026 | 10 | R$ 3,86
+- KLBN11 | DIVI | 19/08/2026 | 399 | R$ 90,96
+- FLRY3 | DIVIDENDO | 02/09/2026 | 591 | R$ 76,99
+- BBDC4 | JURO | 30/10/2026 | 1042 | R$ 309,82
+- KLBN11 | DIVI | 12/11/2026 | 399 | R$ 90,96
+- SUZB3 | DIVIDENDO | 31/12/2026 | (valor truncado no PDF)
+
+Mapeamento de Tipos:
+- JURO → JCP (Juros sobre Capital Próprio)
+- JUROS SOBRE CAPITAL PROPRIO → JCP
+- DIVI → Dividendo
+- DIVIDENDO → Dividendo
+
+Próximos Passos:
+1. Criar parser específico para PDF XP (pdftotext + regex)
+2. Extrair seção Proventos e mapear para estrutura interna (tipo, ticker, data, quantidade, valor)
+3. Implementar UI de upload + preview
+4. Deduplicação automática por (ticker, tipo, data)

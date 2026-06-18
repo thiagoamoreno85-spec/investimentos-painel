@@ -87,8 +87,9 @@
 - [x] Dashboard Mercado: tabs compactas e grid responsivo no mobile
 
 ## Calendário de Eventos (Sprint atual - Correções)
-- [ ] Corrigir EventCalendar para renderizar calendário mensal real (offset do primeiro dia, células vazias, alinhamento)
-- [ ] Implementar getEventsByMonth no backend com filtro real por mês/ano
-- [ ] Usar getEventsByMonth no frontend para carregar apenas eventos do mês
-- [ ] Adicionar estados de loading, erro e vazio no calendário
-- [ ] Adicionar testes Vitest para CRUD de eventos (5+ testes)
+- [x] Corrigir EventCalendar para renderizar calendário mensal real (offset do primeiro dia, células vazias, alinhamento, grade completa 6x7)
+- [x] Implementar getEventsByMonth no backend com filtro real por mês/ano
+- [x] Usar getEventsByMonth no frontend para carregar apenas eventos do mês
+- [x] Adicionar estados de loading, erro e vazio no calendário
+- [x] Adicionar testes Vitest para CRUD de eventos (5+ testes)
+- [x] Zerar valor de caixa hardcoded

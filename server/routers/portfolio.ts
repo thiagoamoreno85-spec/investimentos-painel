@@ -14,6 +14,7 @@ import {
   createEvent,
   getEventsByUser,
   getEventsByAsset,
+  getEventsByMonth,
   getEventById,
   updateEvent,
   deleteEvent,
@@ -467,6 +468,13 @@ export const portfolioRouter = router({
     .input(z.object({ assetId: z.number() }))
     .query(async ({ ctx, input }) => {
       return getEventsByAsset(input.assetId, ctx.user.id);
+    }),
+
+  /** Lista eventos de um mês específico */
+  getEventsByMonth: protectedProcedure
+    .input(z.object({ year: z.number(), month: z.number().min(1).max(12) }))
+    .query(async ({ ctx, input }) => {
+      return getEventsByMonth(ctx.user.id, input.year, input.month);
     }),
 
   /** Lista eventos próximos (próximos 30 dias) */

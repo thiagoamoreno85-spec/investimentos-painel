@@ -352,12 +352,15 @@ export async function getEventsByMonth(userId: number, year: number, month: numb
   const startDate = new Date(year, month - 1, 1);
   const endDate = new Date(year, month, 0, 23, 59, 59);
   
-  return db.select().from(events)
-    .where(and(
-      eq(events.userId, userId),
-      // Drizzle doesn't have direct date range, so we filter in JS or use raw SQL
-    ))
+  // Fetch all events for the user and filter in JS
+  const allEvents = await db.select().from(events)
+    .where(eq(events.userId, userId))
     .orderBy(events.eventDate);
+  
+  return allEvents.filter(event => {
+    const eventDate = new Date(event.eventDate);
+    return eventDate >= startDate && eventDate <= endDate;
+  });
 }
 
 export async function getEventById(id: number, userId: number) {

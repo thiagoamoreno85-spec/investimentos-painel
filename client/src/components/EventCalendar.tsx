@@ -88,9 +88,16 @@ export function EventCalendar() {
   const firstDayOfWeek = monthStart.getDay();
   
   // Gerar array com dias vazios no início e dias do mês
-  const calendarDays = [
+  const daysWithPadding = [
     ...Array(firstDayOfWeek).fill(null),
     ...daysInMonth,
+  ];
+  
+  // Completar a última semana com dias vazios
+  const totalCells = Math.ceil(daysWithPadding.length / 7) * 7;
+  const calendarDays = [
+    ...daysWithPadding,
+    ...Array(totalCells - daysWithPadding.length).fill(null),
   ];
 
   // Agrupar eventos por dia

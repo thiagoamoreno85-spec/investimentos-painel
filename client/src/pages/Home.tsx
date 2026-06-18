@@ -196,7 +196,7 @@ export default function Home() {
           { name: "KINEA GAMA", class: "Fundos", value: 103553.74, profit: -2.0 },
           { name: "MBRF3", class: "RV Nacional", value: 78980.40, profit: 44.2 },
         ],
-        cashValue: 41925.91,
+        cashValue: 0,
         largestClass: "RV Nacional",
         largestClassPct: 58.8,
       };

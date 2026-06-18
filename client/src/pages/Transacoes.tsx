@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import DashboardLayout from "@/components/DashboardLayout";
+import { ImportCSVModal } from "@/components/ImportCSVModal";
 import { trpc } from "@/lib/trpc";
 import {
   ArrowUpRight,
@@ -60,6 +61,7 @@ export default function Transacoes() {
   const [notes, setNotes] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterClass, setFilterClass] = useState<string>("all");
+  const [importOpen, setImportOpen] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -213,20 +215,31 @@ export default function Transacoes() {
               automaticamente.
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refreshPrices.mutate()}
-            disabled={refreshPrices.isPending}
-            className="gap-2"
-          >
-            {refreshPrices.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <RefreshCw className="w-4 h-4" />
-            )}
-            Atualizar Cotações
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setImportOpen(true)}
+              className="gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              Importar CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refreshPrices.mutate()}
+              disabled={refreshPrices.isPending}
+              className="gap-2"
+            >
+              {refreshPrices.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              Atualizar Cotações
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-3 md:gap-6 grid-cols-1 lg:grid-cols-3 flex-1 min-h-0">
@@ -664,6 +677,7 @@ export default function Transacoes() {
           </div>
         </div>
       </div>
+      <ImportCSVModal open={importOpen} onClose={() => setImportOpen(false)} />
     </DashboardLayout>
   );
 }

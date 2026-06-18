@@ -14,8 +14,10 @@ import {
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
 import { assets, transactions as transactionsTable } from "../../drizzle/schema";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, and } from "drizzle-orm";
 import { getDb } from "../db";
+import { parseCSV } from "../lib/csvParser";
+import { TRPCError } from "@trpc/server";
 
 export const portfolioRouter = router({
   // ========== ASSETS ==========
@@ -335,6 +337,86 @@ export const portfolioRouter = router({
       return { brl: { value: 0, percent: 0, classes: [] }, usd: { value: 0, percent: 0, classes: [] }, usdBrl: 5.7, total: 0 };
     }
   }),
+
+  importCSV: protectedProcedure
+    .input(z.object({ csvContent: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { transactions, format, total } = parseCSV(input.csvContent);
+
+      if (total === 0) throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Nenhuma transação encontrada. Verifique o formato do arquivo.',
+      });
+
+      let imported = 0;
+      let skipped = 0;
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      for (const tx of transactions) {
+        try {
+          const existing = await db.select().from(transactionsTable).where(
+            and(
+              eq(transactionsTable.userId, ctx.user.id),
+              eq(transactionsTable.transactionDate, new Date(tx.date))
+            )
+          ).limit(1);
+
+          if (existing.length > 0) { skipped++; continue; }
+
+          let asset = await db.select().from(assets).where(
+            and(eq(assets.userId, ctx.user.id), eq(assets.ticker, tx.ticker))
+          ).limit(1);
+
+          if (asset.length === 0) {
+            await db.insert(assets).values({
+              userId: ctx.user.id,
+              ticker: tx.ticker,
+              name: tx.ticker,
+              assetClass: tx.assetClass as 'rv_nacional' | 'rv_eua' | 'fundos' | 'cripto' | 'renda_fixa' | 'uranio' | 'india' | 'caixa',
+              totalQuantity: '0',
+              averageCost: '0',
+              lastPrice: '0',
+            });
+            asset = await db.select().from(assets).where(
+              and(eq(assets.userId, ctx.user.id), eq(assets.ticker, tx.ticker))
+            ).limit(1);
+          }
+
+          const current = asset[0];
+          let newQty = parseFloat(current.totalQuantity?.toString() || '0');
+          let newAvg = parseFloat(current.averageCost?.toString() || '0');
+
+          if (tx.type === 'buy') {
+            newAvg = ((newAvg * newQty) + (tx.price * tx.quantity)) / (newQty + tx.quantity);
+            newQty = newQty + tx.quantity;
+          } else {
+            newQty = Math.max(0, newQty - tx.quantity);
+          }
+
+          await db.update(assets)
+            .set({ totalQuantity: newQty.toString(), averageCost: newAvg.toString() })
+            .where(eq(assets.id, current.id));
+
+          await db.insert(transactionsTable).values({
+            userId: ctx.user.id,
+            assetId: current.id,
+            type: tx.type,
+            quantity: tx.quantity.toString(),
+            unitPrice: tx.price.toString(),
+            totalValue: tx.totalCost.toString(),
+            transactionDate: new Date(tx.date),
+          });
+
+          imported++;
+        } catch (err) {
+          console.error('[importCSV] Error processing transaction:', err);
+          skipped++;
+        }
+      }
+
+      return { imported, skipped, total, format };
+    }),
 
   // ========== SEED ==========
 

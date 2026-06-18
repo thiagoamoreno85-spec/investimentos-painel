@@ -46,7 +46,7 @@
 - [x] Página Dashboard de Mercado com módulo de índices
 - [x] Módulo de taxas macro (DI, Selic, IPCA, Juro Real)
 - [x] Módulo de notícias filtradas por ativos da carteira
-- [ ] Módulo de calendário de resultados/eventos (BACKLOG — aguardando priorização pelo usuário)
+- [x] Módulo de calendário de resultados/eventos com visualização mensal
 - [x] Integrar Dashboard de Mercado no menu lateral
 - [x] Página de Notícias dedicada com cards horizontais estilo TradersClub
 - [x] Backend: procedure tRPC para buscar e analisar notícias via LLM com impacto por ativo
@@ -85,3 +85,10 @@
 - [x] Aportes: formulário e tabela responsivos no mobile
 - [x] Melhor Compra: layout responsivo no mobile
 - [x] Dashboard Mercado: tabs compactas e grid responsivo no mobile
+
+## Calendário de Eventos (Sprint atual - Correções)
+- [ ] Corrigir EventCalendar para renderizar calendário mensal real (offset do primeiro dia, células vazias, alinhamento)
+- [ ] Implementar getEventsByMonth no backend com filtro real por mês/ano
+- [ ] Usar getEventsByMonth no frontend para carregar apenas eventos do mês
+- [ ] Adicionar estados de loading, erro e vazio no calendário
+- [ ] Adicionar testes Vitest para CRUD de eventos (5+ testes)

@@ -213,3 +213,45 @@ export const newsItems = mysqlTable("newsItems", {
 
 export type NewsItem = typeof newsItems.$inferSelect;
 export type InsertNewsItem = typeof newsItems.$inferInsert;
+
+/**
+ * Calendário de eventos corporativos (earnings, dividendos, splits, etc)
+ */
+export const events = mysqlTable("events", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  assetId: int("assetId").notNull(),
+  ticker: varchar("ticker", { length: 32 }).notNull(),
+  /** Tipo de evento: earnings, dividendo, split, ipo, etc */
+  eventType: mysqlEnum("eventType", [
+    "earnings",
+    "dividendo",
+    "split",
+    "ipo",
+    "desdobramento",
+    "agrupamento",
+    "evento_corporativo",
+    "outro",
+  ]).notNull(),
+  /** Descrição do evento */
+  description: text("description"),
+  /** Data do evento */
+  eventDate: timestamp("eventDate").notNull(),
+  /** Data de ex-direito (para dividendos) */
+  exDate: timestamp("exDate"),
+  /** Valor esperado (para dividendos, preço de split, etc) */
+  expectedValue: decimal("expectedValue", { precision: 18, scale: 8 }),
+  /** Unidade do valor (BRL, USD, %) */
+  valueUnit: varchar("valueUnit", { length: 10 }).default("BRL"),
+  /** Status: agendado, realizado, cancelado */
+  status: mysqlEnum("status", ["agendado", "realizado", "cancelado"]).default("agendado"),
+  /** Resultado real (preenchido após o evento) */
+  actualResult: text("actualResult"),
+  /** Notificação enviada ao usuário */
+  notificationSent: int("notificationSent").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Event = typeof events.$inferSelect;
+export type InsertEvent = typeof events.$inferInsert;

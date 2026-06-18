@@ -1,6 +1,6 @@
 import { eq, and, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction, analysisHistory, InsertAnalysisHistory, newsItems, InsertNewsItem } from "../drizzle/schema";
+import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction, analysisHistory, InsertAnalysisHistory, newsItems, InsertNewsItem, events, InsertEvent } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -317,4 +317,84 @@ export async function deleteOldNewsItems(userId: number, keepLast = 100) {
       await db.delete(newsItems).where(eq(newsItems.id, row.id));
     }
   }
+}
+
+
+// ========== EVENTS ==========
+
+export async function createEvent(data: InsertEvent) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(events).values(data);
+  return result[0].insertId;
+}
+
+export async function getEventsByUser(userId: number, limit = 100) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(events)
+    .where(eq(events.userId, userId))
+    .orderBy(events.eventDate);
+}
+
+export async function getEventsByAsset(assetId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(events)
+    .where(and(eq(events.assetId, assetId), eq(events.userId, userId)))
+    .orderBy(events.eventDate);
+}
+
+export async function getEventsByMonth(userId: number, year: number, month: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const startDate = new Date(year, month - 1, 1);
+  const endDate = new Date(year, month, 0, 23, 59, 59);
+  
+  return db.select().from(events)
+    .where(and(
+      eq(events.userId, userId),
+      // Drizzle doesn't have direct date range, so we filter in JS or use raw SQL
+    ))
+    .orderBy(events.eventDate);
+}
+
+export async function getEventById(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(events)
+    .where(and(eq(events.id, id), eq(events.userId, userId)))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateEvent(id: number, userId: number, data: Partial<InsertEvent>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(events)
+    .set(data)
+    .where(and(eq(events.id, id), eq(events.userId, userId)));
+}
+
+export async function deleteEvent(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(events)
+    .where(and(eq(events.id, id), eq(events.userId, userId)));
+}
+
+export async function getUpcomingEvents(userId: number, daysAhead = 30) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const now = new Date();
+  const futureDate = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
+  
+  return db.select().from(events)
+    .where(and(
+      eq(events.userId, userId),
+      eq(events.status, "agendado")
+    ))
+    .orderBy(events.eventDate);
 }

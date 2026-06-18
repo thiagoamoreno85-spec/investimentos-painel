@@ -16,6 +16,7 @@ import {
   Globe,
   Newspaper,
   ChevronRight,
+  Calendar,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -59,6 +60,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { href: "/alertas", icon: Bell, label: "Alertas", badge: alertCounts?.triggered ?? 0, highlight: false },
     { href: "/aportes", icon: Wallet, label: "Aportes", badge: 0, highlight: false },
     { href: "/noticias", icon: Newspaper, label: "Notícias", badge: unreadNewsCount ?? 0, highlight: false },
+    { href: "/calendario", icon: Calendar, label: "Calendário", badge: 0, highlight: false },
     { href: "/melhor-compra", icon: Sparkles, label: "Melhor Compra", badge: 0, highlight: true },
     { href: "/mercado", icon: Globe, label: "Dashboard Mercado", badge: 0, highlight: false },
   ];

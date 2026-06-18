@@ -28,6 +28,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BenchmarkChart } from "@/components/BenchmarkChart";
 import { CurrencyBreakdownChart } from "@/components/CurrencyBreakdownChart";
+import { EventCalendar } from "@/components/EventCalendar";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
   rv_nacional: "RV Nacional",
@@ -520,6 +521,11 @@ export default function Home() {
         {/* Benchmark Chart */}
         <div className="mt-6">
           <BenchmarkChart />
+        </div>
+
+        {/* Event Calendar */}
+        <div className="mt-6">
+          <EventCalendar />
         </div>
       </div>
     </DashboardLayout>

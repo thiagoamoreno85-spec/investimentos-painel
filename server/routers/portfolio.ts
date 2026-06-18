@@ -11,6 +11,13 @@ import {
   createTransaction,
   deleteTransaction,
   recalculateAsset,
+  createEvent,
+  getEventsByUser,
+  getEventsByAsset,
+  getEventById,
+  updateEvent,
+  deleteEvent,
+  getUpcomingEvents,
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
 import { assets, transactions as transactionsTable } from "../../drizzle/schema";
@@ -416,6 +423,91 @@ export const portfolioRouter = router({
       }
 
       return { imported, skipped, total, format };
+    }),
+
+  // ========== EVENTS ==========
+
+  /** Cria um novo evento no calendário */
+  createEvent: protectedProcedure
+    .input(
+      z.object({
+        assetId: z.number(),
+        ticker: z.string(),
+        eventType: z.enum(["earnings", "dividendo", "split", "ipo", "desdobramento", "agrupamento", "evento_corporativo", "outro"]),
+        description: z.string().optional(),
+        eventDate: z.date(),
+        exDate: z.date().optional(),
+        expectedValue: z.string().optional(),
+        valueUnit: z.string().default("BRL"),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const eventId = await createEvent({
+        userId: ctx.user.id,
+        assetId: input.assetId,
+        ticker: input.ticker,
+        eventType: input.eventType,
+        description: input.description,
+        eventDate: input.eventDate,
+        exDate: input.exDate,
+        expectedValue: input.expectedValue ? input.expectedValue : null,
+        valueUnit: input.valueUnit,
+      });
+      return { id: eventId };
+    }),
+
+  /** Lista todos os eventos do usuário */
+  getEvents: protectedProcedure
+    .query(async ({ ctx }) => {
+      return getEventsByUser(ctx.user.id);
+    }),
+
+  /** Lista eventos de um ativo específico */
+  getEventsByAsset: protectedProcedure
+    .input(z.object({ assetId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      return getEventsByAsset(input.assetId, ctx.user.id);
+    }),
+
+  /** Lista eventos próximos (próximos 30 dias) */
+  getUpcomingEvents: protectedProcedure
+    .input(z.object({ daysAhead: z.number().default(30) }))
+    .query(async ({ ctx, input }) => {
+      return getUpcomingEvents(ctx.user.id, input.daysAhead);
+    }),
+
+  /** Atualiza um evento */
+  updateEvent: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        description: z.string().optional(),
+        eventDate: z.date().optional(),
+        expectedValue: z.string().optional(),
+        status: z.enum(["agendado", "realizado", "cancelado"]).optional(),
+        actualResult: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const event = await getEventById(input.id, ctx.user.id);
+      if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+      
+      await updateEvent(input.id, ctx.user.id, {
+        description: input.description,
+        eventDate: input.eventDate,
+        expectedValue: input.expectedValue ? input.expectedValue : null,
+        status: input.status,
+        actualResult: input.actualResult,
+      });
+    }),
+
+  /** Deleta um evento */
+  deleteEvent: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const event = await getEventById(input.id, ctx.user.id);
+      if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+      await deleteEvent(input.id, ctx.user.id);
     }),
 
   // ========== SEED ==========

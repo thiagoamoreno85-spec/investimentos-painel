@@ -112,3 +112,21 @@
 - [x] Corrigir Home.tsx: ignorar ativos de classe 'caixa' do dbAssets (evitar duplicação)
 - [x] Build sem erros TypeScript (pnpm build ✅)
 - [x] 90 testes vitest passando
+
+
+## Integração Automática Transações ↔ Caixa (Sprint atual - CONCLUÍDO)
+- [x] Modificar procedure addTransaction em portfolio.ts para debitar/creditar caixa automaticamente
+- [x] Ao registrar COMPRA: debita cash_balance com valor total (qtd × preço + taxas)
+- [x] Ao registrar VENDA: credita cash_balance com valor total (qtd × preço + taxas)
+- [x] Registrar movimentação automática em cash_movements com tipo "compra_ativo" ou "resgate"
+- [x] Modificar procedure deleteTransaction para reverter saldo do caixa automaticamente
+- [x] Build sem erros TypeScript (pnpm build ✅)
+- [x] 90 testes vitest passando
+
+## Importação Automática de Dividendos via CSV (Sprint próximo)
+- [ ] Estender csvParser.ts para detectar formato de dividendos (B3, XP, Rico, Clear)
+- [ ] Adicionar procedure importDividends em dividends.ts
+- [ ] Modal de importação de dividendos na página Dividendos
+- [ ] Preview dos dividendos antes de confirmar importação
+- [ ] Deduplicação automática (não importar dividendo já registrado)
+- [ ] Testes vitest para importação de dividendos

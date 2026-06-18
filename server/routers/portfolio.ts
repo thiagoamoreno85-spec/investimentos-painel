@@ -21,7 +21,7 @@ import {
   getUpcomingEvents,
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
-import { assets, transactions as transactionsTable, dividends } from "../../drizzle/schema";
+import { assets, transactions as transactionsTable, dividends, cashBalance, cashMovements } from "../../drizzle/schema";
 import { eq, asc, and } from "drizzle-orm";
 import { getDb } from "../db";
 import { parseCSV } from "../lib/csvParser";
@@ -136,6 +136,7 @@ export const portfolioRouter = router({
 
       // Cria a transação
       const totalValue = input.quantity * input.unitPrice;
+      const totalWithFees = totalValue + input.fees;
       await createTransaction({
         userId: ctx.user.id,
         assetId,
@@ -148,6 +149,61 @@ export const portfolioRouter = router({
         notes: input.notes ?? null,
       });
 
+      // Integração automática: debita/credita caixa
+      const db = await getDb();
+      if (db) {
+        // Buscar saldo atual para validação
+        const current = await db
+          .select()
+          .from(cashBalance)
+          .where(eq(cashBalance.userId, ctx.user.id))
+          .limit(1);
+        const currentBalance = Number(current[0]?.balance ?? 0);
+        
+        // Validar saldo insuficiente para compra
+        if (input.type === "buy" && currentBalance < totalWithFees) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `Saldo insuficiente. Disponível: R$ ${currentBalance.toFixed(2)}, Necessário: R$ ${totalWithFees.toFixed(2)}`,
+          });
+        }
+        
+        const movementType = input.type === "buy" ? "saida" : "entrada";
+        const movementCategory = input.type === "buy" ? "compra_ativo" : "resgate";
+        const movementDesc = `${input.type === "buy" ? "Compra" : "Venda"} de ${input.ticker} - ${input.quantity} un. @ R$ ${input.unitPrice.toFixed(2)}`;
+        
+        // Para venda: creditar apenas o líquido (valor - taxas)
+        const cashMovementAmount = input.type === "buy" ? totalWithFees : (totalValue - input.fees);
+        
+        // Registrar movimentação no caixa
+        await db.insert(cashMovements).values({
+          userId: ctx.user.id,
+          type: movementType,
+          category: movementCategory,
+          amount: cashMovementAmount.toFixed(2),
+          description: movementDesc,
+          date: input.transactionDate,
+        });
+        
+        // Atualizar saldo do caixa
+        const newBalance =
+          input.type === "buy"
+            ? currentBalance - totalWithFees
+            : currentBalance + (totalValue - input.fees);
+        
+        if (current.length > 0) {
+          await db
+            .update(cashBalance)
+            .set({ balance: newBalance.toFixed(2), updatedAt: new Date() })
+            .where(eq(cashBalance.userId, ctx.user.id));
+        } else {
+          await db.insert(cashBalance).values({
+            userId: ctx.user.id,
+            balance: newBalance.toFixed(2),
+          });
+        }
+      }
+
       // Recalcula preço médio
       const calc = await recalculateAsset(assetId, ctx.user.id);
 
@@ -159,11 +215,39 @@ export const portfolioRouter = router({
       };
     }),
 
-  /** Remove uma transação e recalcula o ativo */
+  /** Remove uma transação, recalcula o ativo e reverte saldo do caixa */
   deleteTransaction: protectedProcedure
     .input(z.object({ transactionId: z.number(), assetId: z.number() }))
     .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      let txToDelete = null;
+      if (db) {
+        // Filtrar por userId para segurança
+        const txRows = await db.select().from(transactionsTable).where(and(eq(transactionsTable.id, input.transactionId), eq(transactionsTable.userId, ctx.user.id))).limit(1);
+        txToDelete = txRows[0];
+      }
       await deleteTransaction(input.transactionId, ctx.user.id);
+      if (db && txToDelete) {
+        // Para venda: reverter apenas o líquido (valor - taxas)
+        const totalAmount = txToDelete.type === "buy" ? (Number(txToDelete.totalValue) + Number(txToDelete.fees)) : (Number(txToDelete.totalValue) - Number(txToDelete.fees));
+        const movementType = txToDelete.type === "buy" ? "entrada" : "saida";
+        await db.insert(cashMovements).values({
+          userId: ctx.user.id,
+          type: movementType,
+          category: "outro",
+          amount: totalAmount.toFixed(2),
+          description: `Reversão de ${txToDelete.type === "buy" ? "compra" : "venda"} (ID: ${input.transactionId})`,
+          date: new Date(),
+        });
+        const current = await db.select().from(cashBalance).where(eq(cashBalance.userId, ctx.user.id)).limit(1);
+        const currentBalance = Number(current[0]?.balance ?? 0);
+        const newBalance = txToDelete.type === "buy" ? currentBalance + totalAmount : currentBalance - totalAmount;
+        if (current.length > 0) {
+          await db.update(cashBalance).set({ balance: newBalance.toFixed(2), updatedAt: new Date() }).where(eq(cashBalance.userId, ctx.user.id));
+        } else {
+          await db.insert(cashBalance).values({ userId: ctx.user.id, balance: newBalance.toFixed(2) });
+        }
+      }
       const calc = await recalculateAsset(input.assetId, ctx.user.id);
       return {
         totalQuantity: calc.totalQuantity,

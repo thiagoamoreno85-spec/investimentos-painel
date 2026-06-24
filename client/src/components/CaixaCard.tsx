@@ -187,7 +187,7 @@ export default function CaixaCard() {
 
       <CardContent>
         {/* Saldo */}
-        <div className="text-2xl font-bold font-mono tracking-tight">
+        <div className="text-sm sm:text-base md:text-xl font-bold font-mono leading-tight">
           {loadingBalance ? (
             <span className="text-muted-foreground text-lg">Carregando...</span>
           ) : (

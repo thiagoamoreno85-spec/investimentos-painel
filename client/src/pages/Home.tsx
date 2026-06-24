@@ -328,7 +328,7 @@ export default function Home() {
               <Wallet className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div className="text-lg md:text-2xl font-bold font-mono tracking-tight">
+              <div className="text-sm sm:text-base md:text-xl font-bold font-mono leading-tight">
                 {isLoading ? (
                   <Skeleton className="h-7 w-36" />
                 ) : (
@@ -354,7 +354,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
               <div
-                className={`text-lg md:text-2xl font-bold font-mono tracking-tight ${
+                className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
                   totalProfit >= 0 ? "text-emerald-500" : "text-red-400"
                 }`}
               >
@@ -373,7 +373,7 @@ export default function Home() {
                 ) : (
                   <ArrowDownRight className="h-3 w-3" />
                 )}
-                {Math.abs(profitPct).toFixed(1)}% (capital + proventos)
+                {Math.abs(profitPct).toFixed(1)}% cap.+prov.
               </p>
             </CardContent>
           </Card>
@@ -386,7 +386,7 @@ export default function Home() {
               <PieChart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div className="text-lg md:text-2xl font-bold tracking-tight">
+              <div className="text-sm sm:text-base md:text-xl font-bold leading-tight">
                 {largestClass}
               </div>
               <p className="text-xs text-muted-foreground mt-1">

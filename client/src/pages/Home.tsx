@@ -325,7 +325,7 @@ export default function Home() {
               <Wallet className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div className="text-lg md:text-2xl font-bold font-mono tracking-tight">
+              <div className="text-base md:text-2xl font-bold font-mono tracking-tighter truncate">
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
@@ -351,7 +351,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
               <div
-                className={`text-lg md:text-2xl font-bold font-mono tracking-tight ${
+                className={`text-base md:text-2xl font-bold font-mono tracking-tighter truncate ${
                   totalProfit >= 0 ? "text-emerald-500" : "text-red-400"
                 }`}
               >
@@ -383,7 +383,7 @@ export default function Home() {
               <PieChart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div className="text-lg md:text-2xl font-bold tracking-tight">
+              <div className="text-base md:text-2xl font-bold tracking-tighter truncate">
                 {largestClass}
               </div>
               <p className="text-xs text-muted-foreground mt-1">

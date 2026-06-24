@@ -330,7 +330,7 @@ export default function Noticias() {
         Layout: flex column com scroll natural.
         O DashboardLayout agora permite scroll no main.
       */}
-      <div className="space-y-6">
+      <div className="space-y-4 max-w-full overflow-hidden">
 
         {/* ── CABEÇALHO FIXO ── */}
         <div className="flex-shrink-0 space-y-3 pb-3">
@@ -486,12 +486,12 @@ export default function Noticias() {
           </div>
         </div>
 
-        {/* ── ÁREA SCROLLÁVEL ── */}
-        <div className="flex flex-col lg:flex-row flex-1 gap-4 min-h-0">
+        {/* ── ÁREA DE NOTÍCIAS ── */}
+        <div className="flex flex-col lg:flex-row gap-4">
 
-          {/* Lista de notícias com scroll próprio */}
-          <div className="flex-1 min-h-0">
-            <ScrollArea className="h-full pr-1">
+          {/* Lista de notícias */}
+          <div className="flex-1 min-w-0">
+            <div className="overflow-y-auto pr-1">
               {isLoading ? (
                 <div className="space-y-3 pb-4">
                   {[1, 2, 3, 4].map((i) => (
@@ -536,7 +536,7 @@ export default function Noticias() {
                   ))}
                 </div>
               )}
-            </ScrollArea>
+            </div>
           </div>
 
           {/* Painel lateral — desktop: coluna lateral; mobile: abaixo da lista (oculto por padrão, visível em lg) */}

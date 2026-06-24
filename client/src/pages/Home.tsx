@@ -1,5 +1,6 @@
 import { useMemo, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { summaryData, portfolioData } from "@/lib/data";
 import {
@@ -24,6 +25,7 @@ import {
   Legend,
 } from "recharts";
 import { trpc } from "@/lib/trpc";
+import { DEFAULT_USD_BRL_RATE } from "@shared/constants";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -92,7 +94,7 @@ export default function Home() {
     onError: (err) => toast.error(`Erro ao importar: ${err.message}`),
   });
 
-  const usdBrl = usdBrlData?.rate ?? 5.7;
+  const usdBrl = usdBrlData?.rate ?? DEFAULT_USD_BRL_RATE;
   const cashBalance = Number(cashBalanceData?.balance ?? 0);
   const hasDbData = dbAssets && dbAssets.length > 0;
   // Computar dados a partir do banco ou dados estáticos
@@ -327,7 +329,7 @@ export default function Home() {
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
               <div className="text-lg md:text-2xl font-bold font-mono tracking-tight">
                 {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Skeleton className="h-7 w-36" />
                 ) : (
                   formatCurrency(totalPatrimony)
                 )}

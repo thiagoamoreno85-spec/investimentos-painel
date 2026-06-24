@@ -4,8 +4,10 @@ import { portfolioData } from "@/lib/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowUpRight, ArrowDownRight, Loader2, Wallet } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Wallet } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
+import { DEFAULT_USD_BRL_RATE } from "@shared/constants";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
   rv_nacional: "RV Nacional",
@@ -52,7 +54,7 @@ export default function Alocacao() {
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
   const { data: cashData } = trpc.cash.getBalance.useQuery();
   const { data: cashMovements } = trpc.cash.listMovements.useQuery({ limit: 8 });
-  const usdBrl = usdBrlData?.rate ?? 5.7;
+  const usdBrl = usdBrlData?.rate ?? DEFAULT_USD_BRL_RATE;
   const hasDbData = dbAssets && dbAssets.length > 0;
   const cashBalance = Number(cashData?.balance ?? 0);
 
@@ -166,8 +168,22 @@ export default function Alocacao() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        <div className="space-y-6 p-2">
+          <Skeleton className="h-8 w-56" />
+          <div className="flex gap-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-9 w-24 rounded-full" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Skeleton className="h-64 rounded-xl" />
+            <Skeleton className="h-64 rounded-xl" />
+          </div>
+          <div className="space-y-2">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
         </div>
       </DashboardLayout>
     );

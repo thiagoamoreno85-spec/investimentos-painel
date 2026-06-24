@@ -2,6 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getAssetsByUser } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
+import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -245,7 +246,7 @@ export const marketRouter = router({
   getIndices: protectedProcedure.query(async () => {
     const [indices, usdBrl] = await Promise.all([
       fetchMarketIndices(),
-      fetchUsdBrl().catch(() => 5.7),
+      fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE),
     ]);
     return { indices, usdBrl, updatedAt: new Date() };
   }),

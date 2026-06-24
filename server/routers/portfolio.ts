@@ -7,6 +7,7 @@ import {
   createAsset,
   deleteAsset,
   getTransactionsByUser,
+  getTransactionsByUserPaginated,
   getTransactionsByAsset,
   createTransaction,
   deleteTransaction,
@@ -21,6 +22,7 @@ import {
   getUpcomingEvents,
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
+import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
 import { assets, transactions as transactionsTable, dividends, cashBalance, cashMovements } from "../../drizzle/schema";
 import { eq, asc, and } from "drizzle-orm";
 import { getDb } from "../db";
@@ -81,9 +83,18 @@ export const portfolioRouter = router({
   // ========== TRANSACTIONS ==========
 
   /** Lista todas as transações do usuário */
-  getTransactions: protectedProcedure.query(async ({ ctx }) => {
-    return getTransactionsByUser(ctx.user.id);
-  }),
+  getTransactions: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().int().min(1).default(1),
+        limit: z.number().int().min(1).max(200).default(20),
+      }).optional()
+    )
+    .query(async ({ ctx, input }) => {
+      const page = input?.page ?? 1;
+      const limit = input?.limit ?? 20;
+      return getTransactionsByUserPaginated(ctx.user.id, page, limit);
+    }),
 
   /** Lista transações de um ativo específico */
   getAssetTransactions: protectedProcedure
@@ -119,7 +130,7 @@ export const portfolioRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       // Busca ou cria o ativo
-      let asset = await getAssetByTicker(input.ticker, ctx.user.id);
+      const asset = await getAssetByTicker(input.ticker, ctx.user.id);
       let assetId: number;
 
       if (!asset) {
@@ -264,7 +275,7 @@ export const portfolioRouter = router({
     const now = new Date();
 
     const userAssets = await getAssetsByUser(ctx.user.id);
-    if (userAssets.length === 0) return { updated: 0, cached: 0, usdBrl: 5.7, message: "Nenhum ativo na carteira." };
+    if (userAssets.length === 0) return { updated: 0, cached: 0, usdBrl: DEFAULT_USD_BRL_RATE, message: "Nenhum ativo na carteira." };
 
     // Filtrar apenas ativos com preço desatualizado ou sem preço
     const stale = userAssets.filter((a) => {
@@ -276,7 +287,7 @@ export const portfolioRouter = router({
       return {
         updated: 0,
         cached: userAssets.length,
-        usdBrl: 5.7,
+        usdBrl: DEFAULT_USD_BRL_RATE,
         message: "Cotações em cache, nenhuma atualização necessária.",
       };
     }
@@ -324,7 +335,7 @@ export const portfolioRouter = router({
       }
     }
 
-    const usdBrl = await fetchUsdBrl().catch(() => 5.7);
+    const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
 
     return {
       updated,
@@ -348,7 +359,7 @@ export const portfolioRouter = router({
 
       const fxRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X?interval=1d&range=1d');
       const fxData = await fxRes.json();
-      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? 5.7;
+      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? DEFAULT_USD_BRL_RATE;
 
       const USD_CLASSES = ['rv_eua', 'cripto', 'uranio', 'india'];
       let totalCurrentValue = 0;
@@ -421,7 +432,7 @@ export const portfolioRouter = router({
 
       const fxRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X?interval=1d&range=1d');
       const fxData = await fxRes.json();
-      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? 5.7;
+      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? DEFAULT_USD_BRL_RATE;
 
       let totalBrl = 0;
       let totalUsd = 0;
@@ -443,7 +454,7 @@ export const portfolioRouter = router({
       };
     } catch (err) {
       console.error("[getCurrencyBreakdown] Error:", err);
-      return { brl: { value: 0, percent: 0, classes: [] }, usd: { value: 0, percent: 0, classes: [] }, usdBrl: 5.7, total: 0 };
+      return { brl: { value: 0, percent: 0, classes: [] }, usd: { value: 0, percent: 0, classes: [] }, usdBrl: DEFAULT_USD_BRL_RATE, total: 0 };
     }
   }),
 

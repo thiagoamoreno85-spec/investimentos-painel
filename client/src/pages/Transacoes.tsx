@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,8 +68,12 @@ export default function Transacoes() {
 
   const { data: assets, isLoading: assetsLoading } =
     trpc.portfolio.getAssets.useQuery();
-  const { data: transactions, isLoading: txLoading } =
-    trpc.portfolio.getTransactions.useQuery();
+  const [page, setPage] = useState(1);
+  const LIMIT = 20;
+  const { data: transactionsData, isLoading: txLoading } =
+    trpc.portfolio.getTransactions.useQuery({ page, limit: LIMIT });
+  const transactions = transactionsData?.data ?? [];
+  const totalPages = transactionsData?.totalPages ?? 1;
 
   const addTx = trpc.portfolio.addTransaction.useMutation({
     onSuccess: (result) => {
@@ -579,8 +584,10 @@ export default function Transacoes() {
               </CardHeader>
               <CardContent>
                 {txLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                  <div className="space-y-2">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <Skeleton key={i} className="h-12 w-full" />
+                    ))}
                   </div>
                 ) : filteredTransactions.length === 0 ? (
                   <div className="text-center py-8">
@@ -603,7 +610,7 @@ export default function Transacoes() {
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredTransactions.slice(0, 50).map((tx) => {
+                        {filteredTransactions.map((tx) => {
                           const currency = getAssetCurrency(tx.assetId);
                           return (
                             <tr
@@ -665,10 +672,20 @@ export default function Transacoes() {
                         })}
                       </tbody>
                     </table>
-                    {filteredTransactions.length > 50 && (
-                      <p className="text-xs text-muted-foreground text-center mt-3">
-                        Mostrando 50 de {filteredTransactions.length} transações
-                      </p>
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-center gap-2 mt-4">
+                        <Button
+                          variant="outline" size="sm"
+                          onClick={() => setPage(p => Math.max(1, p - 1))}
+                          disabled={page <= 1}
+                        >Anterior</Button>
+                        <span className="text-xs text-muted-foreground">Pág. {page} / {totalPages}</span>
+                        <Button
+                          variant="outline" size="sm"
+                          onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                          disabled={page >= totalPages}
+                        >Próxima</Button>
+                      </div>
                     )}
                   </div>
                 )}

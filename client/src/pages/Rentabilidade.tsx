@@ -12,8 +12,10 @@ import {
   Cell,
 } from "recharts";
 import { portfolioData } from "@/lib/data";
-import { ArrowUpRight, ArrowDownRight, AlertTriangle, Loader2 } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { DEFAULT_USD_BRL_RATE } from "@shared/constants";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
   rv_nacional: "RV Nacional",
@@ -40,7 +42,7 @@ const CLASS_CURRENCY: Record<string, string> = {
 export default function Rentabilidade() {
   const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
-  const usdBrl = usdBrlData?.rate ?? 5.7;
+  const usdBrl = usdBrlData?.rate ?? DEFAULT_USD_BRL_RATE;
   const hasDbData = dbAssets && dbAssets.length > 0;
 
   const { profitByClass, winners, losers } = useMemo(() => {
@@ -152,8 +154,15 @@ export default function Rentabilidade() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        <div className="space-y-6 p-2">
+          <Skeleton className="h-8 w-64" />
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
+            <Skeleton className="col-span-4 h-80 rounded-xl" />
+            <div className="col-span-3 space-y-4">
+              <Skeleton className="h-36 rounded-xl" />
+              <Skeleton className="h-36 rounded-xl" />
+            </div>
+          </div>
         </div>
       </DashboardLayout>
     );

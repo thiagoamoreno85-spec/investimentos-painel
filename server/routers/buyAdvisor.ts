@@ -9,6 +9,7 @@ import {
   getDb,
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
+import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
 import { invokeLLM } from "../_core/llm";
 import { analysisHistory } from "../../drizzle/schema";
 import { eq, and, gte, desc } from "drizzle-orm";
@@ -71,7 +72,7 @@ export const buyAdvisorRouter = router({
             analysis: cached.analysisText,
             updatedAt: cached.createdAt,
             quotesSnapshot: JSON.parse(cached.quotesSnapshot || "{}"),
-            usdBrl: parseFloat(cached.usdBrl || "5.7"),
+            usdBrl: parseFloat(cached.usdBrl || String(DEFAULT_USD_BRL_RATE)),
             assetsAnalyzed: cached.assetsAnalyzed ?? undefined,
             recommendedTicker: cached.recommendedTicker ?? undefined,
             historyId: cached.id ?? undefined,
@@ -113,7 +114,7 @@ export const buyAdvisorRouter = router({
       }));
 
       let quotes: Map<string, { price: number; change: number; changePercent: number; currency: string }>;
-      let usdBrl = 5.7;
+      let usdBrl = DEFAULT_USD_BRL_RATE;
 
       try {
         [quotes, usdBrl] = await Promise.all([

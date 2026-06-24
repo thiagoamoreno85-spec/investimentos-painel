@@ -132,3 +132,15 @@
 - [x] Validação de ativos na carteira
 - [x] Build sem erros TypeScript (pnpm build ✅)
 - [x] 90 testes vitest passando
+
+## 10 Melhorias (promptmanus.md) - CONCLUÍDAS
+- [x] Tarefa 1: ESLint - instalar e configurar .eslintrc.cjs + script lint
+- [x] Tarefa 2: GitHub Actions CI - criar .github/workflows/ci.yml
+- [x] Tarefa 3: Lazy Loading - substituir imports estáticos por lazy() em App.tsx
+- [x] Tarefa 4: Paginação - getTransactions e getDividends com page/limit
+- [x] Tarefa 5: Rate Limiting - express-rate-limit no server/_core/index.ts
+- [x] Tarefa 6: README.md - criar documentação completa
+- [x] Tarefa 7: .env.example - criar arquivo de exemplo de variáveis
+- [x] Tarefa 8: Skeleton Screens - substituir Loader2 por skeletons nas páginas
+- [x] Tarefa 9: Constantes Centralizadas - criar shared/constants.ts
+- [x] Tarefa 10: ProtectedRoute - componente de autenticação guard

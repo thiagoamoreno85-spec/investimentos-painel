@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { dividends, assets, type Dividend } from "../../drizzle/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { parseXPDividendsPDF, deduplicateDividends } from "../lib/pdfDividendParser";
 import { TRPCError } from "@trpc/server";
 
@@ -14,24 +14,44 @@ export const dividendsRouter = router({
     .input(
       z.object({
         assetId: z.number().optional(),
+        page: z.number().int().min(1).default(1),
+        limit: z.number().int().min(1).max(200).default(20),
       }).optional()
     )
     .query(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) return [];
+      if (!db) return { data: [], total: 0, page: 1, totalPages: 0 };
       const userId = ctx.user.id;
 
-      const rows = await db
-        .select()
-        .from(dividends)
-        .where(eq(dividends.userId, userId))
-        .orderBy(desc(dividends.exDate));
-
-      if (input?.assetId) {
-        return rows.filter((r: Dividend) => r.assetId === input.assetId);
+      // If filtering by assetId or requesting all (limit=9999), return without pagination
+      if (input?.assetId || (input?.limit && input.limit >= 9999)) {
+        const rows = await db
+          .select()
+          .from(dividends)
+          .where(eq(dividends.userId, userId))
+          .orderBy(desc(dividends.exDate));
+        const filtered = input?.assetId
+          ? rows.filter((r: Dividend) => r.assetId === input.assetId)
+          : rows;
+        return { data: filtered, total: filtered.length, page: 1, totalPages: 1 };
       }
 
-      return rows;
+      const page = input?.page ?? 1;
+      const limit = input?.limit ?? 20;
+      const offset = (page - 1) * limit;
+
+      const [rows, countResult] = await Promise.all([
+        db.select().from(dividends)
+          .where(eq(dividends.userId, userId))
+          .orderBy(desc(dividends.exDate))
+          .limit(limit)
+          .offset(offset),
+        db.select({ count: sql`COUNT(*)` }).from(dividends)
+          .where(eq(dividends.userId, userId)),
+      ]);
+
+      const total = Number((countResult[0] as { count: number }).count);
+      return { data: rows, total, page, totalPages: Math.ceil(total / limit) };
     }),
 
   /**

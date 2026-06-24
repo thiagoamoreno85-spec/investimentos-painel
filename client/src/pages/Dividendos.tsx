@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,7 +59,11 @@ export default function Dividendos() {
   // Queries
   const { data: assets, isLoading: assetsLoading } = trpc.portfolio.getAssets.useQuery();
   const { data: summary, isLoading: summaryLoading } = trpc.dividends.getDividendSummary.useQuery();
-  const { data: dividends, isLoading: divsLoading } = trpc.dividends.getDividends.useQuery();
+  const [divPage, setDivPage] = useState(1);
+  const DIV_LIMIT = 20;
+  const { data: dividendsData, isLoading: divsLoading } = trpc.dividends.getDividends.useQuery({ page: divPage, limit: DIV_LIMIT });
+  const dividends = dividendsData?.data ?? [];
+  const divTotalPages = dividendsData?.totalPages ?? 1;
   const { data: byMonth } = trpc.dividends.getDividendsByMonth.useQuery();
   const { data: totals } = trpc.dividends.getTotalDividends.useQuery();
 
@@ -518,10 +523,12 @@ export default function Dividendos() {
               </CardHeader>
               <CardContent>
                 {divsLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                  <div className="space-y-2">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <Skeleton key={i} className="h-12 w-full" />
+                    ))}
                   </div>
-                ) : !dividends || dividends.length === 0 ? (
+                ) : dividends.length === 0 ? (
                   <div className="text-center py-8">
                     <p className="text-muted-foreground">Nenhum provento registrado.</p>
                   </div>
@@ -540,7 +547,7 @@ export default function Dividendos() {
                         </tr>
                       </thead>
                       <tbody>
-                        {dividends.slice(0, 30).map((div) => {
+                        {dividends.map((div) => {
                           const curr = getAssetCurrency(div.assetId);
                           const typeLabel = DIVIDEND_TYPES.find((t) => t.value === div.type)?.label || div.type;
                           return (
@@ -584,6 +591,21 @@ export default function Dividendos() {
                         })}
                       </tbody>
                     </table>
+                    {divTotalPages > 1 && (
+                      <div className="flex items-center justify-center gap-2 mt-4">
+                        <Button
+                          variant="outline" size="sm"
+                          onClick={() => setDivPage(p => Math.max(1, p - 1))}
+                          disabled={divPage <= 1}
+                        >Anterior</Button>
+                        <span className="text-xs text-muted-foreground">Pág. {divPage} / {divTotalPages}</span>
+                        <Button
+                          variant="outline" size="sm"
+                          onClick={() => setDivPage(p => Math.min(divTotalPages, p + 1))}
+                          disabled={divPage >= divTotalPages}
+                        >Próxima</Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>

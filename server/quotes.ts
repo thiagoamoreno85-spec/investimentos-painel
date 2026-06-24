@@ -1,4 +1,5 @@
 import axios from "axios";
+import { DEFAULT_USD_BRL_RATE } from "../shared/constants";
 
 interface QuoteResult {
   ticker: string;
@@ -130,9 +131,9 @@ export async function fetchUsdBrl(): Promise<number> {
       },
     });
     const meta = response.data?.chart?.result?.[0]?.meta;
-    return meta?.regularMarketPrice ?? 5.7;
+    return meta?.regularMarketPrice ?? DEFAULT_USD_BRL_RATE;
   } catch {
     console.warn("[Quotes] Failed to fetch USD/BRL, using fallback");
-    return 5.7;
+    return DEFAULT_USD_BRL_RATE;
   }
 }

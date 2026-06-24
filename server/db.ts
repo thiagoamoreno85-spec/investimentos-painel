@@ -1,4 +1,4 @@
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction, analysisHistory, InsertAnalysisHistory, newsItems, InsertNewsItem, events, InsertEvent } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -171,6 +171,23 @@ export async function getTransactionsByUser(userId: number) {
   return db.select().from(transactions)
     .where(eq(transactions.userId, userId))
     .orderBy(desc(transactions.transactionDate));
+}
+
+export async function getTransactionsByUserPaginated(userId: number, page: number, limit: number) {
+  const db = await getDb();
+  if (!db) return { data: [], total: 0, page, totalPages: 0 };
+  const offset = (page - 1) * limit;
+  const [rows, countResult] = await Promise.all([
+    db.select().from(transactions)
+      .where(eq(transactions.userId, userId))
+      .orderBy(desc(transactions.transactionDate))
+      .limit(limit)
+      .offset(offset),
+    db.select({ count: sql`COUNT(*)` }).from(transactions)
+      .where(eq(transactions.userId, userId)),
+  ]);
+  const total = Number((countResult[0] as { count: number }).count);
+  return { data: rows, total, page, totalPages: Math.ceil(total / limit) };
 }
 
 export async function createTransaction(data: InsertTransaction) {

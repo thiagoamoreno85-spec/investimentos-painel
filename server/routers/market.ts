@@ -114,32 +114,30 @@ async function fetchBcbRate(serieCode: number): Promise<{ value: number; date: s
 }
 
 async function fetchMacroRates(): Promise<MacroRate[]> {
-  // Séries do BCB:
-  // 11   = Taxa Selic (% a.a.)
-  // 12   = CDI (% a.a.)
-  // 433  = IPCA acumulado 12 meses
-  // 13522 = Meta Selic
-  // 4390 = PIB (variação trimestral)
-  // 28   = TJLP (% a.a.)
+  // Séries corretas do BCB:
+  // 1178  = Selic Over (efetiva anualizada, % a.a.)
+  // 4389  = CDI anualizado (% a.a.)
+  // 13522 = IPCA acumulado 12 meses (%)
+  // 432   = Meta Selic COPOM (% a.a.)
 
-  const [selic, cdi, ipca, metaSelic] = await Promise.all([
-    fetchBcbRate(11),
-    fetchBcbRate(12),
-    fetchBcbRate(13522), // IPCA 12m
-    fetchBcbRate(432),   // Meta Selic
+  const [selicOver, cdiAnual, ipca12m, metaSelic] = await Promise.all([
+    fetchBcbRate(1178),
+    fetchBcbRate(4389),
+    fetchBcbRate(13522),
+    fetchBcbRate(432),
   ]);
 
   const rates: MacroRate[] = [];
 
-  if (selic) rates.push({ name: "Selic (efetiva)", value: selic.value, unit: "% a.a.", date: selic.date, source: "BCB" });
-  if (cdi) rates.push({ name: "CDI", value: cdi.value, unit: "% a.a.", date: cdi.date, source: "BCB" });
-  if (ipca) rates.push({ name: "IPCA (acum. 12m)", value: ipca.value, unit: "%", date: ipca.date, source: "BCB" });
-  if (metaSelic) rates.push({ name: "Meta Selic", value: metaSelic.value, unit: "% a.a.", date: metaSelic.date, source: "BCB" });
+  if (metaSelic) rates.push({ name: "Meta Selic (COPOM)", value: metaSelic.value, unit: "% a.a.", date: metaSelic.date, source: "BCB" });
+  if (selicOver) rates.push({ name: "Selic Over", value: selicOver.value, unit: "% a.a.", date: selicOver.date, source: "BCB" });
+  if (cdiAnual) rates.push({ name: "CDI", value: cdiAnual.value, unit: "% a.a.", date: cdiAnual.date, source: "BCB" });
+  if (ipca12m) rates.push({ name: "IPCA (acum. 12m)", value: ipca12m.value, unit: "%", date: ipca12m.date, source: "BCB" });
 
-  // Juro real estimado (Selic - IPCA)
-  if (selic && ipca) {
-    const realRate = selic.value - ipca.value;
-    rates.push({ name: "Juro Real (Selic - IPCA)", value: realRate, unit: "% a.a.", date: selic.date, source: "Calculado" });
+  // Juro real estimado (Selic Over - IPCA 12m)
+  if (selicOver && ipca12m) {
+    const realRate = selicOver.value - ipca12m.value;
+    rates.push({ name: "Juro Real (Selic - IPCA)", value: realRate, unit: "% a.a.", date: selicOver.date, source: "Calculado" });
   }
 
   return rates;

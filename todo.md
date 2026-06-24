@@ -155,3 +155,12 @@
 - [x] Tarefa 7: Integrar PerformanceCards em Home.tsx (grid 6 colunas)
 - [x] Tarefa 8: Criar server/snapshot.test.ts com 6 testes
 - [x] Tarefa 9: Cron Heartbeat requer deploy antes de criar - aguardando publicação
+
+## Correção Dashboard de Mercado (promptmanusmarketfix.md) - CONCLUÍDO
+- [x] Corrigir séries BCB em market.ts: usar 1178 (Selic Over), 4389 (CDI anual), 13522 (IPCA 12m), 432 (Meta Selic)
+- [x] Adicionar Juro Real calculado (Selic Over - IPCA 12m)
+- [x] Corrigir DashboardMercado.tsx: find("Selic (efetiva)") → find("Meta Selic (COPOM)")
+- [x] Verificar coloração condicional IPCA (rate.name.includes("IPCA") - OK)
+- [x] Confirmar série 4390 CDI benchmark não alterada
+- [x] pnpm build sem erros ✅
+- [x] 96 testes vitest passando ✅

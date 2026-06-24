@@ -375,7 +375,7 @@ function DaySummaryBar() {
   const sp500 = indicesData?.indices.find((i) => i.symbol === "^GSPC");
   const dolar = indicesData?.indices.find((i) => i.symbol === "USDBRL=X");
   const btc = indicesData?.indices.find((i) => i.symbol === "BTC-USD");
-  const selic = ratesData?.rates.find((r) => r.name === "Selic (efetiva)");
+  const selic = ratesData?.rates.find((r) => r.name === "Meta Selic (COPOM)");
   const ipca = ratesData?.rates.find((r) => r.name === "IPCA (acum. 12m)");
 
   const items = [

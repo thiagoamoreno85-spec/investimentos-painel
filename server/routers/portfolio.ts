@@ -23,11 +23,12 @@ import {
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
 import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
-import { assets, transactions as transactionsTable, dividends, cashBalance, cashMovements } from "../../drizzle/schema";
-import { eq, asc, and } from "drizzle-orm";
+import { assets, transactions as transactionsTable, dividends, cashBalance, cashMovements, portfolioSnapshots } from "../../drizzle/schema";
+import { eq, asc, and, desc, gte } from "drizzle-orm";
 import { getDb } from "../db";
 import { parseCSV } from "../lib/csvParser";
 import { TRPCError } from "@trpc/server";
+import { captureSnapshot, getSnapshotByDate } from "../services/snapshotService";
 
 export const portfolioRouter = router({
   // ========== ASSETS ==========
@@ -628,6 +629,151 @@ export const portfolioRouter = router({
       const event = await getEventById(input.id, ctx.user.id);
       if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
       await deleteEvent(input.id, ctx.user.id);
+    }),
+
+  // ========== RENTABILIDADE DIÁRIA E MENSAL ==========
+
+  /** Captura snapshot manual (para preencher histórico ou primeiro uso) */
+  captureSnapshot: protectedProcedure.mutation(async ({ ctx }) => {
+    return captureSnapshot(ctx.user.id);
+  }),
+
+  /** Retorna rentabilidade diária e mensal — total e por classe */
+  getPerformance: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.id;
+    const now = new Date();
+
+    // Calcular patrimônio ATUAL (mesma lógica da Home.tsx)
+    const userAssets = await getAssetsByUser(userId);
+    const db = await getDb();
+    if (!db) return null;
+
+    const cashRows = await db.select().from(cashBalance).where(eq(cashBalance.userId, userId)).limit(1);
+    const cash = Number(cashRows[0]?.balance ?? 0);
+    const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
+
+    const CLASS_CURRENCY_LOCAL: Record<string, string> = {
+      rv_nacional: "BRL", rv_eua: "USD", fundos: "BRL", cripto: "USD",
+      renda_fixa: "BRL", uranio: "USD", india: "USD", caixa: "BRL",
+    };
+
+    let currentTotal = cash;
+    const currentClassValues: Record<string, number> = {};
+    if (cash > 0) currentClassValues["caixa"] = cash;
+
+    for (const asset of userAssets) {
+      if (asset.assetClass === "caixa") continue;
+      const qty = parseFloat(asset.totalQuantity);
+      const lastPrice = parseFloat(asset.lastPrice);
+      const currency = asset.currency || CLASS_CURRENCY_LOCAL[asset.assetClass] || "BRL";
+      const fx = currency === "USD" ? usdBrl : 1;
+      const valueBRL = qty * lastPrice * fx;
+      currentTotal += valueBRL;
+      const cls = asset.assetClass;
+      currentClassValues[cls] = (currentClassValues[cls] || 0) + valueBRL;
+    }
+
+    // Buscar snapshot de ONTEM (para rentabilidade diária)
+    const yesterday = new Date(now);
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+    const yesterdaySnapshot = await getSnapshotByDate(userId, yesterday);
+
+    // Buscar snapshot do ÚLTIMO DIA DO MÊS ANTERIOR (para rentabilidade mensal)
+    const firstDayOfMonth = new Date(now.getUTCFullYear(), now.getUTCMonth(), 1);
+    const lastDayPrevMonth = new Date(firstDayOfMonth);
+    lastDayPrevMonth.setUTCDate(lastDayPrevMonth.getUTCDate() - 1);
+    const monthSnapshot = await getSnapshotByDate(userId, lastDayPrevMonth);
+
+    // Calcular variações
+    function calcReturn(
+      currentValue: number,
+      snapshotValue: number | null
+    ): { valueDiff: number; percentDiff: number } | null {
+      if (snapshotValue === null || snapshotValue === 0) return null;
+      const diff = currentValue - snapshotValue;
+      const pct = (diff / snapshotValue) * 100;
+      return { valueDiff: diff, percentDiff: pct };
+    }
+
+    function calcClassReturns(
+      currentValues: Record<string, number>,
+      snapshotJSON: string | null
+    ): Record<string, { valueDiff: number; percentDiff: number }> | null {
+      if (!snapshotJSON) return null;
+      try {
+        const snapshotValues: Record<string, number> = JSON.parse(snapshotJSON);
+        const result: Record<string, { valueDiff: number; percentDiff: number }> = {};
+        const allClasses = Array.from(new Set([...Object.keys(currentValues), ...Object.keys(snapshotValues)]));
+        for (const cls of allClasses) {
+          const curr = currentValues[cls] ?? 0;
+          const prev = snapshotValues[cls] ?? 0;
+          if (prev > 0) {
+            result[cls] = {
+              valueDiff: curr - prev,
+              percentDiff: ((curr - prev) / prev) * 100,
+            };
+          } else if (curr > 0) {
+            result[cls] = { valueDiff: curr, percentDiff: 100 };
+          }
+        }
+        return result;
+      } catch {
+        return null;
+      }
+    }
+
+    const dailyTotal = calcReturn(
+      currentTotal,
+      yesterdaySnapshot ? Number(yesterdaySnapshot.totalValueBRL) : null
+    );
+    const dailyByClass = calcClassReturns(
+      currentClassValues,
+      yesterdaySnapshot?.classValuesJSON ?? null
+    );
+
+    const monthlyTotal = calcReturn(
+      currentTotal,
+      monthSnapshot ? Number(monthSnapshot.totalValueBRL) : null
+    );
+    const monthlyByClass = calcClassReturns(
+      currentClassValues,
+      monthSnapshot?.classValuesJSON ?? null
+    );
+
+    return {
+      currentTotal,
+      currentClassValues,
+      usdBrl,
+      daily: {
+        total: dailyTotal,
+        byClass: dailyByClass,
+        snapshotDate: yesterdaySnapshot?.snapshotDate?.toISOString() ?? null,
+      },
+      monthly: {
+        total: monthlyTotal,
+        byClass: monthlyByClass,
+        snapshotDate: monthSnapshot?.snapshotDate?.toISOString() ?? null,
+      },
+      hasSnapshots: !!(yesterdaySnapshot || monthSnapshot),
+    };
+  }),
+
+  /** Lista histórico de snapshots (para gráfico de evolução futuro) */
+  getSnapshotHistory: protectedProcedure
+    .input(z.object({ days: z.number().int().min(1).max(365).default(30) }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const since = new Date();
+      since.setUTCDate(since.getUTCDate() - input.days);
+      return db
+        .select()
+        .from(portfolioSnapshots)
+        .where(and(
+          eq(portfolioSnapshots.userId, ctx.user.id),
+          gte(portfolioSnapshots.snapshotDate, since)
+        ))
+        .orderBy(desc(portfolioSnapshots.snapshotDate));
     }),
 
   // ========== SEED ==========

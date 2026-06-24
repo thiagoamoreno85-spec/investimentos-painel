@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BenchmarkChart } from "@/components/BenchmarkChart";
+import { PerformanceCards } from "@/components/PerformanceCards";
 import { CurrencyBreakdownChart } from "@/components/CurrencyBreakdownChart";
 import { EventCalendar } from "@/components/EventCalendar";
 
@@ -318,7 +319,7 @@ export default function Home() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-6">
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
@@ -395,6 +396,7 @@ export default function Home() {
           </Card>
 
           <CaixaCard />
+          {hasDbData && <PerformanceCards />}
         </div>
 
         {/* Charts and Tables Area */}

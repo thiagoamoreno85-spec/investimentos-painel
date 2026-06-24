@@ -144,3 +144,14 @@
 - [x] Tarefa 8: Skeleton Screens - substituir Loader2 por skeletons nas páginas
 - [x] Tarefa 9: Constantes Centralizadas - criar shared/constants.ts
 - [x] Tarefa 10: ProtectedRoute - componente de autenticação guard
+
+## Rentabilidade Diária e Mensal (promptmanusrentabilidade.md) - CONCLUÍDO
+- [x] Tarefa 1: Adicionar tabela portfolio_snapshots ao drizzle/schema.ts + pnpm db:push
+- [x] Tarefa 2: Criar server/services/snapshotService.ts
+- [x] Tarefa 3: Criar server/scheduled/snapshotHandler.ts
+- [x] Tarefa 4: Registrar endpoint /api/scheduled/portfolio-snapshot em server/_core/index.ts
+- [x] Tarefa 5: Adicionar procedures captureSnapshot, getPerformance, getSnapshotHistory em portfolio.ts
+- [x] Tarefa 6: Criar client/src/components/PerformanceCards.tsx
+- [x] Tarefa 7: Integrar PerformanceCards em Home.tsx (grid 6 colunas)
+- [x] Tarefa 8: Criar server/snapshot.test.ts com 6 testes
+- [x] Tarefa 9: Cron Heartbeat requer deploy antes de criar - aguardando publicação

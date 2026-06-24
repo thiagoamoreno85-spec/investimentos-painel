@@ -290,3 +290,23 @@ export const cashMovements = mysqlTable("cash_movements", {
 
 export type CashMovement = typeof cashMovements.$inferSelect;
 export type InsertCashMovement = typeof cashMovements.$inferInsert;
+
+// ===== SNAPSHOTS DE RENTABILIDADE =====
+
+export const portfolioSnapshots = mysqlTable("portfolio_snapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  snapshotDate: timestamp("snapshotDate").notNull(),
+  totalValueBRL: decimal("totalValueBRL", { precision: 18, scale: 2 }).notNull(),
+  totalCostBRL: decimal("totalCostBRL", { precision: 18, scale: 2 }).notNull(),
+  cashBRL: decimal("cashBRL", { precision: 14, scale: 2 }).notNull().default("0"),
+  usdBrlRate: decimal("usdBrlRate", { precision: 10, scale: 4 }).notNull(),
+  /** JSON: { "rv_nacional": 12345.67, "rv_eua": 9876.54, ... } */
+  classValuesJSON: text("classValuesJSON").notNull(),
+  /** JSON: { "rv_nacional": 10000.00, "rv_eua": 8000.00, ... } — custos por classe */
+  classCostsJSON: text("classCostsJSON").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PortfolioSnapshot = typeof portfolioSnapshots.$inferSelect;
+export type InsertPortfolioSnapshot = typeof portfolioSnapshots.$inferInsert;

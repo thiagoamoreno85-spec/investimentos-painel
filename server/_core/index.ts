@@ -11,6 +11,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { newsRefreshHandler } from "../scheduled/newsRefreshHandler";
+import { snapshotHandler } from "../scheduled/snapshotHandler";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -34,6 +35,8 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  // Trust proxy for rate limiting behind reverse proxy
+  app.set("trust proxy", 1);
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: MAX_BODY_SIZE }));
   app.use(express.urlencoded({ limit: MAX_BODY_SIZE, extended: true }));
@@ -78,6 +81,7 @@ async function startServer() {
   );
   // Scheduled Heartbeat endpoints (must be before Vite/static fallthrough)
   app.post("/api/scheduled/news-refresh", newsRefreshHandler);
+  app.post("/api/scheduled/portfolio-snapshot", snapshotHandler);
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {

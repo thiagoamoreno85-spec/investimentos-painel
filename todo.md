@@ -164,3 +164,10 @@
 - [x] Confirmar série 4390 CDI benchmark não alterada
 - [x] pnpm build sem erros ✅
 - [x] 96 testes vitest passando ✅
+
+## Correção Notícias - RSS Real (promptmanusnoticiasfix.md) - CONCLUÍDO
+- [x] Testar feeds RSS: 6/7 funcionando (InfoMoney, Folha Mercado, Investing.com BR, Google News BR/Cripto/US)
+- [x] Reescrever newsRefreshService.ts: busca RSS real + LLM apenas para análise de impacto
+- [x] Links são URLs reais das fontes (InfoMoney, Folha, Google News)
+- [x] pnpm build sem erros ✅
+- [x] 96 testes vitest passando ✅

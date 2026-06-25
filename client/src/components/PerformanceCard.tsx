@@ -73,7 +73,7 @@ export default function PerformanceCard() {
         </button>
 
         {expanded && data.byClass.length > 0 && (
-          <div className="mt-3 space-y-1.5 border-t border-border/30 pt-2">
+          <div className="mt-3 space-y-2 border-t border-border/30 pt-2">
             {data.byClass.map((cls) => {
               const clsPositive = cls.changePct >= 0;
               const clsColor = cls.changePct === 0
@@ -82,17 +82,11 @@ export default function PerformanceCard() {
                 ? "text-emerald-500"
                 : "text-red-400";
               return (
-                <div key={cls.classKey} className="flex items-center justify-between text-xs gap-2">
-                  <span className="text-muted-foreground flex-1 min-w-0">
-                    {cls.className}
-                  </span>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <span className={`font-mono font-medium ${clsColor} text-right`}>
-                      {clsPositive ? "+" : ""}{cls.changePct.toFixed(2)}%
-                    </span>
-                    <span className={`font-mono ${clsColor} text-[10px] text-right`}>
-                      ({clsPositive ? "+" : ""}{formatCurrency(cls.changeBRL)})
-                    </span>
+                <div key={cls.classKey} className="text-xs">
+                  <div className="text-muted-foreground mb-0.5">{cls.className}</div>
+                  <div className={`font-mono font-medium ${clsColor} flex items-center gap-1`}>
+                    <span>{clsPositive ? "+" : ""}{cls.changePct.toFixed(2)}%</span>
+                    <span className="text-[10px] opacity-80">({clsPositive ? "+" : ""}{formatCurrency(cls.changeBRL)})</span>
                   </div>
                 </div>
               );

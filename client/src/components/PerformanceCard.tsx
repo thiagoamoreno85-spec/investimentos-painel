@@ -82,15 +82,15 @@ export default function PerformanceCard() {
                 ? "text-emerald-500"
                 : "text-red-400";
               return (
-                <div key={cls.classKey} className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground truncate mr-2">
+                <div key={cls.classKey} className="flex items-center justify-between text-xs gap-2">
+                  <span className="text-muted-foreground flex-1 min-w-0">
                     {cls.className}
                   </span>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className={`font-mono font-medium ${clsColor}`}>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className={`font-mono font-medium ${clsColor} text-right`}>
                       {clsPositive ? "+" : ""}{cls.changePct.toFixed(2)}%
                     </span>
-                    <span className={`font-mono ${clsColor} text-[10px]`}>
+                    <span className={`font-mono ${clsColor} text-[10px] text-right`}>
                       ({clsPositive ? "+" : ""}{formatCurrency(cls.changeBRL)})
                     </span>
                   </div>

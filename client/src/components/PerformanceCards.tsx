@@ -4,7 +4,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   ArrowUpRight,
   ArrowDownRight,
-  TrendingUp,
   Calendar,
   Camera,
   ChevronDown,
@@ -102,10 +101,13 @@ function ClassBreakdown({
   );
 }
 
+/**
+ * PerformanceCards — renderiza APENAS o card de Rentabilidade Mensal.
+ * O card de Rentabilidade Diária é renderizado separadamente pelo PerformanceCard (singular).
+ */
 export function PerformanceCards() {
   const { data: performance, isLoading } = trpc.portfolio.getPerformance.useQuery();
   const utils = trpc.useUtils();
-  const [dailyExpanded, setDailyExpanded] = useState(false);
   const [monthlyExpanded, setMonthlyExpanded] = useState(false);
 
   const captureSnapshotMutation = trpc.portfolio.captureSnapshot.useMutation({
@@ -118,35 +120,27 @@ export function PerformanceCards() {
 
   if (isLoading) {
     return (
-      <>
-        <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-          <CardContent className="p-6">
-            <Skeleton className="h-4 w-24 mb-3" />
-            <Skeleton className="h-8 w-32" />
-          </CardContent>
-        </Card>
-        <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-          <CardContent className="p-6">
-            <Skeleton className="h-4 w-24 mb-3" />
-            <Skeleton className="h-8 w-32" />
-          </CardContent>
-        </Card>
-      </>
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+        <CardContent className="p-6">
+          <Skeleton className="h-4 w-24 mb-3" />
+          <Skeleton className="h-8 w-32" />
+        </CardContent>
+      </Card>
     );
   }
 
   if (!performance) return null;
 
-  // Se não tem snapshots, mostrar card de ativação
+  // Se não tem snapshots, mostrar card de ativação (ocupa 1 coluna)
   if (!performance.hasSnapshots) {
     return (
-      <Card className="col-span-2 bg-card/50 backdrop-blur-sm border-dashed border-border/50 shadow-sm">
-        <CardContent className="p-6 flex flex-col items-center justify-center text-center gap-3">
-          <Camera className="h-8 w-8 text-muted-foreground" />
+      <Card className="bg-card/50 backdrop-blur-sm border-dashed border-border/50 shadow-sm">
+        <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
+          <Camera className="h-6 w-6 text-muted-foreground" />
           <div>
-            <p className="text-sm font-medium">Rentabilidade Diária e Mensal</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Capture o primeiro snapshot para começar a acompanhar a evolução do patrimônio.
+            <p className="text-xs font-medium">Rent. Mês</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Capture o primeiro snapshot para acompanhar a evolução mensal.
             </p>
           </div>
           <Button
@@ -154,10 +148,10 @@ export function PerformanceCards() {
             size="sm"
             onClick={() => captureSnapshotMutation.mutate()}
             disabled={captureSnapshotMutation.isPending}
-            className="gap-2"
+            className="gap-1 text-xs h-7"
           >
-            <Camera className="h-4 w-4" />
-            Capturar Snapshot Inicial
+            <Camera className="h-3 w-3" />
+            Capturar Snapshot
           </Button>
         </CardContent>
       </Card>
@@ -165,96 +159,49 @@ export function PerformanceCards() {
   }
 
   return (
-    <>
-      {/* Rentabilidade DIÁRIA */}
-      <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
-          <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-            Rent. Hoje
-          </CardTitle>
-          <TrendingUp
-            className={`h-4 w-4 ${
-              (performance.daily.total?.valueDiff ?? 0) >= 0
-                ? "text-emerald-500"
-                : "text-red-400"
-            }`}
-          />
-        </CardHeader>
-        <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-          {performance.daily.total ? (
-            <>
-              <div
-                className={`text-lg md:text-2xl font-bold font-mono tracking-tight ${
-                  performance.daily.total.valueDiff >= 0 ? "text-emerald-500" : "text-red-400"
-                }`}
-              >
-                {performance.daily.total.valueDiff >= 0 ? "+" : ""}
-                {performance.daily.total.percentDiff.toFixed(2)}%
-              </div>
-              <p className={`text-xs mt-0.5 ${
-                performance.daily.total.valueDiff >= 0 ? "text-emerald-500/70" : "text-red-400/70"
-              }`}>
-                {performance.daily.total.valueDiff >= 0 ? "+" : ""}
-                {formatCurrency(performance.daily.total.valueDiff)}
-              </p>
-              <ClassBreakdown
-                data={performance.daily.byClass}
-                expanded={dailyExpanded}
-                onToggle={() => setDailyExpanded(!dailyExpanded)}
-              />
-            </>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              Sem snapshot de ontem
+    /* Rentabilidade MENSAL — único card renderizado aqui */
+    <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
+        <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+          Rent. Mês
+        </CardTitle>
+        <Calendar
+          className={`h-4 w-4 ${
+            (performance.monthly.total?.valueDiff ?? 0) >= 0
+              ? "text-emerald-500"
+              : "text-red-400"
+          }`}
+        />
+      </CardHeader>
+      <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
+        {performance.monthly.total ? (
+          <>
+            <div
+              className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
+                performance.monthly.total.valueDiff >= 0 ? "text-emerald-500" : "text-red-400"
+              }`}
+            >
+              {performance.monthly.total.valueDiff >= 0 ? "+" : ""}
+              {performance.monthly.total.percentDiff.toFixed(2)}%
+            </div>
+            <p className={`text-xs mt-0.5 ${
+              performance.monthly.total.valueDiff >= 0 ? "text-emerald-500/70" : "text-red-400/70"
+            }`}>
+              {performance.monthly.total.valueDiff >= 0 ? "+" : ""}
+              {formatCurrency(performance.monthly.total.valueDiff)}
             </p>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Rentabilidade MENSAL */}
-      <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
-          <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-            Rent. Mês
-          </CardTitle>
-          <Calendar
-            className={`h-4 w-4 ${
-              (performance.monthly.total?.valueDiff ?? 0) >= 0
-                ? "text-emerald-500"
-                : "text-red-400"
-            }`}
-          />
-        </CardHeader>
-        <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-          {performance.monthly.total ? (
-            <>
-              <div
-                className={`text-lg md:text-2xl font-bold font-mono tracking-tight ${
-                  performance.monthly.total.valueDiff >= 0 ? "text-emerald-500" : "text-red-400"
-                }`}
-              >
-                {performance.monthly.total.valueDiff >= 0 ? "+" : ""}
-                {performance.monthly.total.percentDiff.toFixed(2)}%
-              </div>
-              <p className={`text-xs mt-0.5 ${
-                performance.monthly.total.valueDiff >= 0 ? "text-emerald-500/70" : "text-red-400/70"
-              }`}>
-                {performance.monthly.total.valueDiff >= 0 ? "+" : ""}
-                {formatCurrency(performance.monthly.total.valueDiff)}
-              </p>
-              <ClassBreakdown
-                data={performance.monthly.byClass}
-                expanded={monthlyExpanded}
-                onToggle={() => setMonthlyExpanded(!monthlyExpanded)}
-              />
-            </>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              Sem snapshot do mês anterior
-            </p>
-          )}
-        </CardContent>
-      </Card>
-    </>
+            <ClassBreakdown
+              data={performance.monthly.byClass}
+              expanded={monthlyExpanded}
+              onToggle={() => setMonthlyExpanded(!monthlyExpanded)}
+            />
+          </>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Sem snapshot do mês anterior
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

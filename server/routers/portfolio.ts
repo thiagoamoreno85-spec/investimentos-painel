@@ -846,4 +846,101 @@ export const portfolioRouter = router({
 
       return { created, skipped };
     }),
+  getDailyPerformance: protectedProcedure.query(async ({ ctx }) => {
+    const assets = await getAssetsByUser(ctx.user.id);
+    if (assets.length === 0) return { totalPct: 0, totalBRL: 0, totalValueBRL: 0, byClass: [], updatedAt: new Date() };
+
+    const tickerList = assets
+      .filter((a) => a.assetClass !== "caixa")
+      .map((a) => ({ ticker: a.ticker, assetClass: a.assetClass }));
+
+    // Buscar cotações com variação do dia
+    const quotes = await fetchQuotes(tickerList).catch(() => new Map());
+
+    // Buscar USD/BRL para converter
+    const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
+
+    const CLASS_CURRENCY: Record<string, string> = {
+      rv_nacional: "BRL",
+      rv_eua: "USD",
+      fundos: "BRL",
+      cripto: "USD",
+      renda_fixa: "BRL",
+      uranio: "USD",
+      india: "USD",
+    };
+
+    const ASSET_CLASS_LABELS: Record<string, string> = {
+      rv_nacional: "RV Nacional",
+      rv_eua: "RV EUA",
+      fundos: "Fundos",
+      cripto: "Criptomoedas",
+      renda_fixa: "Renda Fixa",
+      uranio: "Urânio",
+      india: "Índia",
+    };
+
+    // Agrupar por classe
+    const classData = new Map<string, { valueBRL: number; changeBRL: number }>();
+    let totalValueBRL = 0;
+    let totalChangeBRL = 0;
+
+    for (const asset of assets) {
+      if (asset.assetClass === "caixa") continue;
+
+      const qty = parseFloat(asset.totalQuantity);
+      const lastPrice = parseFloat(asset.lastPrice);
+      const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
+      const q = quotes.get(asset.ticker);
+
+      // Valor atual em moeda original
+      const currentPrice = q?.price ?? lastPrice;
+      const valueOriginal = qty * currentPrice;
+
+      // Variação do dia: change é a diferença de preço (price - previousClose)
+      const dailyChange = q?.change ?? 0;
+      let changeBRL = qty * dailyChange;
+      let valueBRL = valueOriginal;
+
+      if (currency === "USD") {
+        changeBRL *= usdBrl;
+        valueBRL *= usdBrl;
+      }
+
+      totalValueBRL += valueBRL;
+      totalChangeBRL += changeBRL;
+
+      const classKey = asset.assetClass;
+      const existing = classData.get(classKey) || { valueBRL: 0, changeBRL: 0 };
+      existing.valueBRL += valueBRL;
+      existing.changeBRL += changeBRL;
+      classData.set(classKey, existing);
+    }
+
+    // Montar resultado por classe
+    const byClass = Array.from(classData.entries()).map(([classKey, data]) => {
+      // Valor de ontem = valor de hoje - variação de hoje
+      const yesterdayValue = data.valueBRL - data.changeBRL;
+      const pct = yesterdayValue > 0 ? (data.changeBRL / yesterdayValue) * 100 : 0;
+      return {
+        classKey,
+        className: ASSET_CLASS_LABELS[classKey] || classKey,
+        changeBRL: data.changeBRL,
+        changePct: pct,
+        valueBRL: data.valueBRL,
+      };
+    }).sort((a, b) => Math.abs(b.changeBRL) - Math.abs(a.changeBRL));
+
+    // Percentual total
+    const totalYesterday = totalValueBRL - totalChangeBRL;
+    const totalPct = totalYesterday > 0 ? (totalChangeBRL / totalYesterday) * 100 : 0;
+
+    return {
+      totalPct,
+      totalBRL: totalChangeBRL,
+      totalValueBRL,
+      byClass,
+      updatedAt: new Date(),
+    };
+  }),
 });

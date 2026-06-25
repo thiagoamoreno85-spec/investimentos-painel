@@ -171,3 +171,11 @@
 - [x] Links são URLs reais das fontes (InfoMoney, Folha, Google News)
 - [x] pnpm build sem erros ✅
 - [x] 96 testes vitest passando ✅
+
+## Rentabilidade Diária por Classe (promptmanusrentabilidadediaria.md) - CONCLUÍDO
+- [x] Verificar imports fetchQuotes e fetchUsdBrl em portfolio.ts
+- [x] Adicionar procedure getDailyPerformance em portfolio.ts
+- [x] Criar client/src/components/PerformanceCard.tsx (singular, diferente de PerformanceCards.tsx)
+- [x] Integrar PerformanceCard em Home.tsx (substituir card Maior Posição)
+- [x] pnpm build sem erros (TypeScript: 0 erros)
+- [x] pnpm test todos passando (96 testes ✅)

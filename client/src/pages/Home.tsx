@@ -31,6 +31,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BenchmarkChart } from "@/components/BenchmarkChart";
 import { PerformanceCards } from "@/components/PerformanceCards";
+import PerformanceCard from "@/components/PerformanceCard";
 import { CurrencyBreakdownChart } from "@/components/CurrencyBreakdownChart";
 import { EventCalendar } from "@/components/EventCalendar";
 
@@ -378,22 +379,7 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
-              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-                Maior Posição
-              </CardTitle>
-              <PieChart className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div className="text-sm sm:text-base md:text-xl font-bold leading-tight">
-                {largestClass}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {largestClassPct.toFixed(1)}% da carteira
-              </p>
-            </CardContent>
-          </Card>
+          <PerformanceCard />
 
           <CaixaCard />
           {hasDbData && <PerformanceCards />}

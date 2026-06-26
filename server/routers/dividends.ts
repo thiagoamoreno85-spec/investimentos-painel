@@ -4,6 +4,7 @@ import { getDb } from "../db";
 import { dividends, assets, type Dividend } from "../../drizzle/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { parseXPDividendsPDF, deduplicateDividends } from "../lib/pdfDividendParser";
+import { parseXPStatementXLSX } from "../lib/xpStatementParser";
 import { TRPCError } from "@trpc/server";
 
 export const dividendsRouter = router({
@@ -209,6 +210,144 @@ export const dividendsRouter = router({
         totalValue,
         ticker: asset.ticker,
       };
+    }),
+
+  /**
+   * Preview de proventos extraídos de extrato XLSX da XP
+   * Verifica quais já foram lançados (deduplicação) e retorna o relatório.
+   */
+  previewDividendsFromStatement: protectedProcedure
+    .input(z.object({ fileBase64: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const buffer = Buffer.from(input.fileBase64, "base64");
+      const parsed = parseXPStatementXLSX(buffer);
+
+      const userAssets = await db
+        .select()
+        .from(assets)
+        .where(eq(assets.userId, ctx.user.id));
+
+      const existingDividends = await db
+        .select()
+        .from(dividends)
+        .where(eq(dividends.userId, ctx.user.id));
+
+      const preview = parsed.map((prov) => {
+        const asset = userAssets.find((a) => a.ticker === prov.ticker);
+        const assetId = asset?.id;
+
+        // Verificar duplicata: mesmo ativo, tipo, valor e data (±1 dia)
+        const isDuplicate = assetId
+          ? existingDividends.some((d) => {
+              if (d.assetId !== assetId) return false;
+              if (d.type !== prov.type) return false;
+              if (Math.abs(parseFloat(d.totalValue) - prov.totalValue) > 0.01) return false;
+              const existDate = new Date(d.exDate).getTime();
+              const newDate = prov.paymentDate.getTime();
+              return Math.abs(existDate - newDate) < 86400000 * 2; // 2 dias de tolerância
+            })
+          : false;
+
+        return {
+          ticker: prov.ticker,
+          assetId,
+          type: prov.type,
+          totalValue: prov.totalValue,
+          paymentDate: prov.paymentDate,
+          description: prov.description,
+          found: !!asset,
+          duplicate: isDuplicate,
+        };
+      });
+
+      return { preview };
+    }),
+
+  /**
+   * Importar proventos do extrato XLSX da XP com deduplicação automática.
+   * Insere apenas os proventos novos (não duplicados) cujo ativo está cadastrado.
+   */
+  importDividendsFromStatement: protectedProcedure
+    .input(
+      z.object({
+        fileBase64: z.string(),
+        /** Índices dos proventos a importar (da lista retornada por previewDividendsFromStatement) */
+        selectedIndices: z.array(z.number()),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const buffer = Buffer.from(input.fileBase64, "base64");
+      const parsed = parseXPStatementXLSX(buffer);
+
+      const userAssets = await db
+        .select()
+        .from(assets)
+        .where(eq(assets.userId, ctx.user.id));
+
+      const existingDividends = await db
+        .select()
+        .from(dividends)
+        .where(eq(dividends.userId, ctx.user.id));
+
+      let imported = 0;
+      let skippedDuplicate = 0;
+      let skippedNotFound = 0;
+      const notFoundTickers: string[] = [];
+      const errors: string[] = [];
+
+      for (let i = 0; i < parsed.length; i++) {
+        if (!input.selectedIndices.includes(i)) continue;
+
+        const prov = parsed[i];
+        const asset = userAssets.find((a) => a.ticker === prov.ticker);
+
+        if (!asset) {
+          skippedNotFound++;
+          if (!notFoundTickers.includes(prov.ticker)) notFoundTickers.push(prov.ticker);
+          continue;
+        }
+
+        // Verificar duplicata
+        const isDuplicate = existingDividends.some((d) => {
+          if (d.assetId !== asset.id) return false;
+          if (d.type !== prov.type) return false;
+          if (Math.abs(parseFloat(d.totalValue) - prov.totalValue) > 0.01) return false;
+          const existDate = new Date(d.exDate).getTime();
+          const newDate = prov.paymentDate.getTime();
+          return Math.abs(existDate - newDate) < 86400000 * 2;
+        });
+
+        if (isDuplicate) {
+          skippedDuplicate++;
+          continue;
+        }
+
+        try {
+          await db.insert(dividends).values({
+            userId: ctx.user.id,
+            assetId: asset.id,
+            type: prov.type,
+            valuePerShare: "0",
+            quantity: "0",
+            totalValue: prov.totalValue.toFixed(2),
+            currency: "BRL",
+            exDate: prov.paymentDate,
+            paymentDate: prov.paymentDate,
+            notes: `Importado extrato XP - ${prov.description.substring(0, 80)}`,
+          });
+          imported++;
+        } catch (err) {
+          errors.push(`${prov.ticker}: ${err instanceof Error ? err.message : "Erro desconhecido"}`);
+        }
+      }
+
+      return { imported, skippedDuplicate, skippedNotFound, notFoundTickers, errors };
     }),
 
   /**

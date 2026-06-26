@@ -22,7 +22,9 @@ import {
   TrendingUp,
   Calendar,
   BarChart2,
+  FileSpreadsheet,
 } from "lucide-react";
+import { ImportStatementModal } from "@/components/ImportStatementModal";
 import { toast } from "sonner";
 import {
   ResponsiveContainer,
@@ -45,6 +47,7 @@ const DIVIDEND_TYPES = [
 
 export default function Dividendos() {
   const utils = trpc.useUtils();
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   // Form state
   const [assetId, setAssetId] = useState<string>("");
@@ -165,12 +168,36 @@ export default function Dividendos() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Cabeçalho fixo */}
-        <div className="flex-shrink-0 pb-3">
-          <h2 className="text-xl md:text-3xl font-bold tracking-tight">Dividendos & Proventos</h2>
-          <p className="text-muted-foreground mt-1">
-            Registre dividendos, JCP e rendimentos. Calcule Yield on Cost e Current Yield por ativo.
-          </p>
+        <div className="flex-shrink-0 pb-3 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl md:text-3xl font-bold tracking-tight">Dividendos & Proventos</h2>
+            <p className="text-muted-foreground mt-1">
+              Registre dividendos, JCP e rendimentos. Calcule Yield on Cost e Current Yield por ativo.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-shrink-0 gap-2 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+            onClick={() => setImportModalOpen(true)}
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            <span className="hidden sm:inline">Importar Extrato XP</span>
+            <span className="sm:hidden">Importar</span>
+          </Button>
         </div>
+
+        {/* Modal de importação */}
+        <ImportStatementModal
+          open={importModalOpen}
+          onClose={() => setImportModalOpen(false)}
+          onImported={() => {
+            utils.dividends.getDividends.invalidate();
+            utils.dividends.getDividendSummary.invalidate();
+            utils.dividends.getDividendsByMonth.invalidate();
+            utils.dividends.getTotalDividends.invalidate();
+          }}
+        />
 
         {/* Cards de resumo fixos */}
         <div className="flex-shrink-0 grid grid-cols-3 gap-2 md:gap-4">

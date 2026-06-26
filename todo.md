@@ -213,3 +213,14 @@
 - [x] Scroll vertical apenas nos ativos (de cima para baixo)
 - [x] pnpm build sem erros (✅)
 - [x] pnpm test todos passando (96 testes ✅)
+
+## Importação de Extrato XP (XLSX) com Deduplicação Automática - CONCLUÍDO
+- [x] Criar parser de extrato XLSX (server/lib/xpStatementParser.ts) com extração de proventos
+- [x] Lógica de deduplicação: verificar por (userId, assetId, type, totalValue, exDate ±2 dias) antes de inserir
+- [x] Procedure previewDividendsFromStatement (mutation) com relatório de novos/duplicados/não encontrados
+- [x] Procedure importDividendsFromStatement (mutation) com retorno: importados, ignorados, não encontrados
+- [x] UI de upload do extrato XLSX na página de Dividendos (drag-and-drop + clique)
+- [x] Preview dos proventos detectados antes de confirmar importação (seleção individual)
+- [x] Exibir resultado pós-importação: importados vs já lançados vs não cadastrados
+- [x] pnpm build sem erros (built in 21.58s ✅)
+- [x] pnpm test todos passando (96 testes ✅)

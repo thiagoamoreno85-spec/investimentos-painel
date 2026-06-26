@@ -188,3 +188,12 @@
 - [x] Reduzir padding horizontal (px-1 md:px-4) em th e td
 - [x] pnpm build sem erros (TypeScript: 0 erros)
 - [x] pnpm test todos passando (96 testes ✅)
+
+## Correção Alinhamento de Colunas — Tabela de Alocação (promptmanusalinharcolunas.md) - CONCLUÍDO
+- [x] Unificar thead e tbody em uma única <table> em Alocacao.tsx
+- [x] Adicionar sticky top-0 z-10 no <thead> para header fixo durante scroll
+- [x] Mover <ScrollArea> para envolver a tabela inteira
+- [x] Remover <div> separado que encapsulava o <thead>
+- [x] Verificar alinhamento perfeito entre títulos e valores
+- [x] pnpm build sem erros (built in 23.73s ✅)
+- [x] pnpm test todos passando (96 testes ✅)

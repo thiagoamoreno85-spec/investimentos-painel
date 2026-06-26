@@ -200,52 +200,54 @@ export default function CaixaCard() {
 
         {/* Últimas movimentações */}
         {!loadingMovements && movements && movements.length > 0 && (
-          <div className="mt-4 space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Últimas movimentações
+          <div className="mt-4 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+              Últimas Movimentações
             </p>
             {movements.slice(0, 5).map((mov) => (
               <div
                 key={mov.id}
-                className="flex items-center justify-between text-xs group"
+                className="group py-1 border-b border-border/20 last:border-0"
               >
-                <div className="flex items-center gap-2">
-                  {mov.type === "entrada" ? (
-                    <ArrowUpCircle className="h-3 w-3 text-emerald-500 shrink-0" />
-                  ) : (
-                    <ArrowDownCircle className="h-3 w-3 text-destructive shrink-0" />
-                  )}
-                  <div>
-                    <p className="font-medium">
+                {/* Linha 1: ícone + categoria + botão excluir */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    {mov.type === "entrada" ? (
+                      <ArrowUpCircle className="h-3 w-3 text-emerald-500 shrink-0" />
+                    ) : (
+                      <ArrowDownCircle className="h-3 w-3 text-destructive shrink-0" />
+                    )}
+                    <p className="text-xs font-medium truncate">
                       {CATEGORY_LABELS[mov.category] ?? mov.category}
                     </p>
-                    {mov.description && (
-                      <p className="text-muted-foreground truncate max-w-[140px]">
-                        {mov.description}
-                      </p>
-                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span
+                      className={`text-xs font-mono font-semibold ${
+                        mov.type === "entrada"
+                          ? "text-emerald-400"
+                          : "text-destructive"
+                      }`}
+                    >
+                      {mov.type === "entrada" ? "+" : "-"}
+                      {formatCurrency(Number(mov.amount))}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => deleteMovement.mutate({ id: mov.id })}
+                    >
+                      <Trash2 className="h-3 w-3 text-muted-foreground" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`font-mono font-medium ${
-                      mov.type === "entrada"
-                        ? "text-emerald-500"
-                        : "text-destructive"
-                    }`}
-                  >
-                    {mov.type === "entrada" ? "+" : "-"}
-                    {formatCurrency(Number(mov.amount))}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => deleteMovement.mutate({ id: mov.id })}
-                  >
-                    <Trash2 className="h-3 w-3 text-muted-foreground" />
-                  </Button>
-                </div>
+                {/* Linha 2: descrição (sem truncamento) */}
+                {mov.description && (
+                  <p className="text-xs text-muted-foreground mt-0.5 pl-5 leading-snug break-words">
+                    {mov.description}
+                  </p>
+                )}
               </div>
             ))}
           </div>

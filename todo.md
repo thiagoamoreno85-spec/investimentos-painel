@@ -179,3 +179,12 @@
 - [x] Integrar PerformanceCard em Home.tsx (substituir card Maior Posição)
 - [x] pnpm build sem erros (TypeScript: 0 erros)
 - [x] pnpm test todos passando (96 testes ✅)
+
+## Ajuste Mobile — Tabela de Alocação Detalhada (promptmanusalocacaomobile.md) - CONCLUÍDO
+- [x] Substituir bloco da tabela padrão em Alocacao.tsx (linhas ~314-375) pela versão compacta mobile
+- [x] Coluna Ativo: ticker curto em mobile, nome completo em desktop
+- [x] Coluna Total: formato compacto R$74.8k em mobile
+- [x] Coluna L/P: apenas percentual em mobile, valor + % em desktop
+- [x] Reduzir padding horizontal (px-1 md:px-4) em th e td
+- [x] pnpm build sem erros (TypeScript: 0 erros)
+- [x] pnpm test todos passando (96 testes ✅)

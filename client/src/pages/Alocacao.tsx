@@ -325,19 +325,19 @@ export default function Alocacao() {
                         )}
                       </div>
                     ) : (
-                      /* Tabela padrão para outras classes */
+                      /* Tabela padrão para outras classes — versão mobile-first */
                       <div className="rounded-md border border-border/50 flex flex-col flex-1 min-h-0 overflow-hidden">
                         {/* Cabeçalho da tabela fixo */}
-                        <div className="overflow-x-auto flex-shrink-0 min-w-0">
+                        <div className="flex-shrink-0">
                           <table className="w-full text-sm text-left">
                             <thead className="bg-secondary/50 text-muted-foreground">
                               <tr>
-                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">Ativo</th>
-                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Qtd</th>
-                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm hidden sm:table-cell">Custo Médio</th>
-                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Preço</th>
-                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Total</th>
-                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">L/P</th>
+                                <th className="px-2 md:px-4 py-2 font-medium text-xs">Ativo</th>
+                                <th className="px-1 md:px-4 py-2 font-medium text-right text-xs">Qtd</th>
+                                <th className="px-1 md:px-4 py-2 font-medium text-right text-xs hidden sm:table-cell">Custo Médio</th>
+                                <th className="px-1 md:px-4 py-2 font-medium text-right text-xs">Preço</th>
+                                <th className="px-1 md:px-4 py-2 font-medium text-right text-xs">Total</th>
+                                <th className="px-1 md:px-4 py-2 font-medium text-right text-xs">L/P</th>
                               </tr>
                             </thead>
                           </table>
@@ -351,35 +351,60 @@ export default function Alocacao() {
                                   key={asset.id}
                                   className="hover:bg-secondary/20 transition-colors"
                                 >
-                                  <td className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">{asset.name}</td>
-                                  <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
+                                  {/* Ativo: ticker curto em mobile, nome completo em desktop */}
+                                  <td className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">
+                                    <span className="sm:hidden">{asset.id}</span>
+                                    <span className="hidden sm:inline">{asset.name}</span>
+                                  </td>
+                                  {/* Qtd: sem decimais se inteiro em mobile */}
+                                  <td className="px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
                                     {asset.position < 1
                                       ? asset.position.toFixed(4)
+                                      : asset.position % 1 === 0
+                                      ? asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
                                       : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
                                   </td>
-                                  <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm hidden sm:table-cell">
+                                  {/* Custo Médio: oculto em mobile */}
+                                  <td className="px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm hidden sm:table-cell">
                                     {formatCurrency(asset.cost, asset.currency)}
                                   </td>
-                                  <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
+                                  {/* Preço: compacto */}
+                                  <td className="px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
                                     {formatCurrency(asset.price, asset.currency)}
                                   </td>
-                                  <td className="px-2 md:px-4 py-2 md:py-3 text-right font-mono font-medium text-xs md:text-sm">
-                                    {formatBRL(asset.totalValue)}
+                                  {/* Total: formato compacto em mobile (R$74.8k) */}
+                                  <td className="px-1 md:px-4 py-2 md:py-3 text-right font-mono font-medium text-xs md:text-sm">
+                                    <span className="sm:hidden">
+                                      {asset.totalValue >= 1000
+                                        ? `R$${(asset.totalValue / 1000).toFixed(1)}k`
+                                        : formatBRL(asset.totalValue)}
+                                    </span>
+                                    <span className="hidden sm:inline">
+                                      {formatBRL(asset.totalValue)}
+                                    </span>
                                   </td>
-                                  <td className="px-2 md:px-4 py-2 md:py-3 text-right text-xs md:text-sm">
+                                  {/* L/P: apenas % em mobile, valor + % em desktop */}
+                                  <td className="px-1 md:px-4 py-2 md:py-3 text-right text-xs md:text-sm">
                                     <div
-                                      className={`flex items-center justify-end gap-1 font-mono ${
+                                      className={`flex items-center justify-end gap-0.5 font-mono ${
                                         asset.profit >= 0 ? "text-emerald-500" : "text-red-400"
                                       }`}
                                     >
                                       {asset.profit >= 0 ? (
-                                        <ArrowUpRight className="h-3 w-3" />
+                                        <ArrowUpRight className="h-3 w-3 shrink-0" />
                                       ) : (
-                                        <ArrowDownRight className="h-3 w-3" />
+                                        <ArrowDownRight className="h-3 w-3 shrink-0" />
                                       )}
-                                      {formatBRL(Math.abs(asset.profit))}
-                                      <span className="text-xs ml-1 opacity-80">
-                                        ({asset.profitPercentage.toFixed(1)}%)
+                                      {/* Mobile: só percentual */}
+                                      <span className="sm:hidden">
+                                        {asset.profitPercentage >= 0 ? "+" : ""}{asset.profitPercentage.toFixed(1)}%
+                                      </span>
+                                      {/* Desktop: valor + percentual */}
+                                      <span className="hidden sm:inline">
+                                        {formatBRL(Math.abs(asset.profit))}
+                                        <span className="text-xs ml-1 opacity-80">
+                                          ({asset.profitPercentage.toFixed(1)}%)
+                                        </span>
                                       </span>
                                     </div>
                                   </td>

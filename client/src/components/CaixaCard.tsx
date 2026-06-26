@@ -25,6 +25,8 @@ import {
   Plus,
   Trash2,
   RefreshCw,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -44,6 +46,7 @@ const formatCurrency = (value: number) =>
 export default function CaixaCard() {
   const utils = trpc.useUtils();
   const [open, setOpen] = useState(false);
+  const [showMovements, setShowMovements] = useState(true);
   const [type, setType] = useState<"entrada" | "saida">("entrada");
   const [category, setCategory] = useState<string>("aporte_externo");
   const [amount, setAmount] = useState("");
@@ -201,10 +204,18 @@ export default function CaixaCard() {
         {/* Últimas movimentações */}
         {!loadingMovements && movements && movements.length > 0 && (
           <div className="mt-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+            <button
+              onClick={() => setShowMovements((v) => !v)}
+              className="flex items-center gap-1 text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 hover:text-foreground transition-colors w-full text-left"
+            >
+              {showMovements ? (
+                <ChevronUp className="h-3 w-3" />
+              ) : (
+                <ChevronDown className="h-3 w-3" />
+              )}
               Últimas Movimentações
-            </p>
-            {movements.slice(0, 5).map((mov) => (
+            </button>
+            {showMovements && movements.slice(0, 5).map((mov) => (
               <div
                 key={mov.id}
                 className="group py-1 border-b border-border/20 last:border-0"

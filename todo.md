@@ -197,3 +197,12 @@
 - [x] Verificar alinhamento perfeito entre títulos e valores
 - [x] pnpm build sem erros (built in 23.73s ✅)
 - [x] pnpm test todos passando (96 testes ✅)
+
+## Scroll Fixo — Tabela de Alocação (promptmanusalocacaoscrollfixo.md) - CONCLUÍDO
+- [x] Linha 195: trocar container de space-y-6 para flex flex-col h-full gap-4
+- [x] Linha 251: adicionar pb-2 md:pb-4 ao CardContent
+- [x] Linha 329: adicionar max-h-[calc(100vh-320px)] md:max-h-[calc(100vh-280px)] ao container da tabela
+- [x] Verificar que título, tabs, header do card e colunas ficam estáticos
+- [x] Verificar que apenas ativos rolam
+- [x] pnpm build sem erros (built in 23.73s ✅)
+- [x] pnpm test todos passando (96 testes ✅)

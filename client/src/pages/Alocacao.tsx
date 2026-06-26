@@ -192,7 +192,7 @@ export default function Alocacao() {
   return (
     <DashboardLayout>
       {/* Layout fixo: header + tabs no topo, apenas a tabela rola */}
-      <div className="space-y-6">
+      <div className="flex flex-col h-full gap-4">
         {/* Cabeçalho fixo */}
         <div className="flex-shrink-0 pb-3">
           <h2 className="text-xl md:text-3xl font-bold tracking-tight">Alocação Detalhada</h2>
@@ -248,7 +248,7 @@ export default function Alocacao() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="flex flex-col flex-1 min-h-0 pt-0 px-2 md:px-6">
+                  <CardContent className="flex flex-col flex-1 min-h-0 pt-0 px-2 md:px-6 pb-2 md:pb-4">
                     {/* Renderização especial para aba Caixa */}
                     {category.id === "caixa" ? (
                       <div className="space-y-4">
@@ -326,7 +326,7 @@ export default function Alocacao() {
                       </div>
                     ) : (
                       /* Tabela padrão para outras classes — thead + tbody unificados com sticky header */
-                      <div className="rounded-md border border-border/50 flex flex-col flex-1 min-h-0 overflow-hidden">
+                      <div className="rounded-md border border-border/50 flex flex-col flex-1 min-h-0 overflow-hidden max-h-[calc(100vh-320px)] md:max-h-[calc(100vh-280px)]">
                         <ScrollArea className="flex-1 min-h-0">
                           <table className="w-full text-sm text-left">
                             <thead className="bg-secondary/50 text-muted-foreground sticky top-0 z-10">

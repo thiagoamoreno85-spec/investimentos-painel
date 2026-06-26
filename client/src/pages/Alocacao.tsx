@@ -327,18 +327,22 @@ export default function Alocacao() {
                     ) : (
                       /* Tabela padrão para outras classes — thead + tbody unificados com sticky header */
                       <div className="rounded-md border border-border/50 flex flex-col flex-1 min-h-0 overflow-hidden max-h-[calc(100vh-320px)] md:max-h-[calc(100vh-280px)]">
+                        {/* Cabeçalho fixo fora do scroll */}
+                        <table className="w-full text-sm text-left table-fixed flex-shrink-0">
+                          <thead className="bg-secondary/50 text-muted-foreground">
+                            <tr>
+                              <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">Ativo</th>
+                              <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Qtd</th>
+                              <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm hidden sm:table-cell">Custo Médio</th>
+                              <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Preço</th>
+                              <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Total</th>
+                              <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">L/P</th>
+                            </tr>
+                          </thead>
+                        </table>
+                        {/* Scroll apenas nos ativos */}
                         <ScrollArea className="flex-1 min-h-0">
-                          <table className="w-full text-sm text-left">
-                            <thead className="bg-secondary/50 text-muted-foreground sticky top-0 z-10">
-                              <tr>
-                                <th className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">Ativo</th>
-                                <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Qtd</th>
-                                <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm hidden sm:table-cell">Custo Médio</th>
-                                <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Preço</th>
-                                <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Total</th>
-                                <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">L/P</th>
-                              </tr>
-                            </thead>
+                          <table className="w-full text-sm text-left table-fixed">
                             <tbody className="divide-y divide-border/50">
                               {category.assets.map((asset) => (
                                 <tr

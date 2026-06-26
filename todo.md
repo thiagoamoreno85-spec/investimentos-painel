@@ -206,3 +206,10 @@
 - [x] Verificar que apenas ativos rolam
 - [x] pnpm build sem erros (built in 23.73s ✅)
 - [x] pnpm test todos passando (96 testes ✅)
+
+## Correção Scroll Vertical — Apenas nos Ativos
+- [x] Separar <thead> fixo em tabela separada fora do ScrollArea
+- [x] ScrollArea envolver apenas <tbody> com ativos
+- [x] Scroll vertical apenas nos ativos (de cima para baixo)
+- [x] pnpm build sem erros (✅)
+- [x] pnpm test todos passando (96 testes ✅)

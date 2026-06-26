@@ -190,7 +190,7 @@ export default function Alocacao() {
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout noScroll>
       {/* Layout fixo: header + tabs no topo, apenas a tabela rola */}
       <div className="flex flex-col h-full gap-4">
         {/* Cabeçalho fixo */}

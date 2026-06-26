@@ -24,9 +24,10 @@ import { trpc } from "@/lib/trpc";
 
 interface DashboardLayoutProps {
   children: ReactNode;
+  noScroll?: boolean;
 }
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, noScroll }: DashboardLayoutProps) {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { logout } = useAuth();
@@ -226,9 +227,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </header>
 
-        {/* Page content — scrollable */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-8">
-          <div className="max-w-6xl mx-auto w-full">
+        {/* Page content — scrollable ou fixo conforme prop noScroll */}
+        <div className={`flex-1 min-h-0 p-3 md:p-8 ${noScroll ? "flex flex-col overflow-hidden" : "overflow-y-auto"}`}>
+          <div className={`w-full ${noScroll ? "flex flex-col flex-1 min-h-0 max-w-6xl mx-auto" : "max-w-6xl mx-auto"}`}>
             {children}
           </div>
         </div>

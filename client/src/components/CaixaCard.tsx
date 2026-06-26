@@ -46,7 +46,7 @@ const formatCurrency = (value: number) =>
 export default function CaixaCard() {
   const utils = trpc.useUtils();
   const [open, setOpen] = useState(false);
-  const [showMovements, setShowMovements] = useState(true);
+  const [showMovements, setShowMovements] = useState(false);
   const [type, setType] = useState<"entrada" | "saida">("entrada");
   const [category, setCategory] = useState<string>("aporte_externo");
   const [amount, setAmount] = useState("");

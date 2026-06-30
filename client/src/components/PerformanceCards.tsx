@@ -13,6 +13,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
   rv_nacional: "RV Nacional",
@@ -62,10 +63,12 @@ function ClassBreakdown({
   data,
   expanded,
   onToggle,
+  showBalances = true,
 }: {
   data: Record<string, { valueDiff: number; percentDiff: number }> | null;
   expanded: boolean;
   onToggle: () => void;
+  showBalances?: boolean;
 }) {
   if (!data || Object.keys(data).length === 0) return null;
 
@@ -87,7 +90,9 @@ function ClassBreakdown({
                 <span className="text-muted-foreground">
                   {ASSET_CLASS_LABELS[cls] || cls}
                 </span>
-                <span className={ret.valueDiff >= 0 ? "text-emerald-500" : "text-red-400"}>
+                <span className={`${ret.valueDiff >= 0 ? "text-emerald-500" : "text-red-400"} ${
+                  !showBalances ? "blur-sm" : ""
+                }`}>
                   {ret.valueDiff >= 0 ? "+" : ""}{ret.percentDiff.toFixed(2)}%
                   <span className="text-muted-foreground ml-1">
                     ({ret.valueDiff >= 0 ? "+" : ""}{formatCurrency(ret.valueDiff)})
@@ -106,6 +111,7 @@ function ClassBreakdown({
  * O card de Rentabilidade Diária é renderizado separadamente pelo PerformanceCard (singular).
  */
 export function PerformanceCards() {
+  const { showBalances } = useBalanceVisibility();
   const { data: performance, isLoading } = trpc.portfolio.getPerformance.useQuery();
   const utils = trpc.useUtils();
   const [monthlyExpanded, setMonthlyExpanded] = useState(false);
@@ -179,6 +185,8 @@ export function PerformanceCards() {
             <div
               className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
                 performance.monthly.total.valueDiff >= 0 ? "text-emerald-500" : "text-red-400"
+              } ${
+                !showBalances ? "blur-sm" : ""
               }`}
             >
               {performance.monthly.total.valueDiff >= 0 ? "+" : ""}
@@ -186,6 +194,8 @@ export function PerformanceCards() {
             </div>
             <p className={`text-xs mt-0.5 ${
               performance.monthly.total.valueDiff >= 0 ? "text-emerald-500/70" : "text-red-400/70"
+            } ${
+              !showBalances ? "blur-sm" : ""
             }`}>
               {performance.monthly.total.valueDiff >= 0 ? "+" : ""}
               {formatCurrency(performance.monthly.total.valueDiff)}
@@ -194,6 +204,7 @@ export function PerformanceCards() {
               data={performance.monthly.byClass}
               expanded={monthlyExpanded}
               onToggle={() => setMonthlyExpanded(!monthlyExpanded)}
+              showBalances={showBalances}
             />
           </>
         ) : (

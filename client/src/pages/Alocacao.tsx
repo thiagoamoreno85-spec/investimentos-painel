@@ -8,6 +8,7 @@ import { ArrowUpRight, ArrowDownRight, Wallet } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
 import { DEFAULT_USD_BRL_RATE } from "@shared/constants";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
   rv_nacional: "RV Nacional",
@@ -50,6 +51,7 @@ interface ClassGroup {
 }
 
 export default function Alocacao() {
+  const { showBalances } = useBalanceVisibility();
   const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
   const { data: cashData } = trpc.cash.getBalance.useQuery();
@@ -355,7 +357,9 @@ export default function Alocacao() {
                                     <span className="hidden sm:inline">{asset.name}</span>
                                   </td>
                                   {/* Qtd: sem decimais se inteiro em mobile */}
-                                  <td className="px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
+                                  <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm ${
+                                    !showBalances ? "blur-sm" : ""
+                                  }`}>
                                     {asset.position < 1
                                       ? asset.position.toFixed(4)
                                       : asset.position % 1 === 0
@@ -363,15 +367,21 @@ export default function Alocacao() {
                                       : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
                                   </td>
                                   {/* Custo Médio: oculto em mobile */}
-                                  <td className="px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm hidden sm:table-cell">
+                                  <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm hidden sm:table-cell ${
+                                    !showBalances ? "blur-sm" : ""
+                                  }`}>
                                     {formatCurrency(asset.cost, asset.currency)}
                                   </td>
                                   {/* Preço: compacto */}
-                                  <td className="px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
+                                  <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm ${
+                                    !showBalances ? "blur-sm" : ""
+                                  }`}>
                                     {formatCurrency(asset.price, asset.currency)}
                                   </td>
                                   {/* Total: formato compacto em mobile (R$74.8k) */}
-                                  <td className="px-1 md:px-4 py-2 md:py-3 text-right font-mono font-medium text-xs md:text-sm">
+                                  <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono font-medium text-xs md:text-sm ${
+                                    !showBalances ? "blur-sm" : ""
+                                  }`}>
                                     <span className="sm:hidden">
                                       {asset.totalValue >= 1000
                                         ? `R$${(asset.totalValue / 1000).toFixed(1)}k`
@@ -382,7 +392,9 @@ export default function Alocacao() {
                                     </span>
                                   </td>
                                   {/* L/P: apenas % em mobile, valor + % em desktop */}
-                                  <td className="px-1 md:px-4 py-2 md:py-3 text-right text-xs md:text-sm">
+                                  <td className={`px-1 md:px-4 py-2 md:py-3 text-right text-xs md:text-sm ${
+                                    !showBalances ? "blur-sm" : ""
+                                  }`}>
                                     <div
                                       className={`flex items-center justify-end gap-0.5 font-mono ${
                                         asset.profit >= 0 ? "text-emerald-500" : "text-red-400"

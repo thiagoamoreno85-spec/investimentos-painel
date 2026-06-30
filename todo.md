@@ -225,16 +225,16 @@
 - [x] pnpm build sem erros (built in 21.58s ✅)
 - [x] pnpm test todos passando (96 testes ✅)
 
-## Botão Ocultar/Mostrar Saldos Financeiros - CONCLUÍDO (Fase 1 + Fase 2 Parcial)
+## Botão Ocultar/Mostrar Saldos Financeiros - CONCLUÍDO (Fase 1 + Fase 2 Completa)
 - [x] Criar contexto global BalanceVisibilityContext com hook useBalanceVisibility
 - [x] Adicionar botão toggle (olho/olho-riscado) no header da Visão Geral
 - [x] Aplicar blur nos valores de: Patrimônio Total, Rentabilidade Total (Fase 1)
 - [x] Aplicar blur nos valores de: Rent. Hoje, Caixa (Fase 2)
 - [x] Aplicar blur nos valores de: Rent. Hoje breakdown por classe (Fase 2)
 - [x] Aplicar blur nos valores das movimentações do Caixa (Fase 2)
-- [ ] Aplicar blur nos valores de: Rent. Mês (Fase 2)
-- [ ] Aplicar blur nos valores da tabela de Alocação (Qtd, Preço, Total, L/P) (Fase 2)
-- [ ] Aplicar blur nos valores da tabela de Top 5 Posições (Fase 2)
+- [x] Aplicar blur nos valores de: Rent. Mês + breakdown por classe (Fase 2)
+- [x] Aplicar blur nos valores da tabela de Alocação (Qtd, Preço, Total, L/P) (Fase 2)
+- [x] Aplicar blur nos valores da tabela de Top 5 Posições (Fase 2)
 - [x] Estado persistido em localStorage (showBalances)
-- [x] pnpm build sem erros (built in 22.28s ✅)
+- [x] pnpm build sem erros (built in 21.39s ✅)
 - [x] pnpm test todos passando (96 testes ✅)

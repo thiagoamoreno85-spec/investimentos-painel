@@ -478,7 +478,9 @@ export default function Home() {
                       </p>
                     </div>
                     <div className="text-right space-y-1">
-                      <p className="text-sm font-medium font-mono">
+                      <p className={`text-sm font-medium font-mono ${
+                        !showBalances ? "blur-sm" : ""
+                      }`}>
                         {formatCurrency(asset.value)}
                       </p>
                       <p
@@ -486,6 +488,8 @@ export default function Home() {
                           asset.profit >= 0
                             ? "text-emerald-500"
                             : "text-red-400"
+                        } ${
+                          !showBalances ? "blur-sm" : ""
                         }`}
                       >
                         {asset.profit >= 0 ? (

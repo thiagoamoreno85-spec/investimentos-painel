@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,7 @@ const formatCurrency = (value: number) =>
 
 export default function CaixaCard() {
   const utils = trpc.useUtils();
+  const { showBalances } = useBalanceVisibility();
   const [open, setOpen] = useState(false);
   const [showMovements, setShowMovements] = useState(false);
   const [type, setType] = useState<"entrada" | "saida">("entrada");
@@ -190,7 +192,9 @@ export default function CaixaCard() {
 
       <CardContent>
         {/* Saldo */}
-        <div className="text-sm sm:text-base md:text-xl font-bold font-mono leading-tight">
+        <div className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
+          !showBalances ? "blur-sm" : ""
+        }`}>
           {loadingBalance ? (
             <span className="text-muted-foreground text-lg">Carregando...</span>
           ) : (
@@ -238,6 +242,8 @@ export default function CaixaCard() {
                         mov.type === "entrada"
                           ? "text-emerald-400"
                           : "text-destructive"
+                      } ${
+                        !showBalances ? "blur-sm" : ""
                       }`}
                     >
                       {mov.type === "entrada" ? "+" : "-"}

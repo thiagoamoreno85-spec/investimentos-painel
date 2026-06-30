@@ -3,12 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
 import { TrendingUp, TrendingDown, ChevronDown, ChevronUp } from "lucide-react";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 export default function PerformanceCard() {
   const [expanded, setExpanded] = useState(false);
+  const { showBalances } = useBalanceVisibility();
   const { data, isLoading, isError } = trpc.portfolio.getDailyPerformance.useQuery(undefined, {
     refetchInterval: 60_000,
   });
@@ -56,10 +58,14 @@ export default function PerformanceCard() {
         <TrendIcon className={`h-4 w-4 ${color}`} />
       </CardHeader>
       <CardContent>
-        <div className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${color}`}>
+        <div className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${color} ${
+          !showBalances ? "blur-sm" : ""
+        }`}>
           {isPositive ? "+" : ""}{data.totalPct.toFixed(2)}%
         </div>
-        <p className={`text-xs mt-1 ${color}`}>
+        <p className={`text-xs mt-1 ${color} ${
+          !showBalances ? "blur-sm" : ""
+        }`}>
           {isPositive ? "+" : ""}{formatCurrency(data.totalBRL)}
         </p>
 
@@ -84,7 +90,9 @@ export default function PerformanceCard() {
               return (
                 <div key={cls.classKey} className="text-xs">
                   <div className="text-muted-foreground mb-0.5">{cls.className}</div>
-                  <div className={`font-mono font-medium ${clsColor} flex items-center gap-1`}>
+                  <div className={`font-mono font-medium ${clsColor} flex items-center gap-1 ${
+                    !showBalances ? "blur-sm" : ""
+                  }`}>
                     <span>{clsPositive ? "+" : ""}{cls.changePct.toFixed(2)}%</span>
                     <span className="text-[10px] opacity-80">({clsPositive ? "+" : ""}{formatCurrency(cls.changeBRL)})</span>
                   </div>

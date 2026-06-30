@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { BalanceVisibilityProvider } from "./contexts/BalanceVisibilityContext";
 import { DashboardLayoutSkeleton } from "./components/DashboardLayoutSkeleton";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -46,10 +47,12 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+        <BalanceVisibilityProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </BalanceVisibilityProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

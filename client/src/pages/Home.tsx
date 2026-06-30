@@ -13,6 +13,8 @@ import {
   RefreshCw,
   Loader2,
   Upload,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import CaixaCard from "@/components/CaixaCard";
@@ -34,6 +36,7 @@ import { PerformanceCards } from "@/components/PerformanceCards";
 import PerformanceCard from "@/components/PerformanceCard";
 import { CurrencyBreakdownChart } from "@/components/CurrencyBreakdownChart";
 import { EventCalendar } from "@/components/EventCalendar";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
   rv_nacional: "RV Nacional",
@@ -74,6 +77,7 @@ export default function Home() {
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
   const { data: cashBalanceData } = trpc.cash.getBalance.useQuery();
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const { showBalances, toggleShowBalances } = useBalanceVisibility();
 
   const refreshPrices = trpc.portfolio.refreshPrices.useMutation({
     onSuccess: (result) => {
@@ -277,6 +281,19 @@ export default function Home() {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleShowBalances}
+              className="h-9 w-9"
+              title={showBalances ? "Ocultar saldos" : "Mostrar saldos"}
+            >
+              {showBalances ? (
+                <Eye className="h-4 w-4" />
+              ) : (
+                <EyeOff className="h-4 w-4" />
+              )}
+            </Button>
             {!hasDbData && !isLoading && (
               <Button
                 variant="outline"
@@ -329,7 +346,9 @@ export default function Home() {
               <Wallet className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div className="text-sm sm:text-base md:text-xl font-bold font-mono leading-tight">
+              <div className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
+                !showBalances ? "blur-sm" : ""
+              }`}>
                 {isLoading ? (
                   <Skeleton className="h-7 w-36" />
                 ) : (
@@ -357,6 +376,8 @@ export default function Home() {
               <div
                 className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
                   totalProfit >= 0 ? "text-emerald-500" : "text-red-400"
+                } ${
+                  !showBalances ? "blur-sm" : ""
                 }`}
               >
                 {totalProfit >= 0 ? "+" : ""}

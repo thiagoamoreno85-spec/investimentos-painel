@@ -245,7 +245,9 @@ export default function Alocacao() {
                         {category.percentage.toFixed(1)}% do patrimônio total
                       </p>
                     </div>
-                    <div className="text-lg md:text-2xl font-bold font-mono">
+                    <div className={`text-lg md:text-2xl font-bold font-mono ${
+                      !showBalances ? "blur-sm" : ""
+                    }`}>
                       {formatBRL(category.totalValue)}
                     </div>
                   </CardHeader>

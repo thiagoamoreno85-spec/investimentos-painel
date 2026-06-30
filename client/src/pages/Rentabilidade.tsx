@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import {
   ResponsiveContainer,
   BarChart,
@@ -40,6 +41,7 @@ const CLASS_CURRENCY: Record<string, string> = {
 };
 
 export default function Rentabilidade() {
+  const { showBalances } = useBalanceVisibility();
   const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
   const usdBrl = usdBrlData?.rate ?? DEFAULT_USD_BRL_RATE;
@@ -187,7 +189,7 @@ export default function Rentabilidade() {
               <CardTitle>Lucro/Prejuízo por Classe</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[220px] md:h-[350px] w-full mt-4">
+              <div className={`h-[220px] md:h-[350px] w-full mt-4 ${!showBalances ? 'blur-sm' : ''}`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={profitByClass}
@@ -260,7 +262,7 @@ export default function Rentabilidade() {
                         </p>
                       </div>
                       <div className="text-right space-y-1">
-                        <p className="text-sm font-medium font-mono text-emerald-500">
+                        <p className={`text-sm font-medium font-mono text-emerald-500 ${!showBalances ? 'blur-sm' : ''}`}>
                           +{formatCurrency(asset.profit)}
                         </p>
                         <p className="text-xs text-emerald-500/80">
@@ -293,7 +295,7 @@ export default function Rentabilidade() {
                         </p>
                       </div>
                       <div className="text-right space-y-1">
-                        <p className="text-sm font-medium font-mono text-red-400">
+                        <p className={`text-sm font-medium font-mono text-red-400 ${!showBalances ? 'blur-sm' : ''}`}>
                           {formatCurrency(asset.profit)}
                         </p>
                         <p className="text-xs text-red-400/80">

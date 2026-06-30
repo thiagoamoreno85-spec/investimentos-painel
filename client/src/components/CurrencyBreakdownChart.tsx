@@ -1,6 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { trpc } from '@/lib/trpc';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useBalanceVisibility } from '@/contexts/BalanceVisibilityContext';
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -11,6 +12,7 @@ function formatCurrency(value: number) {
 
 export function CurrencyBreakdownChart() {
   const { data, isLoading } = trpc.portfolio.getCurrencyBreakdown.useQuery();
+  const { showBalances } = useBalanceVisibility();
 
   if (isLoading || !data) {
     return (
@@ -77,13 +79,13 @@ export function CurrencyBreakdownChart() {
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
             <p className="text-xs text-emerald-400 font-medium">🟢 Real (BRL)</p>
-            <p className="text-base font-bold mt-1">{formatCurrency(data.brl.value)}</p>
+            <p className={`text-base font-bold mt-1 ${!showBalances ? 'blur-sm' : ''}`}>{formatCurrency(data.brl.value)}</p>
             <p className="text-xs text-muted-foreground">{data.brl.percent.toFixed(1)}% do patrimônio</p>
             <p className="text-xs text-muted-foreground mt-1">{data.brl.classes.join(' · ')}</p>
           </div>
           <div className="rounded-lg bg-indigo-500/10 border border-indigo-500/20 p-3">
             <p className="text-xs text-indigo-400 font-medium">🔵 Dolarizado (USD)</p>
-            <p className="text-base font-bold mt-1">{formatCurrency(data.usd.value)}</p>
+            <p className={`text-base font-bold mt-1 ${!showBalances ? 'blur-sm' : ''}`}>{formatCurrency(data.usd.value)}</p>
             <p className="text-xs text-muted-foreground">{data.usd.percent.toFixed(1)}% do patrimônio</p>
             <p className="text-xs text-muted-foreground mt-1">{data.usd.classes.join(' · ')}</p>
           </div>

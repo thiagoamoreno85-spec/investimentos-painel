@@ -56,17 +56,19 @@ export default function Alocacao() {
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
   const { data: cashData } = trpc.cash.getBalance.useQuery();
   const { data: cashMovements } = trpc.cash.listMovements.useQuery({ limit: 8 });
+  const { data: dailyChangeData } = trpc.portfolio.getAssetsDailyChange.useQuery();
+
   const usdBrl = usdBrlData?.rate ?? DEFAULT_USD_BRL_RATE;
   const hasDbData = dbAssets && dbAssets.length > 0;
   const cashBalance = Number(cashData?.balance ?? 0);
+  const dailyByTicker = dailyChangeData?.byTicker ?? {};
 
   const categories: ClassGroup[] = useMemo(() => {
     if (hasDbData) {
       const classMap = new Map<string, ClassGroup>();
-      let totalPatrimony = cashBalance; // inclui caixa real no total
+      let totalPatrimony = cashBalance;
 
       for (const asset of dbAssets!) {
-        // Ignorar ativos de classe caixa (agora gerenciados pelo cash_balance)
         if (asset.assetClass === "caixa") continue;
 
         const qty = parseFloat(asset.totalQuantity);
@@ -114,7 +116,6 @@ export default function Alocacao() {
         });
       }
 
-      // Adicionar grupo de caixa dinâmico
       classMap.set("caixa", {
         id: "caixa",
         name: "Caixa",
@@ -123,7 +124,6 @@ export default function Alocacao() {
         assets: [],
       });
 
-      // Calcular percentuais
       const result = Array.from(classMap.values())
         .map((g) => ({
           ...g,
@@ -135,7 +135,6 @@ export default function Alocacao() {
       return result;
     }
 
-    // Fallback estático
     return portfolioData.map((cat) => ({
       ...cat,
       assets: cat.assets.map((a) => ({
@@ -144,8 +143,6 @@ export default function Alocacao() {
       })),
     }));
   }, [hasDbData, dbAssets, usdBrl, cashBalance]);
-
-
 
   function formatCurrency(value: number, currency: string = "BRL") {
     if (currency === "USD") {
@@ -165,6 +162,14 @@ export default function Alocacao() {
       style: "currency",
       currency: "BRL",
     }).format(value);
+  }
+
+  /** Formata valor compacto: R$74.8k */
+  function formatCompact(value: number) {
+    if (Math.abs(value) >= 1000) {
+      return `R$${(value / 1000).toFixed(1)}k`;
+    }
+    return formatBRL(value);
   }
 
   if (isLoading) {
@@ -193,7 +198,6 @@ export default function Alocacao() {
 
   return (
     <DashboardLayout noScroll>
-      {/* Layout fixo: header + tabs no topo, apenas a tabela rola */}
       <div className="flex flex-col h-full gap-4">
         {/* Cabeçalho fixo */}
         <div className="flex-shrink-0 pb-3">
@@ -256,7 +260,6 @@ export default function Alocacao() {
                     {/* Renderização especial para aba Caixa */}
                     {category.id === "caixa" ? (
                       <div className="space-y-4">
-                        {/* Card de saldo real */}
                         <div className="flex items-center justify-between p-4 rounded-lg bg-card border border-border">
                           <div className="flex items-center gap-3">
                             <div className="p-2 rounded-full bg-emerald-500/10">
@@ -282,7 +285,6 @@ export default function Alocacao() {
                           </div>
                         </div>
 
-                        {/* Últimas movimentações */}
                         {cashMovements && cashMovements.length > 0 ? (
                           <div>
                             <p className="text-sm font-medium text-muted-foreground mb-2">
@@ -329,9 +331,9 @@ export default function Alocacao() {
                         )}
                       </div>
                     ) : (
-                      /* Tabela padrão para outras classes — thead + tbody unificados com sticky header */
+                      /* Tabela padrão — thead fixo + tbody com scroll */
                       <div className="rounded-md border border-border/50 flex flex-col flex-1 min-h-0 overflow-hidden max-h-[calc(100vh-320px)] md:max-h-[calc(100vh-280px)]">
-                        {/* Cabeçalho fixo fora do scroll */}
+                        {/* Cabeçalho fixo */}
                         <table className="w-full text-sm text-left table-fixed flex-shrink-0">
                           <thead className="bg-secondary/50 text-muted-foreground">
                             <tr>
@@ -341,6 +343,7 @@ export default function Alocacao() {
                               <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Preço</th>
                               <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Total</th>
                               <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">L/P</th>
+                              <th className="px-1 md:px-4 py-2 md:py-3 font-medium text-right text-xs md:text-sm">Hoje</th>
                             </tr>
                           </thead>
                         </table>
@@ -348,80 +351,106 @@ export default function Alocacao() {
                         <ScrollArea className="flex-1 min-h-0">
                           <table className="w-full text-sm text-left table-fixed">
                             <tbody className="divide-y divide-border/50">
-                              {category.assets.map((asset) => (
-                                <tr
-                                  key={asset.id}
-                                  className="hover:bg-secondary/20 transition-colors"
-                                >
-                                  {/* Ativo: ticker curto em mobile, nome completo em desktop */}
-                                  <td className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">
-                                    <span className="sm:hidden">{asset.id}</span>
-                                    <span className="hidden sm:inline">{asset.name}</span>
-                                  </td>
-                                  {/* Qtd: sem decimais se inteiro em mobile */}
-                                  <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm ${
-                                    !showBalances ? "blur-sm" : ""
-                                  }`}>
-                                    {asset.position < 1
-                                      ? asset.position.toFixed(4)
-                                      : asset.position % 1 === 0
-                                      ? asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
-                                      : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
-                                  </td>
-                                  {/* Custo Médio: oculto em mobile */}
-                                  <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm hidden sm:table-cell ${
-                                    !showBalances ? "blur-sm" : ""
-                                  }`}>
-                                    {formatCurrency(asset.cost, asset.currency)}
-                                  </td>
-                                  {/* Preço: compacto */}
-                                  <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm ${
-                                    !showBalances ? "blur-sm" : ""
-                                  }`}>
-                                    {formatCurrency(asset.price, asset.currency)}
-                                  </td>
-                                  {/* Total: formato compacto em mobile (R$74.8k) */}
-                                  <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono font-medium text-xs md:text-sm ${
-                                    !showBalances ? "blur-sm" : ""
-                                  }`}>
-                                    <span className="sm:hidden">
-                                      {asset.totalValue >= 1000
-                                        ? `R$${(asset.totalValue / 1000).toFixed(1)}k`
-                                        : formatBRL(asset.totalValue)}
-                                    </span>
-                                    <span className="hidden sm:inline">
-                                      {formatBRL(asset.totalValue)}
-                                    </span>
-                                  </td>
-                                  {/* L/P: apenas % em mobile, valor + % em desktop */}
-                                  <td className={`px-1 md:px-4 py-2 md:py-3 text-right text-xs md:text-sm ${
-                                    !showBalances ? "blur-sm" : ""
-                                  }`}>
-                                    <div
-                                      className={`flex items-center justify-end gap-0.5 font-mono ${
-                                        asset.profit >= 0 ? "text-emerald-500" : "text-red-400"
-                                      }`}
-                                    >
-                                      {asset.profit >= 0 ? (
-                                        <ArrowUpRight className="h-3 w-3 shrink-0" />
-                                      ) : (
-                                        <ArrowDownRight className="h-3 w-3 shrink-0" />
-                                      )}
-                                      {/* Mobile: só percentual */}
+                              {category.assets.map((asset) => {
+                                const daily = dailyByTicker[asset.id];
+                                const dailyChangeBRL = daily?.changeBRL ?? 0;
+                                const dailyChangePct = daily?.changePct ?? 0;
+                                const hasDailyData = daily !== undefined;
+
+                                return (
+                                  <tr
+                                    key={asset.id}
+                                    className="hover:bg-secondary/20 transition-colors"
+                                  >
+                                    {/* Ativo: ticker curto em mobile, nome completo em desktop */}
+                                    <td className="px-2 md:px-4 py-2 md:py-3 font-medium text-xs md:text-sm">
+                                      <span className="sm:hidden">{asset.id}</span>
+                                      <span className="hidden sm:inline">{asset.name}</span>
+                                    </td>
+                                    {/* Qtd */}
+                                    <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm ${
+                                      !showBalances ? "blur-sm" : ""
+                                    }`}>
+                                      {asset.position < 1
+                                        ? asset.position.toFixed(4)
+                                        : asset.position % 1 === 0
+                                        ? asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
+                                        : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
+                                    </td>
+                                    {/* Custo Médio: oculto em mobile */}
+                                    <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm hidden sm:table-cell ${
+                                      !showBalances ? "blur-sm" : ""
+                                    }`}>
+                                      {formatCurrency(asset.cost, asset.currency)}
+                                    </td>
+                                    {/* Preço */}
+                                    <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm ${
+                                      !showBalances ? "blur-sm" : ""
+                                    }`}>
+                                      {formatCurrency(asset.price, asset.currency)}
+                                    </td>
+                                    {/* Total: formato compacto em mobile */}
+                                    <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono font-medium text-xs md:text-sm ${
+                                      !showBalances ? "blur-sm" : ""
+                                    }`}>
                                       <span className="sm:hidden">
-                                        {asset.profitPercentage >= 0 ? "+" : ""}{asset.profitPercentage.toFixed(1)}%
+                                        {formatCompact(asset.totalValue)}
                                       </span>
-                                      {/* Desktop: valor + percentual */}
                                       <span className="hidden sm:inline">
-                                        {formatBRL(Math.abs(asset.profit))}
-                                        <span className="text-xs ml-1 opacity-80">
-                                          ({asset.profitPercentage.toFixed(1)}%)
-                                        </span>
+                                        {formatBRL(asset.totalValue)}
                                       </span>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
+                                    </td>
+                                    {/* L/P: apenas % em mobile, valor + % em desktop */}
+                                    <td className={`px-1 md:px-4 py-2 md:py-3 text-right text-xs md:text-sm ${
+                                      !showBalances ? "blur-sm" : ""
+                                    }`}>
+                                      <div
+                                        className={`flex items-center justify-end gap-0.5 font-mono ${
+                                          asset.profit >= 0 ? "text-emerald-500" : "text-red-400"
+                                        }`}
+                                      >
+                                        {asset.profit >= 0 ? (
+                                          <ArrowUpRight className="h-3 w-3 shrink-0" />
+                                        ) : (
+                                          <ArrowDownRight className="h-3 w-3 shrink-0" />
+                                        )}
+                                        <span className="sm:hidden">
+                                          {asset.profitPercentage >= 0 ? "+" : ""}{asset.profitPercentage.toFixed(1)}%
+                                        </span>
+                                        <span className="hidden sm:inline">
+                                          {formatBRL(Math.abs(asset.profit))}
+                                          <span className="text-xs ml-1 opacity-80">
+                                            ({asset.profitPercentage.toFixed(1)}%)
+                                          </span>
+                                        </span>
+                                      </div>
+                                    </td>
+                                    {/* Rent. Hoje: % e valor BRL */}
+                                    <td className={`px-1 md:px-4 py-2 md:py-3 text-right text-xs md:text-sm ${
+                                      !showBalances ? "blur-sm" : ""
+                                    }`}>
+                                      {!hasDailyData ? (
+                                        <span className="text-muted-foreground text-xs">—</span>
+                                      ) : (
+                                        <div
+                                          className={`flex flex-col items-end font-mono leading-tight ${
+                                            dailyChangeBRL >= 0 ? "text-emerald-500" : "text-red-400"
+                                          }`}
+                                        >
+                                          {/* % sempre visível */}
+                                          <span className="font-semibold">
+                                            {dailyChangePct >= 0 ? "+" : ""}{dailyChangePct.toFixed(2)}%
+                                          </span>
+                                          {/* Valor BRL: oculto em mobile */}
+                                          <span className="hidden sm:inline text-xs opacity-75">
+                                            {dailyChangeBRL >= 0 ? "+" : ""}{formatBRL(dailyChangeBRL)}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
                             </tbody>
                           </table>
                         </ScrollArea>

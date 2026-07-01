@@ -846,6 +846,51 @@ export const portfolioRouter = router({
 
       return { created, skipped };
     }),
+  /** Retorna variação diária (change e changePercent) por ticker individual */
+  getAssetsDailyChange: protectedProcedure.query(async ({ ctx }) => {
+    const assets = await getAssetsByUser(ctx.user.id);
+    if (assets.length === 0) return { byTicker: {}, updatedAt: new Date() };
+
+    const tickerList = assets
+      .filter((a) => a.assetClass !== "caixa" && a.assetClass !== "renda_fixa")
+      .map((a) => ({ ticker: a.ticker, assetClass: a.assetClass }));
+
+    const quotes = await fetchQuotes(tickerList).catch(() => new Map());
+    const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
+
+    const CLASS_CURRENCY: Record<string, string> = {
+      rv_nacional: "BRL",
+      rv_eua: "USD",
+      fundos: "BRL",
+      cripto: "USD",
+      renda_fixa: "BRL",
+      uranio: "USD",
+      india: "USD",
+    };
+
+    const byTicker: Record<string, { changeBRL: number; changePct: number }> = {};
+
+    for (const asset of assets) {
+      if (asset.assetClass === "caixa" || asset.assetClass === "renda_fixa") continue;
+
+      const qty = parseFloat(asset.totalQuantity);
+      const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
+      const q = quotes.get(asset.ticker);
+
+      const dailyChange = q?.change ?? 0;
+      const changePct = q?.changePercent ?? 0;
+      let changeBRL = qty * dailyChange;
+
+      if (currency === "USD") {
+        changeBRL *= usdBrl;
+      }
+
+      byTicker[asset.ticker] = { changeBRL, changePct };
+    }
+
+    return { byTicker, updatedAt: new Date() };
+  }),
+
   getDailyPerformance: protectedProcedure.query(async ({ ctx }) => {
     const assets = await getAssetsByUser(ctx.user.id);
     if (assets.length === 0) return { totalPct: 0, totalBRL: 0, totalValueBRL: 0, byClass: [], updatedAt: new Date() };

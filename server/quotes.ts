@@ -14,8 +14,8 @@ interface QuoteResult {
  * Converte ticker do formato interno para o formato Yahoo Finance
  */
 function toYahooTicker(ticker: string, assetClass: string): string | null {
-  // Caixa e fundos não têm cotação
-  if (["caixa", "fundos", "renda_fixa"].includes(assetClass)) return null;
+  // Caixa e renda fixa não têm cotação de mercado
+  if (["caixa", "renda_fixa"].includes(assetClass)) return null;
 
   // Cripto
   const cryptoMap: Record<string, string> = {
@@ -30,12 +30,9 @@ function toYahooTicker(ticker: string, assetClass: string): string | null {
   };
   if (cryptoMap[ticker]) return cryptoMap[ticker];
 
-  // Ações brasileiras (terminam em 3, 4, 5, 6, 7, 11, 32)
-  if (assetClass === "rv_nacional") {
-    if (ticker === "XPML11") return "XPML11.SA";
-    if (ticker === "KLBN11") return "KLBN11.SA";
-    if (ticker === "BPAC11") return "BPAC11.SA";
-    if (ticker === "INBR32") return "INBR32.SA";
+  // Ações e FIIs brasileiros (rv_nacional e fundos)
+  // Tickers terminam em dígitos (ex: VALE3, ZAVI11, XPML11)
+  if (assetClass === "rv_nacional" || assetClass === "fundos") {
     if (/^\w+\d+$/.test(ticker)) return `${ticker}.SA`;
     return null;
   }
@@ -92,9 +89,24 @@ export async function fetchQuotes(
 
         const meta = chart.meta;
         const price = meta.regularMarketPrice ?? 0;
-        const previousClose = meta.chartPreviousClose ?? meta.previousClose ?? price;
-        const change = price - previousClose;
-        const changePercent = previousClose > 0 ? (change / previousClose) * 100 : 0;
+
+        // Preferir regularMarketChange (variação oficial do dia) quando disponível.
+        // Fallback: calcular a partir do fechamento anterior.
+        let change: number;
+        let changePercent: number;
+
+        if (meta.regularMarketChange !== undefined && meta.regularMarketChange !== null) {
+          change = meta.regularMarketChange;
+          changePercent = meta.regularMarketChangePercent ?? (price > 0 ? (change / (price - change)) * 100 : 0);
+        } else {
+          // Fallback: usar previousClose (mais confiável que chartPreviousClose para intraday)
+          const previousClose =
+            meta.previousClose ??
+            meta.chartPreviousClose ??
+            price;
+          change = price - previousClose;
+          changePercent = previousClose > 0 ? (change / previousClose) * 100 : 0;
+        }
 
         const originalTickers = yahooMap.get(yahooTicker) || [];
         for (const origTicker of originalTickers) {

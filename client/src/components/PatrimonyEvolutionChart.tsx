@@ -22,8 +22,32 @@ const formatCompact = (value: number) =>
     : `R$ ${(value / 1000).toFixed(0)}k`;
 
 const formatDate = (iso: string) => {
-  const [y, m, d] = iso.split("-");
-  return `${d}/${m}/${y.slice(2)}`;
+  try {
+    // Handle both ISO date strings (2026-07-08) and ISO datetime strings (2026-07-08T00:00:00.000Z)
+    const clean = iso.includes("T") ? iso.split("T")[0] : iso;
+    const [y, m, d] = clean.split("-");
+    return `${d}/${m}/${y.slice(2)}`;
+  } catch {
+    return iso;
+  }
+};
+
+// Compute a nice Y-axis domain with padding so ticks are visually distinct
+const computeYDomain = (data: { totalValue: number }[]): [number, number] => {
+  if (!data.length) return [0, 1_000_000];
+  const values = data.map((d) => d.totalValue);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min;
+  // If the range is less than 1% of the max, force a ±5% window around the midpoint
+  const minRange = max * 0.01;
+  const effectiveRange = Math.max(range, minRange);
+  const padding = effectiveRange * 0.15;
+  const lower = Math.max(0, min - padding);
+  const upper = max + padding;
+  // Round to nearest 10k for clean ticks
+  const round = (v: number) => Math.round(v / 10_000) * 10_000;
+  return [round(lower), round(upper)];
 };
 
 export function PatrimonyEvolutionChart() {
@@ -128,8 +152,9 @@ export function PatrimonyEvolutionChart() {
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={formatCompact}
-                  domain={["dataMin", "dataMax"]}
-                  width={64}
+                  domain={computeYDomain(history)}
+                  tickCount={5}
+                  width={72}
                 />
                 <Tooltip
                   formatter={(value: number) => [formatBRL(value), "Patrimônio"]}

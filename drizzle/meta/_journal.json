@@ -71,6 +71,13 @@
       "when": 1783514552060,
       "tag": "0009_military_sersi",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1783533503104,
+      "tag": "0010_wealthy_wallflower",
+      "breakpoints": true
     }
   ]
 }

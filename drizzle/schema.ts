@@ -310,3 +310,60 @@ export const portfolioSnapshots = mysqlTable("portfolio_snapshots", {
 
 export type PortfolioSnapshot = typeof portfolioSnapshots.$inferSelect;
 export type InsertPortfolioSnapshot = typeof portfolioSnapshots.$inferInsert;
+
+// Patrimônio — Ativos imobilizados, créditos, participações
+export const patrimonialAssets = mysqlTable("patrimonial_assets", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  assetType: varchar("asset_type", { length: 50 }).notNull(),
+  description: text("description"),
+  currentValue: decimal("current_value", { precision: 15, scale: 2 }).notNull(),
+  acquisitionValue: decimal("acquisition_value", { precision: 15, scale: 2 }),
+  acquisitionDate: timestamp("acquisition_date"),
+  debtorName: varchar("debtor_name", { length: 255 }),
+  dueDate: timestamp("due_date"),
+  interestRate: decimal("interest_rate", { precision: 5, scale: 2 }),
+  notes: text("notes"),
+  isActive: int("is_active").notNull().default(1),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+});
+
+export const patrimonialLiabilities = mysqlTable("patrimonial_liabilities", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  assetId: int("asset_id"),
+  name: varchar("name", { length: 255 }).notNull(),
+  creditor: varchar("creditor", { length: 255 }),
+  originalAmount: decimal("original_amount", { precision: 15, scale: 2 }).notNull(),
+  remainingBalance: decimal("remaining_balance", { precision: 15, scale: 2 }).notNull(),
+  installmentValue: decimal("installment_value", { precision: 15, scale: 2 }),
+  totalInstallments: int("total_installments"),
+  paidInstallments: int("paid_installments").notNull().default(0),
+  interestRate: decimal("interest_rate", { precision: 5, scale: 2 }),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  notes: text("notes"),
+  isActive: int("is_active").notNull().default(1),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+});
+
+export const patrimonialLiabilityPayments = mysqlTable("patrimonial_liability_payments", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  liabilityId: int("liability_id").notNull(),
+  paymentDate: timestamp("payment_date").notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  installmentNumber: int("installment_number"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type PatrimonialAsset = typeof patrimonialAssets.$inferSelect;
+export type InsertPatrimonialAsset = typeof patrimonialAssets.$inferInsert;
+export type PatrimonialLiability = typeof patrimonialLiabilities.$inferSelect;
+export type InsertPatrimonialLiability = typeof patrimonialLiabilities.$inferInsert;
+export type PatrimonialLiabilityPayment = typeof patrimonialLiabilityPayments.$inferSelect;
+export type InsertPatrimonialLiabilityPayment = typeof patrimonialLiabilityPayments.$inferInsert;

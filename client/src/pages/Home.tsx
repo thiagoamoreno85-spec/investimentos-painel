@@ -389,49 +389,65 @@ export default function Home() {
             <CardHeader>
               <CardTitle>Alocação por Classe</CardTitle>
             </CardHeader>
-            <CardContent className="pl-2">
-              <div className="h-[220px] md:h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
-                    <Pie
-                      data={pieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={2}
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={classColor(entry.name)}
+            <CardContent className="px-3 pb-4">
+              {/* Donut + legenda lado a lado em mobile, empilhado em desktop */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                {/* Donut */}
+                <div className="h-[180px] sm:h-[220px] w-full sm:w-[220px] flex-shrink-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsPieChart margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius="40%"
+                        outerRadius="68%"
+                        paddingAngle={2}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={classColor(entry.name)}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value: number) => formatCurrency(value)}
+                        contentStyle={{
+                          backgroundColor: "oklch(0.20 0.01 250)",
+                          borderColor: "oklch(0.30 0.01 250)",
+                          borderRadius: "8px",
+                          color: "oklch(0.90 0 0)",
+                          fontSize: "12px",
+                          padding: "6px 10px",
+                        }}
+                        itemStyle={{ color: "oklch(0.90 0 0)" }}
+                        labelStyle={{ color: "oklch(0.70 0 0)" }}
+                      />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+                {/* Legenda compacta — 3 colunas em mobile, lista em desktop */}
+                <div className="grid grid-cols-3 sm:grid-cols-1 gap-x-2 gap-y-2 flex-1 min-w-0">
+                  {pieData.map((entry) => {
+                    const total = pieData.reduce((s, e) => s + e.value, 0);
+                    const pct = total > 0 ? ((entry.value / total) * 100).toFixed(1) : "0.0";
+                    return (
+                      <div key={entry.name} className="flex items-center gap-1.5 min-w-0">
+                        <span
+                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: classColor(entry.name) }}
                         />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value: number) => formatCurrency(value)}
-                      contentStyle={{
-                        backgroundColor: "oklch(0.20 0.01 250)",
-                        borderColor: "oklch(0.30 0.01 250)",
-                        borderRadius: "8px",
-                        color: "oklch(0.90 0 0)",
-                      }}
-                      itemStyle={{ color: "oklch(0.90 0 0)" }}
-                      labelStyle={{ color: "oklch(0.70 0 0)" }}
-                    />
-                    <Legend
-                      verticalAlign="bottom"
-                      height={36}
-                      formatter={(value) => (
-                        <span style={{ color: "oklch(0.75 0 0)", fontSize: "12px" }}>
-                          {value}
-                        </span>
-                      )}
-                    />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
+                        <div className="min-w-0">
+                          <p className="text-[10px] sm:text-xs text-muted-foreground truncate leading-tight">{entry.name}</p>
+                          <p className="text-[10px] sm:text-xs font-medium leading-tight">{pct}%</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </CardContent>
           </Card>

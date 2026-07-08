@@ -10,7 +10,10 @@ import {
   RefreshCw,
   Loader2,
   Upload,
+  Eye,
+  EyeOff,
 } from "lucide-react";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import CaixaCard from "@/components/CaixaCard";
 import PerformanceCard from "@/components/PerformanceCard";
@@ -36,6 +39,7 @@ import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClass
 
 export default function Home() {
   const utils = trpc.useUtils();
+  const { showBalances, toggleShowBalances } = useBalanceVisibility();
   const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
   const { data: cashBalanceData } = trpc.cash.getBalance.useQuery();
@@ -240,14 +244,14 @@ export default function Home() {
               )}
             </div>
             <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight font-mono text-gradient-hero">
+              <h2 className={`text-3xl md:text-5xl font-bold tracking-tight font-mono text-gradient-hero transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
                 {isLoading ? "—" : formatCurrency(totalPatrimony)}
               </h2>
               {!isLoading && (
                 <span
-                  className={`flex items-center gap-1 text-sm font-semibold font-mono ${
+                  className={`flex items-center gap-1 text-sm font-semibold font-mono transition-all duration-200 ${
                     totalProfit >= 0 ? "text-emerald-400" : "text-red-400"
-                  }`}
+                  } ${!showBalances ? 'blur-md select-none' : ''}`}
                 >
                   {totalProfit >= 0 ? (
                     <ArrowUpRight className="h-4 w-4" />
@@ -280,6 +284,17 @@ export default function Home() {
                 Importar Carteira
               </Button>
             )}
+            {/* Botão ocultar/mostrar valores — sempre visível */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleShowBalances}
+              className="gap-1.5 text-muted-foreground hover:text-foreground"
+              title={showBalances ? "Ocultar valores" : "Mostrar valores"}
+            >
+              {showBalances ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              <span className="hidden sm:inline">{showBalances ? "Ocultar" : "Mostrar"}</span>
+            </Button>
             {hasDbData && (
               <div className="flex items-center gap-2">
                 <Button
@@ -321,9 +336,9 @@ export default function Home() {
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
               <div
-                className={`text-base md:text-2xl font-bold font-mono tracking-tighter truncate ${
+                className={`text-base md:text-2xl font-bold font-mono tracking-tighter truncate transition-all duration-200 ${
                   totalProfit >= 0 ? "text-emerald-500" : "text-red-400"
-                }`}
+                } ${!showBalances ? 'blur-md select-none' : ''}`}
               >
                 {totalProfit >= 0 ? "+" : ""}
                 {formatCurrency(totalProfit)}
@@ -439,7 +454,7 @@ export default function Home() {
                       </p>
                     </div>
                     <div className="text-right space-y-1">
-                      <p className="text-sm font-medium font-mono">
+                      <p className={`text-sm font-medium font-mono transition-all duration-200 ${!showBalances ? 'blur-sm select-none' : ''}`}>
                         {formatCurrency(asset.value)}
                       </p>
                       <p

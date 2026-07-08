@@ -29,38 +29,7 @@ import { BenchmarkChart } from "@/components/BenchmarkChart";
 import { CurrencyBreakdownChart } from "@/components/CurrencyBreakdownChart";
 import { EventCalendar } from "@/components/EventCalendar";
 
-const ASSET_CLASS_LABELS: Record<string, string> = {
-  rv_nacional: "RV Nacional",
-  rv_eua: "RV EUA",
-  fundos: "Fundos",
-  cripto: "Criptomoedas",
-  renda_fixa: "Renda Fixa",
-  uranio: "Urânio",
-  india: "Índia",
-  caixa: "Caixa",
-};
-
-const CLASS_CURRENCY: Record<string, string> = {
-  rv_nacional: "BRL",
-  rv_eua: "USD",
-  fundos: "BRL",
-  cripto: "USD",
-  renda_fixa: "BRL",
-  uranio: "USD",
-  india: "USD",
-  caixa: "BRL",
-};
-
-const COLORS = [
-  "oklch(0.65 0.18 250)",   // azul
-  "oklch(0.70 0.15 160)",   // verde
-  "oklch(0.75 0.12 80)",    // amarelo
-  "oklch(0.60 0.20 310)",   // roxo
-  "oklch(0.72 0.16 30)",    // laranja
-  "oklch(0.68 0.14 200)",   // ciano
-  "oklch(0.55 0.10 350)",   // rosa
-  "oklch(0.50 0.05 240)",   // cinza azulado
-];
+import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
 
 export default function Home() {
   const utils = trpc.useUtils();
@@ -414,10 +383,10 @@ export default function Home() {
                       dataKey="value"
                       stroke="none"
                     >
-                      {pieData.map((_entry, index) => (
+                      {pieData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
+                          fill={classColor(entry.name)}
                         />
                       ))}
                     </Pie>

@@ -21,6 +21,23 @@ Redesign dark-first, finance-grade. Tokens definidos em `client/src/index.css`, 
 ### Gráficos (`--chart-1..5`)
 Azul 250 · Esmeralda 160 · Âmbar 80 · Violeta 300 · Laranja 40 — hues equidistantes, luminância 0.65–0.80, distinguíveis para daltonismo comum (protanopia/deuteranopia).
 
+### Cores por classe de ativo (`client/src/lib/assetClasses.ts`)
+
+Atribuição **fixa por classe** (a cor segue a entidade, nunca a posição na lista). Paleta validada por script: banda de luminância OKLCH 0.48–0.67, croma ≥ 0.1, separação CVD adjacente com codificação secundária (labels + gaps), contraste ≥ 3:1 sobre a superfície dark.
+
+| Classe | Cor | Hex |
+|---|---|---|
+| RV Nacional | Azul | `#3b82f6` |
+| RV EUA | Violeta | `#8b5cf6` |
+| Fundos | Ciano | `#0891b2` |
+| Criptomoedas | Âmbar | `#d97706` |
+| Renda Fixa | Teal | `#0d9488` |
+| Urânio | Rosa | `#db2777` |
+| Índia | Laranja | `#ea580c` |
+| Caixa | Esmeralda | `#059669` |
+
+Usada no pie chart da Home, nas tabs/headers da Alocação e nos dots de Maiores Lucros/Prejuízos da Rentabilidade.
+
 ## Tipografia
 
 | Papel | Fonte | Detalhes |

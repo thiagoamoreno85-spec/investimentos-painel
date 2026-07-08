@@ -12,30 +12,18 @@ import {
   Cell,
 } from "recharts";
 import { portfolioData } from "@/lib/data";
-import { ArrowUpRight, ArrowDownRight, AlertTriangle, Loader2 } from "lucide-react";
+import {
+  ArrowUpRight,
+  ArrowDownRight,
+  AlertTriangle,
+  Loader2,
+  TrendingUp,
+  Trophy,
+  Layers,
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
-
-const ASSET_CLASS_LABELS: Record<string, string> = {
-  rv_nacional: "RV Nacional",
-  rv_eua: "RV EUA",
-  fundos: "Fundos",
-  cripto: "Criptomoedas",
-  renda_fixa: "Renda Fixa",
-  uranio: "Urânio",
-  india: "Índia",
-  caixa: "Caixa",
-};
-
-const CLASS_CURRENCY: Record<string, string> = {
-  rv_nacional: "BRL",
-  rv_eua: "USD",
-  fundos: "BRL",
-  cripto: "USD",
-  renda_fixa: "BRL",
-  uranio: "USD",
-  india: "USD",
-  caixa: "BRL",
-};
+import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
+import { BenchmarkChart } from "@/components/BenchmarkChart";
 
 export default function Rentabilidade() {
   const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
@@ -43,7 +31,7 @@ export default function Rentabilidade() {
   const usdBrl = usdBrlData?.rate ?? 5.7;
   const hasDbData = dbAssets && dbAssets.length > 0;
 
-  const { profitByClass, winners, losers } = useMemo(() => {
+  const { profitByClass, winners, losers, totalProfit, assetCount } = useMemo(() => {
     if (hasDbData) {
       const classProfit = new Map<string, number>();
       const assetList: {
@@ -91,6 +79,7 @@ export default function Rentabilidade() {
 
       const w = [...assetList].sort((a, b) => b.profitBRL - a.profitBRL).slice(0, 5);
       const l = [...assetList].sort((a, b) => a.profitBRL - b.profitBRL).slice(0, 5);
+      const total = assetList.reduce((sum, a) => sum + a.profitBRL, 0);
 
       return {
         profitByClass: pbc,
@@ -106,6 +95,8 @@ export default function Rentabilidade() {
           profit: a.profitBRL,
           profitPercentage: a.profitPct,
         })),
+        totalProfit: total,
+        assetCount: assetList.length,
       };
     }
 
@@ -124,6 +115,7 @@ export default function Rentabilidade() {
     const allAssets = portfolioData.flatMap((c) => c.assets).filter((a) => a.class !== "Caixa");
     const w = [...allAssets].sort((a, b) => b.profit - a.profit).slice(0, 5);
     const l = [...allAssets].sort((a, b) => a.profit - b.profit).slice(0, 5);
+    const total = allAssets.reduce((sum, a) => sum + a.profit, 0);
 
     return {
       profitByClass: pbc,
@@ -139,6 +131,8 @@ export default function Rentabilidade() {
         profit: a.profit,
         profitPercentage: a.profitPercentage,
       })),
+      totalProfit: total,
+      assetCount: allAssets.length,
     };
   }, [hasDbData, dbAssets, usdBrl]);
 
@@ -148,6 +142,9 @@ export default function Rentabilidade() {
       currency: "BRL",
     }).format(value);
   }
+
+  const bestAsset = winners[0];
+  const worstAsset = losers[0];
 
   if (isLoading) {
     return (
@@ -161,14 +158,80 @@ export default function Rentabilidade() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-4 md:space-y-8">
+      <div className="space-y-4 md:space-y-6">
         <div>
           <h2 className="text-xl md:text-3xl font-bold tracking-tight">
             Análise de Rentabilidade
           </h2>
-          <p className="text-muted-foreground mt-1">
-            Desempenho histórico e identificação de oportunidades e riscos.
+          <p className="text-muted-foreground mt-1 text-sm">
+            Desempenho histórico, benchmarks e identificação de oportunidades e riscos.
           </p>
+        </div>
+
+        {/* ── KPIs ── */}
+        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
+            <CardContent className="p-3 md:p-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <TrendingUp className={`w-4 h-4 ${totalProfit >= 0 ? "text-emerald-500" : "text-red-400"}`} />
+                <p className="text-xs font-medium">Resultado Total</p>
+              </div>
+              <p className={`mt-1.5 text-base md:text-xl font-bold font-mono tracking-tight truncate ${
+                totalProfit >= 0 ? "text-emerald-500" : "text-red-400"
+              }`}>
+                {totalProfit >= 0 ? "+" : ""}{formatCurrency(totalProfit)}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
+            <CardContent className="p-3 md:p-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Trophy className="w-4 h-4 text-emerald-500" />
+                <p className="text-xs font-medium">Melhor Ativo</p>
+              </div>
+              <p className="mt-1.5 text-base md:text-xl font-bold font-mono tracking-tight truncate">
+                {bestAsset?.name ?? "—"}
+              </p>
+              {bestAsset && (
+                <p className="text-xs text-emerald-500/80 font-mono">
+                  +{formatCurrency(bestAsset.profit)}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
+            <CardContent className="p-3 md:p-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <AlertTriangle className="w-4 h-4 text-red-400" />
+                <p className="text-xs font-medium">Pior Ativo</p>
+              </div>
+              <p className="mt-1.5 text-base md:text-xl font-bold font-mono tracking-tight truncate">
+                {worstAsset?.name ?? "—"}
+              </p>
+              {worstAsset && (
+                <p className="text-xs text-red-400/80 font-mono">
+                  {formatCurrency(worstAsset.profit)}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
+            <CardContent className="p-3 md:p-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Layers className="w-4 h-4 text-primary" />
+                <p className="text-xs font-medium">Ativos em Carteira</p>
+              </div>
+              <p className="mt-1.5 text-base md:text-xl font-bold font-mono tracking-tight">
+                {assetCount}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                em {profitByClass.length} classes
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid gap-3 md:gap-4 grid-cols-1 lg:grid-cols-7">
@@ -183,21 +246,22 @@ export default function Rentabilidade() {
                   <BarChart
                     data={profitByClass}
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    barCategoryGap="28%"
                   >
                     <CartesianGrid
                       strokeDasharray="3 3"
-                      stroke="oklch(0.30 0.01 250)"
+                      stroke="oklch(0.27 0.012 261)"
                       vertical={false}
                     />
                     <XAxis
                       dataKey="name"
-                      stroke="oklch(0.55 0 0)"
+                      stroke="oklch(0.55 0.01 255)"
                       fontSize={12}
                       tickLine={false}
                       axisLine={false}
                     />
                     <YAxis
-                      stroke="oklch(0.55 0 0)"
+                      stroke="oklch(0.55 0.01 255)"
                       fontSize={12}
                       tickLine={false}
                       axisLine={false}
@@ -205,17 +269,17 @@ export default function Rentabilidade() {
                     />
                     <Tooltip
                       formatter={(value: number) => formatCurrency(value)}
-                      cursor={{ fill: "oklch(0.25 0.01 250 / 0.3)" }}
+                      cursor={{ fill: "oklch(0.24 0.014 261 / 0.4)" }}
                       contentStyle={{
-                        backgroundColor: "oklch(0.20 0.01 250)",
-                        borderColor: "oklch(0.30 0.01 250)",
+                        backgroundColor: "oklch(0.185 0.014 261)",
+                        borderColor: "oklch(0.27 0.012 261)",
                         borderRadius: "8px",
-                        color: "oklch(0.90 0 0)",
+                        color: "oklch(0.93 0.006 255)",
                       }}
-                      itemStyle={{ color: "oklch(0.90 0 0)" }}
-                      labelStyle={{ color: "oklch(0.70 0 0)" }}
+                      itemStyle={{ color: "oklch(0.93 0.006 255)" }}
+                      labelStyle={{ color: "oklch(0.66 0.012 255)" }}
                     />
-                    <Bar dataKey="profit" radius={[4, 4, 0, 0]}>
+                    <Bar dataKey="profit" radius={[4, 4, 0, 0]} maxBarSize={48}>
                       {profitByClass.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
@@ -242,19 +306,26 @@ export default function Rentabilidade() {
                 <div className="space-y-4">
                   {winners.map((asset, i) => (
                     <div key={i} className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {asset.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {asset.class}
-                        </p>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: classColor(asset.class) }}
+                          aria-hidden="true"
+                        />
+                        <div className="space-y-0.5 min-w-0">
+                          <p className="text-sm font-medium leading-none font-mono truncate">
+                            {asset.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {asset.class}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-right space-y-1">
+                      <div className="text-right space-y-0.5 flex-shrink-0">
                         <p className="text-sm font-medium font-mono text-emerald-500">
                           +{formatCurrency(asset.profit)}
                         </p>
-                        <p className="text-xs text-emerald-500/80">
+                        <p className="text-xs text-emerald-500/80 font-mono">
                           +{asset.profitPercentage.toFixed(1)}%
                         </p>
                       </div>
@@ -275,19 +346,26 @@ export default function Rentabilidade() {
                 <div className="space-y-4">
                   {losers.map((asset, i) => (
                     <div key={i} className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {asset.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {asset.class}
-                        </p>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: classColor(asset.class) }}
+                          aria-hidden="true"
+                        />
+                        <div className="space-y-0.5 min-w-0">
+                          <p className="text-sm font-medium leading-none font-mono truncate">
+                            {asset.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {asset.class}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-right space-y-1">
+                      <div className="text-right space-y-0.5 flex-shrink-0">
                         <p className="text-sm font-medium font-mono text-red-400">
                           {formatCurrency(asset.profit)}
                         </p>
-                        <p className="text-xs text-red-400/80">
+                        <p className="text-xs text-red-400/80 font-mono">
                           {asset.profitPercentage.toFixed(1)}%
                         </p>
                       </div>
@@ -298,6 +376,9 @@ export default function Rentabilidade() {
             </Card>
           </div>
         </div>
+
+        {/* ── Comparativo com Benchmarks (CDI e Ibovespa) ── */}
+        <BenchmarkChart />
       </div>
     </DashboardLayout>
   );

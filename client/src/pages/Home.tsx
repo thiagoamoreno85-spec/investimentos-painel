@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import CaixaCard from "@/components/CaixaCard";
+import PerformanceCard from "@/components/PerformanceCard";
+import { PerformanceCards } from "@/components/PerformanceCards";
 import {
   ResponsiveContainer,
   PieChart as RechartsPieChart,
@@ -219,8 +221,8 @@ export default function Home() {
       <div className="space-y-8">
         {!hasDbData && (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-sm">
-            <span>\u26a0\ufe0f</span>
-            <span>Exibindo dados de demonstra\u00e7\u00e3o. Importe sua carteira para ver valores reais.</span>
+            <span>⚠️</span>
+            <span>Exibindo dados de demonstração. Importe sua carteira para ver valores reais.</span>
           </div>
         )}
         {/* ── HERO: Patrimônio Total ── */}
@@ -305,7 +307,7 @@ export default function Home() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-5">
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
@@ -360,6 +362,8 @@ export default function Home() {
             </CardContent>
           </Card>
 
+          <PerformanceCard />
+          <PerformanceCards />
           <CaixaCard />
         </div>
 

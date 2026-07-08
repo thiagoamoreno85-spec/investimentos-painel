@@ -17,12 +17,12 @@ export async function snapshotHandler(req: Request, res: Response) {
 
     // Buscar todos os usuários com ativos para snapshot
     const allUsers = await db.select().from(users);
-    const results: { userId: number; totalValueBRL: number }[] = [];
+    const results: { userId: number; totalValue: number }[] = [];
 
     for (const user of allUsers) {
       try {
         const result = await captureSnapshot(user.id);
-        results.push({ userId: user.id, totalValueBRL: result.totalValueBRL });
+        results.push({ userId: user.id, totalValue: result.totalValue });
       } catch (err) {
         console.warn(`[SnapshotHandler] Failed for user ${user.id}:`, err);
       }

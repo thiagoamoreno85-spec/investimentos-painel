@@ -70,10 +70,10 @@ export default function Transacoes() {
     trpc.portfolio.getAssets.useQuery();
   const [page, setPage] = useState(1);
   const LIMIT = 20;
-  const { data: transactionsData, isLoading: txLoading } =
-    trpc.portfolio.getTransactions.useQuery({ page, limit: LIMIT });
-  const transactions = transactionsData?.data ?? [];
-  const totalPages = transactionsData?.totalPages ?? 1;
+  const { data: allTransactions, isLoading: txLoading } =
+    trpc.portfolio.getTransactions.useQuery();
+  const transactions = (allTransactions ?? []).slice((page - 1) * LIMIT, page * LIMIT);
+  const totalPages = Math.max(1, Math.ceil((allTransactions?.length ?? 0) / LIMIT));
 
   const addTx = trpc.portfolio.addTransaction.useMutation({
     onSuccess: (result) => {

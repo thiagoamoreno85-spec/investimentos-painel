@@ -706,4 +706,354 @@ export const portfolioRouter = router({
       const history = await getSnapshotHistoryService(ctx.user.id, input?.days ?? 365);
       return { history };
     }),
+  getPerformance: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.id;
+    const now = new Date();
+
+    // Calcular patrimônio ATUAL (mesma lógica da Home.tsx)
+    const userAssets = await getAssetsByUser(userId);
+    const db = await getDb();
+    if (!db) return null;
+
+    const cashRows = await db.select().from(cashBalance).where(eq(cashBalance.userId, userId)).limit(1);
+    const cash = Number(cashRows[0]?.balance ?? 0);
+    const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
+
+    const CLASS_CURRENCY_LOCAL: Record<string, string> = {
+      rv_nacional: "BRL", rv_eua: "USD", fundos: "BRL", cripto: "USD",
+      renda_fixa: "BRL", uranio: "USD", india: "USD", caixa: "BRL",
+    };
+
+    let currentTotal = cash;
+    const currentClassValues: Record<string, number> = {};
+    if (cash > 0) currentClassValues["caixa"] = cash;
+
+    for (const asset of userAssets) {
+      if (asset.assetClass === "caixa") continue;
+      const qty = parseFloat(asset.totalQuantity);
+      const lastPrice = parseFloat(asset.lastPrice);
+      const currency = asset.currency || CLASS_CURRENCY_LOCAL[asset.assetClass] || "BRL";
+      const fx = currency === "USD" ? usdBrl : 1;
+      const valueBRL = qty * lastPrice * fx;
+      currentTotal += valueBRL;
+      const cls = asset.assetClass;
+      currentClassValues[cls] = (currentClassValues[cls] || 0) + valueBRL;
+    }
+
+    // Buscar snapshot de ONTEM (para rentabilidade diária)
+    const yesterday = new Date(now);
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+    const yesterdaySnapshot = await getSnapshotByDate(userId, yesterday);
+
+    // Buscar snapshot do ÚLTIMO DIA DO MÊS ANTERIOR (para rentabilidade mensal)
+    const firstDayOfMonth = new Date(now.getUTCFullYear(), now.getUTCMonth(), 1);
+    const lastDayPrevMonth = new Date(firstDayOfMonth);
+    lastDayPrevMonth.setUTCDate(lastDayPrevMonth.getUTCDate() - 1);
+    const monthSnapshot = await getSnapshotByDate(userId, lastDayPrevMonth);
+
+    // Calcular variações
+    function calcReturn(
+      currentValue: number,
+      snapshotValue: number | null
+    ): { valueDiff: number; percentDiff: number } | null {
+      if (snapshotValue === null || snapshotValue === 0) return null;
+      const diff = currentValue - snapshotValue;
+      const pct = (diff / snapshotValue) * 100;
+      return { valueDiff: diff, percentDiff: pct };
+    }
+
+    function calcClassReturns(
+      currentValues: Record<string, number>,
+      snapshotJSON: string | null
+    ): Record<string, { valueDiff: number; percentDiff: number }> | null {
+      if (!snapshotJSON) return null;
+      try {
+        const snapshotValues: Record<string, number> = JSON.parse(snapshotJSON);
+        const result: Record<string, { valueDiff: number; percentDiff: number }> = {};
+        const allClasses = Array.from(new Set([...Object.keys(currentValues), ...Object.keys(snapshotValues)]));
+        for (const cls of allClasses) {
+          const curr = currentValues[cls] ?? 0;
+          const prev = snapshotValues[cls] ?? 0;
+          if (prev > 0) {
+            result[cls] = {
+              valueDiff: curr - prev,
+              percentDiff: ((curr - prev) / prev) * 100,
+            };
+          } else if (curr > 0) {
+            result[cls] = { valueDiff: curr, percentDiff: 100 };
+          }
+        }
+        return result;
+      } catch {
+        return null;
+      }
+    }
+
+    const dailyTotal = calcReturn(
+      currentTotal,
+      yesterdaySnapshot ? Number(yesterdaySnapshot.totalValueBRL) : null
+    );
+    const dailyByClass = calcClassReturns(
+      currentClassValues,
+      yesterdaySnapshot?.classValuesJSON ?? null
+    );
+
+    const monthlyTotal = calcReturn(
+      currentTotal,
+      monthSnapshot ? Number(monthSnapshot.totalValueBRL) : null
+    );
+    const monthlyByClass = calcClassReturns(
+      currentClassValues,
+      monthSnapshot?.classValuesJSON ?? null
+    );
+
+    return {
+      currentTotal,
+      currentClassValues,
+      usdBrl,
+      daily: {
+        total: dailyTotal,
+        byClass: dailyByClass,
+        snapshotDate: yesterdaySnapshot?.snapshotDate?.toISOString() ?? null,
+      },
+      monthly: {
+        total: monthlyTotal,
+        byClass: monthlyByClass,
+        snapshotDate: monthSnapshot?.snapshotDate?.toISOString() ?? null,
+      },
+      hasSnapshots: !!(yesterdaySnapshot || monthSnapshot),
+    };
+  }),
+
+  /** Lista histórico de snapshots (para gráfico de evolução futuro) */
+  getSnapshotHistory: protectedProcedure
+    .input(z.object({ days: z.number().int().min(1).max(365).default(30) }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const since = new Date();
+      since.setUTCDate(since.getUTCDate() - input.days);
+      return db
+        .select()
+        .from(portfolioSnapshots)
+        .where(and(
+          eq(portfolioSnapshots.userId, ctx.user.id),
+          gte(portfolioSnapshots.snapshotDate, since)
+        ))
+        .orderBy(desc(portfolioSnapshots.snapshotDate));
+    }),
+
+  // ========== SEED ==========
+
+  /** Importa a carteira completa do Dr. Thiago a partir dos dados estáticos */
+  seedPortfolio: protectedProcedure
+    .input(
+      z.object({
+        assets: z.array(
+          z.object({
+            ticker: z.string(),
+            name: z.string(),
+            assetClass: z.enum([
+              "rv_nacional",
+              "rv_eua",
+              "fundos",
+              "cripto",
+              "renda_fixa",
+              "uranio",
+              "india",
+              "caixa",
+            ]),
+            currency: z.enum(["BRL", "USD"]),
+            quantity: z.number(),
+            averageCost: z.number(),
+            lastPrice: z.number(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      let created = 0;
+      let skipped = 0;
+
+      for (const a of input.assets) {
+        const existing = await getAssetByTicker(a.ticker, ctx.user.id);
+        if (existing) {
+          skipped++;
+          continue;
+        }
+
+        const assetId = await createAsset({
+          userId: ctx.user.id,
+          ticker: a.ticker,
+          name: a.name,
+          assetClass: a.assetClass,
+          currency: a.currency,
+          totalQuantity: a.quantity.toFixed(8),
+          averageCost: a.averageCost.toFixed(8),
+          totalCost: (a.quantity * a.averageCost).toFixed(2),
+          lastPrice: a.lastPrice.toFixed(8),
+          lastPriceUpdatedAt: new Date(),
+        });
+
+        // Cria uma transação de compra inicial para registro
+        await createTransaction({
+          userId: ctx.user.id,
+          assetId,
+          type: "buy",
+          quantity: a.quantity.toFixed(8),
+          unitPrice: a.averageCost.toFixed(8),
+          totalValue: (a.quantity * a.averageCost).toFixed(2),
+          fees: "0",
+          transactionDate: new Date("2025-01-01"),
+          notes: "Importação inicial da carteira",
+        });
+
+        created++;
+      }
+
+      return { created, skipped };
+    }),
+  /** Retorna variação diária (change e changePercent) por ticker individual */
+  getAssetsDailyChange: protectedProcedure.query(async ({ ctx }) => {
+    const assets = await getAssetsByUser(ctx.user.id);
+    if (assets.length === 0) return { byTicker: {}, updatedAt: new Date() };
+
+    const tickerList = assets
+      .filter((a) => a.assetClass !== "caixa" && a.assetClass !== "renda_fixa")
+      .map((a) => ({ ticker: a.ticker, assetClass: a.assetClass }));
+
+    const quotes = await fetchQuotes(tickerList).catch(() => new Map());
+    const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
+
+    const CLASS_CURRENCY: Record<string, string> = {
+      rv_nacional: "BRL",
+      rv_eua: "USD",
+      fundos: "BRL",
+      cripto: "USD",
+      renda_fixa: "BRL",
+      uranio: "USD",
+      india: "USD",
+    };
+
+    const byTicker: Record<string, { changeBRL: number; changePct: number }> = {};
+
+    for (const asset of assets) {
+      if (asset.assetClass === "caixa" || asset.assetClass === "renda_fixa") continue;
+
+      const qty = parseFloat(asset.totalQuantity);
+      const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
+      const q = quotes.get(asset.ticker);
+
+      const dailyChange = q?.change ?? 0;
+      const changePct = q?.changePercent ?? 0;
+      let changeBRL = qty * dailyChange;
+
+      if (currency === "USD") {
+        changeBRL *= usdBrl;
+      }
+
+      byTicker[asset.ticker] = { changeBRL, changePct };
+    }
+
+    return { byTicker, updatedAt: new Date() };
+  }),
+
+  getDailyPerformance: protectedProcedure.query(async ({ ctx }) => {
+    const assets = await getAssetsByUser(ctx.user.id);
+    if (assets.length === 0) return { totalPct: 0, totalBRL: 0, totalValueBRL: 0, byClass: [], updatedAt: new Date() };
+
+    const tickerList = assets
+      .filter((a) => a.assetClass !== "caixa")
+      .map((a) => ({ ticker: a.ticker, assetClass: a.assetClass }));
+
+    // Buscar cotações com variação do dia
+    const quotes = await fetchQuotes(tickerList).catch(() => new Map());
+
+    // Buscar USD/BRL para converter
+    const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
+
+    const CLASS_CURRENCY: Record<string, string> = {
+      rv_nacional: "BRL",
+      rv_eua: "USD",
+      fundos: "BRL",
+      cripto: "USD",
+      renda_fixa: "BRL",
+      uranio: "USD",
+      india: "USD",
+    };
+
+    const ASSET_CLASS_LABELS: Record<string, string> = {
+      rv_nacional: "RV Nacional",
+      rv_eua: "RV EUA",
+      fundos: "Fundos",
+      cripto: "Criptomoedas",
+      renda_fixa: "Renda Fixa",
+      uranio: "Urânio",
+      india: "Índia",
+    };
+
+    // Agrupar por classe
+    const classData = new Map<string, { valueBRL: number; changeBRL: number }>();
+    let totalValueBRL = 0;
+    let totalChangeBRL = 0;
+
+    for (const asset of assets) {
+      if (asset.assetClass === "caixa") continue;
+
+      const qty = parseFloat(asset.totalQuantity);
+      const lastPrice = parseFloat(asset.lastPrice);
+      const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
+      const q = quotes.get(asset.ticker);
+
+      // Valor atual em moeda original
+      const currentPrice = q?.price ?? lastPrice;
+      const valueOriginal = qty * currentPrice;
+
+      // Variação do dia: change é a diferença de preço (price - previousClose)
+      const dailyChange = q?.change ?? 0;
+      let changeBRL = qty * dailyChange;
+      let valueBRL = valueOriginal;
+
+      if (currency === "USD") {
+        changeBRL *= usdBrl;
+        valueBRL *= usdBrl;
+      }
+
+      totalValueBRL += valueBRL;
+      totalChangeBRL += changeBRL;
+
+      const classKey = asset.assetClass;
+      const existing = classData.get(classKey) || { valueBRL: 0, changeBRL: 0 };
+      existing.valueBRL += valueBRL;
+      existing.changeBRL += changeBRL;
+      classData.set(classKey, existing);
+    }
+
+    // Montar resultado por classe
+    const byClass = Array.from(classData.entries()).map(([classKey, data]) => {
+      // Valor de ontem = valor de hoje - variação de hoje
+      const yesterdayValue = data.valueBRL - data.changeBRL;
+      const pct = yesterdayValue > 0 ? (data.changeBRL / yesterdayValue) * 100 : 0;
+      return {
+        classKey,
+        className: ASSET_CLASS_LABELS[classKey] || classKey,
+        changeBRL: data.changeBRL,
+        changePct: pct,
+        valueBRL: data.valueBRL,
+      };
+    }).sort((a, b) => Math.abs(b.changeBRL) - Math.abs(a.changeBRL));
+
+    // Percentual total
+    const totalYesterday = totalValueBRL - totalChangeBRL;
+    const totalPct = totalYesterday > 0 ? (totalChangeBRL / totalYesterday) * 100 : 0;
+
+    return {
+      totalPct,
+      totalBRL: totalChangeBRL,
+      totalValueBRL,
+      byClass,
+      updatedAt: new Date(),
+    };
+  }),
+
 });

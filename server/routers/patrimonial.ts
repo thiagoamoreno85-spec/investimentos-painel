@@ -7,7 +7,7 @@ import {
   patrimonialLiabilities,
   patrimonialLiabilityPayments,
 } from "../../drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 /**
  * Patrimônio — Controle de ativos imobilizados, créditos e passivos
@@ -58,7 +58,7 @@ export const patrimonialRouter = router({
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      const result = await db.insert(patrimonialAssets).values({
+      await db.insert(patrimonialAssets).values({
         userId: ctx.user.id,
         name: input.name,
         assetType: input.assetType,
@@ -73,7 +73,21 @@ export const patrimonialRouter = router({
         isActive: 1,
       });
 
-      return { id: (result as any).insertId || 0 };
+      // Buscar o ativo criado para retornar seu ID
+      const created = await db
+        .select()
+        .from(patrimonialAssets)
+        .where(
+          and(
+            eq(patrimonialAssets.userId, ctx.user.id),
+            eq(patrimonialAssets.name, input.name)
+          )
+        )
+        .orderBy(desc(patrimonialAssets.createdAt))
+        .limit(1)
+        .then((res: any[]) => res[0]);
+
+      return { id: created?.id || 0 };
     }),
 
   updateAsset: protectedProcedure
@@ -165,7 +179,7 @@ export const patrimonialRouter = router({
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      const result = await db.insert(patrimonialLiabilities).values({
+      await db.insert(patrimonialLiabilities).values({
         userId: ctx.user.id,
         assetId: input.assetId || null,
         name: input.name,
@@ -182,7 +196,21 @@ export const patrimonialRouter = router({
         isActive: 1,
       });
 
-      return { id: (result as any).insertId || 0 };
+      // Buscar o passivo criado para retornar seu ID
+      const created = await db
+        .select()
+        .from(patrimonialLiabilities)
+        .where(
+          and(
+            eq(patrimonialLiabilities.userId, ctx.user.id),
+            eq(patrimonialLiabilities.name, input.name)
+          )
+        )
+        .orderBy(desc(patrimonialLiabilities.createdAt))
+        .limit(1)
+        .then((res: any[]) => res[0]);
+
+      return { id: created?.id || 0 };
     }),
 
   registerPayment: protectedProcedure
@@ -240,6 +268,55 @@ export const patrimonialRouter = router({
     }),
 
   // ===== RESUMO CONSOLIDADO =====
+
+  /**
+   * Retorna Net Worth consolidado: Ativos Financeiros (portfolio) + Patrimônio Líquido (imobilizados - passivos)
+   * Requer acesso a portfolio.getPerformance para obter valor total de ativos financeiros
+   */
+  getConsolidatedNetWorth: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+    // Obter resumo patrimonial (ativos imobilizados - passivos)
+    const patrimonialAssetRows = await db
+      .select()
+      .from(patrimonialAssets)
+      .where(
+        and(
+          eq(patrimonialAssets.userId, ctx.user.id),
+          eq(patrimonialAssets.isActive, 1)
+        )
+      );
+
+    const patrimonialLiabilityRows = await db
+      .select()
+      .from(patrimonialLiabilities)
+      .where(
+        and(
+          eq(patrimonialLiabilities.userId, ctx.user.id),
+          eq(patrimonialLiabilities.isActive, 1)
+        )
+      );
+
+    const totalPatrimonialAssets = patrimonialAssetRows.reduce(
+      (sum: number, a: any) => sum + parseFloat(a.currentValue.toString()),
+      0
+    );
+
+    const totalPatrimonialLiabilities = patrimonialLiabilityRows.reduce(
+      (sum: number, l: any) => sum + parseFloat(l.remainingBalance.toString()),
+      0
+    );
+
+    const patrimonialNetWorth = totalPatrimonialAssets - totalPatrimonialLiabilities;
+
+    return {
+      patrimonialAssets: totalPatrimonialAssets,
+      patrimonialLiabilities: totalPatrimonialLiabilities,
+      patrimonialNetWorth,
+      description: "Patrimônio Líquido = Ativos Imobilizados - Passivos",
+    };
+  }),
 
   getSummary: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();

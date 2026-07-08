@@ -34,6 +34,7 @@ import { BenchmarkChart } from "@/components/BenchmarkChart";
 import { CurrencyBreakdownChart } from "@/components/CurrencyBreakdownChart";
 import { EventCalendar } from "@/components/EventCalendar";
 import { PatrimonyEvolutionChart } from "@/components/PatrimonyEvolutionChart";
+import { ConsolidatedNetWorthCard } from "@/components/ConsolidatedNetWorthCard";
 
 import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
 
@@ -323,6 +324,8 @@ export default function Home() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-5">
+          <ConsolidatedNetWorthCard financialAssets={totalPatrimony} isLoadingFinancial={isLoading} />
+
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
@@ -380,6 +383,7 @@ export default function Home() {
           <PerformanceCard />
           <PerformanceCards />
           <CaixaCard />
+          <ConsolidatedNetWorthCard financialAssets={totalPatrimony} isLoadingFinancial={isLoading} />
         </div>
 
         {/* Charts and Tables Area */}

@@ -238,3 +238,29 @@
 - [x] Estado persistido em localStorage (showBalances)
 - [x] pnpm build sem erros (built in 21.39s ✅)
 - [x] pnpm test todos passando (96 testes ✅)
+
+## Net Worth Consolidado (Sprint atual - CONCLUÍDO)
+- [x] Criar procedure getConsolidatedNetWorth em patrimonial.ts (soma Ativos Financeiros + Patrimônio Líquido)
+- [x] Criar componente ConsolidatedNetWorthCard com breakdown de ativos/passivos/patrimônio
+- [x] Integrar ConsolidatedNetWorthCard na Home.tsx (grid de 5 colunas)
+- [x] Aplicar blur de privacidade no card consolidado
+- [x] pnpm build sem erros (TypeScript: 0 erros)
+- [x] 110 testes vitest passando
+
+## Testes Patrimoniais (Sprint atual - CONCLUÍDO)
+- [x] Criar server/patrimonial.test.ts com 14 testes
+- [x] Teste: createAsset com sucesso
+- [x] Teste: createAsset com crédito e dados do devedor
+- [x] Teste: validação de currentValue positivo
+- [x] Teste: listAssets retorna ativos com valores parseados
+- [x] Teste: createLiability com sucesso
+- [x] Teste: validação de originalAmount positivo
+- [x] Teste: listLiabilities retorna passivos com valores parseados
+- [x] Teste: registerPayment atualiza saldo corretamente
+- [x] Teste: validação de pagamento negativo
+- [x] Teste: getConsolidatedNetWorth retorna estrutura correta
+- [x] Teste: cálculo de Net Worth como Ativos - Passivos
+- [x] Teste: getSummary retorna resumo com breakdown por tipo
+- [x] Teste: deleteAsset marca como inativo (soft delete)
+- [x] Corrigir retorno de ID em createAsset e createLiability (query do banco)
+- [x] 110 testes vitest passando (96 anteriores + 14 patrimoniais)

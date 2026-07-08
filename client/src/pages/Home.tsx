@@ -322,10 +322,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Summary Cards */}
+        {/* Summary Cards — linha 1: Net Worth (largo) + 3 cards */}
         <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-5">
-          <ConsolidatedNetWorthCard financialAssets={totalPatrimony} isLoadingFinancial={isLoading} />
+          {/* Net Worth: 2 colunas no mobile, 2 colunas no desktop */}
+          <div className="col-span-2 lg:col-span-2 row-span-1">
+            <ConsolidatedNetWorthCard financialAssets={totalPatrimony} isLoadingFinancial={isLoading} />
+          </div>
 
+          {/* Rentabilidade Total */}
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
@@ -363,6 +367,7 @@ export default function Home() {
             </CardContent>
           </Card>
 
+          {/* Maior Posição */}
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
@@ -380,10 +385,14 @@ export default function Home() {
             </CardContent>
           </Card>
 
+          {/* Rent. Hoje */}
           <PerformanceCard />
+        </div>
+
+        {/* Summary Cards — linha 2: 3 cards menores */}
+        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-3">
           <PerformanceCards />
           <CaixaCard />
-          <ConsolidatedNetWorthCard financialAssets={totalPatrimony} isLoadingFinancial={isLoading} />
         </div>
 
         {/* Charts and Tables Area */}

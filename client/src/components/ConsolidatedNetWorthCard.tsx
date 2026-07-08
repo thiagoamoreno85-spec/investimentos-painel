@@ -63,7 +63,7 @@ export function ConsolidatedNetWorthCard({
   const blurClass = !showBalances ? "blur-sm select-none" : "";
 
   return (
-    <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+    <Card className="h-full bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           Net Worth Consolidado

@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
+import { ArrowUpDown, ChevronUp, ChevronDown } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { portfolioData } from "@/lib/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,6 +55,30 @@ export default function Alocacao() {
   const hasDbData = dbAssets && dbAssets.length > 0;
   const cashBalance = Number(cashData?.balance ?? 0);
   const [search, setSearch] = useState("");
+
+  // Ordenação da tabela
+  type SortKey = "name" | "totalValue" | "profit" | "profitPercentage" | "todayBRL" | "todayPct";
+  type SortDir = "asc" | "desc";
+  const [sortKey, setSortKey] = useState<SortKey>("totalValue");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  const handleSort = useCallback((key: SortKey) => {
+    setSortKey((prev) => {
+      if (prev === key) {
+        setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+        return key;
+      }
+      setSortDir("desc");
+      return key;
+    });
+  }, []);
+
+  function SortIcon({ col }: { col: SortKey }) {
+    if (sortKey !== col) return <ArrowUpDown className="w-3 h-3 ml-0.5 opacity-40" />;
+    return sortDir === "desc"
+      ? <ChevronDown className="w-3 h-3 ml-0.5 text-blue-400" />
+      : <ChevronUp className="w-3 h-3 ml-0.5 text-blue-400" />;
+  }
 
   const categories: ClassGroup[] = useMemo(() => {
     if (hasDbData) {
@@ -263,13 +288,34 @@ export default function Alocacao() {
             </TabsList>
 
             {categories.map((category) => {
-              const filteredAssets = search.trim()
+              // Função pura de sort — sem hooks dentro do .map()
+              const base = search.trim()
                 ? category.assets.filter(
                     (a) =>
                       a.id.toLowerCase().includes(search.trim().toLowerCase()) ||
                       a.name.toLowerCase().includes(search.trim().toLowerCase())
                   )
-                : category.assets;
+                : [...category.assets];
+
+              const filteredAssets = base.sort((a, b) => {
+                if (sortKey === "name") {
+                  return sortDir === "asc"
+                    ? a.name.localeCompare(b.name)
+                    : b.name.localeCompare(a.name);
+                }
+                let va = 0, vb = 0;
+                if (sortKey === "totalValue") { va = a.totalValue; vb = b.totalValue; }
+                else if (sortKey === "profit") { va = a.profit; vb = b.profit; }
+                else if (sortKey === "profitPercentage") { va = a.profitPercentage; vb = b.profitPercentage; }
+                else if (sortKey === "todayBRL") {
+                  va = getDailyChange(a.id)?.changeBRL ?? 0;
+                  vb = getDailyChange(b.id)?.changeBRL ?? 0;
+                } else if (sortKey === "todayPct") {
+                  va = getDailyChange(a.id)?.changePct ?? 0;
+                  vb = getDailyChange(b.id)?.changePct ?? 0;
+                }
+                return sortDir === "desc" ? vb - va : va - vb;
+              });
 
               const classDailyTotal = getClassDailyTotal(category.assets);
               const classDailyPct =
@@ -420,13 +466,33 @@ export default function Alocacao() {
                                 </colgroup>
                                 <thead>
                                   <tr className="text-muted-foreground">
-                                    <th className="px-2 md:px-4 py-2.5 font-medium text-xs">Ativo</th>
+                                    <th
+                                      className="px-2 md:px-4 py-2.5 font-medium text-xs cursor-pointer hover:text-foreground select-none"
+                                      onClick={() => handleSort("name")}
+                                    >
+                                      <span className="flex items-center gap-0.5">Ativo <SortIcon col="name" /></span>
+                                    </th>
                                     <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs">Qtd</th>
                                     <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs hidden sm:table-cell">Custo Médio</th>
                                     <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs">Preço</th>
-                                    <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs">Total</th>
-                                    <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs">L/P</th>
-                                    <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs text-blue-400">Hoje</th>
+                                    <th
+                                      className="px-1 md:px-3 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none"
+                                      onClick={() => handleSort("totalValue")}
+                                    >
+                                      <span className="flex items-center justify-end gap-0.5">Total <SortIcon col="totalValue" /></span>
+                                    </th>
+                                    <th
+                                      className="px-1 md:px-3 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none"
+                                      onClick={() => handleSort("profitPercentage")}
+                                    >
+                                      <span className="flex items-center justify-end gap-0.5">L/P <SortIcon col="profitPercentage" /></span>
+                                    </th>
+                                    <th
+                                      className="px-1 md:px-3 py-2.5 font-medium text-right text-xs text-blue-400 cursor-pointer hover:text-blue-300 select-none"
+                                      onClick={() => handleSort("todayPct")}
+                                    >
+                                      <span className="flex items-center justify-end gap-0.5">Hoje <SortIcon col="todayPct" /></span>
+                                    </th>
                                   </tr>
                                 </thead>
                               </table>

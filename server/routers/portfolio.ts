@@ -25,8 +25,9 @@ import {
   getUpcomingEvents,
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
-import { assets, transactions as transactionsTable, dividends, cashBalance, cashMovements } from "../../drizzle/schema";
-import { eq, asc, and } from "drizzle-orm";
+import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
+import { assets, transactions as transactionsTable, dividends, cashBalance, cashMovements, portfolioSnapshots } from "../../drizzle/schema";
+import { eq, asc, and, desc, gte } from "drizzle-orm";
 import { getDb } from "../db";
 import { parseCSV } from "../lib/csvParser";
 import { TRPCError } from "@trpc/server";
@@ -826,24 +827,6 @@ export const portfolioRouter = router({
   }),
 
   /** Lista histórico de snapshots (para gráfico de evolução futuro) */
-  getSnapshotHistory: protectedProcedure
-    .input(z.object({ days: z.number().int().min(1).max(365).default(30) }))
-    .query(async ({ ctx, input }) => {
-      const db = await getDb();
-      if (!db) return [];
-      const since = new Date();
-      since.setUTCDate(since.getUTCDate() - input.days);
-      return db
-        .select()
-        .from(portfolioSnapshots)
-        .where(and(
-          eq(portfolioSnapshots.userId, ctx.user.id),
-          gte(portfolioSnapshots.snapshotDate, since)
-        ))
-        .orderBy(desc(portfolioSnapshots.snapshotDate));
-    }),
-
-  // ========== SEED ==========
 
   /** Importa a carteira completa do Dr. Thiago a partir dos dados estáticos */
   seedPortfolio: protectedProcedure

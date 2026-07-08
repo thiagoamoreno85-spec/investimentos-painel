@@ -264,3 +264,21 @@
 - [x] Teste: deleteAsset marca como inativo (soft delete)
 - [x] Corrigir retorno de ID em createAsset e createLiability (query do banco)
 - [x] 110 testes vitest passando (96 anteriores + 14 patrimoniais)
+
+## Redesign Aba Patrimônio — Fluxo Integrado Ativo+Passivo (Jul 2026)
+
+- [x] Redesenhar Patrimonio.tsx no padrão visual da plataforma (DashboardLayout, cards bg-card/50, tipografia)
+- [x] Ícones por tipo de ativo (imóvel, veículo, crédito, participação, equipamento)
+- [x] Cards de resumo: Total Ativos (verde), Total Passivos (vermelho), Patrimônio Líquido (ciano)
+- [x] Fluxo integrado: ao cadastrar ativo, toggle Switch para vincular passivo imediatamente
+- [x] Formulário de ativo: valor atual, valor de aquisição, data, descrição, tipo
+- [x] Formulário de passivo: saldo devedor, parcela, total de parcelas, taxa de juros, credor, datas
+- [x] Card de ativo: exibe valor bruto, saldo devedor vinculado (−) e valor líquido (=)
+- [x] Passivos vinculados ao ativo: expansível com chevron (mostrar/ocultar)
+- [x] Barra de progresso de parcelas pagas/total em cada passivo
+- [x] Botão "Dar Baixa" direto no card do passivo com preview do novo saldo
+- [x] Passivos avulsos (sem ativo vinculado) exibidos em seção separada
+- [x] Procedures listPayments e deleteLiability adicionadas ao router patrimonial
+- [x] Privacy mode (blur) aplicado em todos os valores monetários
+- [x] Responsivo mobile e desktop
+- [x] 110 testes vitest passando

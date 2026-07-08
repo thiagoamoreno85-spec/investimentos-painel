@@ -267,6 +267,45 @@ export const patrimonialRouter = router({
       return { success: true, newBalance: parseFloat(newBalance.toString()) };
     }),
 
+  listPayments: protectedProcedure
+    .input(z.object({ liabilityId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      const payments = await db
+        .select()
+        .from(patrimonialLiabilityPayments)
+        .where(
+          and(
+            eq(patrimonialLiabilityPayments.userId, ctx.user.id),
+            eq(patrimonialLiabilityPayments.liabilityId, input.liabilityId)
+          )
+        )
+        .orderBy(desc(patrimonialLiabilityPayments.paymentDate));
+
+      return payments.map((p) => ({
+        ...p,
+        amount: parseFloat(p.amount.toString()),
+      }));
+    }),
+
+  deleteLiability: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      await db
+        .update(patrimonialLiabilities)
+        .set({ isActive: 0 })
+        .where(
+          and(
+            eq(patrimonialLiabilities.id, input.id),
+            eq(patrimonialLiabilities.userId, ctx.user.id)
+          )
+        );
+      return { success: true };
+    }),
+
   // ===== RESUMO CONSOLIDADO =====
 
   /**

@@ -80,7 +80,7 @@ export default function PerformanceCard() {
 
         {expanded && data.byClass.length > 0 && (
           <div className="mt-3 space-y-2 border-t border-border/30 pt-2">
-            {data.byClass.map((cls) => {
+            {data.byClass.map((cls: { classKey: string; className: string; changePct: number; changeBRL: number; valueBRL: number }) => {
               const clsPositive = cls.changePct >= 0;
               const clsColor = cls.changePct === 0
                 ? "text-muted-foreground"

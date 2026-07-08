@@ -3,6 +3,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import {
   captureSnapshot as captureSnapshotService,
   getSnapshotHistory as getSnapshotHistoryService,
+  getSnapshotByDate,
 } from "../services/snapshotService";
 import {
   getAssetsByUser,
@@ -790,24 +791,22 @@ export const portfolioRouter = router({
       }
     }
 
-    const dailyTotal = calcReturn(
+        const dailyTotal = calcReturn(
       currentTotal,
-      yesterdaySnapshot ? Number(yesterdaySnapshot.totalValueBRL) : null
+      yesterdaySnapshot ? yesterdaySnapshot.totalValue : null
     );
     const dailyByClass = calcClassReturns(
       currentClassValues,
-      yesterdaySnapshot?.classValuesJSON ?? null
+      yesterdaySnapshot ? JSON.stringify(yesterdaySnapshot.classBreakdown) : null
     );
-
     const monthlyTotal = calcReturn(
       currentTotal,
-      monthSnapshot ? Number(monthSnapshot.totalValueBRL) : null
+      monthSnapshot ? monthSnapshot.totalValue : null
     );
     const monthlyByClass = calcClassReturns(
       currentClassValues,
-      monthSnapshot?.classValuesJSON ?? null
+      monthSnapshot ? JSON.stringify(monthSnapshot.classBreakdown) : null
     );
-
     return {
       currentTotal,
       currentClassValues,
@@ -815,89 +814,18 @@ export const portfolioRouter = router({
       daily: {
         total: dailyTotal,
         byClass: dailyByClass,
-        snapshotDate: yesterdaySnapshot?.snapshotDate?.toISOString() ?? null,
+        snapshotDate: null,
       },
       monthly: {
         total: monthlyTotal,
         byClass: monthlyByClass,
-        snapshotDate: monthSnapshot?.snapshotDate?.toISOString() ?? null,
+        snapshotDate: null,
       },
       hasSnapshots: !!(yesterdaySnapshot || monthSnapshot),
     };
   }),
 
-  /** Lista histórico de snapshots (para gráfico de evolução futuro) */
-
-  /** Importa a carteira completa do Dr. Thiago a partir dos dados estáticos */
-  seedPortfolio: protectedProcedure
-    .input(
-      z.object({
-        assets: z.array(
-          z.object({
-            ticker: z.string(),
-            name: z.string(),
-            assetClass: z.enum([
-              "rv_nacional",
-              "rv_eua",
-              "fundos",
-              "cripto",
-              "renda_fixa",
-              "uranio",
-              "india",
-              "caixa",
-            ]),
-            currency: z.enum(["BRL", "USD"]),
-            quantity: z.number(),
-            averageCost: z.number(),
-            lastPrice: z.number(),
-          })
-        ),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      let created = 0;
-      let skipped = 0;
-
-      for (const a of input.assets) {
-        const existing = await getAssetByTicker(a.ticker, ctx.user.id);
-        if (existing) {
-          skipped++;
-          continue;
-        }
-
-        const assetId = await createAsset({
-          userId: ctx.user.id,
-          ticker: a.ticker,
-          name: a.name,
-          assetClass: a.assetClass,
-          currency: a.currency,
-          totalQuantity: a.quantity.toFixed(8),
-          averageCost: a.averageCost.toFixed(8),
-          totalCost: (a.quantity * a.averageCost).toFixed(2),
-          lastPrice: a.lastPrice.toFixed(8),
-          lastPriceUpdatedAt: new Date(),
-        });
-
-        // Cria uma transação de compra inicial para registro
-        await createTransaction({
-          userId: ctx.user.id,
-          assetId,
-          type: "buy",
-          quantity: a.quantity.toFixed(8),
-          unitPrice: a.averageCost.toFixed(8),
-          totalValue: (a.quantity * a.averageCost).toFixed(2),
-          fees: "0",
-          transactionDate: new Date("2025-01-01"),
-          notes: "Importação inicial da carteira",
-        });
-
-        created++;
-      }
-
-      return { created, skipped };
-    }),
-  /** Retorna variação diária (change e changePercent) por ticker individual */
-  getAssetsDailyChange: protectedProcedure.query(async ({ ctx }) => {
+    getAssetsDailyChange: protectedProcedure.query(async ({ ctx }) => {
     const assets = await getAssetsByUser(ctx.user.id);
     if (assets.length === 0) return { byTicker: {}, updatedAt: new Date() };
 

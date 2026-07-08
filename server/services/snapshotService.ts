@@ -134,3 +134,31 @@ export async function getSnapshotHistory(userId: number, days: number = 365) {
       : {},
   }));
 }
+
+/** Busca o snapshot de uma data específica. Retorna null se não encontrado. */
+export async function getSnapshotByDate(
+  userId: number,
+  date: Date
+): Promise<{ totalValue: number; classBreakdown: Record<string, number> } | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const dateStr = date.toISOString().slice(0, 10);
+  const rows = await db
+    .select()
+    .from(portfolioSnapshots)
+    .where(
+      and(
+        eq(portfolioSnapshots.userId, userId),
+        eq(portfolioSnapshots.snapshotDate, dateStr)
+      )
+    )
+    .limit(1);
+  if (rows.length === 0) return null;
+  const row = rows[0];
+  return {
+    totalValue: Number(row.totalValue),
+    classBreakdown: row.classBreakdown
+      ? (JSON.parse(row.classBreakdown) as Record<string, number>)
+      : {},
+  };
+}

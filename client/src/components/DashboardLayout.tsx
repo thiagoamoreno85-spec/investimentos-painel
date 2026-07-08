@@ -16,6 +16,7 @@ import {
   Globe,
   Newspaper,
   Calendar,
+  Building2,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -73,6 +74,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         { href: "/transacoes", icon: ArrowLeftRight, label: "Transações", badge: 0, highlight: false },
         { href: "/dividendos", icon: DollarSign, label: "Dividendos", badge: 0, highlight: false },
         { href: "/aportes", icon: Wallet, label: "Aportes", badge: 0, highlight: false },
+        { href: "/patrimonio", icon: Building2, label: "Patrimônio", badge: 0, highlight: false },
       ],
     },
     {

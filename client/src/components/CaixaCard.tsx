@@ -93,7 +93,7 @@ export default function CaixaCard() {
   const currentBalance = balance?.balance ?? 0;
 
   return (
-    <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+    <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           Caixa Disponível

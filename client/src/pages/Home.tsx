@@ -5,10 +5,8 @@ import { summaryData, portfolioData } from "@/lib/data";
 import {
   ArrowUpRight,
   ArrowDownRight,
-  Wallet,
   PieChart,
   TrendingUp,
-  DollarSign,
   RefreshCw,
   Loader2,
   Upload,
@@ -255,21 +253,42 @@ export default function Home() {
             <span>Exibindo dados de demonstra\u00e7\u00e3o. Importe sua carteira para ver valores reais.</span>
           </div>
         )}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* ── HERO: Patrimônio Total ── */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Visão Geral</h2>
-            <p className="text-muted-foreground mt-1">
-              Acompanhe o desempenho da sua carteira de investimentos.
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                Patrimônio Total
+              </p>
               {hasDbData && (
-                <span className="ml-1 text-emerald-500/70 text-xs">
-                  Dados em tempo real
+                <span className="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2 py-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  ao vivo
                 </span>
               )}
-              {!hasDbData && !isLoading && (
-                <span className="ml-1 text-yellow-500/70 text-xs">
-                  Dados estáticos — importe a carteira para habilitar cotações
+            </div>
+            <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight font-mono text-gradient-hero">
+                {isLoading ? "—" : formatCurrency(totalPatrimony)}
+              </h2>
+              {!isLoading && (
+                <span
+                  className={`flex items-center gap-1 text-sm font-semibold font-mono ${
+                    totalProfit >= 0 ? "text-emerald-400" : "text-red-400"
+                  }`}
+                >
+                  {totalProfit >= 0 ? (
+                    <ArrowUpRight className="h-4 w-4" />
+                  ) : (
+                    <ArrowDownRight className="h-4 w-4" />
+                  )}
+                  {totalProfit >= 0 ? "+" : ""}
+                  {formatCurrency(totalProfit)} ({Math.abs(profitPct).toFixed(1)}%)
                 </span>
               )}
+            </div>
+            <p className="text-muted-foreground text-sm mt-1.5">
+              Inclui caixa e dividendos · capital + proventos
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -316,29 +335,8 @@ export default function Home() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
-              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-                Patrimônio Total
-              </CardTitle>
-              <Wallet className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div className="text-base md:text-2xl font-bold font-mono tracking-tighter truncate">
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  formatCurrency(totalPatrimony)
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1 hidden sm:block">
-                Inclui caixa e dividendos
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-3">
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
                 Rentabilidade Total
@@ -375,7 +373,7 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
                 Maior Posição

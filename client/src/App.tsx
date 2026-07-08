@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import Alocacao from "./pages/Alocacao";
 import Rentabilidade from "./pages/Rentabilidade";
 import Aportes from "./pages/Aportes";
+import Patrimonio from "./pages/Patrimonio";
 import Transacoes from "./pages/Transacoes";
 import Dividendos from "./pages/Dividendos";
 import Alertas from "./pages/Alertas";
@@ -26,6 +27,7 @@ function Router() {
       <Route path={"/alocacao"} component={Alocacao} />
       <Route path={"/rentabilidade"} component={Rentabilidade} />
       <Route path={"/aportes"} component={Aportes} />
+      <Route path={"/patrimonio"} component={Patrimonio} />
       <Route path={"/transacoes"} component={Transacoes} />
       <Route path={"/dividendos"} component={Dividendos} />
       <Route path={"/alertas"} component={Alertas} />

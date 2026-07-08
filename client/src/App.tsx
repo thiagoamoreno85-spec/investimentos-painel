@@ -15,6 +15,7 @@ import MelhorCompra from "./pages/MelhorCompra";
 import DashboardMercado from "./pages/DashboardMercado";
 import Noticias from "./pages/Noticias";
 import Calendario from "./pages/Calendario";
+import Configuracoes from "./pages/Configuracoes";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -31,6 +32,7 @@ function Router() {
       <Route path={"/mercado"} component={DashboardMercado} />
       <Route path={"/noticias"} component={Noticias} />
       <Route path={"/calendario"} component={Calendario} />
+      <Route path={"/configuracoes"} component={Configuracoes} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

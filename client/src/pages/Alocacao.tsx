@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { ArrowUpRight, ArrowDownRight, Loader2, Wallet, Search } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Loader2, Wallet, Search, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { trpc } from "@/lib/trpc";
 import {
   ASSET_CLASS_LABELS,
@@ -32,6 +34,7 @@ interface ClassGroup {
 }
 
 export default function Alocacao() {
+  const { showBalances, toggleShowBalances } = useBalanceVisibility();
   const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
   const { data: cashData } = trpc.cash.getBalance.useQuery();
@@ -174,14 +177,26 @@ export default function Alocacao() {
               Composição da carteira por classe de ativo.
             </p>
           </div>
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Buscar ativo…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 h-9 bg-card/50"
-            />
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleShowBalances}
+              className="gap-1.5 text-muted-foreground hover:text-foreground"
+              title={showBalances ? "Ocultar valores" : "Mostrar valores"}
+            >
+              {showBalances ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              <span className="hidden sm:inline">{showBalances ? "Ocultar" : "Mostrar"}</span>
+            </Button>
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Buscar ativo…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 h-9 bg-card/50"
+              />
+            </div>
           </div>
         </div>
 
@@ -251,7 +266,7 @@ export default function Alocacao() {
                             </p>
                           </div>
                         </div>
-                        <div className="text-lg md:text-2xl font-bold font-mono">
+                        <div className={`text-lg md:text-2xl font-bold font-mono transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
                           {formatBRL(category.totalValue)}
                         </div>
                       </div>
@@ -279,7 +294,7 @@ export default function Alocacao() {
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Caixa Disponível</p>
-                                <p className="text-2xl font-bold text-emerald-400 font-mono">
+                                <p className={`text-2xl font-bold text-emerald-400 font-mono transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
                                   {formatBRL(cashBalance)}
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-1">
@@ -327,8 +342,10 @@ export default function Alocacao() {
                                             {m.description ?? "—"}
                                           </td>
                                           <td className={`px-3 py-2 text-right text-xs font-mono font-medium ${m.type === "entrada" ? "text-emerald-400" : "text-red-400"}`}>
-                                            {m.type === "entrada" ? "+" : "-"}
-                                            {formatBRL(Number(m.amount))}
+                                            <span className={`transition-all duration-200 ${!showBalances ? 'blur-sm select-none' : ''}`}>
+                                              {m.type === "entrada" ? "+" : "-"}
+                                              {formatBRL(Number(m.amount))}
+                                            </span>
                                           </td>
                                         </tr>
                                       ))}
@@ -379,13 +396,13 @@ export default function Alocacao() {
                                         ? asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
                                         : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
                                     </td>
-                                    <td className="px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm hidden sm:table-cell text-muted-foreground">
+                                    <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm hidden sm:table-cell text-muted-foreground transition-all duration-200 ${!showBalances ? 'blur-sm select-none' : ''}`}>
                                       {formatCurrency(asset.cost, asset.currency)}
                                     </td>
-                                    <td className="px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm">
+                                    <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono text-xs md:text-sm transition-all duration-200 ${!showBalances ? 'blur-sm select-none' : ''}`}>
                                       {formatCurrency(asset.price, asset.currency)}
                                     </td>
-                                    <td className="px-1 md:px-4 py-2 md:py-3 text-right font-mono font-medium text-xs md:text-sm">
+                                    <td className={`px-1 md:px-4 py-2 md:py-3 text-right font-mono font-medium text-xs md:text-sm transition-all duration-200 ${!showBalances ? 'blur-sm select-none' : ''}`}>
                                       <span className="sm:hidden">{formatBRLCompact(asset.totalValue)}</span>
                                       <span className="hidden sm:inline">{formatBRL(asset.totalValue)}</span>
                                     </td>
@@ -393,7 +410,7 @@ export default function Alocacao() {
                                       <div
                                         className={`flex items-center justify-end gap-0.5 font-mono ${
                                           asset.profit >= 0 ? "text-emerald-500" : "text-red-400"
-                                        }`}
+                                        } transition-all duration-200 ${!showBalances ? 'blur-sm select-none' : ''}`}
                                       >
                                         {asset.profit >= 0 ? (
                                           <ArrowUpRight className="h-3 w-3 shrink-0" />

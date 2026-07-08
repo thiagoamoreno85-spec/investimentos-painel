@@ -1,20 +1,15 @@
 import { useMemo, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { summaryData, portfolioData } from "@/lib/data";
 import {
   ArrowUpRight,
   ArrowDownRight,
-  Wallet,
   PieChart,
   TrendingUp,
-  DollarSign,
   RefreshCw,
   Loader2,
   Upload,
-  Eye,
-  EyeOff,
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import CaixaCard from "@/components/CaixaCard";
@@ -27,49 +22,15 @@ import {
   Legend,
 } from "recharts";
 import { trpc } from "@/lib/trpc";
-import { DEFAULT_USD_BRL_RATE } from "@shared/constants";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BenchmarkChart } from "@/components/BenchmarkChart";
-import { PerformanceCards } from "@/components/PerformanceCards";
-import PerformanceCard from "@/components/PerformanceCard";
 import { CurrencyBreakdownChart } from "@/components/CurrencyBreakdownChart";
 import { EventCalendar } from "@/components/EventCalendar";
-import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
+import { PatrimonyEvolutionChart } from "@/components/PatrimonyEvolutionChart";
 
-const ASSET_CLASS_LABELS: Record<string, string> = {
-  rv_nacional: "RV Nacional",
-  rv_eua: "RV EUA",
-  fundos: "Fundos",
-  cripto: "Criptomoedas",
-  renda_fixa: "Renda Fixa",
-  uranio: "Urânio",
-  india: "Índia",
-  caixa: "Caixa",
-};
-
-const CLASS_CURRENCY: Record<string, string> = {
-  rv_nacional: "BRL",
-  rv_eua: "USD",
-  fundos: "BRL",
-  cripto: "USD",
-  renda_fixa: "BRL",
-  uranio: "USD",
-  india: "USD",
-  caixa: "BRL",
-};
-
-const COLORS = [
-  "oklch(0.65 0.18 250)",   // azul
-  "oklch(0.70 0.15 160)",   // verde
-  "oklch(0.75 0.12 80)",    // amarelo
-  "oklch(0.60 0.20 310)",   // roxo
-  "oklch(0.72 0.16 30)",    // laranja
-  "oklch(0.68 0.14 200)",   // ciano
-  "oklch(0.55 0.10 350)",   // rosa
-  "oklch(0.50 0.05 240)",   // cinza azulado
-];
+import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
 
 export default function Home() {
   const utils = trpc.useUtils();
@@ -77,7 +38,6 @@ export default function Home() {
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
   const { data: cashBalanceData } = trpc.cash.getBalance.useQuery();
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const { showBalances, toggleShowBalances } = useBalanceVisibility();
 
   const refreshPrices = trpc.portfolio.refreshPrices.useMutation({
     onSuccess: (result) => {
@@ -100,7 +60,7 @@ export default function Home() {
     onError: (err) => toast.error(`Erro ao importar: ${err.message}`),
   });
 
-  const usdBrl = usdBrlData?.rate ?? DEFAULT_USD_BRL_RATE;
+  const usdBrl = usdBrlData?.rate ?? 5.7;
   const cashBalance = Number(cashBalanceData?.balance ?? 0);
   const hasDbData = dbAssets && dbAssets.length > 0;
   // Computar dados a partir do banco ou dados estáticos
@@ -263,37 +223,45 @@ export default function Home() {
             <span>Exibindo dados de demonstra\u00e7\u00e3o. Importe sua carteira para ver valores reais.</span>
           </div>
         )}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* ── HERO: Patrimônio Total ── */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Visão Geral</h2>
-            <p className="text-muted-foreground mt-1">
-              Acompanhe o desempenho da sua carteira de investimentos.
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                Patrimônio Total
+              </p>
               {hasDbData && (
-                <span className="ml-1 text-emerald-500/70 text-xs">
-                  Dados em tempo real
+                <span className="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2 py-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  ao vivo
                 </span>
               )}
-              {!hasDbData && !isLoading && (
-                <span className="ml-1 text-yellow-500/70 text-xs">
-                  Dados estáticos — importe a carteira para habilitar cotações
+            </div>
+            <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight font-mono text-gradient-hero">
+                {isLoading ? "—" : formatCurrency(totalPatrimony)}
+              </h2>
+              {!isLoading && (
+                <span
+                  className={`flex items-center gap-1 text-sm font-semibold font-mono ${
+                    totalProfit >= 0 ? "text-emerald-400" : "text-red-400"
+                  }`}
+                >
+                  {totalProfit >= 0 ? (
+                    <ArrowUpRight className="h-4 w-4" />
+                  ) : (
+                    <ArrowDownRight className="h-4 w-4" />
+                  )}
+                  {totalProfit >= 0 ? "+" : ""}
+                  {formatCurrency(totalProfit)} ({Math.abs(profitPct).toFixed(1)}%)
                 </span>
               )}
+            </div>
+            <p className="text-muted-foreground text-sm mt-1.5">
+              Inclui caixa e dividendos · capital + proventos
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleShowBalances}
-              className="h-9 w-9"
-              title={showBalances ? "Ocultar saldos" : "Mostrar saldos"}
-            >
-              {showBalances ? (
-                <Eye className="h-4 w-4" />
-              ) : (
-                <EyeOff className="h-4 w-4" />
-              )}
-            </Button>
             {!hasDbData && !isLoading && (
               <Button
                 variant="outline"
@@ -337,31 +305,8 @@ export default function Home() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-6">
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
-              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-                Patrimônio Total
-              </CardTitle>
-              <Wallet className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
-                !showBalances ? "blur-sm" : ""
-              }`}>
-                {isLoading ? (
-                  <Skeleton className="h-7 w-36" />
-                ) : (
-                  formatCurrency(totalPatrimony)
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1 hidden sm:block">
-                Inclui caixa e dividendos
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-3">
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
                 Rentabilidade Total
@@ -374,10 +319,8 @@ export default function Home() {
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
               <div
-                className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
+                className={`text-base md:text-2xl font-bold font-mono tracking-tighter truncate ${
                   totalProfit >= 0 ? "text-emerald-500" : "text-red-400"
-                } ${
-                  !showBalances ? "blur-sm" : ""
                 }`}
               >
                 {totalProfit >= 0 ? "+" : ""}
@@ -395,15 +338,29 @@ export default function Home() {
                 ) : (
                   <ArrowDownRight className="h-3 w-3" />
                 )}
-                {Math.abs(profitPct).toFixed(1)}% cap.+prov.
+                {Math.abs(profitPct).toFixed(1)}% (capital + proventos)
               </p>
             </CardContent>
           </Card>
 
-          <PerformanceCard />
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                Maior Posição
+              </CardTitle>
+              <PieChart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
+              <div className="text-base md:text-2xl font-bold tracking-tighter truncate">
+                {largestClass}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {largestClassPct.toFixed(1)}% da carteira
+              </p>
+            </CardContent>
+          </Card>
 
           <CaixaCard />
-          {hasDbData && <PerformanceCards />}
         </div>
 
         {/* Charts and Tables Area */}
@@ -427,10 +384,10 @@ export default function Home() {
                       dataKey="value"
                       stroke="none"
                     >
-                      {pieData.map((_entry, index) => (
+                      {pieData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
+                          fill={classColor(entry.name)}
                         />
                       ))}
                     </Pie>
@@ -478,9 +435,7 @@ export default function Home() {
                       </p>
                     </div>
                     <div className="text-right space-y-1">
-                      <p className={`text-sm font-medium font-mono ${
-                        !showBalances ? "blur-sm" : ""
-                      }`}>
+                      <p className="text-sm font-medium font-mono">
                         {formatCurrency(asset.value)}
                       </p>
                       <p
@@ -488,8 +443,6 @@ export default function Home() {
                           asset.profit >= 0
                             ? "text-emerald-500"
                             : "text-red-400"
-                        } ${
-                          !showBalances ? "blur-sm" : ""
                         }`}
                       >
                         {asset.profit >= 0 ? (
@@ -505,6 +458,11 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Currency Breakdown Chart */}
+        <div className="mt-6">
+          <PatrimonyEvolutionChart />
         </div>
 
         {/* Currency Breakdown Chart */}

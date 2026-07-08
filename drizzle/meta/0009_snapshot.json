@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "a940e322-4900-4c89-87da-4804d02ac0f8",
+  "id": "90f5706e-a9cc-44af-bfdd-2ee911852207",
   "prevId": "89937f3f-bfcb-4aa1-9c90-449a68855f2a",
   "tables": {
     "alerts": {
@@ -828,52 +828,45 @@
         },
         "snapshotDate": {
           "name": "snapshotDate",
-          "type": "timestamp",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "totalValueBRL": {
-          "name": "totalValueBRL",
+        "totalValue": {
+          "name": "totalValue",
           "type": "decimal(18,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "totalCostBRL": {
-          "name": "totalCostBRL",
+        "totalCost": {
+          "name": "totalCost",
           "type": "decimal(18,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "cashBRL": {
-          "name": "cashBRL",
+        "cashBalance": {
+          "name": "cashBalance",
           "type": "decimal(14,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
           "default": "'0'"
         },
-        "usdBrlRate": {
-          "name": "usdBrlRate",
+        "usdBrl": {
+          "name": "usdBrl",
           "type": "decimal(10,4)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "classValuesJSON": {
-          "name": "classValuesJSON",
+        "classBreakdown": {
+          "name": "classBreakdown",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "classCostsJSON": {
-          "name": "classCostsJSON",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "createdAt": {

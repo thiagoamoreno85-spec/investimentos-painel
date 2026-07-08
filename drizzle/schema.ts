@@ -291,20 +291,20 @@ export const cashMovements = mysqlTable("cash_movements", {
 export type CashMovement = typeof cashMovements.$inferSelect;
 export type InsertCashMovement = typeof cashMovements.$inferInsert;
 
-// ===== SNAPSHOTS DE RENTABILIDADE =====
-
+/**
+ * Snapshot diário do patrimônio — capturado via cron (Manus Heartbeat) e/ou
+ * manualmente. Um registro por usuário por dia (upsert por userId+snapshotDate).
+ * classBreakdown: JSON string { [assetClass]: valueBRL }.
+ */
 export const portfolioSnapshots = mysqlTable("portfolio_snapshots", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
-  snapshotDate: timestamp("snapshotDate").notNull(),
-  totalValueBRL: decimal("totalValueBRL", { precision: 18, scale: 2 }).notNull(),
-  totalCostBRL: decimal("totalCostBRL", { precision: 18, scale: 2 }).notNull(),
-  cashBRL: decimal("cashBRL", { precision: 14, scale: 2 }).notNull().default("0"),
-  usdBrlRate: decimal("usdBrlRate", { precision: 10, scale: 4 }).notNull(),
-  /** JSON: { "rv_nacional": 12345.67, "rv_eua": 9876.54, ... } */
-  classValuesJSON: text("classValuesJSON").notNull(),
-  /** JSON: { "rv_nacional": 10000.00, "rv_eua": 8000.00, ... } — custos por classe */
-  classCostsJSON: text("classCostsJSON").notNull(),
+  snapshotDate: varchar("snapshotDate", { length: 10 }).notNull(), // "YYYY-MM-DD"
+  totalValue: decimal("totalValue", { precision: 18, scale: 2 }).notNull(),
+  totalCost: decimal("totalCost", { precision: 18, scale: 2 }).notNull(),
+  cashBalance: decimal("cashBalance", { precision: 14, scale: 2 }).default("0").notNull(),
+  usdBrl: decimal("usdBrl", { precision: 10, scale: 4 }).notNull(),
+  classBreakdown: text("classBreakdown"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

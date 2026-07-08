@@ -1,149 +1,136 @@
-import { getDb } from "../db";
-import { assets, cashBalance, portfolioSnapshots } from "../../drizzle/schema";
-import type { PortfolioSnapshot } from "../../drizzle/schema";
-import { eq, and, desc, lte } from "drizzle-orm";
+/**
+ * Serviço de snapshot diário do patrimônio — compartilhado entre a mutation
+ * tRPC (captura manual) e o endpoint Heartbeat (/api/scheduled/portfolio-snapshot).
+ *
+ * Um snapshot por usuário por dia: se já existir para a data, é atualizado
+ * (última captura do dia vence).
+ */
+import { and, eq, gte } from "drizzle-orm";
+import { getDb, getAssetsByUser } from "../db";
+import { portfolioSnapshots, cashBalance } from "../../drizzle/schema";
 import { fetchUsdBrl } from "../quotes";
-import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
 
-const CLASS_CURRENCY: Record<string, string> = {
-  rv_nacional: "BRL",
-  rv_eua: "USD",
-  fundos: "BRL",
-  cripto: "USD",
-  renda_fixa: "BRL",
-  uranio: "USD",
-  india: "USD",
-  caixa: "BRL",
-};
+const USD_CLASSES = ["rv_eua", "cripto", "uranio", "india"];
 
-export async function captureSnapshot(
-  userId: number
-): Promise<{ success: boolean; totalValueBRL: number }> {
+export interface SnapshotResult {
+  snapshotDate: string;
+  totalValue: number;
+  totalCost: number;
+  cash: number;
+  usdBrl: number;
+  classBreakdown: Record<string, number>;
+  updated: boolean;
+}
+
+/** Calcula e persiste o snapshot de hoje para um usuário. */
+export async function captureSnapshot(userId: number): Promise<SnapshotResult> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const userAssets = await db.select().from(assets).where(eq(assets.userId, userId));
+  const assets = await getAssetsByUser(userId);
+  const usdBrl = await fetchUsdBrl().catch(() => 5.7);
+
   const cashRows = await db
     .select()
     .from(cashBalance)
     .where(eq(cashBalance.userId, userId))
     .limit(1);
-  const cash = Number(cashRows[0]?.balance ?? 0);
+  const cash = cashRows.length > 0 ? Number(cashRows[0].balance) : 0;
 
-  const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
+  const classBreakdown: Record<string, number> = {};
+  let totalValue = cash;
+  let totalCost = 0;
 
-  let totalValueBRL = cash;
-  let totalCostBRL = 0;
-  const classValues: Record<string, number> = {};
-  const classCosts: Record<string, number> = {};
+  if (cash > 0) classBreakdown["caixa"] = cash;
 
-  for (const asset of userAssets) {
+  for (const asset of assets) {
     if (asset.assetClass === "caixa") continue;
+    const qty = parseFloat(asset.totalQuantity || "0");
+    const price = parseFloat(asset.lastPrice || asset.averageCost || "0");
+    const avgCost = parseFloat(asset.averageCost || "0");
+    const fx = USD_CLASSES.includes(asset.assetClass) ? usdBrl : 1;
 
-    const qty = parseFloat(asset.totalQuantity);
-    const lastPrice = parseFloat(asset.lastPrice);
-    const avgCost = parseFloat(asset.averageCost);
-    const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
-    const fx = currency === "USD" ? usdBrl : 1;
-
-    const valueBRL = qty * lastPrice * fx;
-    const costBRL = qty * avgCost * fx;
-
-    totalValueBRL += valueBRL;
-    totalCostBRL += costBRL;
-
-    const cls = asset.assetClass;
-    classValues[cls] = (classValues[cls] || 0) + valueBRL;
-    classCosts[cls] = (classCosts[cls] || 0) + costBRL;
+    const valueBRL = qty * price * fx;
+    totalValue += valueBRL;
+    totalCost += qty * avgCost * fx;
+    classBreakdown[asset.assetClass] =
+      (classBreakdown[asset.assetClass] ?? 0) + valueBRL;
   }
 
-  // Adicionar caixa às classes
-  if (cash > 0) {
-    classValues["caixa"] = (classValues["caixa"] || 0) + cash;
-  }
+  const snapshotDate = new Date().toISOString().slice(0, 10);
 
-  // Usar meia-noite do dia atual como snapshotDate
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
-
-  // Verificar se já existe snapshot para hoje (evitar duplicatas)
   const existing = await db
     .select()
     .from(portfolioSnapshots)
     .where(
       and(
         eq(portfolioSnapshots.userId, userId),
-        eq(portfolioSnapshots.snapshotDate, today)
+        eq(portfolioSnapshots.snapshotDate, snapshotDate)
       )
     )
     .limit(1);
 
+  const values = {
+    totalValue: totalValue.toFixed(2),
+    totalCost: totalCost.toFixed(2),
+    cashBalance: cash.toFixed(2),
+    usdBrl: usdBrl.toFixed(4),
+    classBreakdown: JSON.stringify(classBreakdown),
+  };
+
+  let updated = false;
   if (existing.length > 0) {
-    // Atualizar o snapshot existente
     await db
       .update(portfolioSnapshots)
-      .set({
-        totalValueBRL: totalValueBRL.toFixed(2),
-        totalCostBRL: totalCostBRL.toFixed(2),
-        cashBRL: cash.toFixed(2),
-        usdBrlRate: usdBrl.toFixed(4),
-        classValuesJSON: JSON.stringify(classValues),
-        classCostsJSON: JSON.stringify(classCosts),
-      })
+      .set(values)
       .where(eq(portfolioSnapshots.id, existing[0].id));
+    updated = true;
   } else {
     await db.insert(portfolioSnapshots).values({
       userId,
-      snapshotDate: today,
-      totalValueBRL: totalValueBRL.toFixed(2),
-      totalCostBRL: totalCostBRL.toFixed(2),
-      cashBRL: cash.toFixed(2),
-      usdBrlRate: usdBrl.toFixed(4),
-      classValuesJSON: JSON.stringify(classValues),
-      classCostsJSON: JSON.stringify(classCosts),
+      snapshotDate,
+      ...values,
     });
   }
 
-  return { success: true, totalValueBRL };
+  return {
+    snapshotDate,
+    totalValue,
+    totalCost,
+    cash,
+    usdBrl,
+    classBreakdown,
+    updated,
+  };
 }
 
-export async function getSnapshotByDate(
-  userId: number,
-  date: Date
-): Promise<PortfolioSnapshot | null> {
+/** Histórico de snapshots dos últimos `days` dias, em ordem cronológica. */
+export async function getSnapshotHistory(userId: number, days: number = 365) {
   const db = await getDb();
-  if (!db) return null;
+  if (!db) return [];
 
-  const targetDate = new Date(date);
-  targetDate.setUTCHours(0, 0, 0, 0);
+  const fromDate = new Date();
+  fromDate.setDate(fromDate.getDate() - days);
+  const fromStr = fromDate.toISOString().slice(0, 10);
 
-  // Buscar o snapshot mais recente até a data solicitada (inclusive)
   const rows = await db
     .select()
     .from(portfolioSnapshots)
     .where(
       and(
         eq(portfolioSnapshots.userId, userId),
-        lte(portfolioSnapshots.snapshotDate, targetDate)
+        gte(portfolioSnapshots.snapshotDate, fromStr)
       )
     )
-    .orderBy(desc(portfolioSnapshots.snapshotDate))
-    .limit(1);
+    .orderBy(portfolioSnapshots.snapshotDate);
 
-  return rows[0] ?? null;
-}
-
-export async function getLatestSnapshots(
-  userId: number,
-  limit: number = 30
-): Promise<PortfolioSnapshot[]> {
-  const db = await getDb();
-  if (!db) return [];
-
-  return db
-    .select()
-    .from(portfolioSnapshots)
-    .where(eq(portfolioSnapshots.userId, userId))
-    .orderBy(desc(portfolioSnapshots.snapshotDate))
-    .limit(limit);
+  return rows.map((r) => ({
+    date: r.snapshotDate,
+    totalValue: Number(r.totalValue),
+    totalCost: Number(r.totalCost),
+    cash: Number(r.cashBalance),
+    classBreakdown: r.classBreakdown
+      ? (JSON.parse(r.classBreakdown) as Record<string, number>)
+      : {},
+  }));
 }

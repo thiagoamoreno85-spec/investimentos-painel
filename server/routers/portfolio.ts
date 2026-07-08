@@ -1,13 +1,16 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import {
+  captureSnapshot as captureSnapshotService,
+  getSnapshotHistory as getSnapshotHistoryService,
+} from "../services/snapshotService";
+import {
   getAssetsByUser,
   getAssetById,
   getAssetByTicker,
   createAsset,
   deleteAsset,
   getTransactionsByUser,
-  getTransactionsByUserPaginated,
   getTransactionsByAsset,
   createTransaction,
   deleteTransaction,
@@ -22,13 +25,11 @@ import {
   getUpcomingEvents,
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
-import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
-import { assets, transactions as transactionsTable, dividends, cashBalance, cashMovements, portfolioSnapshots } from "../../drizzle/schema";
-import { eq, asc, and, desc, gte } from "drizzle-orm";
+import { assets, transactions as transactionsTable, dividends, cashBalance, cashMovements } from "../../drizzle/schema";
+import { eq, asc, and } from "drizzle-orm";
 import { getDb } from "../db";
 import { parseCSV } from "../lib/csvParser";
 import { TRPCError } from "@trpc/server";
-import { captureSnapshot, getSnapshotByDate } from "../services/snapshotService";
 
 export const portfolioRouter = router({
   // ========== ASSETS ==========
@@ -84,18 +85,9 @@ export const portfolioRouter = router({
   // ========== TRANSACTIONS ==========
 
   /** Lista todas as transações do usuário */
-  getTransactions: protectedProcedure
-    .input(
-      z.object({
-        page: z.number().int().min(1).default(1),
-        limit: z.number().int().min(1).max(200).default(20),
-      }).optional()
-    )
-    .query(async ({ ctx, input }) => {
-      const page = input?.page ?? 1;
-      const limit = input?.limit ?? 20;
-      return getTransactionsByUserPaginated(ctx.user.id, page, limit);
-    }),
+  getTransactions: protectedProcedure.query(async ({ ctx }) => {
+    return getTransactionsByUser(ctx.user.id);
+  }),
 
   /** Lista transações de um ativo específico */
   getAssetTransactions: protectedProcedure
@@ -131,7 +123,7 @@ export const portfolioRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       // Busca ou cria o ativo
-      const asset = await getAssetByTicker(input.ticker, ctx.user.id);
+      let asset = await getAssetByTicker(input.ticker, ctx.user.id);
       let assetId: number;
 
       if (!asset) {
@@ -276,7 +268,7 @@ export const portfolioRouter = router({
     const now = new Date();
 
     const userAssets = await getAssetsByUser(ctx.user.id);
-    if (userAssets.length === 0) return { updated: 0, cached: 0, usdBrl: DEFAULT_USD_BRL_RATE, message: "Nenhum ativo na carteira." };
+    if (userAssets.length === 0) return { updated: 0, cached: 0, usdBrl: 5.7, message: "Nenhum ativo na carteira." };
 
     // Filtrar apenas ativos com preço desatualizado ou sem preço
     const stale = userAssets.filter((a) => {
@@ -288,7 +280,7 @@ export const portfolioRouter = router({
       return {
         updated: 0,
         cached: userAssets.length,
-        usdBrl: DEFAULT_USD_BRL_RATE,
+        usdBrl: 5.7,
         message: "Cotações em cache, nenhuma atualização necessária.",
       };
     }
@@ -336,7 +328,7 @@ export const portfolioRouter = router({
       }
     }
 
-    const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
+    const usdBrl = await fetchUsdBrl().catch(() => 5.7);
 
     return {
       updated,
@@ -360,7 +352,7 @@ export const portfolioRouter = router({
 
       const fxRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X?interval=1d&range=1d');
       const fxData = await fxRes.json();
-      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? DEFAULT_USD_BRL_RATE;
+      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? 5.7;
 
       const USD_CLASSES = ['rv_eua', 'cripto', 'uranio', 'india'];
       let totalCurrentValue = 0;
@@ -433,7 +425,7 @@ export const portfolioRouter = router({
 
       const fxRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X?interval=1d&range=1d');
       const fxData = await fxRes.json();
-      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? DEFAULT_USD_BRL_RATE;
+      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? 5.7;
 
       let totalBrl = 0;
       let totalUsd = 0;
@@ -455,7 +447,7 @@ export const portfolioRouter = router({
       };
     } catch (err) {
       console.error("[getCurrencyBreakdown] Error:", err);
-      return { brl: { value: 0, percent: 0, classes: [] }, usd: { value: 0, percent: 0, classes: [] }, usdBrl: DEFAULT_USD_BRL_RATE, total: 0 };
+      return { brl: { value: 0, percent: 0, classes: [] }, usd: { value: 0, percent: 0, classes: [] }, usdBrl: 5.7, total: 0 };
     }
   }),
 
@@ -631,151 +623,6 @@ export const portfolioRouter = router({
       await deleteEvent(input.id, ctx.user.id);
     }),
 
-  // ========== RENTABILIDADE DIÁRIA E MENSAL ==========
-
-  /** Captura snapshot manual (para preencher histórico ou primeiro uso) */
-  captureSnapshot: protectedProcedure.mutation(async ({ ctx }) => {
-    return captureSnapshot(ctx.user.id);
-  }),
-
-  /** Retorna rentabilidade diária e mensal — total e por classe */
-  getPerformance: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.user.id;
-    const now = new Date();
-
-    // Calcular patrimônio ATUAL (mesma lógica da Home.tsx)
-    const userAssets = await getAssetsByUser(userId);
-    const db = await getDb();
-    if (!db) return null;
-
-    const cashRows = await db.select().from(cashBalance).where(eq(cashBalance.userId, userId)).limit(1);
-    const cash = Number(cashRows[0]?.balance ?? 0);
-    const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
-
-    const CLASS_CURRENCY_LOCAL: Record<string, string> = {
-      rv_nacional: "BRL", rv_eua: "USD", fundos: "BRL", cripto: "USD",
-      renda_fixa: "BRL", uranio: "USD", india: "USD", caixa: "BRL",
-    };
-
-    let currentTotal = cash;
-    const currentClassValues: Record<string, number> = {};
-    if (cash > 0) currentClassValues["caixa"] = cash;
-
-    for (const asset of userAssets) {
-      if (asset.assetClass === "caixa") continue;
-      const qty = parseFloat(asset.totalQuantity);
-      const lastPrice = parseFloat(asset.lastPrice);
-      const currency = asset.currency || CLASS_CURRENCY_LOCAL[asset.assetClass] || "BRL";
-      const fx = currency === "USD" ? usdBrl : 1;
-      const valueBRL = qty * lastPrice * fx;
-      currentTotal += valueBRL;
-      const cls = asset.assetClass;
-      currentClassValues[cls] = (currentClassValues[cls] || 0) + valueBRL;
-    }
-
-    // Buscar snapshot de ONTEM (para rentabilidade diária)
-    const yesterday = new Date(now);
-    yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-    const yesterdaySnapshot = await getSnapshotByDate(userId, yesterday);
-
-    // Buscar snapshot do ÚLTIMO DIA DO MÊS ANTERIOR (para rentabilidade mensal)
-    const firstDayOfMonth = new Date(now.getUTCFullYear(), now.getUTCMonth(), 1);
-    const lastDayPrevMonth = new Date(firstDayOfMonth);
-    lastDayPrevMonth.setUTCDate(lastDayPrevMonth.getUTCDate() - 1);
-    const monthSnapshot = await getSnapshotByDate(userId, lastDayPrevMonth);
-
-    // Calcular variações
-    function calcReturn(
-      currentValue: number,
-      snapshotValue: number | null
-    ): { valueDiff: number; percentDiff: number } | null {
-      if (snapshotValue === null || snapshotValue === 0) return null;
-      const diff = currentValue - snapshotValue;
-      const pct = (diff / snapshotValue) * 100;
-      return { valueDiff: diff, percentDiff: pct };
-    }
-
-    function calcClassReturns(
-      currentValues: Record<string, number>,
-      snapshotJSON: string | null
-    ): Record<string, { valueDiff: number; percentDiff: number }> | null {
-      if (!snapshotJSON) return null;
-      try {
-        const snapshotValues: Record<string, number> = JSON.parse(snapshotJSON);
-        const result: Record<string, { valueDiff: number; percentDiff: number }> = {};
-        const allClasses = Array.from(new Set([...Object.keys(currentValues), ...Object.keys(snapshotValues)]));
-        for (const cls of allClasses) {
-          const curr = currentValues[cls] ?? 0;
-          const prev = snapshotValues[cls] ?? 0;
-          if (prev > 0) {
-            result[cls] = {
-              valueDiff: curr - prev,
-              percentDiff: ((curr - prev) / prev) * 100,
-            };
-          } else if (curr > 0) {
-            result[cls] = { valueDiff: curr, percentDiff: 100 };
-          }
-        }
-        return result;
-      } catch {
-        return null;
-      }
-    }
-
-    const dailyTotal = calcReturn(
-      currentTotal,
-      yesterdaySnapshot ? Number(yesterdaySnapshot.totalValueBRL) : null
-    );
-    const dailyByClass = calcClassReturns(
-      currentClassValues,
-      yesterdaySnapshot?.classValuesJSON ?? null
-    );
-
-    const monthlyTotal = calcReturn(
-      currentTotal,
-      monthSnapshot ? Number(monthSnapshot.totalValueBRL) : null
-    );
-    const monthlyByClass = calcClassReturns(
-      currentClassValues,
-      monthSnapshot?.classValuesJSON ?? null
-    );
-
-    return {
-      currentTotal,
-      currentClassValues,
-      usdBrl,
-      daily: {
-        total: dailyTotal,
-        byClass: dailyByClass,
-        snapshotDate: yesterdaySnapshot?.snapshotDate?.toISOString() ?? null,
-      },
-      monthly: {
-        total: monthlyTotal,
-        byClass: monthlyByClass,
-        snapshotDate: monthSnapshot?.snapshotDate?.toISOString() ?? null,
-      },
-      hasSnapshots: !!(yesterdaySnapshot || monthSnapshot),
-    };
-  }),
-
-  /** Lista histórico de snapshots (para gráfico de evolução futuro) */
-  getSnapshotHistory: protectedProcedure
-    .input(z.object({ days: z.number().int().min(1).max(365).default(30) }))
-    .query(async ({ ctx, input }) => {
-      const db = await getDb();
-      if (!db) return [];
-      const since = new Date();
-      since.setUTCDate(since.getUTCDate() - input.days);
-      return db
-        .select()
-        .from(portfolioSnapshots)
-        .where(and(
-          eq(portfolioSnapshots.userId, ctx.user.id),
-          gte(portfolioSnapshots.snapshotDate, since)
-        ))
-        .orderBy(desc(portfolioSnapshots.snapshotDate));
-    }),
-
   // ========== SEED ==========
 
   /** Importa a carteira completa do Dr. Thiago a partir dos dados estáticos */
@@ -846,146 +693,17 @@ export const portfolioRouter = router({
 
       return { created, skipped };
     }),
-  /** Retorna variação diária (change e changePercent) por ticker individual */
-  getAssetsDailyChange: protectedProcedure.query(async ({ ctx }) => {
-    const assets = await getAssetsByUser(ctx.user.id);
-    if (assets.length === 0) return { byTicker: {}, updatedAt: new Date() };
 
-    const tickerList = assets
-      .filter((a) => a.assetClass !== "caixa" && a.assetClass !== "renda_fixa")
-      .map((a) => ({ ticker: a.ticker, assetClass: a.assetClass }));
-
-    const quotes = await fetchQuotes(tickerList).catch(() => new Map());
-    const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
-
-    const CLASS_CURRENCY: Record<string, string> = {
-      rv_nacional: "BRL",
-      rv_eua: "USD",
-      fundos: "BRL",
-      cripto: "USD",
-      renda_fixa: "BRL",
-      uranio: "USD",
-      india: "USD",
-    };
-
-    const byTicker: Record<string, { changeBRL: number; changePct: number }> = {};
-
-    for (const asset of assets) {
-      if (asset.assetClass === "caixa" || asset.assetClass === "renda_fixa") continue;
-
-      const qty = parseFloat(asset.totalQuantity);
-      const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
-      const q = quotes.get(asset.ticker);
-
-      const dailyChange = q?.change ?? 0;
-      const changePct = q?.changePercent ?? 0;
-      let changeBRL = qty * dailyChange;
-
-      if (currency === "USD") {
-        changeBRL *= usdBrl;
-      }
-
-      byTicker[asset.ticker] = { changeBRL, changePct };
-    }
-
-    return { byTicker, updatedAt: new Date() };
+  /** Captura manualmente o snapshot de hoje do patrimônio. */
+  captureSnapshot: protectedProcedure.mutation(async ({ ctx }) => {
+    return captureSnapshotService(ctx.user.id);
   }),
 
-  getDailyPerformance: protectedProcedure.query(async ({ ctx }) => {
-    const assets = await getAssetsByUser(ctx.user.id);
-    if (assets.length === 0) return { totalPct: 0, totalBRL: 0, totalValueBRL: 0, byClass: [], updatedAt: new Date() };
-
-    const tickerList = assets
-      .filter((a) => a.assetClass !== "caixa")
-      .map((a) => ({ ticker: a.ticker, assetClass: a.assetClass }));
-
-    // Buscar cotações com variação do dia
-    const quotes = await fetchQuotes(tickerList).catch(() => new Map());
-
-    // Buscar USD/BRL para converter
-    const usdBrl = await fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE);
-
-    const CLASS_CURRENCY: Record<string, string> = {
-      rv_nacional: "BRL",
-      rv_eua: "USD",
-      fundos: "BRL",
-      cripto: "USD",
-      renda_fixa: "BRL",
-      uranio: "USD",
-      india: "USD",
-    };
-
-    const ASSET_CLASS_LABELS: Record<string, string> = {
-      rv_nacional: "RV Nacional",
-      rv_eua: "RV EUA",
-      fundos: "Fundos",
-      cripto: "Criptomoedas",
-      renda_fixa: "Renda Fixa",
-      uranio: "Urânio",
-      india: "Índia",
-    };
-
-    // Agrupar por classe
-    const classData = new Map<string, { valueBRL: number; changeBRL: number }>();
-    let totalValueBRL = 0;
-    let totalChangeBRL = 0;
-
-    for (const asset of assets) {
-      if (asset.assetClass === "caixa") continue;
-
-      const qty = parseFloat(asset.totalQuantity);
-      const lastPrice = parseFloat(asset.lastPrice);
-      const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
-      const q = quotes.get(asset.ticker);
-
-      // Valor atual em moeda original
-      const currentPrice = q?.price ?? lastPrice;
-      const valueOriginal = qty * currentPrice;
-
-      // Variação do dia: change é a diferença de preço (price - previousClose)
-      const dailyChange = q?.change ?? 0;
-      let changeBRL = qty * dailyChange;
-      let valueBRL = valueOriginal;
-
-      if (currency === "USD") {
-        changeBRL *= usdBrl;
-        valueBRL *= usdBrl;
-      }
-
-      totalValueBRL += valueBRL;
-      totalChangeBRL += changeBRL;
-
-      const classKey = asset.assetClass;
-      const existing = classData.get(classKey) || { valueBRL: 0, changeBRL: 0 };
-      existing.valueBRL += valueBRL;
-      existing.changeBRL += changeBRL;
-      classData.set(classKey, existing);
-    }
-
-    // Montar resultado por classe
-    const byClass = Array.from(classData.entries()).map(([classKey, data]) => {
-      // Valor de ontem = valor de hoje - variação de hoje
-      const yesterdayValue = data.valueBRL - data.changeBRL;
-      const pct = yesterdayValue > 0 ? (data.changeBRL / yesterdayValue) * 100 : 0;
-      return {
-        classKey,
-        className: ASSET_CLASS_LABELS[classKey] || classKey,
-        changeBRL: data.changeBRL,
-        changePct: pct,
-        valueBRL: data.valueBRL,
-      };
-    }).sort((a, b) => Math.abs(b.changeBRL) - Math.abs(a.changeBRL));
-
-    // Percentual total
-    const totalYesterday = totalValueBRL - totalChangeBRL;
-    const totalPct = totalYesterday > 0 ? (totalChangeBRL / totalYesterday) * 100 : 0;
-
-    return {
-      totalPct,
-      totalBRL: totalChangeBRL,
-      totalValueBRL,
-      byClass,
-      updatedAt: new Date(),
-    };
-  }),
+  /** Histórico de snapshots diários do patrimônio (para o gráfico de evolução). */
+  getSnapshotHistory: protectedProcedure
+    .input(z.object({ days: z.number().min(7).max(1095).default(365) }).optional())
+    .query(async ({ ctx, input }) => {
+      const history = await getSnapshotHistoryService(ctx.user.id, input?.days ?? 365);
+      return { history };
+    }),
 });

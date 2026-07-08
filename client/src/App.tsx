@@ -1,58 +1,60 @@
-import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { BalanceVisibilityProvider } from "./contexts/BalanceVisibilityContext";
-import { DashboardLayoutSkeleton } from "./components/DashboardLayoutSkeleton";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-
-const Home = lazy(() => import("./pages/Home"));
-const Alocacao = lazy(() => import("./pages/Alocacao"));
-const Rentabilidade = lazy(() => import("./pages/Rentabilidade"));
-const Aportes = lazy(() => import("./pages/Aportes"));
-const Transacoes = lazy(() => import("./pages/Transacoes"));
-const Dividendos = lazy(() => import("./pages/Dividendos"));
-const Alertas = lazy(() => import("./pages/Alertas"));
-const MelhorCompra = lazy(() => import("./pages/MelhorCompra"));
-const DashboardMercado = lazy(() => import("./pages/DashboardMercado"));
-const Noticias = lazy(() => import("./pages/Noticias"));
-const Calendario = lazy(() => import("./pages/Calendario"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+import Home from "./pages/Home";
+import Alocacao from "./pages/Alocacao";
+import Rentabilidade from "./pages/Rentabilidade";
+import Aportes from "./pages/Aportes";
+import Transacoes from "./pages/Transacoes";
+import Dividendos from "./pages/Dividendos";
+import Alertas from "./pages/Alertas";
+import MelhorCompra from "./pages/MelhorCompra";
+import DashboardMercado from "./pages/DashboardMercado";
+import Noticias from "./pages/Noticias";
+import Calendario from "./pages/Calendario";
+import Configuracoes from "./pages/Configuracoes";
 
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
-    <Suspense fallback={<DashboardLayoutSkeleton />}>
-      <Switch>
-        <Route path={"/"}>{() => <ProtectedRoute component={Home} />}</Route>
-        <Route path={"/alocacao"}>{() => <ProtectedRoute component={Alocacao} />}</Route>
-        <Route path={"/rentabilidade"}>{() => <ProtectedRoute component={Rentabilidade} />}</Route>
-        <Route path={"/aportes"}>{() => <ProtectedRoute component={Aportes} />}</Route>
-        <Route path={"/transacoes"}>{() => <ProtectedRoute component={Transacoes} />}</Route>
-        <Route path={"/dividendos"}>{() => <ProtectedRoute component={Dividendos} />}</Route>
-        <Route path={"/alertas"}>{() => <ProtectedRoute component={Alertas} />}</Route>
-        <Route path={"/melhor-compra"}>{() => <ProtectedRoute component={MelhorCompra} />}</Route>
-        <Route path={"/mercado"}>{() => <ProtectedRoute component={DashboardMercado} />}</Route>
-        <Route path={"/noticias"}>{() => <ProtectedRoute component={Noticias} />}</Route>
-        <Route path={"/calendario"}>{() => <ProtectedRoute component={Calendario} />}</Route>
-        <Route path={"/404"} component={NotFound} />
-        <Route component={NotFound} />
-      </Switch>
-    </Suspense>
+    <Switch>
+      <Route path={"/"} component={Home} />
+      <Route path={"/alocacao"} component={Alocacao} />
+      <Route path={"/rentabilidade"} component={Rentabilidade} />
+      <Route path={"/aportes"} component={Aportes} />
+      <Route path={"/transacoes"} component={Transacoes} />
+      <Route path={"/dividendos"} component={Dividendos} />
+      <Route path={"/alertas"} component={Alertas} />
+      <Route path={"/melhor-compra"} component={MelhorCompra} />
+      <Route path={"/mercado"} component={DashboardMercado} />
+      <Route path={"/noticias"} component={Noticias} />
+      <Route path={"/calendario"} component={Calendario} />
+      <Route path={"/configuracoes"} component={Configuracoes} />
+      <Route path={"/404"} component={NotFound} />
+      {/* Final fallback route */}
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
+// NOTE: About Theme
+// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
+//   to keep consistent foreground/background color across components
+// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
-        <BalanceVisibilityProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </BalanceVisibilityProvider>
+      <ThemeProvider
+        defaultTheme="dark"
+        // switchable
+      >
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

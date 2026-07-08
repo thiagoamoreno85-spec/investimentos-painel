@@ -28,6 +28,7 @@ import { ptBR } from "date-fns/locale";
 import { BenchmarkChart } from "@/components/BenchmarkChart";
 import { CurrencyBreakdownChart } from "@/components/CurrencyBreakdownChart";
 import { EventCalendar } from "@/components/EventCalendar";
+import { PatrimonyEvolutionChart } from "@/components/PatrimonyEvolutionChart";
 
 import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
 
@@ -457,6 +458,11 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Currency Breakdown Chart */}
+        <div className="mt-6">
+          <PatrimonyEvolutionChart />
         </div>
 
         {/* Currency Breakdown Chart */}

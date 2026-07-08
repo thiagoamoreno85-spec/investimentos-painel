@@ -290,3 +290,23 @@ export const cashMovements = mysqlTable("cash_movements", {
 
 export type CashMovement = typeof cashMovements.$inferSelect;
 export type InsertCashMovement = typeof cashMovements.$inferInsert;
+
+/**
+ * Snapshot diário do patrimônio — capturado via cron (Manus Heartbeat) e/ou
+ * manualmente. Um registro por usuário por dia (upsert por userId+snapshotDate).
+ * classBreakdown: JSON string { [assetClass]: valueBRL }.
+ */
+export const portfolioSnapshots = mysqlTable("portfolio_snapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  snapshotDate: varchar("snapshotDate", { length: 10 }).notNull(), // "YYYY-MM-DD"
+  totalValue: decimal("totalValue", { precision: 18, scale: 2 }).notNull(),
+  totalCost: decimal("totalCost", { precision: 18, scale: 2 }).notNull(),
+  cashBalance: decimal("cashBalance", { precision: 14, scale: 2 }).default("0").notNull(),
+  usdBrl: decimal("usdBrl", { precision: 10, scale: 4 }).notNull(),
+  classBreakdown: text("classBreakdown"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PortfolioSnapshot = typeof portfolioSnapshots.$inferSelect;
+export type InsertPortfolioSnapshot = typeof portfolioSnapshots.$inferInsert;

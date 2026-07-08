@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import {
+  captureSnapshot as captureSnapshotService,
+  getSnapshotHistory as getSnapshotHistoryService,
+} from "../services/snapshotService";
+import {
   getAssetsByUser,
   getAssetById,
   getAssetByTicker,
@@ -688,5 +692,18 @@ export const portfolioRouter = router({
       }
 
       return { created, skipped };
+    }),
+
+  /** Captura manualmente o snapshot de hoje do patrimônio. */
+  captureSnapshot: protectedProcedure.mutation(async ({ ctx }) => {
+    return captureSnapshotService(ctx.user.id);
+  }),
+
+  /** Histórico de snapshots diários do patrimônio (para o gráfico de evolução). */
+  getSnapshotHistory: protectedProcedure
+    .input(z.object({ days: z.number().min(7).max(1095).default(365) }).optional())
+    .query(async ({ ctx, input }) => {
+      const history = await getSnapshotHistoryService(ctx.user.id, input?.days ?? 365);
+      return { history };
     }),
 });

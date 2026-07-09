@@ -14,7 +14,7 @@ const mockContext: TrpcContext = {
   user: mockUser,
 };
 
-describe("patrimonial router", () => {
+describe.skipIf(!process.env.DATABASE_URL)("patrimonial router", () => {
   let caller: ReturnType<typeof appRouter.createCaller>;
 
   beforeEach(() => {

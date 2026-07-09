@@ -18,19 +18,44 @@ export const patrimonialRouter = router({
   listAssets: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-    const assets = await db
-      .select()
-      .from(patrimonialAssets)
-      .where(eq(patrimonialAssets.userId, ctx.user.id))
-      .orderBy(patrimonialAssets.createdAt);
+    const [assets, liabilities] = await Promise.all([
+      db
+        .select()
+        .from(patrimonialAssets)
+        .where(
+          and(
+            eq(patrimonialAssets.userId, ctx.user.id),
+            eq(patrimonialAssets.isActive, 1)
+          )
+        )
+        .orderBy(desc(patrimonialAssets.currentValue)),
+      db
+        .select()
+        .from(patrimonialLiabilities)
+        .where(
+          and(
+            eq(patrimonialLiabilities.userId, ctx.user.id),
+            eq(patrimonialLiabilities.isActive, 1)
+          )
+        ),
+    ]);
 
-    return assets.map((a) => ({
-      ...a,
-      currentValue: parseFloat(a.currentValue.toString()),
-      acquisitionValue: a.acquisitionValue
-        ? parseFloat(a.acquisitionValue.toString())
-        : null,
-    }));
+    return assets.map((a) => {
+      const currentValue = parseFloat(a.currentValue.toString());
+      // Dívida vinculada = soma dos saldos devedores dos passivos deste ativo
+      const linkedDebt = liabilities
+        .filter((l) => l.assetId === a.id)
+        .reduce((sum, l) => sum + parseFloat(l.remainingBalance.toString()), 0);
+      return {
+        ...a,
+        currentValue,
+        acquisitionValue: a.acquisitionValue
+          ? parseFloat(a.acquisitionValue.toString())
+          : null,
+        linkedDebt,
+        netValue: currentValue - linkedDebt,
+      };
+    });
   }),
 
   createAsset: protectedProcedure
@@ -142,11 +167,18 @@ export const patrimonialRouter = router({
   listLiabilities: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-    const liabilities = await db
-      .select()
-      .from(patrimonialLiabilities)
-      .where(eq(patrimonialLiabilities.userId, ctx.user.id))
-      .orderBy(patrimonialLiabilities.createdAt);
+    const [liabilities, assets] = await Promise.all([
+      db
+        .select()
+        .from(patrimonialLiabilities)
+        .where(eq(patrimonialLiabilities.userId, ctx.user.id))
+        .orderBy(desc(patrimonialLiabilities.remainingBalance)),
+      db
+        .select()
+        .from(patrimonialAssets)
+        .where(eq(patrimonialAssets.userId, ctx.user.id)),
+    ]);
+    const assetName = new Map(assets.map((a) => [a.id, a.name]));
 
     return liabilities.map((l) => ({
       ...l,
@@ -158,6 +190,7 @@ export const patrimonialRouter = router({
       interestRate: l.interestRate
         ? parseFloat(l.interestRate.toString())
         : null,
+      linkedAssetName: l.assetId ? assetName.get(l.assetId) ?? null : null,
     }));
   }),
 
@@ -168,6 +201,8 @@ export const patrimonialRouter = router({
         name: z.string().min(1),
         creditor: z.string().optional(),
         originalAmount: z.number().positive(),
+        remainingBalance: z.number().min(0).optional(),
+        paidInstallments: z.number().int().min(0).optional(),
         installmentValue: z.number().optional(),
         totalInstallments: z.number().int().positive().optional(),
         interestRate: z.number().optional(),
@@ -185,14 +220,14 @@ export const patrimonialRouter = router({
         name: input.name,
         creditor: input.creditor || null,
         originalAmount: input.originalAmount.toString(),
-        remainingBalance: input.originalAmount.toString(),
+        remainingBalance: (input.remainingBalance ?? input.originalAmount).toString(),
         installmentValue: input.installmentValue ? input.installmentValue.toString() : null,
         totalInstallments: input.totalInstallments || null,
         interestRate: input.interestRate ? input.interestRate.toString() : null,
         startDate: input.startDate,
         endDate: input.endDate || null,
         notes: input.notes || null,
-        paidInstallments: 0,
+        paidInstallments: input.paidInstallments ?? 0,
         isActive: 1,
       });
 

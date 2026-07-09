@@ -48,6 +48,7 @@ import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -246,69 +247,50 @@ export default function Patrimonio() {
             ))}
           </div>
         ) : summary ? (
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
+          <div className="grid gap-2 grid-cols-3">
             {/* Total Ativos */}
             <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Total de Ativos
-                </CardTitle>
-                <DollarSign className="h-4 w-4 text-emerald-500" />
-              </CardHeader>
-              <CardContent className="px-4 pb-4">
-                <div
-                  className={`text-xl font-bold font-mono tracking-tight text-emerald-400 ${blurClass}`}
-                >
+              <CardContent className="p-2.5 sm:p-4">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide leading-tight">Ativos</p>
+                  <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-500 shrink-0" />
+                </div>
+                <div className={`text-sm sm:text-xl font-bold font-mono tracking-tight text-emerald-400 ${blurClass}`}>
                   {formatCurrency(summary.totalAssets)}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {summary.assetCount} ativo
-                  {summary.assetCount !== 1 ? "s" : ""} registrado
-                  {summary.assetCount !== 1 ? "s" : ""}
+                <p className="text-[10px] text-muted-foreground mt-0.5 hidden sm:block">
+                  {summary.assetCount} ativo{summary.assetCount !== 1 ? "s" : ""}
                 </p>
               </CardContent>
             </Card>
 
             {/* Total Passivos */}
             <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Total de Passivos
-                </CardTitle>
-                <AlertCircle className="h-4 w-4 text-red-400" />
-              </CardHeader>
-              <CardContent className="px-4 pb-4">
-                <div
-                  className={`text-xl font-bold font-mono tracking-tight text-red-400 ${blurClass}`}
-                >
+              <CardContent className="p-2.5 sm:p-4">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide leading-tight">Passivos</p>
+                  <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-400 shrink-0" />
+                </div>
+                <div className={`text-sm sm:text-xl font-bold font-mono tracking-tight text-red-400 ${blurClass}`}>
                   {formatCurrency(summary.totalLiabilities)}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {summary.liabilityCount} passivo
-                  {summary.liabilityCount !== 1 ? "s" : ""} em aberto
+                <p className="text-[10px] text-muted-foreground mt-0.5 hidden sm:block">
+                  {summary.liabilityCount} passivo{summary.liabilityCount !== 1 ? "s" : ""}
                 </p>
               </CardContent>
             </Card>
 
             {/* Patrimônio Líquido */}
             <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Patrimônio Líquido
-                </CardTitle>
-                <TrendingUp
-                  className={`h-4 w-4 ${summary.netWorth >= 0 ? "text-cyan-400" : "text-red-400"}`}
-                />
-              </CardHeader>
-              <CardContent className="px-4 pb-4">
-                <div
-                  className={`text-xl font-bold font-mono tracking-tight ${summary.netWorth >= 0 ? "text-cyan-400" : "text-red-400"} ${blurClass}`}
-                >
+              <CardContent className="p-2.5 sm:p-4">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide leading-tight">Líquido</p>
+                  <TrendingUp className={`h-3 w-3 sm:h-4 sm:w-4 shrink-0 ${summary.netWorth >= 0 ? "text-cyan-400" : "text-red-400"}`} />
+                </div>
+                <div className={`text-sm sm:text-xl font-bold font-mono tracking-tight ${summary.netWorth >= 0 ? "text-cyan-400" : "text-red-400"} ${blurClass}`}>
                   {formatCurrency(summary.netWorth)}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Ativos − Passivos
-                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5 hidden sm:block">Ativos − Passivos</p>
               </CardContent>
             </Card>
           </div>
@@ -320,7 +302,7 @@ export default function Patrimonio() {
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
               Resumo por Tipo
             </h3>
-            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+            <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
               {Object.keys(byType).map((type) => {
                 const { totalValue, totalDebt, count } = byType[type];
                 const net = totalValue - totalDebt;
@@ -546,7 +528,7 @@ function AssetCard({
 
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm transition-all duration-200 hover:border-border">
-      <CardContent className="p-4">
+      <CardContent className="p-3 sm:p-4">
         {/* Linha principal */}
         <div className="flex items-start justify-between gap-3">
           {/* Ícone + Info */}
@@ -576,9 +558,11 @@ function AssetCard({
                 )}
               </div>
               {asset.description && (
-                <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                  {asset.description}
-                </p>
+                <ScrollArea className="max-h-12 mt-0.5">
+                  <p className="text-xs text-muted-foreground pr-2 leading-relaxed">
+                    {asset.description}
+                  </p>
+                </ScrollArea>
               )}
             </div>
           </div>

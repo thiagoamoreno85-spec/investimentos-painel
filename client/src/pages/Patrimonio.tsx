@@ -132,10 +132,6 @@ export default function Patrimonio() {
     },
   });
 
-  if (!user) return null;
-
-  const blurClass = !showBalances ? "blur-sm select-none" : "";
-
   // Mapear passivos por assetId para exibir vinculados
   const liabilitiesByAssetId = useMemo(() => {
     if (!liabilities) return {} as Record<number, typeof liabilities>;
@@ -154,6 +150,44 @@ export default function Patrimonio() {
     () => (liabilities ?? []).filter((l) => !l.assetId),
     [liabilities]
   );
+
+  // Resumo por tipo de ativo
+  const byType = useMemo(() => {
+    if (!assets) return {} as Record<string, { totalValue: number; totalDebt: number; count: number }>;
+    const map: Record<string, { totalValue: number; totalDebt: number; count: number }> = {};
+    for (const asset of assets) {
+      const lbs = liabilitiesByAssetId[asset.id] ?? [];
+      const debt = lbs.reduce((s: number, l: any) => s + l.remainingBalance, 0);
+      if (!map[asset.assetType]) map[asset.assetType] = { totalValue: 0, totalDebt: 0, count: 0 };
+      map[asset.assetType].totalValue += asset.currentValue;
+      map[asset.assetType].totalDebt += debt;
+      map[asset.assetType].count += 1;
+    }
+    return map;
+  }, [assets, liabilitiesByAssetId]);
+
+  // Ativos agrupados por tipo
+  const groupedByType = useMemo(() => {
+    if (!assets) return {} as Record<string, typeof assets>;
+    const grouped: Record<string, typeof assets> = {};
+    for (const asset of assets) {
+      if (!grouped[asset.assetType]) grouped[asset.assetType] = [];
+      grouped[asset.assetType].push(asset);
+    }
+    return grouped;
+  }, [assets]);
+
+  const typeOrder = ["imovel", "veiculo", "credito", "participacao", "equipamento", "outro"];
+  const sortedTypes = useMemo(() => {
+    return typeOrder
+      .filter((t) => groupedByType[t])
+      .concat(Object.keys(groupedByType).filter((t) => !typeOrder.includes(t)));
+  }, [groupedByType]);
+
+  // Early return AFTER all hooks
+  if (!user) return null;
+
+  const blurClass = !showBalances ? "blur-sm select-none" : "";
 
   return (
     <DashboardLayout>
@@ -280,59 +314,46 @@ export default function Patrimonio() {
         ) : null}
 
         {/* ── Cards de Resumo por Tipo ── */}
-        {assets && assets.length > 0 && (() => {
-          // Calcular totais por tipo
-          const byType: Record<string, { totalValue: number; totalDebt: number; count: number }> = {};
-          for (const asset of assets) {
-            const lbs = liabilitiesByAssetId[asset.id] ?? [];
-            const debt = lbs.reduce((s: number, l: any) => s + l.remainingBalance, 0);
-            if (!byType[asset.assetType]) byType[asset.assetType] = { totalValue: 0, totalDebt: 0, count: 0 };
-            byType[asset.assetType].totalValue += asset.currentValue;
-            byType[asset.assetType].totalDebt += debt;
-            byType[asset.assetType].count += 1;
-          }
-          const types = Object.keys(byType);
-          return (
-            <div>
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                Resumo por Tipo
-              </h3>
-              <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
-                {types.map((type) => {
-                  const { totalValue, totalDebt, count } = byType[type];
-                  const net = totalValue - totalDebt;
-                  const color = ASSET_TYPE_COLORS[type] ?? "text-slate-400";
-                  const icon = ASSET_TYPE_ICONS[type] ?? <MoreHorizontal className="h-4 w-4" />;
-                  const label = ASSET_TYPE_LABELS[type] ?? type;
-                  return (
-                    <Card key={type} className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-                      <CardContent className="p-3">
-                        <div className={`flex items-center gap-1.5 mb-2 ${color}`}>
-                          {icon}
-                          <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
+        {assets && assets.length > 0 && (
+          <div>
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+              Resumo por Tipo
+            </h3>
+            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+              {Object.keys(byType).map((type) => {
+                const { totalValue, totalDebt, count } = byType[type];
+                const net = totalValue - totalDebt;
+                const color = ASSET_TYPE_COLORS[type] ?? "text-slate-400";
+                const icon = ASSET_TYPE_ICONS[type] ?? <MoreHorizontal className="h-4 w-4" />;
+                const label = ASSET_TYPE_LABELS[type] ?? type;
+                return (
+                  <Card key={type} className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+                    <CardContent className="p-3">
+                      <div className={`flex items-center gap-1.5 mb-2 ${color}`}>
+                        {icon}
+                        <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
+                      </div>
+                      <div className={`text-sm font-bold font-mono ${color} ${blurClass}`}>
+                        {formatCurrency(net)}
+                      </div>
+                      <div className={`text-[10px] font-mono text-muted-foreground ${blurClass}`}>
+                        Bruto: {formatCurrency(totalValue)}
+                      </div>
+                      {totalDebt > 0 && (
+                        <div className={`text-[10px] font-mono text-red-400/70 ${blurClass}`}>
+                          Dívida: −{formatCurrency(totalDebt)}
                         </div>
-                        <div className={`text-sm font-bold font-mono ${color} ${blurClass}`}>
-                          {formatCurrency(net)}
-                        </div>
-                        <div className={`text-[10px] font-mono text-muted-foreground ${blurClass}`}>
-                          Bruto: {formatCurrency(totalValue)}
-                        </div>
-                        {totalDebt > 0 && (
-                          <div className={`text-[10px] font-mono text-red-400/70 ${blurClass}`}>
-                            Dívida: −{formatCurrency(totalDebt)}
-                          </div>
-                        )}
-                        <div className="text-[10px] text-muted-foreground/60 mt-1">
-                          {count} ativo{count !== 1 ? "s" : ""}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
+                      )}
+                      <div className="text-[10px] text-muted-foreground/60 mt-1">
+                        {count} ativo{count !== 1 ? "s" : ""}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
-          );
-        })()}
+          </div>
+        )}
 
         {/* ── Ativos agrupados por tipo ── */}
         {assetsLoading ? (
@@ -349,61 +370,49 @@ export default function Patrimonio() {
               <p className="text-muted-foreground/60 text-xs mt-1">Clique em "Novo Ativo" para começar</p>
             </CardContent>
           </Card>
-        ) : (() => {
-          // Agrupar ativos por tipo
-          const grouped: Record<string, typeof assets> = {};
-          for (const asset of assets) {
-            if (!grouped[asset.assetType]) grouped[asset.assetType] = [];
-            grouped[asset.assetType].push(asset);
-          }
-          const typeOrder = ["imovel", "veiculo", "credito", "participacao", "equipamento", "outro"];
-          const sortedTypes = typeOrder.filter((t) => grouped[t]).concat(
-            Object.keys(grouped).filter((t) => !typeOrder.includes(t))
-          );
-          return (
-            <div className="space-y-6">
-              {sortedTypes.map((type) => {
-                const typeAssets = grouped[type];
-                const color = ASSET_TYPE_COLORS[type] ?? "text-slate-400";
-                const icon = ASSET_TYPE_ICONS[type] ?? <MoreHorizontal className="h-4 w-4" />;
-                const label = ASSET_TYPE_LABELS[type] ?? type;
-                return (
-                  <div key={type}>
-                    <div className={`flex items-center gap-2 mb-3 ${color}`}>
-                      {icon}
-                      <h3 className="text-sm font-semibold uppercase tracking-widest">{label}</h3>
-                      <span className="text-xs text-muted-foreground font-normal normal-case tracking-normal">
-                        ({typeAssets.length} ativo{typeAssets.length !== 1 ? "s" : ""})
-                      </span>
-                    </div>
-                    <div className="space-y-3">
-                      {typeAssets.map((asset) => {
-                        const linkedLiabilities = liabilitiesByAssetId[asset.id] ?? [];
-                        const totalDebt = linkedLiabilities.reduce((s: number, l: any) => s + l.remainingBalance, 0);
-                        const netValue = asset.currentValue - totalDebt;
-                        return (
-                          <AssetCard
-                            key={asset.id}
-                            asset={asset}
-                            linkedLiabilities={linkedLiabilities}
-                            totalDebt={totalDebt}
-                            netValue={netValue}
-                            showBalances={showBalances}
-                            onDelete={() => deleteAsset.mutate({ id: asset.id })}
-                            onDeleteLiability={(id) => deleteLiability.mutate({ id })}
-                            onRegisterPayment={(liabilityId, name, balance) =>
-                              setPaymentDialog({ open: true, liabilityId, liabilityName: name, remainingBalance: balance })
-                            }
-                          />
-                        );
-                      })}
-                    </div>
+        ) : (
+          <div className="space-y-6">
+            {sortedTypes.map((type) => {
+              const typeAssets = groupedByType[type] ?? [];
+              const color = ASSET_TYPE_COLORS[type] ?? "text-slate-400";
+              const icon = ASSET_TYPE_ICONS[type] ?? <MoreHorizontal className="h-4 w-4" />;
+              const label = ASSET_TYPE_LABELS[type] ?? type;
+              return (
+                <div key={type}>
+                  <div className={`flex items-center gap-2 mb-3 ${color}`}>
+                    {icon}
+                    <h3 className="text-sm font-semibold uppercase tracking-widest">{label}</h3>
+                    <span className="text-xs text-muted-foreground font-normal normal-case tracking-normal">
+                      ({typeAssets.length} ativo{typeAssets.length !== 1 ? "s" : ""})
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          );
-        })()}
+                  <div className="space-y-3">
+                    {typeAssets.map((asset) => {
+                      const linkedLiabilities = liabilitiesByAssetId[asset.id] ?? [];
+                      const totalDebt = linkedLiabilities.reduce((s: number, l: any) => s + l.remainingBalance, 0);
+                      const netValue = asset.currentValue - totalDebt;
+                      return (
+                        <AssetCard
+                          key={asset.id}
+                          asset={asset}
+                          linkedLiabilities={linkedLiabilities}
+                          totalDebt={totalDebt}
+                          netValue={netValue}
+                          showBalances={showBalances}
+                          onDelete={() => deleteAsset.mutate({ id: asset.id })}
+                          onDeleteLiability={(id) => deleteLiability.mutate({ id })}
+                          onRegisterPayment={(liabilityId, name, balance) =>
+                            setPaymentDialog({ open: true, liabilityId, liabilityName: name, remainingBalance: balance })
+                          }
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* ── Passivos sem ativo vinculado ── */}
         {orphanLiabilities.length > 0 && (

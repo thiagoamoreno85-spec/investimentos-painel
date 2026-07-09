@@ -47,6 +47,7 @@ import {
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -355,7 +356,7 @@ export default function Patrimonio() {
           </div>
         )}
 
-        {/* ── Ativos agrupados por tipo ── */}
+        {/* ── Ativos por tipo (Tabs) ── */}
         {assetsLoading ? (
           <div className="space-y-3">
             {[1, 2].map((i) => (
@@ -371,47 +372,57 @@ export default function Patrimonio() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-6">
+          <Tabs defaultValue={sortedTypes[0] ?? "imovel"} className="flex flex-col">
+            {/* Tabs fixas */}
+            <TabsList className="flex-shrink-0 w-full justify-start overflow-x-auto bg-card/50 border border-border/50 h-auto p-1 flex-nowrap mb-4">
+              {sortedTypes.map((type) => {
+                const color = ASSET_TYPE_COLORS[type] ?? "text-slate-400";
+                const icon = ASSET_TYPE_ICONS[type] ?? <MoreHorizontal className="h-4 w-4" />;
+                const label = ASSET_TYPE_LABELS[type] ?? type;
+                const count = (groupedByType[type] ?? []).length;
+                return (
+                  <TabsTrigger
+                    key={type}
+                    value={type}
+                    className="data-[state=active]:bg-secondary data-[state=active]:text-foreground px-3 py-1.5 text-xs md:text-sm whitespace-nowrap gap-1.5"
+                  >
+                    <span className={color}>{icon}</span>
+                    {label}
+                    <span className="ml-1 text-[10px] text-muted-foreground">({count})</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+
+            {/* Conteúdo de cada tab */}
             {sortedTypes.map((type) => {
               const typeAssets = groupedByType[type] ?? [];
-              const color = ASSET_TYPE_COLORS[type] ?? "text-slate-400";
-              const icon = ASSET_TYPE_ICONS[type] ?? <MoreHorizontal className="h-4 w-4" />;
-              const label = ASSET_TYPE_LABELS[type] ?? type;
               return (
-                <div key={type}>
-                  <div className={`flex items-center gap-2 mb-3 ${color}`}>
-                    {icon}
-                    <h3 className="text-sm font-semibold uppercase tracking-widest">{label}</h3>
-                    <span className="text-xs text-muted-foreground font-normal normal-case tracking-normal">
-                      ({typeAssets.length} ativo{typeAssets.length !== 1 ? "s" : ""})
-                    </span>
-                  </div>
-                  <div className="space-y-3">
-                    {typeAssets.map((asset) => {
-                      const linkedLiabilities = liabilitiesByAssetId[asset.id] ?? [];
-                      const totalDebt = linkedLiabilities.reduce((s: number, l: any) => s + l.remainingBalance, 0);
-                      const netValue = asset.currentValue - totalDebt;
-                      return (
-                        <AssetCard
-                          key={asset.id}
-                          asset={asset}
-                          linkedLiabilities={linkedLiabilities}
-                          totalDebt={totalDebt}
-                          netValue={netValue}
-                          showBalances={showBalances}
-                          onDelete={() => deleteAsset.mutate({ id: asset.id })}
-                          onDeleteLiability={(id) => deleteLiability.mutate({ id })}
-                          onRegisterPayment={(liabilityId, name, balance) =>
-                            setPaymentDialog({ open: true, liabilityId, liabilityName: name, remainingBalance: balance })
-                          }
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
+                <TabsContent key={type} value={type} className="space-y-3 mt-0">
+                  {typeAssets.map((asset) => {
+                    const linkedLiabilities = liabilitiesByAssetId[asset.id] ?? [];
+                    const totalDebt = linkedLiabilities.reduce((s: number, l: any) => s + l.remainingBalance, 0);
+                    const netValue = asset.currentValue - totalDebt;
+                    return (
+                      <AssetCard
+                        key={asset.id}
+                        asset={asset}
+                        linkedLiabilities={linkedLiabilities}
+                        totalDebt={totalDebt}
+                        netValue={netValue}
+                        showBalances={showBalances}
+                        onDelete={() => deleteAsset.mutate({ id: asset.id })}
+                        onDeleteLiability={(id) => deleteLiability.mutate({ id })}
+                        onRegisterPayment={(liabilityId, name, balance) =>
+                          setPaymentDialog({ open: true, liabilityId, liabilityName: name, remainingBalance: balance })
+                        }
+                      />
+                    );
+                  })}
+                </TabsContent>
               );
             })}
-          </div>
+          </Tabs>
         )}
 
         {/* ── Passivos sem ativo vinculado ── */}

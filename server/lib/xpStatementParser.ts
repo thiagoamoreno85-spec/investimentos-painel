@@ -110,7 +110,7 @@ const ISIN_TO_TICKER: Record<string, string> = {
   ORVR: "ORVR3",
   BRAV: "BRAV3",
   TTEN: "TTEN3",
-  AXIA: "AXIA6",
+  AXIA: "AXIA3",
   RECV: "RECV3",
   RRRP: "RRRP3",
   PRIO: "PRIO3",

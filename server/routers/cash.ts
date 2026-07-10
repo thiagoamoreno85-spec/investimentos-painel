@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
-import { cashBalance, cashMovements } from "../../drizzle/schema";
+import { cashBalance, cashMovements, cashStatements, receivedIncomes, cashDeposits, cashReconciliations } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { getDb } from "../db";
+import { parseXPStatementXLSX, extractDepositsFromXPStatement, extractStatementBalances } from "../lib/xpStatementParser";
 
 export const cashRouter = router({
   /** Buscar saldo atual do caixa */
@@ -160,5 +161,144 @@ export const cashRouter = router({
       await db.delete(cashMovements).where(eq(cashMovements.id, input.id));
 
       return { success: true, newBalance: revertedBalance };
+    }),
+
+  /** Upload e parse de extrato XLSX (XP Investimentos) */
+  uploadStatement: protectedProcedure
+    .input(z.object({ fileBuffer: z.instanceof(Buffer), fileName: z.string(), statementMonth: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) return { success: false, message: "Database connection failed" };
+
+      try {
+        // Parse extrato para extrair proventos e aportes
+        const proventos = parseXPStatementXLSX(input.fileBuffer);
+        const deposits = extractDepositsFromXPStatement(input.fileBuffer);
+        const balances = extractStatementBalances(input.fileBuffer);
+
+        if (!balances) return { success: false, message: "Could not extract balances from statement" };
+
+        // Criar registro de statement
+        const statementResult = await db
+          .insert(cashStatements)
+          .values({
+            userId: ctx.user.id,
+            fileName: input.fileName,
+            uploadDate: new Date(),
+            statementMonth: input.statementMonth,
+            startBalance: balances.startBalance.toFixed(2),
+            endBalance: balances.endBalance.toFixed(2),
+            status: "pending",
+          });
+
+        // Recuperar ID do statement criado
+        const statements = await db.select().from(cashStatements).where(eq(cashStatements.userId, ctx.user.id)).orderBy(desc(cashStatements.uploadDate)).limit(1);
+        const statementId = statements[0]?.id;
+        if (!statementId) return { success: false, message: "Failed to create statement record" };
+
+        // Inserir proventos
+        for (const provento of proventos) {
+          await db.insert(receivedIncomes).values({
+            userId: ctx.user.id,
+            statementId,
+            type: provento.type,
+            description: provento.description,
+            amount: provento.totalValue.toFixed(2),
+            incomeDate: provento.paymentDate,
+            category: provento.ticker,
+          });
+        }
+
+        // Inserir aportes
+        for (const deposit of deposits) {
+          await db.insert(cashDeposits).values({
+            userId: ctx.user.id,
+            statementId,
+            description: deposit.description,
+            amount: deposit.amount.toFixed(2),
+            depositDate: deposit.depositDate,
+            category: deposit.category,
+          });
+        }
+
+        // Criar reconciliação
+        const balanceRows = await db.select().from(cashBalance).where(eq(cashBalance.userId, ctx.user.id)).limit(1);
+        const platformBalance = Number(balanceRows[0]?.balance ?? 0);
+        const discrepancy = Math.abs(platformBalance - balances.endBalance);
+        const reconciliationStatus = discrepancy < 0.01 ? "reconciled" : "discrepancy_found";
+
+        await db.insert(cashReconciliations).values({
+          userId: ctx.user.id,
+          statementId,
+          platformBalance: platformBalance.toFixed(2),
+          statementBalance: balances.endBalance.toFixed(2),
+          discrepancy: discrepancy.toFixed(2),
+          status: reconciliationStatus,
+        });
+
+        return {
+          success: true,
+          statementId,
+          proventosCount: proventos.length,
+          depositsCount: deposits.length,
+          reconciliationStatus,
+        };
+      } catch (error) {
+        console.error("Upload statement error:", error);
+        return { success: false, message: String(error) };
+      }
+    }),
+
+  /** Listar aportes extraídos do extrato */
+  listDeposits: protectedProcedure
+    .input(z.object({ statementId: z.number().optional(), limit: z.number().default(50) }).optional())
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const conditions = [eq(cashDeposits.userId, ctx.user.id)];
+      if (input?.statementId) {
+        conditions.push(eq(cashDeposits.statementId, input.statementId));
+      }
+      return db
+        .select()
+        .from(cashDeposits)
+        .where(and(...conditions))
+        .orderBy(desc(cashDeposits.depositDate))
+        .limit(input?.limit ?? 50);
+    }),
+
+  /** Listar proventos extraídos do extrato */
+  listIncomes: protectedProcedure
+    .input(z.object({ statementId: z.number().optional(), type: z.string().optional(), limit: z.number().default(50) }).optional())
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const conditions = [eq(receivedIncomes.userId, ctx.user.id)];
+      if (input?.statementId) {
+        conditions.push(eq(receivedIncomes.statementId, input.statementId));
+      }
+      if (input?.type) {
+        conditions.push(eq(receivedIncomes.type, input.type as any));
+      }
+      return db
+        .select()
+        .from(receivedIncomes)
+        .where(and(...conditions))
+        .orderBy(desc(receivedIncomes.incomeDate))
+        .limit(input?.limit ?? 50);
+    }),
+
+  /** Listar statements enviados */
+  listStatements: protectedProcedure
+    .input(z.object({ limit: z.number().default(20) }).optional())
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      return db
+        .select()
+        .from(cashStatements)
+        .where(eq(cashStatements.userId, ctx.user.id))
+        .orderBy(desc(cashStatements.uploadDate))
+        .limit(input?.limit ?? 20);
     }),
 });

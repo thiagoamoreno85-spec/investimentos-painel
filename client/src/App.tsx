@@ -11,7 +11,7 @@ import Rentabilidade from "./pages/Rentabilidade";
 import Aportes from "./pages/Aportes";
 import Patrimonio from "./pages/Patrimonio";
 import Transacoes from "./pages/Transacoes";
-import Dividendos from "./pages/Dividendos";
+import Proventos from "./pages/Proventos";
 import Alertas from "./pages/Alertas";
 import MelhorCompra from "./pages/MelhorCompra";
 import DashboardMercado from "./pages/DashboardMercado";
@@ -29,7 +29,7 @@ function Router() {
       <Route path={"/aportes"} component={Aportes} />
       <Route path={"/patrimonio"} component={Patrimonio} />
       <Route path={"/transacoes"} component={Transacoes} />
-      <Route path={"/dividendos"} component={Dividendos} />
+      <Route path={"/dividendos"} component={Proventos} />
       <Route path={"/alertas"} component={Alertas} />
       <Route path={"/melhor-compra"} component={MelhorCompra} />
       <Route path={"/mercado"} component={DashboardMercado} />

@@ -1,3 +1,6 @@
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { useState, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -45,9 +48,12 @@ const DIVIDEND_TYPES = [
   { value: "outro", label: "Outro" },
 ] as const;
 
-export default function Dividendos() {
+export default function Proventos() {
   const utils = trpc.useUtils();
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [statementMonth, setStatementMonth] = useState<string>(new Date().toISOString().slice(0, 7));
+  const [activeTab, setActiveTab] = useState<string>("dividendos");
 
   // Form state
   const [assetId, setAssetId] = useState<string>("");
@@ -69,6 +75,9 @@ export default function Dividendos() {
   const divTotalPages = dividendsData?.totalPages ?? 1;
   const { data: byMonth } = trpc.dividends.getDividendsByMonth.useQuery();
   const { data: totals } = trpc.dividends.getTotalDividends.useQuery();
+  const { data: deposits, isLoading: depositsLoading, refetch: refetchDeposits } = trpc.cash.listDeposits.useQuery();
+  const { data: incomes, isLoading: incomesLoading, refetch: refetchIncomes } = trpc.cash.listIncomes.useQuery();
+  const uploadMutation = trpc.cash.uploadStatement.useMutation();
 
   const addDividend = trpc.dividends.addDividend.useMutation({
     onSuccess: (result) => {

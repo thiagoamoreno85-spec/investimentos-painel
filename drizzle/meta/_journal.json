@@ -78,6 +78,20 @@
       "when": 1783533503104,
       "tag": "0010_wealthy_wallflower",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1783692496736,
+      "tag": "0011_silly_stardust",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1783694490021,
+      "tag": "0012_gifted_ghost_rider",
+      "breakpoints": true
     }
   ]
 }

@@ -279,3 +279,133 @@ export function parseXPStatementXLSX(buffer: Buffer): ParsedProvento[] {
 
   return proventos;
 }
+
+
+/**
+ * Interface para aportes extraídos do extrato
+ */
+export interface ParsedDeposit {
+  description: string;
+  amount: number;
+  depositDate: Date;
+  category: "aporte" | "resgate" | "outro";
+}
+
+/**
+ * Extrai aportes (transferências de entrada) do extrato XLSX da XP
+ * Identifica linhas com keywords como "TRANSFERENCIA RECEBIDA", "DEPOSITO", "TED RECEBIDO", etc.
+ */
+export function extractDepositsFromXPStatement(buffer: Buffer): ParsedDeposit[] {
+  const workbook = XLSX.read(buffer, { type: "buffer", cellDates: true });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rows: unknown[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, dateNF: "yyyy-mm-dd" });
+
+  const deposits: ParsedDeposit[] = [];
+
+  // Keywords que indicam aportes (transferências de entrada)
+  const DEPOSIT_KEYWORDS = [
+    "TRANSFERENCIA RECEBIDA",
+    "TED RECEBIDO",
+    "DOC RECEBIDO",
+    "DEPOSITO",
+    "TRANSFERENCIA - ENTRADA",
+    "CREDITO TRANSFERENCIA",
+    "CREDITO EM CONTA",
+  ];
+
+  // Keywords que indicam resgates (saídas)
+  const WITHDRAWAL_KEYWORDS = [
+    "TRANSFERENCIA ENVIADA",
+    "TED ENVIADO",
+    "DOC ENVIADO",
+    "SAQUE",
+    "RESGATE",
+    "TRANSFERENCIA - SAIDA",
+  ];
+
+  for (const row of rows) {
+    if (!Array.isArray(row) || row.length < 6) continue;
+
+    // Colunas esperadas: [col0, data_mov, data_liq, descricao, col4, valor, saldo, ...]
+    const rawDate = row[1];
+    const descricao = typeof row[3] === "string" ? row[3].trim() : null;
+    const rawValor = row[5];
+
+    if (!descricao || rawValor === null || rawValor === undefined) continue;
+
+    const valor = typeof rawValor === "number" ? rawValor : parseFloat(String(rawValor).replace(",", "."));
+    if (isNaN(valor)) continue;
+
+    const descUpper = descricao.toUpperCase();
+
+    // Identificar data
+    let depositDate: Date;
+    if (rawDate instanceof Date) {
+      depositDate = rawDate;
+    } else if (typeof rawDate === "string" && rawDate.match(/\d{4}-\d{2}-\d{2}/)) {
+      depositDate = new Date(rawDate);
+    } else {
+      continue;
+    }
+
+    // Ignorar proventos e taxas
+    if (descUpper.includes("CREDITO DE REEMBOLSO") || descUpper.includes("DIVIDENDO") || 
+        descUpper.includes("JCP") || descUpper.includes("RENDIMENTO") ||
+        descUpper.includes("TAXA") || descUpper.includes("BTC")) {
+      continue;
+    }
+
+    // Verificar se é aporte (entrada positiva)
+    if (valor > 0 && DEPOSIT_KEYWORDS.some((kw) => descUpper.includes(kw))) {
+      deposits.push({
+        description: descricao,
+        amount: valor,
+        depositDate,
+        category: "aporte",
+      });
+      continue;
+    }
+
+    // Verificar se é resgate (saída negativa ou keywords de saída)
+    if ((valor < 0 || WITHDRAWAL_KEYWORDS.some((kw) => descUpper.includes(kw))) && valor !== 0) {
+      deposits.push({
+        description: descricao,
+        amount: Math.abs(valor),
+        depositDate,
+        category: "resgate",
+      });
+    }
+  }
+
+  return deposits;
+}
+
+/**
+ * Extrai saldo inicial e final do extrato XLSX
+ */
+export function extractStatementBalances(buffer: Buffer): { startBalance: number; endBalance: number } | null {
+  const workbook = XLSX.read(buffer, { type: "buffer", cellDates: true });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rows: unknown[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, dateNF: "yyyy-mm-dd" });
+
+  if (rows.length < 2) return null;
+
+  // Primeira linha com valor é o saldo inicial (coluna 6 = saldo)
+  let startBalance: number | null = null;
+  let endBalance: number | null = null;
+
+  for (const row of rows) {
+    if (!Array.isArray(row) || row.length < 7) continue;
+    const rawSaldo = row[6];
+    if (rawSaldo === null || rawSaldo === undefined) continue;
+
+    const saldo = typeof rawSaldo === "number" ? rawSaldo : parseFloat(String(rawSaldo).replace(",", "."));
+    if (!isNaN(saldo)) {
+      if (startBalance === null) startBalance = saldo;
+      endBalance = saldo; // Última linha com saldo válido
+    }
+  }
+
+  if (startBalance === null || endBalance === null) return null;
+  return { startBalance, endBalance };
+}

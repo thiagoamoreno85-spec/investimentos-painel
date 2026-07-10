@@ -282,3 +282,13 @@
 - [x] Privacy mode (blur) aplicado em todos os valores monetários
 - [x] Responsivo mobile e desktop
 - [x] 110 testes vitest passando
+
+## Card Alavancagem (Sprint atual - CONCLUÍDO)
+- [x] Criar card Alavancagem com razão Ativos/Passivos e % de passivo
+- [x] Integrar trpc.patrimonial.getSummary na Home.tsx
+- [x] Renderizar razão Ativos/Passivos (ex: 2.50x)
+- [x] Renderizar % de passivo com coloração condicional (verde <50%, âmbar >50%)
+- [x] Ícone Zap com cor âmbar (amber-500)
+- [x] Suportar privacy mode (blur de valores)
+- [x] pnpm build sem erros (TypeScript: 0 erros)
+- [x] 110 testes vitest passando

@@ -393,50 +393,50 @@ export default function Home() {
 
         {/* Summary Cards — linha 2: Alavancagem + Rent. Mês + Caixa (mesma altura) */}
         <div className="grid grid-cols-1 gap-2 md:gap-4 sm:grid-cols-3">
-          {/* Alavancagem — Ativos vs Passivos */}
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
-              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-                Alavancagem
-              </CardTitle>
-              <Zap className="h-4 w-4 text-amber-500" />
-            </CardHeader>
-            <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              {patrimonialSummary ? (
-                <div className="space-y-3">
-                  {/* Razão Ativos/Passivos */}
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Ativos / Passivos</p>
-                    <div className={`text-base md:text-2xl font-bold font-mono tracking-tighter transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
-                      {patrimonialSummary.totalLiabilities > 0
-                        ? (patrimonialSummary.totalAssets / patrimonialSummary.totalLiabilities).toFixed(2)
-                        : "∞"}
-                      x
+          {/* Alavancagem — Ativos Totais (financeiros + imobilizados) vs Passivos */}
+          {(() => {
+            // Base de ativos = financeiros (carteira) + imobilizados (patrimônio)
+            const totalAtivos = totalPatrimony + (patrimonialSummary?.totalAssets ?? 0);
+            const totalPassivos = patrimonialSummary?.totalLiabilities ?? 0;
+            const ratio = totalPassivos > 0 ? totalAtivos / totalPassivos : null;
+            const pctPassivo = totalAtivos > 0 ? (totalPassivos / totalAtivos) * 100 : 0;
+            const isHighLeverage = pctPassivo > 50;
+            return (
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
+                  <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                    Alavancagem
+                  </CardTitle>
+                  <Zap className="h-4 w-4 text-amber-500" />
+                </CardHeader>
+                <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
+                  <div className="space-y-3">
+                    {/* Razão Ativos Totais / Passivos */}
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Ativos Totais / Passivos</p>
+                      <div className={`text-base md:text-2xl font-bold font-mono tracking-tighter transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
+                        {ratio !== null ? ratio.toFixed(2) : "∞"}x
+                      </div>
                     </div>
-                  </div>
-                  {/* % Passivo */}
-                  <div className="pt-2 border-t border-border/30">
-                    <p className="text-xs text-muted-foreground mb-1">% Passivo</p>
-                    <div
-                      className={`text-sm md:text-lg font-bold font-mono tracking-tighter ${
-                        patrimonialSummary.totalAssets > 0
-                          ? ((patrimonialSummary.totalLiabilities / patrimonialSummary.totalAssets) * 100) > 50
-                            ? "text-amber-500"
-                            : "text-emerald-500"
+                    {/* % Passivo sobre Ativos Totais */}
+                    <div className="pt-2 border-t border-border/30">
+                      <p className="text-xs text-muted-foreground mb-1">% Passivo / Ativos Totais</p>
+                      <div className={`text-sm md:text-lg font-bold font-mono tracking-tighter ${
+                        totalAtivos > 0
+                          ? isHighLeverage ? "text-amber-500" : "text-emerald-500"
                           : "text-muted-foreground"
-                      } transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}
-                    >
-                      {patrimonialSummary.totalAssets > 0
-                        ? ((patrimonialSummary.totalLiabilities / patrimonialSummary.totalAssets) * 100).toFixed(1)
-                        : "0.0"}%
+                      } transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
+                        {pctPassivo.toFixed(1)}%
+                      </div>
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        Fin. + Imob. = {!showBalances ? "••••" : formatCurrency(totalAtivos)}
+                      </p>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground">Sem dados patrimoniais</p>
-              )}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            );
+          })()}
 
           {/* Rent. Mês */}
           <PerformanceCards />

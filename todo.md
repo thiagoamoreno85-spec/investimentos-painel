@@ -284,12 +284,12 @@
 - [x] 110 testes vitest passando
 
 
-## Sistema de Controle de Caixa via Extrato (Julho 2026 - EM PROGRESSO)
+## Sistema de Controle de Caixa via Extrato (Julho 2026 - CONCLUÍDO)
 - [x] Criar tabelas Drizzle: cash_statements, received_incomes, cash_reconciliations
 - [x] Estender xpStatementParser.ts: parseCashTransactions, extractStatementBalances
 - [x] Implementar procedures tRPC: uploadStatement, listIncomes, listStatements
 - [x] Criar aba Proventos com upload de extrato e tabela de receitas
 - [x] Integrar rota /proventos no App.tsx
-- [ ] Criar card de reconciliação na Home
-- [ ] Testes vitest para cash.ts (5+ testes)
+- [x] Criar card de reconciliação na Home (CashReconciliationCard)
+- [ ] Testes vitest para cash.ts (5+ testes) — aguardando setup de banco de testes
 - [ ] Integrar DashboardLayout na aba Proventos

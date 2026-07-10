@@ -235,7 +235,7 @@ export default function Home() {
           <div>
             <div className="flex items-center gap-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-                Patrimônio Total
+                Patrimônio Financeiro Total
               </p>
               {hasDbData && (
                 <span className="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2 py-0.5">

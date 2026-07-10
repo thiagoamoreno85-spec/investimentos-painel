@@ -282,3 +282,14 @@
 - [x] Privacy mode (blur) aplicado em todos os valores monetários
 - [x] Responsivo mobile e desktop
 - [x] 110 testes vitest passando
+
+
+## Sistema de Controle de Caixa via Extrato (Julho 2026 - EM PROGRESSO)
+- [x] Criar tabelas Drizzle: cash_statements, received_incomes, cash_reconciliations
+- [x] Estender xpStatementParser.ts: parseCashTransactions, extractStatementBalances
+- [x] Implementar procedures tRPC: uploadStatement, listIncomes, listStatements
+- [x] Criar aba Proventos com upload de extrato e tabela de receitas
+- [x] Integrar rota /proventos no App.tsx
+- [ ] Criar card de reconciliação na Home
+- [ ] Testes vitest para cash.ts (5+ testes)
+- [ ] Integrar DashboardLayout na aba Proventos

@@ -18,6 +18,7 @@ import DashboardMercado from "./pages/DashboardMercado";
 import Noticias from "./pages/Noticias";
 import Calendario from "./pages/Calendario";
 import Configuracoes from "./pages/Configuracoes";
+import Proventos from "./pages/Proventos";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -30,6 +31,7 @@ function Router() {
       <Route path={"/patrimonio"} component={Patrimonio} />
       <Route path={"/transacoes"} component={Transacoes} />
       <Route path={"/dividendos"} component={Dividendos} />
+      <Route path={"/proventos"} component={Proventos} />
       <Route path={"/alertas"} component={Alertas} />
       <Route path={"/melhor-compra"} component={MelhorCompra} />
       <Route path={"/mercado"} component={DashboardMercado} />

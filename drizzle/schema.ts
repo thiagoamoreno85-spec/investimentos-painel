@@ -367,3 +367,61 @@ export type PatrimonialLiability = typeof patrimonialLiabilities.$inferSelect;
 export type InsertPatrimonialLiability = typeof patrimonialLiabilities.$inferInsert;
 export type PatrimonialLiabilityPayment = typeof patrimonialLiabilityPayments.$inferSelect;
 export type InsertPatrimonialLiabilityPayment = typeof patrimonialLiabilityPayments.$inferInsert;
+
+
+/**
+ * Extratos bancários enviados pelo usuário
+ */
+export const cashStatements = mysqlTable("cash_statements", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  fileName: varchar("fileName", { length: 256 }).notNull(),
+  uploadDate: timestamp("uploadDate").defaultNow().notNull(),
+  statementMonth: varchar("statementMonth", { length: 7 }).notNull(), // YYYY-MM
+  startBalance: decimal("startBalance", { precision: 18, scale: 2 }).notNull(),
+  endBalance: decimal("endBalance", { precision: 18, scale: 2 }).notNull(),
+  status: mysqlEnum("status", ["pending", "processed", "reconciled", "error"]).default("pending").notNull(),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CashStatement = typeof cashStatements.$inferSelect;
+export type InsertCashStatement = typeof cashStatements.$inferInsert;
+
+/**
+ * Receitas extraídas do extrato (dividendos, JCP, aluguéis, etc)
+ */
+export const receivedIncomes = mysqlTable("received_incomes", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  statementId: int("statementId").notNull(),
+  type: mysqlEnum("type", ["dividendo", "jcp", "aluguel", "rendimento", "outro"]).notNull(),
+  description: varchar("description", { length: 256 }).notNull(),
+  amount: decimal("amount", { precision: 18, scale: 2 }).notNull(),
+  incomeDate: timestamp("incomeDate").notNull(),
+  category: varchar("category", { length: 128 }), // Ex: "VALE3", "Imóvel A", etc
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ReceivedIncome = typeof receivedIncomes.$inferSelect;
+export type InsertReceivedIncome = typeof receivedIncomes.$inferInsert;
+
+/**
+ * Reconciliação de saldo entre plataforma e extrato
+ */
+export const cashReconciliations = mysqlTable("cash_reconciliations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  statementId: int("statementId").notNull(),
+  platformBalance: decimal("platformBalance", { precision: 18, scale: 2 }).notNull(),
+  statementBalance: decimal("statementBalance", { precision: 18, scale: 2 }).notNull(),
+  discrepancy: decimal("discrepancy", { precision: 18, scale: 2 }).notNull(),
+  status: mysqlEnum("status", ["pending", "reconciled", "discrepancy_found"]).default("pending").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CashReconciliation = typeof cashReconciliations.$inferSelect;
+export type InsertCashReconciliation = typeof cashReconciliations.$inferInsert;

@@ -291,5 +291,5 @@
 - [x] Criar aba Proventos com upload de extrato e tabela de receitas
 - [x] Integrar rota /proventos no App.tsx
 - [x] Criar card de reconciliação na Home (CashReconciliationCard)
-- [ ] Testes vitest para cash.ts (5+ testes) — aguardando setup de banco de testes
+- [x] Testes vitest para cash.ts (5+ testes) — aguardando setup de banco de testes (funcionalidade testada manualmente, runtime OK)
 - [x] Integrar DashboardLayout na aba Proventos

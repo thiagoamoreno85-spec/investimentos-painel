@@ -72,7 +72,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         { href: "/alocacao", icon: PieChart, label: "Alocação", badge: 0, highlight: false },
         { href: "/rentabilidade", icon: TrendingUp, label: "Rentabilidade", badge: 0, highlight: false },
         { href: "/transacoes", icon: ArrowLeftRight, label: "Transações", badge: 0, highlight: false },
-        { href: "/dividendos", icon: DollarSign, label: "Dividendos", badge: 0, highlight: false },
+        { href: "/dividendos", icon: DollarSign, label: "Proventos", badge: 0, highlight: false },
         { href: "/aportes", icon: Wallet, label: "Aportes", badge: 0, highlight: false },
         { href: "/patrimonio", icon: Building2, label: "Patrimônio", badge: 0, highlight: false },
       ],

@@ -35,8 +35,6 @@ import { CurrencyBreakdownChart } from "@/components/CurrencyBreakdownChart";
 import { EventCalendar } from "@/components/EventCalendar";
 import { PatrimonyEvolutionChart } from "@/components/PatrimonyEvolutionChart";
 import { ConsolidatedNetWorthCard } from "@/components/ConsolidatedNetWorthCard";
-import CashReconciliationCard from "@/components/CashReconciliationCard";
-
 
 import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
 
@@ -330,9 +328,6 @@ export default function Home() {
           <div className="col-span-2 lg:col-span-2 row-span-1">
             <ConsolidatedNetWorthCard financialAssets={totalPatrimony} isLoadingFinancial={isLoading} />
           </div>
-
-          {/* Reconciliação de Caixa */}
-          <CashReconciliationCard />
 
           {/* Rentabilidade Total */}
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">

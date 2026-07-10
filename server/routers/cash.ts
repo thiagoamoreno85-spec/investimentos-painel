@@ -1,9 +1,8 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
-import { cashBalance, cashMovements, cashStatements, receivedIncomes, cashReconciliations } from "../../drizzle/schema";
+import { cashBalance, cashMovements } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { getDb } from "../db";
-import { parseCashTransactions, parseXPStatementXLSX, extractStatementBalances } from "../lib/xpStatementParser";
 
 export const cashRouter = router({
   /** Buscar saldo atual do caixa */
@@ -162,128 +161,4 @@ export const cashRouter = router({
 
       return { success: true, newBalance: revertedBalance };
     }),
-
-  /** Upload e parse de extrato bancário */
-  uploadStatement: protectedProcedure
-    .input(
-      z.object({
-        file: z.instanceof(Buffer),
-        fileName: z.string(),
-        statementMonth: z.string(), // YYYY-MM
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Database not available");
-
-      try {
-        const transactions = parseCashTransactions(input.file);
-        const proventos = parseXPStatementXLSX(input.file);
-        const balances = extractStatementBalances(input.file);
-
-        const totalAportes = transactions
-          .filter((t) => t.type === "aporte")
-          .reduce((sum, t) => sum + t.amount, 0);
-
-        const result = await db
-          .insert(cashStatements)
-          .values({
-            userId: ctx.user.id,
-            fileName: input.fileName,
-            uploadDate: new Date(),
-            statementMonth: input.statementMonth,
-            startBalance: balances.startBalance,
-            endBalance: balances.endBalance,
-            status: "processed",
-          });
-
-        if (!result) throw new Error("Failed to create statement");
-        const statementId = result.insertId;
-
-        if (proventos.length > 0) {
-          await db.insert(receivedIncomes).values(
-            proventos.map((p) => ({
-              userId: ctx.user.id,
-              statementId: statementId,
-              type: p.type as "dividendo" | "jcp" | "rendimento" | "outro",
-              description: p.description,
-              amount: p.totalValue,
-              incomeDate: p.paymentDate,
-              category: p.ticker,
-            }))
-          );
-        }
-
-        await db.insert(cashReconciliations).values({
-          userId: ctx.user.id,
-          statementId: statementId,
-          platformBalance: 0,
-          statementBalance: balances.endBalance,
-          discrepancy: 0,
-          status: "pending",
-        });
-
-        return {
-          success: true,
-          statement: { id: statementId, userId: ctx.user.id, fileName: input.fileName, statementMonth: input.statementMonth, startBalance: balances.startBalance, endBalance: balances.endBalance, status: "processed" as const },
-          summary: {
-            totalAportes,
-            transactionCount: transactions.length,
-            proventoCount: proventos.length,
-          },
-        };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        await db
-          .insert(cashStatements)
-          .values({
-            userId: ctx.user.id,
-            fileName: input.fileName,
-            uploadDate: new Date(),
-            statementMonth: input.statementMonth,
-            startBalance: 0,
-            endBalance: 0,
-            status: "error",
-            errorMessage,
-          });
-
-        return { success: false, error: errorMessage };
-      }
-    }),
-
-  /** Listar proventos recebidos */
-  listIncomes: protectedProcedure
-    .input(
-      z.object({
-        month: z.string().optional(),
-        type: z.enum(["dividendo", "jcp", "aluguel", "rendimento", "outro"]).optional(),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      const db = await getDb();
-      if (!db) return [];
-
-      const filters = [eq(receivedIncomes.userId, ctx.user.id)];
-      if (input.type) {
-        filters.push(eq(receivedIncomes.type, input.type));
-      }
-
-      return db
-        .select()
-        .from(receivedIncomes)
-        .where(and(...filters))
-        .orderBy(receivedIncomes.incomeDate);
-    }),
-
-  /** Listar statements */
-  listStatements: protectedProcedure.query(async ({ ctx }) => {
-    const db = await getDb();
-    if (!db) return [];
-
-    return db
-      .select()
-      .from(cashStatements)
-      .where(eq(cashStatements.userId, ctx.user.id))
-      .orderBy(desc(cashStatements.uploadDate));
-  }),
 });

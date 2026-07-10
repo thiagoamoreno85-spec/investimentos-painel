@@ -292,4 +292,4 @@
 - [x] Integrar rota /proventos no App.tsx
 - [x] Criar card de reconciliação na Home (CashReconciliationCard)
 - [ ] Testes vitest para cash.ts (5+ testes) — aguardando setup de banco de testes
-- [ ] Integrar DashboardLayout na aba Proventos
+- [x] Integrar DashboardLayout na aba Proventos

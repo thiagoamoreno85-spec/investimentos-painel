@@ -9,9 +9,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Upload, DollarSign, TrendingUp, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export default function Proventos() {
   const { user } = useAuth();
+  if (!user) return null;
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [statementMonth, setStatementMonth] = useState(new Date().toISOString().slice(0, 7));
   const [selectedType, setSelectedType] = useState<string>("all");
@@ -65,7 +67,8 @@ export default function Proventos() {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <DashboardLayout>
+      <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Proventos</h1>
@@ -279,5 +282,6 @@ export default function Proventos() {
         </CardContent>
       </Card>
     </div>
+    </DashboardLayout>
   );
 }

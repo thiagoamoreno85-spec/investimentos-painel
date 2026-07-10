@@ -392,7 +392,7 @@ export default function Home() {
         </div>
 
         {/* Summary Cards — linha 2: Alavancagem + Rent. Mês + Caixa (mesma altura) */}
-        <div className="grid grid-cols-1 gap-2 md:gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 md:gap-4 sm:grid-cols-3">
           {/* Alavancagem — Ativos Totais (financeiros + imobilizados) vs Passivos */}
           {(() => {
             // Base de ativos = financeiros (carteira) + imobilizados (patrimônio)
@@ -402,34 +402,34 @@ export default function Home() {
             const pctPassivo = totalAtivos > 0 ? (totalPassivos / totalAtivos) * 100 : 0;
             const isHighLeverage = pctPassivo > 50;
             return (
-              <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive h-full">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3 md:pb-2 md:px-6 md:pt-6">
                   <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
                     Alavancagem
                   </CardTitle>
-                  <Zap className="h-4 w-4 text-amber-500" />
+                  <Zap className="h-3.5 w-3.5 md:h-4 md:w-4 text-amber-500" />
                 </CardHeader>
-                <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-                  <div className="space-y-3">
+                <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+                  <div className="space-y-2 md:space-y-3">
                     {/* Razão Ativos Totais / Passivos */}
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">Ativos Totais / Passivos</p>
-                      <div className={`text-base md:text-2xl font-bold font-mono tracking-tighter transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
+                      <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5">Ativos / Passivos</p>
+                      <div className={`text-sm md:text-2xl font-bold font-mono tracking-tighter transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
                         {ratio !== null ? ratio.toFixed(2) : "∞"}x
                       </div>
                     </div>
                     {/* % Passivo sobre Ativos Totais */}
-                    <div className="pt-2 border-t border-border/30">
-                      <p className="text-xs text-muted-foreground mb-1">% Passivo / Ativos Totais</p>
-                      <div className={`text-sm md:text-lg font-bold font-mono tracking-tighter ${
+                    <div className="pt-1.5 md:pt-2 border-t border-border/30">
+                      <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5">% Passivo</p>
+                      <div className={`text-xs md:text-lg font-bold font-mono tracking-tighter ${
                         totalAtivos > 0
                           ? isHighLeverage ? "text-amber-500" : "text-emerald-500"
                           : "text-muted-foreground"
                       } transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
                         {pctPassivo.toFixed(1)}%
                       </div>
-                      <p className="text-[10px] text-muted-foreground mt-1">
-                        Fin. + Imob. = {!showBalances ? "••••" : formatCurrency(totalAtivos)}
+                      <p className="text-[9px] md:text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                        {!showBalances ? "••••" : formatCurrency(totalAtivos)}
                       </p>
                     </div>
                   </div>
@@ -441,8 +441,10 @@ export default function Home() {
           {/* Rent. Mês */}
           <PerformanceCards />
 
-          {/* Caixa Disponível */}
-          <CaixaCard />
+          {/* Caixa Disponível — ocupa 2 colunas no mobile, 1 no sm+ */}
+          <div className="col-span-2 sm:col-span-1">
+            <CaixaCard />
+          </div>
         </div>
 
         {/* Charts and Tables Area */}

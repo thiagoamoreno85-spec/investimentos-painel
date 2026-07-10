@@ -196,29 +196,62 @@ export const cashRouter = router({
         const statementId = statements[0]?.id;
         if (!statementId) return { success: false, message: "Failed to create statement record" };
 
-        // Inserir proventos
+        // Inserir proventos (verificar duplicatas)
+        let proventosInseridos = 0;
+        let proventosDuplicados = 0;
         for (const provento of proventos) {
-          await db.insert(receivedIncomes).values({
-            userId: ctx.user.id,
-            statementId,
-            type: provento.type,
-            description: provento.description,
-            amount: provento.totalValue.toFixed(2),
-            incomeDate: provento.paymentDate,
-            category: provento.ticker,
-          });
+          // Verificar se já existe provento com mesma data, tipo e valor
+          const existing = await db.select().from(receivedIncomes).where(
+            and(
+              eq(receivedIncomes.userId, ctx.user.id),
+              eq(receivedIncomes.type, provento.type),
+              eq(receivedIncomes.amount, provento.totalValue.toFixed(2)),
+              eq(receivedIncomes.incomeDate, provento.paymentDate)
+            )
+          ).limit(1);
+          
+          if (existing.length === 0) {
+            await db.insert(receivedIncomes).values({
+              userId: ctx.user.id,
+              statementId,
+              type: provento.type,
+              description: provento.description,
+              amount: provento.totalValue.toFixed(2),
+              incomeDate: provento.paymentDate,
+              category: provento.ticker,
+            });
+            proventosInseridos++;
+          } else {
+            proventosDuplicados++;
+          }
         }
 
-        // Inserir aportes
+        // Inserir aportes (verificar duplicatas)
+        let aportesInseridos = 0;
+        let aportesDuplicados = 0;
         for (const deposit of deposits) {
-          await db.insert(cashDeposits).values({
-            userId: ctx.user.id,
-            statementId,
-            description: deposit.description,
-            amount: deposit.amount.toFixed(2),
-            depositDate: deposit.depositDate,
-            category: deposit.category,
-          });
+          // Verificar se já existe aporte com mesma data e valor
+          const existing = await db.select().from(cashDeposits).where(
+            and(
+              eq(cashDeposits.userId, ctx.user.id),
+              eq(cashDeposits.amount, deposit.amount.toFixed(2)),
+              eq(cashDeposits.depositDate, deposit.depositDate)
+            )
+          ).limit(1);
+          
+          if (existing.length === 0) {
+            await db.insert(cashDeposits).values({
+              userId: ctx.user.id,
+              statementId,
+              description: deposit.description,
+              amount: deposit.amount.toFixed(2),
+              depositDate: deposit.depositDate,
+              category: deposit.category,
+            });
+            aportesInseridos++;
+          } else {
+            aportesDuplicados++;
+          }
         }
 
         // Criar reconciliação
@@ -238,6 +271,10 @@ export const cashRouter = router({
 
         return {
           success: true,
+          proventosInseridos,
+          proventosDuplicados,
+          aportesInseridos,
+          aportesDuplicados,
           statementId,
           proventosCount: proventos.length,
           depositsCount: deposits.length,

@@ -292,3 +292,10 @@
 - [x] Suportar privacy mode (blur de valores)
 - [x] pnpm build sem erros (TypeScript: 0 erros)
 - [x] 110 testes vitest passando
+
+## Correção Bug Exclusão Patrimônio (Sprint atual - CONCLUÍDO)
+- [x] Identificar causa: listAssets e listLiabilities não filtravam isActive = 1
+- [x] Corrigir listAssets: adicionar filtro and(userId, isActive = 1)
+- [x] Corrigir listLiabilities: adicionar filtro and(userId, isActive = 1)
+- [x] Atualizar teste deleteAsset: expect(deleted).toBeUndefined() em vez de expect(isActive).toBe(0)
+- [x] 110 testes vitest passando

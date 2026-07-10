@@ -21,7 +21,12 @@ export const patrimonialRouter = router({
     const assets = await db
       .select()
       .from(patrimonialAssets)
-      .where(eq(patrimonialAssets.userId, ctx.user.id))
+      .where(
+        and(
+          eq(patrimonialAssets.userId, ctx.user.id),
+          eq(patrimonialAssets.isActive, 1)
+        )
+      )
       .orderBy(patrimonialAssets.createdAt);
 
     return assets.map((a) => ({
@@ -145,7 +150,12 @@ export const patrimonialRouter = router({
     const liabilities = await db
       .select()
       .from(patrimonialLiabilities)
-      .where(eq(patrimonialLiabilities.userId, ctx.user.id))
+      .where(
+        and(
+          eq(patrimonialLiabilities.userId, ctx.user.id),
+          eq(patrimonialLiabilities.isActive, 1)
+        )
+      )
       .orderBy(patrimonialLiabilities.createdAt);
 
     return liabilities.map((l) => ({

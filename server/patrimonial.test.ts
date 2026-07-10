@@ -238,7 +238,7 @@ describe("patrimonial router", () => {
   });
 
   describe("deleteAsset", () => {
-    it("deve marcar ativo como inativo (soft delete)", async () => {
+    it("deve marcar ativo como inativo (soft delete) e removê-lo da listagem", async () => {
       // Criar ativo
       const assetResult = await caller.patrimonial.createAsset({
         name: "Ativo a deletar",
@@ -252,10 +252,10 @@ describe("patrimonial router", () => {
       const deleteResult = await caller.patrimonial.deleteAsset({ id: assetId });
       expect(deleteResult.success).toBe(true);
 
-      // Verificar que não aparece mais na lista (isActive = 0)
+      // Verificar que não aparece mais na lista (filtrado por isActive = 1)
       const assets = await caller.patrimonial.listAssets();
       const deleted = assets.find((a) => a.id === assetId);
-      expect(deleted?.isActive).toBe(0);
+      expect(deleted).toBeUndefined();
     });
   });
 });

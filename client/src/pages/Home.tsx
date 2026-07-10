@@ -387,8 +387,10 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          {/* Rent. Hoje */}
-          <PerformanceCard />
+          {/* Rent. Hoje — ocupa 2 colunas no mobile, 1 no desktop */}
+          <div className="col-span-2 lg:col-span-1">
+            <PerformanceCard />
+          </div>
         </div>
 
         {/* Summary Cards — linha 2: Alavancagem + Rent. Mês + Caixa (mesma altura) */}

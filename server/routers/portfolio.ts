@@ -16,6 +16,7 @@ import {
   createTransaction,
   deleteTransaction,
   recalculateAsset,
+  updateAssetPrice,
   createEvent,
   getEventsByUser,
   getEventsByAsset,
@@ -82,6 +83,32 @@ export const portfolioRouter = router({
     .mutation(async ({ ctx, input }) => {
       await deleteAsset(input.assetId, ctx.user.id);
       return { success: true };
+    }),
+
+  /**
+   * Atualiza manualmente o preço de um ativo cujo preço não é obtido automaticamente.
+   * Restrito a classes que não possuem cotacao automática: fundos e renda_fixa.
+   */
+  updateManualPrice: protectedProcedure
+    .input(
+      z.object({
+        assetId: z.number(),
+        newPrice: z.number().positive(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Verificar que o ativo pertence ao usuário e é de classe manual
+      const asset = await getAssetById(input.assetId, ctx.user.id);
+      if (!asset) throw new TRPCError({ code: "NOT_FOUND", message: "Ativo não encontrado" });
+      const MANUAL_CLASSES = ["fundos", "renda_fixa"];
+      if (!MANUAL_CLASSES.includes(asset.assetClass)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Apenas Fundos e Renda Fixa suportam atualização manual de preço",
+        });
+      }
+      await updateAssetPrice(input.assetId, input.newPrice.toFixed(8));
+      return { success: true, assetId: input.assetId, newPrice: input.newPrice };
     }),
 
   // ========== TRANSACTIONS ==========

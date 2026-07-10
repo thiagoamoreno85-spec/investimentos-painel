@@ -1,11 +1,19 @@
 import { useMemo, useState, useCallback } from "react";
-import { ArrowUpDown, ChevronUp, ChevronDown } from "lucide-react";
+import { ArrowUpDown, ChevronUp, ChevronDown, Pencil } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { portfolioData } from "@/lib/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   ArrowUpRight,
   ArrowDownRight,
@@ -20,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import {
   ASSET_CLASS_LABELS,
   CLASS_CURRENCY,
@@ -32,7 +41,8 @@ interface ClassGroup {
   totalValue: number;
   percentage: number;
   assets: {
-    id: string;
+    id: string;       // ticker
+    dbId: number;     // id do banco de dados (para mutations)
     name: string;
     position: number;
     cost: number;
@@ -41,6 +51,7 @@ interface ClassGroup {
     profit: number;
     profitPercentage: number;
     currency: string;
+    assetClass: string;
   }[];
 }
 
@@ -55,6 +66,61 @@ export default function Alocacao() {
   const hasDbData = dbAssets && dbAssets.length > 0;
   const cashBalance = Number(cashData?.balance ?? 0);
   const [search, setSearch] = useState("");
+
+  // Estado do modal de edição manual de preço
+  const [editDialog, setEditDialog] = useState<{
+    open: boolean;
+    assetId: number;
+    ticker: string;
+    name: string;
+    currentPrice: number;
+    currency: string;
+  }>({
+    open: false,
+    assetId: 0,
+    ticker: "",
+    name: "",
+    currentPrice: 0,
+    currency: "BRL",
+  });
+  const [newPriceInput, setNewPriceInput] = useState("");
+
+  const utils = trpc.useUtils();
+  const updateManualPrice = trpc.portfolio.updateManualPrice.useMutation({
+    onSuccess: () => {
+      utils.portfolio.getAssets.invalidate();
+      utils.portfolio.getPerformance.invalidate();
+      toast.success("Preço atualizado com sucesso");
+      setEditDialog((prev) => ({ ...prev, open: false }));
+      setNewPriceInput("");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Erro ao atualizar preço");
+    },
+  });
+
+  const MANUAL_CLASSES = ["fundos", "renda_fixa"];
+
+  function openEditDialog(asset: ClassGroup["assets"][0]) {
+    setNewPriceInput(asset.price.toFixed(2).replace(".", ","));
+    setEditDialog({
+      open: true,
+      assetId: asset.dbId,
+      ticker: asset.id,
+      name: asset.name,
+      currentPrice: asset.price,
+      currency: asset.currency,
+    });
+  }
+
+  function handleSaveManualPrice() {
+    const parsed = parseFloat(newPriceInput.replace(",", "."));
+    if (isNaN(parsed) || parsed <= 0) {
+      toast.error("Informe um valor válido maior que zero");
+      return;
+    }
+    updateManualPrice.mutate({ assetId: editDialog.assetId, newPrice: parsed });
+  }
 
   // Ordenação da tabela
   type SortKey = "name" | "totalValue" | "profit" | "profitPercentage" | "todayBRL" | "todayPct";
@@ -122,6 +188,7 @@ export default function Alocacao() {
 
         group.assets.push({
           id: asset.ticker,
+          dbId: asset.id,
           name: asset.name || asset.ticker,
           position: qty,
           cost: avgCost,
@@ -130,6 +197,7 @@ export default function Alocacao() {
           profit,
           profitPercentage: profitPct,
           currency,
+          assetClass: asset.assetClass,
         });
       }
 
@@ -156,6 +224,8 @@ export default function Alocacao() {
       ...cat,
       assets: cat.assets.map((a) => ({
         ...a,
+        dbId: 0,
+        assetClass: cat.id,
         currency: CLASS_CURRENCY[cat.id] || "BRL",
       })),
     }));
@@ -538,7 +608,18 @@ export default function Alocacao() {
                                         </td>
                                         {/* Preço */}
                                         <td className={`px-1 md:px-3 py-2.5 text-right font-mono text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
-                                          {formatCurrency(asset.price, asset.currency)}
+                                          <span className="flex items-center justify-end gap-1">
+                                            {formatCurrency(asset.price, asset.currency)}
+                                            {MANUAL_CLASSES.includes(asset.assetClass) && asset.dbId > 0 && (
+                                              <button
+                                                onClick={() => openEditDialog(asset)}
+                                                className="ml-0.5 p-0.5 rounded text-muted-foreground/50 hover:text-amber-400 hover:bg-amber-400/10 transition-colors"
+                                                title="Atualizar preço manualmente"
+                                              >
+                                                <Pencil className="h-2.5 w-2.5" />
+                                              </button>
+                                            )}
+                                          </span>
                                         </td>
                                         {/* Total */}
                                         <td className={`px-1 md:px-3 py-2.5 text-right font-mono font-medium text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
@@ -629,6 +710,56 @@ export default function Alocacao() {
           </Tabs>
         )}
       </div>
+      {/* ── Dialog: Atualização Manual de Preço ── */}
+      <Dialog open={editDialog.open} onOpenChange={(open) => setEditDialog((prev) => ({ ...prev, open }))}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-4 w-4 text-amber-400" />
+              Atualizar Preço Manualmente
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <p className="text-sm font-medium">{editDialog.name}</p>
+              <p className="text-xs text-muted-foreground font-mono">{editDialog.ticker}</p>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Preço atual</span>
+              <span className="font-mono font-medium">{formatCurrency(editDialog.currentPrice, editDialog.currency)}</span>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="new-price">Novo valor ({editDialog.currency})</Label>
+              <Input
+                id="new-price"
+                value={newPriceInput}
+                onChange={(e) => setNewPriceInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSaveManualPrice()}
+                placeholder="Ex: 1.234,56"
+                className="font-mono"
+                autoFocus
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Informe o valor unitário da cota/título. Use vírgula ou ponto como decimal.
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setEditDialog((prev) => ({ ...prev, open: false }))}>
+              Cancelar
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSaveManualPrice}
+              disabled={updateManualPrice.isPending}
+              className="gap-1.5"
+            >
+              {updateManualPrice.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

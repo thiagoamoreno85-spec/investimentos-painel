@@ -299,3 +299,11 @@
 - [x] Corrigir listLiabilities: adicionar filtro and(userId, isActive = 1)
 - [x] Atualizar teste deleteAsset: expect(deleted).toBeUndefined() em vez de expect(isActive).toBe(0)
 - [x] 110 testes vitest passando
+
+## Edição Manual de Preço — Fundos e Renda Fixa (Sprint atual - CONCLUÍDO)
+- [x] Backend: procedure updateManualPrice (restrita a fundos e renda_fixa, validação de ownership)
+- [x] Frontend: ícone lápis (Pencil) na coluna Preço para ativos de classes manuais
+- [x] Dialog de edição com campo de valor, preço atual e botão Salvar
+- [x] Invalidação automática de getAssets e getPerformance após salvar
+- [x] Toast de sucesso/erro
+- [x] 110 testes vitest passando

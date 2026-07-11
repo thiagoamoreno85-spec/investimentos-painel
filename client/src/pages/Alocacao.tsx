@@ -526,15 +526,15 @@ export default function Alocacao() {
                             <div className="flex-shrink-0 bg-secondary">
                               <table className="w-full text-sm text-left table-fixed">
                                 <colgroup>
-                                  {/* mobile: Ativo 38% | Total 28% | L/P 20% | Hoje 14% */}
+                                  {/* mobile: Ativo 32% | Qtd 14% | Total 24% | L/P 18% | Hoje 12% */}
                                   {/* sm+:    Ativo 25% | Qtd 8% | Custo 14% | Preço 12% | Total 16% | L/P 14% | Hoje 11% */}
-                                  <col className="w-[38%] sm:w-[25%]" />
-                                  <col className="hidden sm:table-column sm:w-[8%]" />
+                                  <col className="w-[32%] sm:w-[25%]" />
+                                  <col className="w-[14%] sm:w-[8%]" />
                                   <col className="hidden sm:table-column sm:w-[14%]" />
                                   <col className="hidden sm:table-column sm:w-[12%]" />
-                                  <col className="w-[28%] sm:w-[16%]" />
-                                  <col className="w-[20%] sm:w-[14%]" />
-                                  <col className="w-[14%] sm:w-[11%]" />
+                                  <col className="w-[24%] sm:w-[16%]" />
+                                  <col className="w-[18%] sm:w-[14%]" />
+                                  <col className="w-[12%] sm:w-[11%]" />
                                 </colgroup>
                                 <thead>
                                   <tr className="text-muted-foreground">
@@ -544,7 +544,7 @@ export default function Alocacao() {
                                     >
                                       <span className="flex items-center gap-0.5">Ativo <SortIcon col="name" /></span>
                                     </th>
-                                    <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs hidden sm:table-cell">Qtd</th>
+                                    <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs">Qtd</th>
                                     <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs hidden sm:table-cell">Custo Médio</th>
                                     <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs hidden sm:table-cell">Preço</th>
                                     <th
@@ -574,13 +574,13 @@ export default function Alocacao() {
                             <ScrollArea className="flex-1 min-h-0">
                               <table className="w-full text-sm text-left table-fixed">
                                 <colgroup>
-                                  <col className="w-[38%] sm:w-[25%]" />
-                                  <col className="hidden sm:table-column sm:w-[8%]" />
+                                  <col className="w-[32%] sm:w-[25%]" />
+                                  <col className="w-[14%] sm:w-[8%]" />
                                   <col className="hidden sm:table-column sm:w-[14%]" />
                                   <col className="hidden sm:table-column sm:w-[12%]" />
-                                  <col className="w-[28%] sm:w-[16%]" />
-                                  <col className="w-[20%] sm:w-[14%]" />
-                                  <col className="w-[14%] sm:w-[11%]" />
+                                  <col className="w-[24%] sm:w-[16%]" />
+                                  <col className="w-[18%] sm:w-[14%]" />
+                                  <col className="w-[12%] sm:w-[11%]" />
                                 </colgroup>
                                 <tbody className="divide-y divide-border/50">
                                   {filteredAssets.map((asset) => {
@@ -596,8 +596,8 @@ export default function Alocacao() {
                                           <span className="sm:hidden font-mono">{asset.id}</span>
                                           <span className="hidden sm:inline">{asset.name}</span>
                                         </td>
-                                        {/* Qtd — oculto no mobile */}
-                                        <td className="px-1 md:px-3 py-2.5 text-right font-mono text-xs text-muted-foreground hidden sm:table-cell">
+                                        {/* Qtd — visível no mobile */}
+                                        <td className="px-1 md:px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
                                           {asset.position < 1
                                             ? asset.position.toFixed(4)
                                             : asset.position % 1 === 0

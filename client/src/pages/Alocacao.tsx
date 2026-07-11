@@ -521,7 +521,109 @@ export default function Alocacao() {
                       ) : (
                         <>
                           {/* ── Tabela: thead sticky, tbody scroll ── */}
-                          <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-border/30">
+                          {/* Fundos e Renda Fixa: colunas Ativo | Qtd | Preço Unitário | Total | L/P (sem Hoje) */}
+                          {/* Demais classes: Ativo | Qtd | Custo Médio | Preço | Total | L/P | Hoje */}
+                          {MANUAL_CLASSES.includes(category.id) ? (
+                            /* ═══════════════ TABELA MANUAL (Fundos / Renda Fixa) ═══════════════ */
+                            <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-border/30">
+                              <div className="flex-shrink-0 bg-secondary">
+                                <table className="w-full text-sm text-left table-fixed">
+                                  <colgroup>
+                                    {/* Ativo 35% | Qtd 15% | Preço 20% | Total 18% | L/P 12% */}
+                                    <col className="w-[35%]" />
+                                    <col className="w-[15%]" />
+                                    <col className="w-[20%]" />
+                                    <col className="w-[18%]" />
+                                    <col className="w-[12%]" />
+                                  </colgroup>
+                                  <thead>
+                                    <tr className="text-muted-foreground">
+                                      <th className="px-2 md:px-4 py-2.5 font-medium text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("name")}>
+                                        <span className="flex items-center gap-0.5">Ativo <SortIcon col="name" /></span>
+                                      </th>
+                                      <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs">Qtd</th>
+                                      <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs text-amber-400">
+                                        Preço Unit.
+                                      </th>
+                                      <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("totalValue")}>
+                                        <span className="flex items-center justify-end gap-0.5">Total <SortIcon col="totalValue" /></span>
+                                      </th>
+                                      <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("profitPercentage")}>
+                                        <span className="flex items-center justify-end gap-0.5">L/P <SortIcon col="profitPercentage" /></span>
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                </table>
+                              </div>
+                              <ScrollArea className="flex-1 min-h-0">
+                                <table className="w-full text-sm text-left table-fixed">
+                                  <colgroup>
+                                    <col className="w-[35%]" />
+                                    <col className="w-[15%]" />
+                                    <col className="w-[20%]" />
+                                    <col className="w-[18%]" />
+                                    <col className="w-[12%]" />
+                                  </colgroup>
+                                  <tbody className="divide-y divide-border/50">
+                                    {filteredAssets.map((asset) => (
+                                      <tr key={asset.id} className="hover:bg-secondary/20 transition-colors">
+                                        {/* Ativo */}
+                                        <td className="px-2 md:px-4 py-2.5 font-medium text-xs md:text-sm">
+                                          <span className="sm:hidden font-mono">{asset.id}</span>
+                                          <span className="hidden sm:inline">{asset.name}</span>
+                                        </td>
+                                        {/* Qtd */}
+                                        <td className="px-1 md:px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
+                                          {asset.position < 1
+                                            ? asset.position.toFixed(4)
+                                            : asset.position % 1 === 0
+                                            ? asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
+                                            : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
+                                        </td>
+                                        {/* Preço Unitário — editável */}
+                                        <td className={`px-1 md:px-3 py-2.5 text-right font-mono text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                          <span className="flex items-center justify-end gap-1">
+                                            {formatCurrency(asset.price, asset.currency)}
+                                            {asset.dbId > 0 && (
+                                              <button
+                                                onClick={() => openEditDialog(asset)}
+                                                className="ml-0.5 p-0.5 rounded text-amber-400/60 hover:text-amber-400 hover:bg-amber-400/10 transition-colors"
+                                                title="Atualizar preço manualmente"
+                                              >
+                                                <Pencil className="h-2.5 w-2.5" />
+                                              </button>
+                                            )}
+                                          </span>
+                                        </td>
+                                        {/* Total */}
+                                        <td className={`px-1 md:px-3 py-2.5 text-right font-mono font-medium text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                          <span className="sm:hidden">{formatBRLCompact(asset.totalValue)}</span>
+                                          <span className="hidden sm:inline">{formatBRL(asset.totalValue)}</span>
+                                        </td>
+                                        {/* L/P */}
+                                        <td className="px-1 md:px-3 py-2.5 text-right text-xs">
+                                          <div className={`flex items-center justify-end gap-0.5 font-mono ${
+                                            asset.profit >= 0 ? "text-emerald-500" : "text-red-400"
+                                          } transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                            {asset.profit >= 0 ? <ArrowUpRight className="h-3 w-3 shrink-0" /> : <ArrowDownRight className="h-3 w-3 shrink-0" />}
+                                            <span className="sm:hidden">
+                                              {asset.profitPercentage >= 0 ? "+" : ""}{asset.profitPercentage.toFixed(1)}%
+                                            </span>
+                                            <span className="hidden sm:inline">
+                                              {formatBRL(Math.abs(asset.profit))}
+                                              <span className="text-xs ml-1 opacity-80">({asset.profitPercentage.toFixed(1)}%)</span>
+                                            </span>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </ScrollArea>
+                            </div>
+                          ) : (
+                            /* ═══════════════ TABELA AUTO (RV, Cripto, etc.) ═══════════════ */
+                            <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-border/30">
                             {/* thead fixo fora do scroll */}
                             <div className="flex-shrink-0 bg-secondary">
                               <table className="w-full text-sm text-left table-fixed">
@@ -570,7 +672,7 @@ export default function Alocacao() {
                               </table>
                             </div>
 
-                            {/* tbody scrollável */}
+                            {/* tbody scrolável */}
                             <ScrollArea className="flex-1 min-h-0">
                               <table className="w-full text-sm text-left table-fixed">
                                 <colgroup>
@@ -612,15 +714,6 @@ export default function Alocacao() {
                                         <td className={`px-1 md:px-3 py-2.5 text-right font-mono text-xs transition-all duration-200 hidden sm:table-cell ${!showBalances ? "blur-sm select-none" : ""}`}>
                                           <span className="flex items-center justify-end gap-1">
                                             {formatCurrency(asset.price, asset.currency)}
-                                            {MANUAL_CLASSES.includes(asset.assetClass) && asset.dbId > 0 && (
-                                              <button
-                                                onClick={() => openEditDialog(asset)}
-                                                className="ml-0.5 p-0.5 rounded text-muted-foreground/50 hover:text-amber-400 hover:bg-amber-400/10 transition-colors"
-                                                title="Atualizar preço manualmente"
-                                              >
-                                                <Pencil className="h-2.5 w-2.5" />
-                                              </button>
-                                            )}
                                           </span>
                                         </td>
                                         {/* Total */}
@@ -677,6 +770,7 @@ export default function Alocacao() {
                               </table>
                             </ScrollArea>
                           </div>
+                          )}
 
                           {/* ── Rodapé fixo: total diário da classe ── */}
                           <div className="flex-shrink-0 border-t border-border/50 bg-card/80 px-2 md:px-4 py-2.5 flex items-center justify-between gap-2">

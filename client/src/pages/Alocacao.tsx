@@ -628,15 +628,15 @@ export default function Alocacao() {
                             <div className="flex-shrink-0 bg-secondary">
                               <table className="w-full text-sm text-left table-fixed">
                                 <colgroup>
-                                  {/* mobile: Ativo 28% | Qtd 12% | Preço 18% | Total 20% | L/P 14% | Hoje 8% */}
-                                  {/* sm+:    Ativo 22% | Qtd 8% | Custo 13% | Preço 12% | Total 16% | L/P 18% | Hoje 11% */}
-                                  <col className="w-[28%] sm:w-[22%]" />
+                                  {/* mobile (5 cols): Ativo 30% | Qtd 12% | Preço 20% | Total 22% | L/P 16% */}
+                                  {/* sm+ (7 cols):    Ativo 22% | Qtd 8% | Custo 13% | Preço 12% | Total 16% | L/P 18% | Hoje 11% */}
+                                  <col className="w-[30%] sm:w-[22%]" />
                                   <col className="w-[12%] sm:w-[8%]" />
                                   <col className="hidden sm:table-column sm:w-[13%]" />
-                                  <col className="w-[18%] sm:w-[12%]" />
-                                  <col className="w-[20%] sm:w-[16%]" />
-                                  <col className="w-[14%] sm:w-[18%]" />
-                                  <col className="w-[8%] sm:w-[11%]" />
+                                  <col className="w-[20%] sm:w-[12%]" />
+                                  <col className="w-[22%] sm:w-[16%]" />
+                                  <col className="w-[16%] sm:w-[18%]" />
+                                  <col className="hidden sm:table-column sm:w-[11%]" />
                                 </colgroup>
                                 <thead>
                                   <tr className="text-muted-foreground">
@@ -662,7 +662,7 @@ export default function Alocacao() {
                                       <span className="flex items-center justify-end gap-0.5">L/P <SortIcon col="profitPercentage" /></span>
                                     </th>
                                     <th
-                                      className="px-1 md:px-3 py-2.5 font-medium text-right text-xs text-blue-400 cursor-pointer hover:text-blue-300 select-none"
+                                      className="px-1 md:px-3 py-2.5 font-medium text-right text-xs text-blue-400 cursor-pointer hover:text-blue-300 select-none hidden sm:table-cell"
                                       onClick={() => handleSort("todayPct")}
                                     >
                                       <span className="flex items-center justify-end gap-0.5">Hoje <SortIcon col="todayPct" /></span>
@@ -676,13 +676,13 @@ export default function Alocacao() {
                             <ScrollArea className="flex-1 min-h-0">
                               <table className="w-full text-sm text-left table-fixed">
                                 <colgroup>
-                                  <col className="w-[28%] sm:w-[22%]" />
+                                  <col className="w-[30%] sm:w-[22%]" />
                                   <col className="w-[12%] sm:w-[8%]" />
                                   <col className="hidden sm:table-column sm:w-[13%]" />
-                                  <col className="w-[18%] sm:w-[12%]" />
-                                  <col className="w-[20%] sm:w-[16%]" />
-                                  <col className="w-[14%] sm:w-[18%]" />
-                                  <col className="w-[8%] sm:w-[11%]" />
+                                  <col className="w-[20%] sm:w-[12%]" />
+                                  <col className="w-[22%] sm:w-[16%]" />
+                                  <col className="w-[16%] sm:w-[18%]" />
+                                  <col className="hidden sm:table-column sm:w-[11%]" />
                                 </colgroup>
                                 <tbody className="divide-y divide-border/50">
                                   {filteredAssets.map((asset) => {
@@ -743,8 +743,8 @@ export default function Alocacao() {
                                             </span>
                                           </div>
                                         </td>
-                                        {/* Hoje */}
-                                        <td className="px-1 md:px-3 py-2.5 text-right text-xs">
+                                        {/* Hoje — oculto no mobile */}
+                                        <td className="px-1 md:px-3 py-2.5 text-right text-xs hidden sm:table-cell">
                                           {daily ? (
                                             <div
                                               className={`flex flex-col items-end gap-0 font-mono transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}
@@ -753,8 +753,7 @@ export default function Alocacao() {
                                                 {formatPct(daily.changePct)}
                                               </span>
                                               <span className={`text-[10px] opacity-80 ${isUp ? "text-emerald-400" : "text-red-400"}`}>
-                                                <span className="sm:hidden">{formatBRLCompact(daily.changeBRL)}</span>
-                                                <span className="hidden sm:inline">{formatBRL(daily.changeBRL)}</span>
+                                                {formatBRL(daily.changeBRL)}
                                               </span>
                                             </div>
                                           ) : (

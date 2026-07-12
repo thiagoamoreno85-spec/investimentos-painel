@@ -625,44 +625,43 @@ export default function Alocacao() {
                             /* ═══════════════ TABELA AUTO (RV, Cripto, etc.) ═══════════════ */
                             <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-border/30">
                             {/* thead fixo fora do scroll */}
-                            <div className="flex-shrink-0 bg-secondary">
-                              <table className="w-full text-sm text-left table-fixed">
+                            <div className="flex-shrink-0 bg-secondary overflow-x-auto">
+                              <table className="w-full min-w-[520px] text-sm text-left">
                                 <colgroup>
-                                  {/* mobile (5 cols): Ativo 30% | Qtd 12% | Preço 20% | Total 22% | L/P 16% */}
-                                  {/* sm+ (7 cols):    Ativo 22% | Qtd 8% | Custo 13% | Preço 12% | Total 16% | L/P 18% | Hoje 11% */}
-                                  <col className="w-[30%] sm:w-[22%]" />
-                                  <col className="w-[12%] sm:w-[8%]" />
-                                  <col className="hidden sm:table-column sm:w-[13%]" />
-                                  <col className="w-[20%] sm:w-[12%]" />
-                                  <col className="w-[22%] sm:w-[16%]" />
-                                  <col className="w-[16%] sm:w-[18%]" />
-                                  <col className="hidden sm:table-column sm:w-[11%]" />
+                                  {/* Ativo 22% | Qtd 10% | Custo 13% | Preço 13% | Total 16% | L/P 17% | Hoje 9% */}
+                                  <col style={{width:'22%'}} />
+                                  <col style={{width:'10%'}} />
+                                  <col className="hidden sm:table-column" style={{width:'13%'}} />
+                                  <col style={{width:'13%'}} />
+                                  <col style={{width:'16%'}} />
+                                  <col style={{width:'17%'}} />
+                                  <col style={{width:'9%'}} />
                                 </colgroup>
                                 <thead>
                                   <tr className="text-muted-foreground">
                                     <th
-                                      className="px-2 md:px-4 py-2.5 font-medium text-xs cursor-pointer hover:text-foreground select-none"
+                                      className="px-2 py-2.5 font-medium text-xs cursor-pointer hover:text-foreground select-none"
                                       onClick={() => handleSort("name")}
                                     >
                                       <span className="flex items-center gap-0.5">Ativo <SortIcon col="name" /></span>
                                     </th>
-                                    <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs">Qtd</th>
-                                    <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs hidden sm:table-cell">Custo Médio</th>
-                                    <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs">Preço Unit.</th>
+                                    <th className="px-1 py-2.5 font-medium text-right text-xs">Qtd</th>
+                                    <th className="px-1 py-2.5 font-medium text-right text-xs hidden sm:table-cell">Custo Méd.</th>
+                                    <th className="px-1 py-2.5 font-medium text-right text-xs">Preço</th>
                                     <th
-                                      className="px-1 md:px-3 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none"
+                                      className="px-1 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none"
                                       onClick={() => handleSort("totalValue")}
                                     >
                                       <span className="flex items-center justify-end gap-0.5">Total <SortIcon col="totalValue" /></span>
                                     </th>
                                     <th
-                                      className="px-1 md:px-3 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none"
+                                      className="px-1 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none"
                                       onClick={() => handleSort("profitPercentage")}
                                     >
                                       <span className="flex items-center justify-end gap-0.5">L/P <SortIcon col="profitPercentage" /></span>
                                     </th>
                                     <th
-                                      className="px-1 md:px-3 py-2.5 font-medium text-right text-xs text-blue-400 cursor-pointer hover:text-blue-300 select-none hidden sm:table-cell"
+                                      className="px-1 py-2.5 font-medium text-right text-xs text-blue-400 cursor-pointer hover:text-blue-300 select-none"
                                       onClick={() => handleSort("todayPct")}
                                     >
                                       <span className="flex items-center justify-end gap-0.5">Hoje <SortIcon col="todayPct" /></span>
@@ -674,15 +673,16 @@ export default function Alocacao() {
 
                             {/* tbody scrolável */}
                             <ScrollArea className="flex-1 min-h-0">
-                              <table className="w-full text-sm text-left table-fixed">
+                              <div className="overflow-x-auto">
+                              <table className="w-full min-w-[520px] text-sm text-left">
                                 <colgroup>
-                                  <col className="w-[30%] sm:w-[22%]" />
-                                  <col className="w-[12%] sm:w-[8%]" />
-                                  <col className="hidden sm:table-column sm:w-[13%]" />
-                                  <col className="w-[20%] sm:w-[12%]" />
-                                  <col className="w-[22%] sm:w-[16%]" />
-                                  <col className="w-[16%] sm:w-[18%]" />
-                                  <col className="hidden sm:table-column sm:w-[11%]" />
+                                  <col style={{width:'22%'}} />
+                                  <col style={{width:'10%'}} />
+                                  <col className="hidden sm:table-column" style={{width:'13%'}} />
+                                  <col style={{width:'13%'}} />
+                                  <col style={{width:'16%'}} />
+                                  <col style={{width:'17%'}} />
+                                  <col style={{width:'9%'}} />
                                 </colgroup>
                                 <tbody className="divide-y divide-border/50">
                                   {filteredAssets.map((asset) => {
@@ -694,12 +694,11 @@ export default function Alocacao() {
                                         className="hover:bg-secondary/20 transition-colors"
                                       >
                                         {/* Ativo */}
-                                        <td className="px-2 md:px-4 py-2.5 font-medium text-xs md:text-sm">
-                                          <span className="sm:hidden font-mono">{asset.id}</span>
-                                          <span className="hidden sm:inline">{asset.name}</span>
+                                        <td className="px-2 py-2.5 font-medium text-xs">
+                                          <span className="font-mono">{asset.id}</span>
                                         </td>
                                         {/* Qtd */}
-                                        <td className="px-1 md:px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
+                                        <td className="px-1 py-2.5 text-right font-mono text-xs text-muted-foreground">
                                           {asset.position < 1
                                             ? asset.position.toFixed(4)
                                             : asset.position % 1 === 0
@@ -707,20 +706,19 @@ export default function Alocacao() {
                                             : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
                                         </td>
                                         {/* Custo Médio — oculto no mobile */}
-                                        <td className={`px-1 md:px-3 py-2.5 text-right font-mono text-xs text-muted-foreground hidden sm:table-cell transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                        <td className={`px-1 py-2.5 text-right font-mono text-xs text-muted-foreground hidden sm:table-cell transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                           {formatCurrency(asset.cost, asset.currency)}
                                         </td>
-                                        {/* Preço Unitário — visível no mobile */}
-                                        <td className={`px-1 md:px-3 py-2.5 text-right font-mono text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                        {/* Preço Unitário */}
+                                        <td className={`px-1 py-2.5 text-right font-mono text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                           {formatCurrency(asset.price, asset.currency)}
                                         </td>
                                         {/* Total */}
-                                        <td className={`px-1 md:px-3 py-2.5 text-right font-mono font-medium text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
-                                          <span className="sm:hidden">{formatBRLCompact(asset.totalValue)}</span>
-                                          <span className="hidden sm:inline">{formatBRL(asset.totalValue)}</span>
+                                        <td className={`px-1 py-2.5 text-right font-mono font-medium text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                          {formatBRLCompact(asset.totalValue)}
                                         </td>
                                         {/* L/P */}
-                                        <td className="px-1 md:px-3 py-2.5 text-right text-xs">
+                                        <td className="px-1 py-2.5 text-right text-xs">
                                           <div
                                             className={`flex items-center justify-end gap-0.5 font-mono ${
                                               asset.profit >= 0 ? "text-emerald-500" : "text-red-400"
@@ -731,29 +729,20 @@ export default function Alocacao() {
                                             ) : (
                                               <ArrowDownRight className="h-3 w-3 shrink-0" />
                                             )}
-                                            <span className="sm:hidden">
+                                            <span>
                                               {asset.profitPercentage >= 0 ? "+" : ""}
                                               {asset.profitPercentage.toFixed(1)}%
                                             </span>
-                                            <span className="hidden sm:inline">
-                                              {formatBRL(Math.abs(asset.profit))}
-                                              <span className="text-xs ml-1 opacity-80">
-                                                ({asset.profitPercentage.toFixed(1)}%)
-                                              </span>
-                                            </span>
                                           </div>
                                         </td>
-                                        {/* Hoje — oculto no mobile */}
-                                        <td className="px-1 md:px-3 py-2.5 text-right text-xs hidden sm:table-cell">
+                                        {/* Hoje */}
+                                        <td className="px-1 py-2.5 text-right text-xs">
                                           {daily ? (
                                             <div
                                               className={`flex flex-col items-end gap-0 font-mono transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}
                                             >
-                                              <span className={`font-semibold ${isUp ? "text-emerald-400" : "text-red-400"}`}>
+                                              <span className={`font-semibold text-[11px] ${isUp ? "text-emerald-400" : "text-red-400"}`}>
                                                 {formatPct(daily.changePct)}
-                                              </span>
-                                              <span className={`text-[10px] opacity-80 ${isUp ? "text-emerald-400" : "text-red-400"}`}>
-                                                {formatBRL(daily.changeBRL)}
                                               </span>
                                             </div>
                                           ) : (
@@ -765,6 +754,7 @@ export default function Alocacao() {
                                   })}
                                 </tbody>
                               </table>
+                              </div>
                             </ScrollArea>
                           </div>
                           )}

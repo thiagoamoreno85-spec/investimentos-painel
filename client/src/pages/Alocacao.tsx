@@ -526,62 +526,64 @@ export default function Alocacao() {
                           {MANUAL_CLASSES.includes(category.id) ? (
                             /* ═══════════════ TABELA MANUAL (Fundos / Renda Fixa) ═══════════════ */
                             <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-border/30">
-                              <div className="flex-shrink-0 bg-secondary">
-                                <table className="w-full text-sm text-left table-fixed">
+                              {/* thead fixo */}
+                              <div className="flex-shrink-0 bg-secondary overflow-x-auto">
+                                <table className="w-full min-w-[420px] text-sm text-left">
                                   <colgroup>
-                                    {/* Ativo 35% | Qtd 15% | Preço 20% | Total 18% | L/P 12% */}
-                                    <col className="w-[35%]" />
-                                    <col className="w-[15%]" />
-                                    <col className="w-[20%]" />
-                                    <col className="w-[18%]" />
-                                    <col className="w-[12%]" />
+                                    {/* Ativo 28% | Qtd 12% | Preço Unit. 28% | Total 18% | L/P 14% */}
+                                    <col style={{width:'28%'}} />
+                                    <col style={{width:'12%'}} />
+                                    <col style={{width:'28%'}} />
+                                    <col style={{width:'18%'}} />
+                                    <col style={{width:'14%'}} />
                                   </colgroup>
                                   <thead>
                                     <tr className="text-muted-foreground">
-                                      <th className="px-2 md:px-4 py-2.5 font-medium text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("name")}>
+                                      <th className="px-2 py-2.5 font-medium text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("name")}>
                                         <span className="flex items-center gap-0.5">Ativo <SortIcon col="name" /></span>
                                       </th>
-                                      <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs">Qtd</th>
-                                      <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs text-amber-400">
-                                        Preço Unit.
-                                      </th>
-                                      <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("totalValue")}>
+                                      <th className="px-1 py-2.5 font-medium text-right text-xs">Qtd</th>
+                                      <th className="px-1 py-2.5 font-medium text-right text-xs text-amber-400">Preço Unit.</th>
+                                      <th className="px-1 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("totalValue")}>
                                         <span className="flex items-center justify-end gap-0.5">Total <SortIcon col="totalValue" /></span>
                                       </th>
-                                      <th className="px-1 md:px-3 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("profitPercentage")}>
+                                      <th className="px-1 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("profitPercentage")}>
                                         <span className="flex items-center justify-end gap-0.5">L/P <SortIcon col="profitPercentage" /></span>
                                       </th>
                                     </tr>
                                   </thead>
                                 </table>
                               </div>
+                              {/* tbody scrolável */}
                               <ScrollArea className="flex-1 min-h-0">
-                                <table className="w-full text-sm text-left table-fixed">
+                                <div className="overflow-x-auto">
+                                <table className="w-full min-w-[420px] text-sm text-left">
                                   <colgroup>
-                                    <col className="w-[35%]" />
-                                    <col className="w-[15%]" />
-                                    <col className="w-[20%]" />
-                                    <col className="w-[18%]" />
-                                    <col className="w-[12%]" />
+                                    <col style={{width:'28%'}} />
+                                    <col style={{width:'12%'}} />
+                                    <col style={{width:'28%'}} />
+                                    <col style={{width:'18%'}} />
+                                    <col style={{width:'14%'}} />
                                   </colgroup>
                                   <tbody className="divide-y divide-border/50">
                                     {filteredAssets.map((asset) => (
                                       <tr key={asset.id} className="hover:bg-secondary/20 transition-colors">
                                         {/* Ativo */}
-                                        <td className="px-2 md:px-4 py-2.5 font-medium text-xs md:text-sm">
-                                          <span className="sm:hidden font-mono">{asset.id}</span>
-                                          <span className="hidden sm:inline">{asset.name}</span>
+                                        <td className="px-2 py-2.5 font-medium text-xs">
+                                          <span className="font-mono">{asset.id}</span>
                                         </td>
                                         {/* Qtd */}
-                                        <td className="px-1 md:px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
-                                          {asset.position < 1
+                                        <td className="px-1 py-2.5 text-right font-mono text-xs text-muted-foreground">
+                                          {asset.position === 0 ? (
+                                            <span className="text-muted-foreground/50">—</span>
+                                          ) : asset.position < 1
                                             ? asset.position.toFixed(4)
                                             : asset.position % 1 === 0
                                             ? asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
                                             : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
                                         </td>
                                         {/* Preço Unitário — editável */}
-                                        <td className={`px-1 md:px-3 py-2.5 text-right font-mono text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                        <td className={`px-1 py-2.5 text-right font-mono text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                           <span className="flex items-center justify-end gap-1">
                                             {formatCurrency(asset.price, asset.currency)}
                                             {asset.dbId > 0 && (
@@ -596,22 +598,17 @@ export default function Alocacao() {
                                           </span>
                                         </td>
                                         {/* Total */}
-                                        <td className={`px-1 md:px-3 py-2.5 text-right font-mono font-medium text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
-                                          <span className="sm:hidden">{formatBRLCompact(asset.totalValue)}</span>
-                                          <span className="hidden sm:inline">{formatBRL(asset.totalValue)}</span>
+                                        <td className={`px-1 py-2.5 text-right font-mono font-medium text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                          {formatBRLCompact(asset.totalValue)}
                                         </td>
                                         {/* L/P */}
-                                        <td className="px-1 md:px-3 py-2.5 text-right text-xs">
+                                        <td className="px-1 py-2.5 text-right text-xs">
                                           <div className={`flex items-center justify-end gap-0.5 font-mono ${
                                             asset.profit >= 0 ? "text-emerald-500" : "text-red-400"
                                           } transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                             {asset.profit >= 0 ? <ArrowUpRight className="h-3 w-3 shrink-0" /> : <ArrowDownRight className="h-3 w-3 shrink-0" />}
-                                            <span className="sm:hidden">
+                                            <span>
                                               {asset.profitPercentage >= 0 ? "+" : ""}{asset.profitPercentage.toFixed(1)}%
-                                            </span>
-                                            <span className="hidden sm:inline">
-                                              {formatBRL(Math.abs(asset.profit))}
-                                              <span className="text-xs ml-1 opacity-80">({asset.profitPercentage.toFixed(1)}%)</span>
                                             </span>
                                           </div>
                                         </td>
@@ -619,6 +616,7 @@ export default function Alocacao() {
                                     ))}
                                   </tbody>
                                 </table>
+                                </div>
                               </ScrollArea>
                             </div>
                           ) : (

@@ -624,12 +624,12 @@ export default function Alocacao() {
                             <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-border/30">
                             {/* thead fixo fora do scroll */}
                             <div className="flex-shrink-0 bg-secondary overflow-x-auto">
-                              <table className="w-full min-w-[520px] text-sm text-left">
+                              <table className="w-full min-w-[600px] text-sm text-left">
                                 <colgroup>
                                   {/* Ativo 22% | Qtd 10% | Custo 13% | Preço 13% | Total 16% | L/P 17% | Hoje 9% */}
                                   <col style={{width:'22%'}} />
                                   <col style={{width:'10%'}} />
-                                  <col className="hidden sm:table-column" style={{width:'13%'}} />
+                                  <col style={{width:'13%'}} />
                                   <col style={{width:'13%'}} />
                                   <col style={{width:'16%'}} />
                                   <col style={{width:'17%'}} />
@@ -644,7 +644,7 @@ export default function Alocacao() {
                                       <span className="flex items-center gap-0.5">Ativo <SortIcon col="name" /></span>
                                     </th>
                                     <th className="px-1 py-2.5 font-medium text-right text-xs">Qtd</th>
-                                    <th className="px-1 py-2.5 font-medium text-right text-xs hidden sm:table-cell">Custo Méd.</th>
+                                    <th className="px-1 py-2.5 font-medium text-right text-xs">Custo Méd.</th>
                                     <th className="px-1 py-2.5 font-medium text-right text-xs">Preço</th>
                                     <th
                                       className="px-1 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none"
@@ -672,11 +672,11 @@ export default function Alocacao() {
                             {/* tbody scrolável */}
                             <ScrollArea className="flex-1 min-h-0">
                               <div className="overflow-x-auto">
-                              <table className="w-full min-w-[520px] text-sm text-left">
+                              <table className="w-full min-w-[600px] text-sm text-left">
                                 <colgroup>
                                   <col style={{width:'22%'}} />
                                   <col style={{width:'10%'}} />
-                                  <col className="hidden sm:table-column" style={{width:'13%'}} />
+                                  <col style={{width:'13%'}} />
                                   <col style={{width:'13%'}} />
                                   <col style={{width:'16%'}} />
                                   <col style={{width:'17%'}} />
@@ -703,8 +703,8 @@ export default function Alocacao() {
                                             ? asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
                                             : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
                                         </td>
-                                        {/* Custo Médio — oculto no mobile */}
-                                        <td className={`px-1 py-2.5 text-right font-mono text-xs text-muted-foreground hidden sm:table-cell transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                        {/* Custo Médio */}
+                                        <td className={`px-1 py-2.5 text-right font-mono text-xs text-muted-foreground transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                           {formatCurrency(asset.cost, asset.currency)}
                                         </td>
                                         {/* Preço Unitário */}

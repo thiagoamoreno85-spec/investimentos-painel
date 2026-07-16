@@ -43,6 +43,7 @@ import {
   Landmark,
   Package,
   MoreHorizontal,
+  Pencil,
 } from "lucide-react";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { toast } from "sonner";
@@ -100,6 +101,10 @@ export default function Patrimonio() {
 
   // Dialog state
   const [assetDialog, setAssetDialog] = useState(false);
+  const [editAssetDialog, setEditAssetDialog] = useState<{ open: boolean; asset: any | null }>({
+    open: false,
+    asset: null,
+  });
   const [paymentDialog, setPaymentDialog] = useState<{
     open: boolean;
     liabilityId: number;
@@ -393,6 +398,7 @@ export default function Patrimonio() {
                         totalDebt={totalDebt}
                         netValue={netValue}
                         showBalances={showBalances}
+                        onEdit={() => setEditAssetDialog({ open: true, asset })}
                         onDelete={() => deleteAsset.mutate({ id: asset.id })}
                         onDeleteLiability={(id) => deleteLiability.mutate({ id })}
                         onRegisterPayment={(liabilityId, name, balance) =>
@@ -458,6 +464,32 @@ export default function Patrimonio() {
         </DialogContent>
       </Dialog>
 
+      {/* ── Dialog: Editar Ativo ── */}
+      <Dialog
+        open={editAssetDialog.open}
+        onOpenChange={(open) => setEditAssetDialog((prev) => ({ ...prev, open }))}
+      >
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5 text-cyan-400" />
+              Editar Ativo Patrimonial
+            </DialogTitle>
+          </DialogHeader>
+          {editAssetDialog.asset && (
+            <EditAssetForm
+              asset={editAssetDialog.asset}
+              onSuccess={() => {
+                setEditAssetDialog({ open: false, asset: null });
+                utils.patrimonial.listAssets.invalidate();
+                utils.patrimonial.getSummary.invalidate();
+                utils.patrimonial.getConsolidatedNetWorth.invalidate();
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* ── Dialog: Registrar Pagamento ── */}
       <Dialog
         open={paymentDialog.open}
@@ -499,6 +531,7 @@ interface AssetCardProps {
   totalDebt: number;
   netValue: number;
   showBalances: boolean;
+  onEdit: () => void;
   onDelete: () => void;
   onDeleteLiability: (id: number) => void;
   onRegisterPayment: (
@@ -514,6 +547,7 @@ function AssetCard({
   totalDebt,
   netValue,
   showBalances,
+  onEdit,
   onDelete,
   onDeleteLiability,
   onRegisterPayment,
@@ -615,6 +649,15 @@ function AssetCard({
                 Passivos
               </Button>
             )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs text-muted-foreground hover:text-cyan-400"
+              onClick={onEdit}
+              title="Editar ativo"
+            >
+              <Pencil className="h-3 w-3" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -1297,6 +1340,183 @@ function RegisterPaymentForm({
           <>
             <CheckCircle2 className="h-4 w-4 mr-2" />
             Confirmar Pagamento
+          </>
+        )}
+      </Button>
+    </form>
+  );
+}
+
+// ─── EditAssetForm ────────────────────────────────────────────────────────────
+
+interface EditAssetFormProps {
+  asset: any;
+  onSuccess: () => void;
+}
+
+function EditAssetForm({ asset, onSuccess }: EditAssetFormProps) {
+  const [form, setForm] = useState({
+    name: asset.name ?? "",
+    assetType: (asset.assetType ?? "imovel") as
+      | "imovel"
+      | "veiculo"
+      | "credito"
+      | "participacao"
+      | "equipamento"
+      | "outro",
+    currentValue: asset.currentValue != null ? String(asset.currentValue) : "",
+    acquisitionValue:
+      asset.acquisitionValue != null ? String(asset.acquisitionValue) : "",
+    acquisitionDate: asset.acquisitionDate
+      ? new Date(asset.acquisitionDate).toISOString().split("T")[0]
+      : "",
+    description: asset.description ?? "",
+    notes: asset.notes ?? "",
+  });
+
+  const updateAsset = trpc.patrimonial.updateAsset.useMutation({
+    onSuccess: () => {
+      toast.success("Ativo atualizado com sucesso!");
+      onSuccess();
+    },
+    onError: (err) => toast.error(`Erro: ${err.message}`),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateAsset.mutate({
+      id: asset.id,
+      name: form.name,
+      assetType: form.assetType,
+      currentValue: parseFloat(form.currentValue),
+      acquisitionValue: form.acquisitionValue
+        ? parseFloat(form.acquisitionValue)
+        : null,
+      acquisitionDate: form.acquisitionDate
+        ? new Date(form.acquisitionDate)
+        : null,
+      description: form.description || null,
+      notes: form.notes || null,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Nome */}
+      <div className="space-y-1.5">
+        <Label htmlFor="edit-name">Nome do Ativo *</Label>
+        <Input
+          id="edit-name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="Ex: Apartamento Barra, Gol 2020..."
+          required
+        />
+      </div>
+
+      {/* Tipo */}
+      <div className="space-y-1.5">
+        <Label>Tipo de Ativo *</Label>
+        <Select
+          value={form.assetType}
+          onValueChange={(v: any) => setForm({ ...form, assetType: v })}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="imovel">🏠 Imóvel</SelectItem>
+            <SelectItem value="veiculo">🚗 Veículo</SelectItem>
+            <SelectItem value="credito">🏦 Crédito / Empréstimo</SelectItem>
+            <SelectItem value="participacao">💼 Participação Societária</SelectItem>
+            <SelectItem value="equipamento">📦 Equipamento</SelectItem>
+            <SelectItem value="outro">⋯ Outro</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Valores */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="edit-currentValue">Valor Atual (R$) *</Label>
+          <Input
+            id="edit-currentValue"
+            type="number"
+            step="0.01"
+            min="0"
+            value={form.currentValue}
+            onChange={(e) => setForm({ ...form, currentValue: e.target.value })}
+            placeholder="0,00"
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="edit-acquisitionValue">Valor de Aquisição</Label>
+          <Input
+            id="edit-acquisitionValue"
+            type="number"
+            step="0.01"
+            min="0"
+            value={form.acquisitionValue}
+            onChange={(e) =>
+              setForm({ ...form, acquisitionValue: e.target.value })
+            }
+            placeholder="0,00"
+          />
+        </div>
+      </div>
+
+      {/* Data de aquisição */}
+      <div className="space-y-1.5">
+        <Label htmlFor="edit-acquisitionDate">Data de Aquisição</Label>
+        <Input
+          id="edit-acquisitionDate"
+          type="date"
+          value={form.acquisitionDate}
+          onChange={(e) =>
+            setForm({ ...form, acquisitionDate: e.target.value })
+          }
+        />
+      </div>
+
+      {/* Descrição */}
+      <div className="space-y-1.5">
+        <Label htmlFor="edit-description">Descrição</Label>
+        <Textarea
+          id="edit-description"
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          placeholder="Endereço, placa, detalhes..."
+          rows={2}
+        />
+      </div>
+
+      {/* Observações */}
+      <div className="space-y-1.5">
+        <Label htmlFor="edit-notes">Observações</Label>
+        <Textarea
+          id="edit-notes"
+          value={form.notes}
+          onChange={(e) => setForm({ ...form, notes: e.target.value })}
+          placeholder="Informações adicionais..."
+          rows={2}
+        />
+      </div>
+
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={updateAsset.isPending}
+      >
+        {updateAsset.isPending ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Salvando...
+          </>
+        ) : (
+          <>
+            <Pencil className="h-4 w-4 mr-2" />
+            Salvar Alterações
           </>
         )}
       </Button>

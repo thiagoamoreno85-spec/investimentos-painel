@@ -99,21 +99,44 @@ export const patrimonialRouter = router({
     .input(
       z.object({
         id: z.number(),
+        name: z.string().min(1).optional(),
+        assetType: z.enum([
+          "imovel",
+          "veiculo",
+          "credito",
+          "participacao",
+          "equipamento",
+          "outro",
+        ]).optional(),
         currentValue: z.number().positive().optional(),
-        description: z.string().optional(),
-        notes: z.string().optional(),
+        acquisitionValue: z.number().optional().nullable(),
+        acquisitionDate: z.date().optional().nullable(),
+        debtorName: z.string().optional().nullable(),
+        dueDate: z.date().optional().nullable(),
+        interestRate: z.number().optional().nullable(),
+        description: z.string().optional().nullable(),
+        notes: z.string().optional().nullable(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const updateData: Record<string, unknown> = {};
+      if (input.name !== undefined) updateData.name = input.name;
+      if (input.assetType !== undefined) updateData.assetType = input.assetType;
+      if (input.currentValue !== undefined) updateData.currentValue = input.currentValue.toString();
+      if (input.acquisitionValue !== undefined) updateData.acquisitionValue = input.acquisitionValue !== null ? input.acquisitionValue.toString() : null;
+      if (input.acquisitionDate !== undefined) updateData.acquisitionDate = input.acquisitionDate;
+      if (input.debtorName !== undefined) updateData.debtorName = input.debtorName;
+      if (input.dueDate !== undefined) updateData.dueDate = input.dueDate;
+      if (input.interestRate !== undefined) updateData.interestRate = input.interestRate !== null ? input.interestRate.toString() : null;
+      if (input.description !== undefined) updateData.description = input.description;
+      if (input.notes !== undefined) updateData.notes = input.notes;
+
       await db
         .update(patrimonialAssets)
-        .set({
-          currentValue: input.currentValue ? input.currentValue.toString() : undefined,
-          description: input.description || undefined,
-          notes: input.notes || undefined,
-        })
+        .set(updateData)
         .where(
           and(
             eq(patrimonialAssets.id, input.id),

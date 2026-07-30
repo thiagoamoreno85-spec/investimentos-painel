@@ -112,7 +112,14 @@ function ClassBreakdown({
  */
 export function PerformanceCards() {
   const { showBalances } = useBalanceVisibility();
-  const { data: performance, isLoading } = trpc.portfolio.getPerformance.useQuery();
+  const { data: performance, isLoading } = trpc.portfolio.getPerformance.useQuery(
+    undefined,
+    {
+      // Atualiza automaticamente a cada 60 segundos para refletir variações do dia
+      refetchInterval: 60_000,
+      refetchIntervalInBackground: false,
+    }
+  );
   const utils = trpc.useUtils();
   const [monthlyExpanded, setMonthlyExpanded] = useState(false);
 

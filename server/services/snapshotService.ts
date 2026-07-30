@@ -135,6 +135,53 @@ export async function getSnapshotHistory(userId: number, days: number = 365) {
   }));
 }
 
+/**
+ * Busca o primeiro snapshot disponível do mês corrente (ou do mês especificado).
+ * Usado para calcular a rentabilidade acumulada do mês: base = primeiro snapshot do mês.
+ */
+export async function getFirstSnapshotOfMonth(
+  userId: number,
+  year?: number,
+  month?: number
+): Promise<{ totalValue: number; classBreakdown: Record<string, number>; snapshotDate: string } | null> {
+  const db = await getDb();
+  if (!db) return null;
+
+  const now = new Date();
+  const y = year ?? now.getUTCFullYear();
+  const m = month ?? now.getUTCMonth(); // 0-indexed
+
+  // Primeiro e último dia do mês
+  const firstDay = `${y}-${String(m + 1).padStart(2, '0')}-01`;
+  const lastDay = new Date(y, m + 1, 0); // último dia do mês
+  const lastDayStr = lastDay.toISOString().slice(0, 10);
+
+  const { lte } = await import('drizzle-orm');
+
+  const rows = await db
+    .select()
+    .from(portfolioSnapshots)
+    .where(
+      and(
+        eq(portfolioSnapshots.userId, userId),
+        gte(portfolioSnapshots.snapshotDate, firstDay),
+        lte(portfolioSnapshots.snapshotDate, lastDayStr)
+      )
+    )
+    .orderBy(portfolioSnapshots.snapshotDate)
+    .limit(1);
+
+  if (rows.length === 0) return null;
+  const row = rows[0];
+  return {
+    snapshotDate: row.snapshotDate,
+    totalValue: Number(row.totalValue),
+    classBreakdown: row.classBreakdown
+      ? (JSON.parse(row.classBreakdown) as Record<string, number>)
+      : {},
+  };
+}
+
 /** Busca o snapshot de uma data específica. Retorna null se não encontrado. */
 export async function getSnapshotByDate(
   userId: number,

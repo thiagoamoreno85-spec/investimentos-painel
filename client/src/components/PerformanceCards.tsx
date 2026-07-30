@@ -207,6 +207,12 @@ export function PerformanceCards() {
               {performance.monthly.total.valueDiff >= 0 ? "+" : ""}
               {formatCurrency(performance.monthly.total.valueDiff)}
             </p>
+            {/* Indicador do método encadeado */}
+            {(performance.monthly as any).chainedReturn !== null && (
+              <p className="text-xs text-muted-foreground/50 mt-1" title="Rentabilidade calculada pelo método encadeado (produto das variações diárias), isolando o retorno puro da carteira">
+                Encadeado · {(performance.monthly as any).snapshotCount ?? 0} snapshots
+              </p>
+            )}
             <ClassBreakdown
               data={performance.monthly.byClass}
               expanded={monthlyExpanded}

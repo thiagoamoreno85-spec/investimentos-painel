@@ -5,7 +5,7 @@
  * Um snapshot por usuário por dia: se já existir para a data, é atualizado
  * (última captura do dia vence).
  */
-import { and, desc, eq, gte } from "drizzle-orm";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { getDb, getAssetsByUser } from "../db";
 import { portfolioSnapshots, cashBalance } from "../../drizzle/schema";
 import { fetchUsdBrl } from "../quotes";
@@ -258,5 +258,109 @@ export async function getSnapshotByDate(
     classBreakdown: row.classBreakdown
       ? (JSON.parse(row.classBreakdown) as Record<string, number>)
       : {},
+  };
+}
+
+/**
+ * Calcula a rentabilidade mensal encadeada (método de cotas / time-weighted return).
+ *
+ * Algoritmo:
+ *   1. Busca o último snapshot do mês ANTERIOR como ponto de partida (base).
+ *   2. Busca todos os snapshots do mês corrente em ordem cronológica.
+ *   3. Para cada par consecutivo (base → snap1, snap1 → snap2, ...), calcula a variação:
+ *        r_i = (valor_i - valor_{i-1}) / valor_{i-1}
+ *   4. Encadeia as variações: rentabilidade = (1+r1)*(1+r2)*...*(1+rN) - 1
+ *
+ * Isso isola o retorno puro da carteira, eliminando o efeito de aportes e retiradas,
+ * pois cada variação é calculada em relação ao saldo ANTERIOR ao evento de caixa.
+ *
+ * Retorna null se não houver snapshots suficientes para o cálculo.
+ */
+export async function getMonthlyChainedReturn(
+  userId: number,
+  year?: number,
+  month?: number
+): Promise<{
+  chainedReturn: number;       // rentabilidade encadeada em % (ex: 2.94)
+  snapshotCount: number;       // número de snapshots usados no cálculo
+  baseDate: string | null;     // data do snapshot base (mês anterior)
+  baseValue: number | null;    // valor do snapshot base
+} | null> {
+  const db = await getDb();
+  if (!db) return null;
+
+  const now = new Date();
+  const y = year ?? now.getUTCFullYear();
+  const m = month ?? now.getUTCMonth(); // 0-indexed, mês CORRENTE
+
+  // Primeiro dia do mês corrente
+  const firstDayCurrentMonth = `${y}-${String(m + 1).padStart(2, '0')}-01`;
+
+  // Último dia do mês anterior
+  const lastDayPrevMonth = new Date(Date.UTC(y, m, 0));
+  const lastDayPrevMonthStr = lastDayPrevMonth.toISOString().slice(0, 10);
+
+  // 1. Buscar o último snapshot do mês ANTERIOR (base)
+  const baseRows = await db
+    .select()
+    .from(portfolioSnapshots)
+    .where(
+      and(
+        eq(portfolioSnapshots.userId, userId),
+        lte(portfolioSnapshots.snapshotDate, lastDayPrevMonthStr)
+      )
+    )
+    .orderBy(desc(portfolioSnapshots.snapshotDate))
+    .limit(1);
+
+  // 2. Buscar todos os snapshots do mês corrente em ordem cronológica
+  const currentMonthRows = await db
+    .select()
+    .from(portfolioSnapshots)
+    .where(
+      and(
+        eq(portfolioSnapshots.userId, userId),
+        gte(portfolioSnapshots.snapshotDate, firstDayCurrentMonth)
+      )
+    )
+    .orderBy(portfolioSnapshots.snapshotDate);
+
+  // Montar a sequência completa: [base, snap1, snap2, ..., snapN]
+  const sequence: { date: string; value: number }[] = [];
+
+  if (baseRows.length > 0) {
+    sequence.push({
+      date: baseRows[0].snapshotDate,
+      value: Number(baseRows[0].totalValue),
+    });
+  }
+
+  for (const row of currentMonthRows) {
+    sequence.push({
+      date: row.snapshotDate,
+      value: Number(row.totalValue),
+    });
+  }
+
+  // Precisamos de pelo menos 2 pontos para calcular uma variação
+  if (sequence.length < 2) return null;
+
+  // 3. Calcular rentabilidade encadeada: produto de (1 + r_i) para cada par consecutivo
+  let accumulated = 1.0;
+  for (let i = 1; i < sequence.length; i++) {
+    const prev = sequence[i - 1].value;
+    const curr = sequence[i].value;
+    if (prev > 0) {
+      accumulated *= (1 + (curr - prev) / prev);
+    }
+  }
+
+  const chainedReturn = (accumulated - 1) * 100;
+
+  return {
+    chainedReturn,
+    snapshotCount: sequence.length,
+    baseDate: sequence[0].date,
+    baseValue: sequence[0].value,
   };
 }

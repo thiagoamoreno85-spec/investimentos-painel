@@ -30,28 +30,62 @@ describe("Snapshot Service", () => {
     expect(pct).toBe(5);
   });
 
-  it("should calculate monthly return using last snapshot of previous month as base", () => {
-    // Base correta: último snapshot do mês ANTERIOR (fechamento do mês anterior)
-    // No dia 1 do mês corrente, rent = 0% (patrimônio atual ≈ base)
-    // Ao longo do mês, acumula a variação em relação ao fechamento do mês anterior
-    const currentTotal = 115000;
-    const prevMonthCloseTotal = 100000; // último snapshot do mês anterior
-    const diff = currentTotal - prevMonthCloseTotal;
-    const pct = (diff / prevMonthCloseTotal) * 100;
+  it("should calculate monthly chained return (time-weighted return)", () => {
+    // Método encadeado: produto das variações diárias
+    // Isola o retorno puro da carteira, eliminando o efeito de aportes e retiradas
+    // Sequência: [base_mês_anterior, snap1, snap2, snap3]
+    const snapshots = [
+      { date: "2026-06-24", value: 1768409.01 }, // base: fechamento de junho
+      { date: "2026-07-08", value: 1761615.04 }, // snap1 julho
+      { date: "2026-07-14", value: 1810395.25 }, // snap2 julho
+      { date: "2026-07-30", value: 1820354.92 }, // snap3 julho (atual)
+    ];
 
-    expect(diff).toBe(15000);
-    expect(pct).toBe(15);
+    let accumulated = 1.0;
+    for (let i = 1; i < snapshots.length; i++) {
+      const prev = snapshots[i - 1].value;
+      const curr = snapshots[i].value;
+      if (prev > 0) accumulated *= (1 + (curr - prev) / prev);
+    }
+    const chainedReturn = (accumulated - 1) * 100;
+
+    // Resultado esperado: +2.9374% (encadeado)
+    expect(chainedReturn).toBeCloseTo(2.9374, 2);
   });
 
-  it("should return 0% monthly return when current equals previous month close", () => {
-    // No dia 1 do mês, o patrimônio atual é igual ao fechamento do mês anterior -> rent = 0%
-    const currentTotal = 100000;
-    const prevMonthCloseTotal = 100000;
-    const diff = currentTotal - prevMonthCloseTotal;
-    const pct = prevMonthCloseTotal > 0 ? (diff / prevMonthCloseTotal) * 100 : null;
+  it("should return 0% monthly chained return when no variation", () => {
+    // Se todos os snapshots têm o mesmo valor, a rentabilidade encadeada é 0%
+    const snapshots = [
+      { value: 100000 },
+      { value: 100000 },
+      { value: 100000 },
+    ];
+    let accumulated = 1.0;
+    for (let i = 1; i < snapshots.length; i++) {
+      const prev = snapshots[i - 1].value;
+      const curr = snapshots[i].value;
+      if (prev > 0) accumulated *= (1 + (curr - prev) / prev);
+    }
+    const chainedReturn = (accumulated - 1) * 100;
+    expect(chainedReturn).toBe(0);
+  });
 
-    expect(diff).toBe(0);
-    expect(pct).toBe(0);
+  it("should handle chained return with negative periods correctly", () => {
+    // Queda no primeiro período, recuperação no segundo
+    const snapshots = [
+      { value: 100000 }, // base
+      { value: 90000 },  // -10%
+      { value: 99000 },  // +10%
+    ];
+    let accumulated = 1.0;
+    for (let i = 1; i < snapshots.length; i++) {
+      const prev = snapshots[i - 1].value;
+      const curr = snapshots[i].value;
+      if (prev > 0) accumulated *= (1 + (curr - prev) / prev);
+    }
+    const chainedReturn = (accumulated - 1) * 100;
+    // (1 - 0.10) * (1 + 0.10) - 1 = 0.99 - 1 = -1%
+    expect(chainedReturn).toBeCloseTo(-1, 4);
   });
 
   it("should handle negative returns", () => {

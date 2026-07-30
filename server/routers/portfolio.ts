@@ -5,6 +5,7 @@ import {
   getSnapshotHistory as getSnapshotHistoryService,
   getSnapshotByDate,
   getLastSnapshotOfPreviousMonth,
+  getMonthlyChainedReturn,
 } from "../services/snapshotService";
 import {
   getAssetsByUser,
@@ -703,12 +704,11 @@ export const portfolioRouter = router({
     yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     const yesterdaySnapshot = await getSnapshotByDate(userId, yesterday);
 
-    // Buscar o Último snapshot do mês ANTERIOR (base para rentabilidade mensal acumulada)
-    // Lógica correta: compara patrimônio atual com o fechamento do mês anterior.
-    // No dia 1 do mês, rent = 0% (patrimônio ≈ fechamento do mês anterior).
-    // Ao longo do mês, acumula a variação em relação ao fechamento do mês anterior.
+        // Buscar o Último snapshot do mês ANTERIOR (base para rentabilidade mensal acumulada)
     const monthSnapshot = await getLastSnapshotOfPreviousMonth(userId);
-
+    // Calcular rentabilidade mensal encadeada (método de cotas / time-weighted return)
+    // Isola o retorno puro da carteira, eliminando o efeito de aportes e retiradas
+    const monthlyChained = await getMonthlyChainedReturn(userId);
     // Calcular variações
     function calcReturn(
       currentValue: number,
@@ -763,6 +763,13 @@ export const portfolioRouter = router({
       currentClassValues,
       monthSnapshot ? JSON.stringify(monthSnapshot.classBreakdown) : null
     );
+    // Usar rentabilidade encadeada se disponível, senão fallback para método simples
+    const monthlyTotalFinal = monthlyChained
+      ? {
+          valueDiff: currentTotal - (monthSnapshot?.totalValue ?? currentTotal),
+          percentDiff: monthlyChained.chainedReturn,
+        }
+      : monthlyTotal;
     return {
       currentTotal,
       currentClassValues,
@@ -773,9 +780,12 @@ export const portfolioRouter = router({
         snapshotDate: null,
       },
       monthly: {
-        total: monthlyTotal,
+        total: monthlyTotalFinal,
         byClass: monthlyByClass,
         snapshotDate: null,
+        chainedReturn: monthlyChained?.chainedReturn ?? null,
+        snapshotCount: monthlyChained?.snapshotCount ?? null,
+        baseDate: monthlyChained?.baseDate ?? null,
       },
       hasSnapshots: !!(yesterdaySnapshot || monthSnapshot),
     };

@@ -73,7 +73,7 @@ export default function Home() {
   const cashBalance = Number(cashBalanceData?.balance ?? 0);
   const hasDbData = dbAssets && dbAssets.length > 0;
   // Computar dados a partir do banco ou dados estáticos
-  const { totalPatrimony, totalProfit, profitPct, pieData, topAssets, cashValue, largestClass, largestClassPct } =
+  const { totalPatrimony, totalProfit, profitPct, pieData, topAssets, cashValue, largestClass, largestClassPct, topAssetTicker, topAssetName, topAssetClass, topAssetValue, topAssetPct } =
     useMemo(() => {
       if (hasDbData) {
         // Dados do banco
@@ -130,8 +130,9 @@ export default function Home() {
           .sort((a, b) => b.valueBRL - a.valueBRL)
           .slice(0, 5);
 
-        const largest = pie[0];
-
+                const largest = pie[0];
+        // Ativo individual de maior valor (para o card Maior Posição)
+        const topAsset = assetValues.sort((a, b) => b.valueBRL - a.valueBRL)[0];
         return {
           totalPatrimony: patrimony,
           totalProfit: profit,
@@ -146,6 +147,11 @@ export default function Home() {
           cashValue: cashBalance,
           largestClass: largest?.name || "—",
           largestClassPct: patrimony > 0 ? ((largest?.value || 0) / patrimony) * 100 : 0,
+          topAssetTicker: topAsset?.ticker || "—",
+          topAssetName: topAsset?.name || "—",
+          topAssetClass: topAsset?.classLabel || "—",
+          topAssetValue: topAsset?.valueBRL || 0,
+          topAssetPct: patrimony > 0 ? ((topAsset?.valueBRL || 0) / patrimony) * 100 : 0,
         };
       }
 
@@ -170,6 +176,11 @@ export default function Home() {
         cashValue: 0,
         largestClass: "RV Nacional",
         largestClassPct: 58.8,
+        topAssetTicker: "VALE3",
+        topAssetName: "VALE3",
+        topAssetClass: "RV Nacional",
+        topAssetValue: 117963.44,
+        topAssetPct: 6.2,
       };
     }, [hasDbData, dbAssets, usdBrl, cashBalance]);
 
@@ -364,7 +375,7 @@ export default function Home() {
                 ) : (
                   <ArrowDownRight className="h-3 w-3" />
                 )}
-                {Math.abs(profitPct).toFixed(1)}% (capital + proventos)
+                {Math.abs(profitPct).toFixed(1)}% desde o aporte
               </p>
             </CardContent>
           </Card>
@@ -378,11 +389,11 @@ export default function Home() {
               <PieChart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div className="text-base md:text-2xl font-bold tracking-tighter truncate">
-                {largestClass}
+              <div className={`text-base md:text-2xl font-bold tracking-tighter truncate transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
+                {topAssetTicker}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {largestClassPct.toFixed(1)}% da carteira
+              <p className="text-xs text-muted-foreground mt-1 truncate">
+                {topAssetPct.toFixed(1)}% · {topAssetClass}
               </p>
             </CardContent>
           </Card>

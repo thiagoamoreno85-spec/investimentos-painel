@@ -30,14 +30,28 @@ describe("Snapshot Service", () => {
     expect(pct).toBe(5);
   });
 
-  it("should calculate monthly return correctly", () => {
+  it("should calculate monthly return using last snapshot of previous month as base", () => {
+    // Base correta: último snapshot do mês ANTERIOR (fechamento do mês anterior)
+    // No dia 1 do mês corrente, rent = 0% (patrimônio atual ≈ base)
+    // Ao longo do mês, acumula a variação em relação ao fechamento do mês anterior
     const currentTotal = 115000;
-    const monthStartTotal = 100000;
-    const diff = currentTotal - monthStartTotal;
-    const pct = (diff / monthStartTotal) * 100;
+    const prevMonthCloseTotal = 100000; // último snapshot do mês anterior
+    const diff = currentTotal - prevMonthCloseTotal;
+    const pct = (diff / prevMonthCloseTotal) * 100;
 
     expect(diff).toBe(15000);
     expect(pct).toBe(15);
+  });
+
+  it("should return 0% monthly return when current equals previous month close", () => {
+    // No dia 1 do mês, o patrimônio atual é igual ao fechamento do mês anterior -> rent = 0%
+    const currentTotal = 100000;
+    const prevMonthCloseTotal = 100000;
+    const diff = currentTotal - prevMonthCloseTotal;
+    const pct = prevMonthCloseTotal > 0 ? (diff / prevMonthCloseTotal) * 100 : null;
+
+    expect(diff).toBe(0);
+    expect(pct).toBe(0);
   });
 
   it("should handle negative returns", () => {

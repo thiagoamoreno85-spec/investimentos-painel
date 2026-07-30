@@ -4,7 +4,7 @@ import {
   captureSnapshot as captureSnapshotService,
   getSnapshotHistory as getSnapshotHistoryService,
   getSnapshotByDate,
-  getFirstSnapshotOfMonth,
+  getLastSnapshotOfPreviousMonth,
 } from "../services/snapshotService";
 import {
   getAssetsByUser,
@@ -703,10 +703,11 @@ export const portfolioRouter = router({
     yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     const yesterdaySnapshot = await getSnapshotByDate(userId, yesterday);
 
-    // Buscar o PRIMEIRO snapshot do mês corrente (base para rentabilidade mensal acumulada)
-    // Lógica: compara patrimônio atual com o primeiro snapshot do mês corrente.
-    // No dia 1 de cada mês, o snapshot capturado naquele dia se torna a nova base (rent = 0%).
-    const monthSnapshot = await getFirstSnapshotOfMonth(userId);
+    // Buscar o Último snapshot do mês ANTERIOR (base para rentabilidade mensal acumulada)
+    // Lógica correta: compara patrimônio atual com o fechamento do mês anterior.
+    // No dia 1 do mês, rent = 0% (patrimônio ≈ fechamento do mês anterior).
+    // Ao longo do mês, acumula a variação em relação ao fechamento do mês anterior.
+    const monthSnapshot = await getLastSnapshotOfPreviousMonth(userId);
 
     // Calcular variações
     function calcReturn(

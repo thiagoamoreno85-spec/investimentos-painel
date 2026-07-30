@@ -5,7 +5,7 @@
  * Um snapshot por usuário por dia: se já existir para a data, é atualizado
  * (última captura do dia vence).
  */
-import { and, eq, gte } from "drizzle-orm";
+import { and, desc, eq, gte } from "drizzle-orm";
 import { getDb, getAssetsByUser } from "../db";
 import { portfolioSnapshots, cashBalance } from "../../drizzle/schema";
 import { fetchUsdBrl } from "../quotes";
@@ -169,6 +169,57 @@ export async function getFirstSnapshotOfMonth(
       )
     )
     .orderBy(portfolioSnapshots.snapshotDate)
+    .limit(1);
+
+  if (rows.length === 0) return null;
+  const row = rows[0];
+  return {
+    snapshotDate: row.snapshotDate,
+    totalValue: Number(row.totalValue),
+    classBreakdown: row.classBreakdown
+      ? (JSON.parse(row.classBreakdown) as Record<string, number>)
+      : {},
+  };
+}
+
+/**
+ * Busca o Último snapshot disponível do mês ANTERIOR ao mês corrente.
+ *
+ * Esta é a base correta para calcular a rentabilidade mensal:
+ * - No dia 1 do mês, rent = 0% (patrimônio atual ≈ fechamento do mês anterior)
+ * - Ao longo do mês, acumula a variação em relação ao fechamento do mês anterior
+ *
+ * Exemplo: em julho/2026, busca o último snapshot de junho/2026.
+ * Se não houver snapshot de junho, busca o snapshot mais recente antes de julho.
+ */
+export async function getLastSnapshotOfPreviousMonth(
+  userId: number,
+  year?: number,
+  month?: number
+): Promise<{ totalValue: number; classBreakdown: Record<string, number>; snapshotDate: string } | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const now = new Date();
+  const y = year ?? now.getUTCFullYear();
+  const m = month ?? now.getUTCMonth(); // 0-indexed, mês CORRENTE
+
+  // Último dia do mês ANTERIOR (= dia 0 do mês corrente)
+  const lastDayPrevMonth = new Date(Date.UTC(y, m, 0));
+  const lastDayPrevMonthStr = lastDayPrevMonth.toISOString().slice(0, 10);
+
+  const { lte: lteOp } = await import('drizzle-orm');
+
+  // Busca o snapshot mais recente ANTES do início do mês corrente
+  const rows = await db
+    .select()
+    .from(portfolioSnapshots)
+    .where(
+      and(
+        eq(portfolioSnapshots.userId, userId),
+        lteOp(portfolioSnapshots.snapshotDate, lastDayPrevMonthStr)
+      )
+    )
+    .orderBy(desc(portfolioSnapshots.snapshotDate))
     .limit(1);
 
   if (rows.length === 0) return null;

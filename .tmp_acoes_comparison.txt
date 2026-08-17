@@ -1,0 +1,108 @@
+POSICOES_PLANILHA=91
+ATIVOS_PAINEL=90
+DIVERGENCIAS=73
+--- DIVERGENCIAS ---
+DIFF | SUZB3 | planilha qtd=773 custo=58.506 | painel qtd=773 custo=58.51635188 | dq=0 dc=-0.010351880000001756
+DIFF | KLBN11 | planilha qtd=582 custo=18.641 | painel qtd=442 custo=18.74 | dq=140 dc=-0.0990000000000002
+DIFF | BRAV3 | planilha qtd=1232 custo=29.847 | painel qtd=2241 custo=29.85 | dq=-1009 dc=-0.0030000000000001137
+DIFF | CMIN3 | planilha qtd=18457 custo=4.865 | painel qtd=21917 custo=4.86506 | dq=-3460 dc=-0.000059999999999504894
+DIFF | VALE3 | planilha qtd=1346 custo=63.445 | painel qtd=1346 custo=63.45 | dq=0 dc=-0.005000000000002558
+DIFF | BPAC11 | planilha qtd=1147 custo=34.669 | painel qtd=1147 custo=34.67 | dq=0 dc=-0.0010000000000047748
+DIFF | INBR32 | planilha qtd=1037 custo=36.019 | painel qtd=1037 custo=36.02 | dq=0 dc=-0.0010000000000047748
+DIFF | BBAS3 | planilha qtd=2146 custo=20.405 | painel qtd=2146 custo=20.40773532 | dq=0 dc=-0.0027353199999993194
+DIFF | BBDC4 | planilha qtd=1182 custo=15.207 | painel qtd=1042 custo=14.83 | dq=140 dc=0.37700000000000067
+DIFF | CXSE3 | planilha qtd=1216 custo=12.395 | painel qtd=1770 custo=12.23 | dq=-554 dc=0.16499999999999915
+DIFF | AXIA6 | planilha qtd=967 custo=41.051 | painel qtd=967 custo=41.05 | dq=0 dc=0.0010000000000047748
+DIFF | KEPL3 | planilha qtd=4672 custo=8.287 | painel qtd=4672 custo=8.29 | dq=0 dc=-0.0029999999999983373
+DIFF | TTEN3 | planilha qtd=1275 custo=11.296 | painel qtd=1215 custo=11.17 | dq=60 dc=0.12599999999999945
+DIFF | MBRF3 | planilha qtd=4130 custo=13.308 | painel qtd=4130 custo=13.30915254 | dq=0 dc=-0.0011525399999996466
+DIFF | FLRY3 | planilha qtd=641 custo=17.389 | painel qtd=641 custo=17.39 | dq=0 dc=-0.0010000000000012221
+DIFF | SBSP3 | planilha qtd=3585 custo=14.113 | painel qtd=3585 custo=14.11 | dq=0 dc=0.0030000000000001137
+DIFF | ZAVI11 | planilha qtd=146 custo=9.711 | painel qtd=146 custo=9.74431507 | dq=0 dc=-0.033315070000000446
+DIFF | XPML11 | planilha qtd=115 custo=101.587 | painel qtd=115 custo=101.59 | dq=0 dc=-0.0030000000000001137
+MISSING | XP FMP ELET3 | planilha qtd=1 custo=24477.28
+MISSING | TREND INVESTBACK FIC | planilha qtd=1 custo=59.98
+DIFF | FGTS | planilha qtd=1 custo=0.0001 | painel qtd=1 custo=0 | dq=0 dc=0.0001
+DIFF | NET | planilha qtd=10.22344 custo=76.358 | painel qtd=10.22344 custo=76.36 | dq=0 dc=-0.001999999999995339
+DIFF | GOOGL | planilha qtd=21.04408 custo=230.696 | painel qtd=18.94594 custo=216.1 | dq=2.098140000000001 dc=14.596000000000004
+DIFF | MU | planilha qtd=13.12204 custo=101.227 | painel qtd=13.12204 custo=101.23 | dq=0 dc=-0.0030000000000001137
+DIFF | TSM | planilha qtd=16.62096 custo=141.964 | painel qtd=16.62096 custo=141.96 | dq=0 dc=0.003999999999990678
+DIFF | AAPL | planilha qtd=2.081979 custo=212.426 | painel qtd=2.08198 custo=212.43 | dq=-0.000001000000000139778 dc=-0.004000000000019099
+MISSING | NVIDIA | planilha qtd=31.27505 custo=199.594
+DIFF | CRWV | planilha qtd=3.07791 custo=119.545 | painel qtd=3.07791 custo=119.55 | dq=0 dc=-0.0049999999999954525
+DIFF | PGEN | planilha qtd=206.4062 custo=1.992 | painel qtd=206.4062 custo=1.99 | dq=0 dc=0.0020000000000000018
+DIFF | TWST | planilha qtd=9.1447 custo=29.155 | painel qtd=9.1447 custo=29.16 | dq=0 dc=-0.004999999999999005
+DIFF | UNH | planilha qtd=1.72027 custo=318.118 | painel qtd=1.72027 custo=318.12 | dq=0 dc=-0.0020000000000095497
+DIFF | ABBV | planilha qtd=0.84991 custo=203.479 | painel qtd=0.85 custo=203.48 | dq=-0.00008999999999992347 dc=-0.0009999999999763531
+DIFF | PLTR | planilha qtd=5.25126 custo=136.574 | painel qtd=5.25126 custo=136.57 | dq=0 dc=0.004000000000019099
+DIFF | CRWD | planilha qtd=16 custo=76.86075 | painel qtd=16 custo=76.86 | dq=0 dc=0.0007499999999964757
+DIFF | TSLA | planilha qtd=10.56739 custo=194.768 | painel qtd=10.56739 custo=194.77 | dq=0 dc=-0.0020000000000095497
+DIFF | SPCX | planilha qtd=2.76261 custo=197.294 | painel qtd=2.76261 custo=197.29648007 | dq=0 dc=-0.0024800699999900644
+DIFF | AMZN | planilha qtd=9.42799 custo=186.331 | painel qtd=9.42799 custo=186.33 | dq=0 dc=0.0009999999999763531
+DIFF | CVX | planilha qtd=16.285674 custo=161.621 | painel qtd=16.28567 custo=161.62 | dq=0.000004000000000559112 dc=0.0010000000000047748
+DIFF | BAC | planilha qtd=33.97362 custo=31.761 | painel qtd=33.97362 custo=31.76 | dq=0 dc=0.0009999999999976694
+DIFF | BANC | planilha qtd=59.63738 custo=14.517 | painel qtd=59.63738 custo=14.52 | dq=0 dc=-0.0030000000000001137
+DIFF | INDA | planilha qtd=104.80464 custo=49.786 | painel qtd=13.95013 custo=52.04 | dq=90.85451 dc=-2.253999999999998
+MISSING | HDB ADR | planilha qtd=2.93283 custo=35.476
+MISSING | IBN ADR | planilha qtd=1.04016 custo=31.729
+MISSING | INFY ADR | planilha qtd=11.53575 custo=17.638
+DIFF | URNM | planilha qtd=139.79477 custo=57.955 | painel qtd=114.7437 custo=58.95 | dq=25.051069999999996 dc=-0.9950000000000045
+DIFF | URA | planilha qtd=4.43736 custo=52.452 | painel qtd=4.43736 custo=52.45 | dq=0 dc=0.001999999999995339
+MISSING | BTC - LEDGER | planilha qtd=0.0987124 custo=65592.453
+MISSING | BTC - BINANCE | planilha qtd=0.01952 custo=null
+MISSING | ETHEREUM - LEDGER | planilha qtd=2.62623 custo=3042.36
+MISSING | ETH - BINANCE | planilha qtd=0.35559999999999997 custo=null
+MISSING | SOL - LEDGER | planilha qtd=32.06325979 custo=132.44
+MISSING | SOL - BINANCE | planilha qtd=7.675724 custo=null
+DIFF | AVAX | planilha qtd=31.394551709999998 custo=38.653 | painel qtd=31.39455 custo=38.65 | dq=0.0000017099999993774873 dc=0.0030000000000001137
+MISSING | AURY | planilha qtd=101.9902 custo=13.8073
+MISSING | FTT | planilha qtd=7.274513000000001 custo=62.06
+MISSING | PRÉ 15,31% AA | planilha qtd=1 custo=930.94
+MISSING | PRE 15,05% AA | planilha qtd=1 custo=1058.98
+MISSING | PRÉ 14,90% AA | planilha qtd=1 custo=1146.71
+MISSING | IPCA+8,25% | planilha qtd=1 custo=3999.95
+MISSING | IPCA+8,8% | planilha qtd=1 custo=974.77
+MISSING | IPCA+8,3% | planilha qtd=1 custo=499.69
+MISSING | IPCA+6,85 | planilha qtd=1 custo=4000
+MISSING | IPCA+6,55% | planilha qtd=1 custo=5000
+MISSING | IPCA+7,01% | planilha qtd=1 custo=4234.47
+MISSING | IPCA+7,95% | planilha qtd=1 custo=5000
+MISSING | IPCA+7,4% | planilha qtd=1 custo=7818.69
+MISSING | PRE 15% | planilha qtd=1 custo=2949.31
+MISSING | 99.5% CDI ISENTO | planilha qtd=1 custo=1054.3
+DIFF | SELIC_31 | planilha qtd=1 custo=17590.19 | painel qtd=1 custo=3208.66 | dq=0 dc=14381.529999999999
+DIFF | CDB_XP_2028 | planilha qtd=1 custo=7000 | painel qtd=0 custo=1 | dq=1 dc=6999
+DIFF | SELIC_31 | planilha qtd=1 custo=11573.56 | painel qtd=1 custo=3208.66 | dq=0 dc=8364.9
+MISSING | #REF! | planilha qtd=NaN custo=NaN
+MISSING | STRIKE | planilha qtd=NaN custo=NaN
+--- EXTRAS_NO_PAINEL ---
+EXTRA | 15_55 | qtd=1.00000000 custo=5000.00000000 | 15,55%
+EXTRA | BTC | qtd=0.09871200 custo=65592.45000000 | BTC - BITCOIN
+EXTRA | BTC_BIN | qtd=0.01952000 custo=0.00000000 | BTC - BINANCE
+EXTRA | CDB32076NW3 | qtd=1.00000000 custo=1181.74000000 | CDB Banco BMG S.A. - AGO/2026
+EXTRA | CDI_ISENTO | qtd=1.00000000 custo=1054.30000000 | 99,5% CDI ISENTO
+EXTRA | CRA025005V5 | qtd=1.00000000 custo=0.00000000 | CRA Minerva JUL/2030
+EXTRA | ELET3 | qtd=1.00000000 custo=24477.28000000 | Eletrobras ON (via FMP)
+EXTRA | ETH | qtd=2.62623000 custo=3042.36000000 | ETHEREUM
+EXTRA | ETH_BIN | qtd=0.35560000 custo=0.00000000 | ETH - BINANCE
+EXTRA | HDB | qtd=2.93283000 custo=35.48000000 | HDB ADR
+EXTRA | IBN | qtd=1.04016000 custo=31.73000000 | IBN ADR
+EXTRA | INFY | qtd=11.53575000 custo=17.64000000 | INFY ADR
+EXTRA | IPCA_6_55 | qtd=1.00000000 custo=5000.00000000 | IPCA+6,55%
+EXTRA | IPCA_6_85 | qtd=1.00000000 custo=4000.00000000 | IPCA+6,85
+EXTRA | IPCA_7_01 | qtd=1.00000000 custo=4234.47000000 | IPCA+7,01%
+EXTRA | IPCA_7_4 | qtd=1.00000000 custo=7818.69000000 | IPCA+7,4%
+EXTRA | IPCA_7_95 | qtd=1.00000000 custo=5000.00000000 | IPCA+7,95%
+EXTRA | IPCA_8_25_1 | qtd=1.00000000 custo=877.49000000 | IPCA+8,25%
+EXTRA | IPCA_8_25_2 | qtd=1.00000000 custo=3999.95000000 | IPCA+8,25%
+EXTRA | IPCA_8_3 | qtd=1.00000000 custo=499.69000000 | IPCA+8,3%
+EXTRA | IPCA_8_8 | qtd=1.00000000 custo=974.77000000 | IPCA+8,8%
+EXTRA | NVIDIA | qtd=26.80334000 custo=194.95000000 | NVIDIA
+EXTRA | PRE_14_90 | qtd=1.00000000 custo=1146.71000000 | PRÉ 14,90% AA
+EXTRA | PRE_15 | qtd=1.00000000 custo=2949.31000000 | PRÉ 15%
+EXTRA | PRE_15_05 | qtd=1.00000000 custo=1058.98000000 | PRÉ 15,05% AA
+EXTRA | PRE_15_31 | qtd=1.00000000 custo=930.94000000 | PRÉ 15,31% AA
+EXTRA | SOJA3 | qtd=1503.00000000 custo=11.74000000 | SOJA3
+EXTRA | SOL | qtd=32.06326000 custo=132.44000000 | SOL
+EXTRA | SOL_BIN | qtd=7.67572400 custo=0.00000000 | SOL - BINANCE
+EXTRA | TREND_INV | qtd=1.00000000 custo=59.98000000 | TREND INVESTBACK

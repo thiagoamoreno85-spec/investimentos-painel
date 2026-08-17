@@ -307,3 +307,9 @@
 - [x] Invalidação automática de getAssets e getPerformance após salvar
 - [x] Toast de sucesso/erro
 - [x] 110 testes vitest passando
+
+## Reconciliação de Compras Recentes — Em andamento
+- [x] Localizar a aba de ações na planilha de controle e extrair as compras recentes
+- [x] Comparar quantidades e custos médios da planilha com o painel
+- [x] Atualizar os ativos e transações divergentes no banco
+- [x] Validar os saldos reconciliados, rodar testes e salvar checkpoint

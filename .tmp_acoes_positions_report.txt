@@ -1,0 +1,92 @@
+Posições extraídas: 91
+ 15 | SUZB3                    | qtd=773 | custo=58.506 | preço=41.49
+ 16 | KLBN11                   | qtd=582 | custo=18.641 | preço=17.3
+ 17 | BRAV3                    | qtd=1232 | custo=29.847 | preço=18.47
+ 18 | CMIN3                    | qtd=18457 | custo=4.865 | preço=5.61
+ 19 | VALE3                    | qtd=1346 | custo=63.445 | preço=71.07
+ 20 | BPAC11                   | qtd=1147 | custo=34.669 | preço=51.15
+ 21 | INBR32                   | qtd=1037 | custo=36.019 | preço=27.01
+ 22 | BBAS3                    | qtd=2146 | custo=20.405 | preço=18.31
+ 23 | BBDC4                    | qtd=1182 | custo=15.207 | preço=16.37
+ 24 | CXSE3                    | qtd=1216 | custo=12.395 | preço=17.95
+ 25 | AXIA3                    | qtd=967 | custo=41.051 | preço=50.37
+ 26 | AXIA7                    | qtd=246 | custo=30.1 | preço=50.11
+ 27 | AURE3                    | qtd=353 | custo=11.74 | preço=10.16
+ 28 | KEPL3                    | qtd=4672 | custo=8.287 | preço=5.68
+ 29 | TTEN3                    | qtd=1275 | custo=11.296 | preço=9.89
+ 30 | AGRO3                    | qtd=735 | custo=23.94 | preço=18.21
+ 32 | MBRF3                    | qtd=4130 | custo=13.308 | preço=15.76
+ 33 | FLRY3                    | qtd=641 | custo=17.389 | preço=18.24
+ 34 | SBSP3                    | qtd=3585 | custo=14.113 | preço=23.99
+ 35 | ORVR3                    | qtd=678 | custo=31.66 | preço=15.41
+ 36 | CYRE3                    | qtd=2679 | custo=20.83 | preço=21.7
+ 37 | CYRE4                    | qtd=507 | custo=26 | preço=21.06
+ 38 | ZAVI11                   | qtd=146 | custo=9.711 | preço=9.56
+ 39 | XPML11                   | qtd=115 | custo=101.587 | preço=100.19
+ 40 | XP FMP ELET3             | qtd=1 | custo=24477.28 | preço=43817.87
+ 41 | BNP PARIBAS RUBI CIC RF CP | qtd=1 | custo=51781.68 | preço=55548.58
+ 42 | AZ Quest Valore FIRF CP  | qtd=1 | custo=57993.59 | preço=61700.19
+ 43 | KINEA GAMA FIFI CIC EM AÇÕES RL | qtd=1 | custo=109166.39 | preço=99156.86
+ 44 | TREND INVESTBACK FIC     | qtd=1 | custo=59.98 | preço=63.42
+ 45 | TC COSMOS - GENIAL       | qtd=1 | custo=19796.100000000006 | preço=35229.44
+ 46 | SISPRIME                 | qtd=1 | custo=4550 | preço=6689.16
+ 47 | FGTS                     | qtd=1 | custo=0.0001 | preço=52248.099999999984
+ 48 | NET                      | qtd=10.22344 | custo=76.358 | preço=306.02
+ 49 | MSFT                     | qtd=15.74321 | custo=419.12 | preço=483.428
+ 50 | GOOGL                    | qtd=21.04408 | custo=230.696 | preço=340.945
+ 51 | MU                       | qtd=13.12204 | custo=101.227 | preço=1020.84
+ 52 | TSM                      | qtd=16.62096 | custo=141.964 | preço=430.8599
+ 53 | AAPL                     | qtd=2.081979 | custo=212.426 | preço=304.63
+ 54 | NVIDIA                   | qtd=31.27505 | custo=199.594 | preço=226.88
+ 55 | CRWV                     | qtd=3.07791 | custo=119.545 | preço=104.065
+ 56 | SOUN                     | qtd=6.13894 | custo=9.450000000000001 | preço=6.995
+ 57 | PGEN                     | qtd=206.4062 | custo=1.992 | preço=6.46
+ 58 | TWST                     | qtd=9.1447 | custo=29.155 | preço=121.445
+ 59 | UNH                      | qtd=1.72027 | custo=318.118 | preço=394.435
+ 60 | ABBV                     | qtd=0.84991 | custo=203.479 | preço=251.095
+ 61 | NEE                      | qtd=1.56238 | custo=70.41 | preço=85.69
+ 62 | ENPH                     | qtd=1.90064 | custo=42.46 | preço=39.08
+ 63 | PLTR                     | qtd=5.25126 | custo=136.574 | preço=174.5351
+ 64 | LMT                      | qtd=2.16067 | custo=515.95 | preço=600.52
+ 65 | CRWD                     | qtd=16 | custo=76.86075 | preço=215.41
+ 66 | TSLA                     | qtd=10.56739 | custo=194.768 | preço=340.515
+ 67 | SPCX                     | qtd=2.76261 | custo=197.294 | preço=147.7299
+ 68 | AMZN                     | qtd=9.42799 | custo=186.331 | preço=260.605
+ 69 | CVX                      | qtd=16.285674 | custo=161.621 | preço=201.655
+ 70 | BAC                      | qtd=33.97362 | custo=31.761 | preço=64.905
+ 71 | BANC                     | qtd=59.63738 | custo=14.517 | preço=19.57
+ 72 | INDA ETF                 | qtd=104.80464 | custo=49.786 | preço=49.795
+ 73 | HDB ADR                  | qtd=2.93283 | custo=35.476 | preço=23.125
+ 74 | IBN ADR                  | qtd=1.04016 | custo=31.729 | preço=29.585
+ 75 | INFY ADR                 | qtd=11.53575 | custo=17.638 | preço=11.875
+ 76 | URNM                     | qtd=139.79477 | custo=57.955 | preço=56.14
+ 77 | URA                      | qtd=4.43736 | custo=52.452 | preço=45.795
+ 78 | BTC - LEDGER             | qtd=0.0987124 | custo=65592.453 | preço=68144.8
+ 79 | BTC - BINANCE            | qtd=0.01952 | custo=None | preço=None
+ 80 | ETHEREUM - LEDGER        | qtd=2.62623 | custo=3042.36 | preço=2098.33
+ 81 | ETH - BINANCE            | qtd=0.35559999999999997 | custo=None | preço=None
+ 82 | SOL - LEDGER             | qtd=32.06325979 | custo=132.44 | preço=71.3
+ 83 | SOL - BINANCE            | qtd=7.675724 | custo=None | preço=None
+ 84 | AVAX                     | qtd=31.394551709999998 | custo=38.653 | preço=6.128
+ 85 | BNB                      | qtd=1.56109 | custo=3602 | preço=2946
+ 86 | AURY                     | qtd=101.9902 | custo=13.8073 | preço=0.3175
+ 87 | FTT                      | qtd=7.274513000000001 | custo=62.06 | preço=1.82
+ 90 | PRÉ 15,31% AA            | qtd=1 | custo=930.94 | preço=1426.52
+ 91 | PRE 15,05% AA            | qtd=1 | custo=1058.98 | preço=1534.77
+ 92 | PRÉ 14,90% AA            | qtd=1 | custo=1146.71 | preço=1529.83
+ 94 | IPCA+8,25%               | qtd=1 | custo=3999.95 | preço=5008.39
+ 95 | IPCA+8,8%                | qtd=1 | custo=974.77 | preço=1204.77
+ 96 | IPCA+8,3%                | qtd=1 | custo=499.69 | preço=338.03
+ 97 | IPCA+6,85                | qtd=1 | custo=4000 | preço=4757.97
+ 98 | IPCA+6,55%               | qtd=1 | custo=5000 | preço=5848.39
+ 99 | IPCA+7,01%               | qtd=1 | custo=4234.47 | preço=4567.47
+101 | IPCA+7,95%               | qtd=1 | custo=5000 | preço=5682.97
+102 | IPCA+7,4%                | qtd=1 | custo=7818.69 | preço=4235.75
+103 | PRE 15%                  | qtd=1 | custo=2949.31 | preço=3429.55
+104 | 99.5% CDI ISENTO         | qtd=1 | custo=1054.3 | preço=946.19
+105 | TESOURO SELIC 31         | qtd=1 | custo=3208.66 | preço=3507.18
+106 | TESOURO SELIC 31         | qtd=1 | custo=17590.19 | preço=17590.19
+107 | CDB XP -AGO/28           | qtd=1 | custo=7000 | preço=7000
+108 | TESOURO SELIC 31         | qtd=1 | custo=11573.56 | preço=11573.56
+111 | #REF!                    | qtd=CARTEIRA | custo=CUST0 | preço=LUCRO ATUAL
+113 | STRIKE                   | qtd=PREÇO | custo=ITM/ATM/OTM | preço=POSIÇÃO

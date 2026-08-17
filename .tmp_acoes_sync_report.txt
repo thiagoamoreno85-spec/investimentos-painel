@@ -1,0 +1,13 @@
+SKIP | BTC_BIN: sem custo médio na planilha
+SKIP | ETH_BIN: sem custo médio na planilha
+SKIP | SOL_BIN: sem custo médio na planilha
+=== SINCRONIZAÇÃO CONCLUÍDA ===
+Atualizados: 4
+Criados: 2
+Sem alteração: 80
+CRIADO | AURY | qtd=101.9902 | custo=13.8073
+CRIADO | FTT | qtd=7.274513000000001 | custo=62.06
+ATUALIZADO | SELIC_31 | qtd 1.00000000 → 3 | custo 3208.66000000 → 10790.803333333331
+ATUALIZADO | CDB_XP_2028 | qtd 0.00000000 → 1 | custo 1.00000000 → 7000
+BAIXADO | SOJA3 | posição zerada conforme venda/vencimento já documentados
+BAIXADO | CDB32076NW3 | posição zerada conforme venda/vencimento já documentados

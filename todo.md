@@ -313,3 +313,8 @@
 - [x] Comparar quantidades e custos médios da planilha com o painel
 - [x] Atualizar os ativos e transações divergentes no banco
 - [x] Validar os saldos reconciliados, rodar testes e salvar checkpoint
+
+## Aplicação Efetivada de Renda Fixa — Em andamento
+- [x] Registrar a aplicação efetivada no CDB Banco C6 Consignado IPCA+ 8,40%
+- [x] Criar ou atualizar o ativo e a transação de R$ 7.000,00
+- [x] Validar o lançamento, rodar testes e salvar checkpoint

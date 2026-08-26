@@ -328,3 +328,9 @@
 - [x] Identificar a origem dos ativos e passivos de teste ainda exibidos
 - [x] Remover os registros de teste restantes e qualquer fallback demonstrativo indevido
 - [x] Validar a aba Patrimônio, rodar testes e salvar checkpoint
+
+## Bloqueio de Criação Automática de Dados — Em andamento
+- [x] Auditar todas as rotinas que inserem ou semeiam dados no banco
+- [x] Desativar criações automáticas fora de uma ação explícita do usuário
+- [x] Adicionar proteção de teste para impedir gravações no usuário real
+- [x] Validar a política de criação, rodar testes e salvar checkpoint

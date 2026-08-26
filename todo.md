@@ -318,3 +318,8 @@
 - [x] Registrar a aplicação efetivada no CDB Banco C6 Consignado IPCA+ 8,40%
 - [x] Criar ou atualizar o ativo e a transação de R$ 7.000,00
 - [x] Validar o lançamento, rodar testes e salvar checkpoint
+
+## Limpeza de Dados Patrimoniais de Teste — Em andamento
+- [x] Conferir os ativos patrimoniais a partir do item 13 e os passivos a partir do item 7
+- [x] Remover somente os registros de teste e dependências vinculadas
+- [x] Validar os dados patrimoniais remanescentes, testar e salvar checkpoint

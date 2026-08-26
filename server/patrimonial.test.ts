@@ -1,24 +1,42 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { appRouter } from "./routers";
 import { TrpcContext } from "./_core/types/manusTypes";
+import { getDb } from "./db";
+import { patrimonialAssets, patrimonialLiabilities, patrimonialLiabilityPayments } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 /**
  * Testes para patrimonial router (CRUD de ativos imobilizados e passivos)
  * Usa appRouter.createCaller() para invocar procedures com contexto autenticado
  */
 
-const mockUser = { id: 1, name: "Test User", email: "test@example.com" };
+const TEST_USER_ID = 9_999_999;
+const mockUser = { id: TEST_USER_ID, name: "Test User", email: "test@example.com" };
 const mockContext: TrpcContext = {
   req: {} as any,
   res: {} as any,
   user: mockUser,
 };
 
+async function clearTestPatrimony() {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.delete(patrimonialLiabilityPayments).where(eq(patrimonialLiabilityPayments.userId, TEST_USER_ID));
+  await db.delete(patrimonialLiabilities).where(eq(patrimonialLiabilities.userId, TEST_USER_ID));
+  await db.delete(patrimonialAssets).where(eq(patrimonialAssets.userId, TEST_USER_ID));
+}
+
 describe("patrimonial router", () => {
   let caller: ReturnType<typeof appRouter.createCaller>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await clearTestPatrimony();
     caller = appRouter.createCaller(mockContext);
+  });
+
+  afterEach(async () => {
+    await clearTestPatrimony();
   });
 
   describe("createAsset", () => {

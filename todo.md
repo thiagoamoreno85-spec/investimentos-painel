@@ -323,3 +323,8 @@
 - [x] Conferir os ativos patrimoniais a partir do item 13 e os passivos a partir do item 7
 - [x] Remover somente os registros de teste e dependências vinculadas
 - [x] Validar os dados patrimoniais remanescentes, testar e salvar checkpoint
+
+## Correção de Dados Patrimoniais Ainda Visíveis — Em andamento
+- [x] Identificar a origem dos ativos e passivos de teste ainda exibidos
+- [x] Remover os registros de teste restantes e qualquer fallback demonstrativo indevido
+- [x] Validar a aba Patrimônio, rodar testes e salvar checkpoint

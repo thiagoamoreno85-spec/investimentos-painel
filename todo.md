@@ -334,3 +334,27 @@
 - [x] Desativar criações automáticas fora de uma ação explícita do usuário
 - [x] Adicionar proteção de teste para impedir gravações no usuário real
 - [x] Validar a política de criação, rodar testes e salvar checkpoint
+
+## Pesquisa Morgan Stanley — Pós-eleição Brasil — Em andamento
+- [x] Localizar publicações verificáveis sobre o cenário pós-eleitoral brasileiro
+- [x] Sintetizar os efeitos esperados para economia, juros, câmbio e bolsa
+
+## Análise de Hedge com Put de BOVA11 — Em andamento
+- [x] Levantar a exposição brasileira e os termos completos da put proposta
+- [x] Calcular o custo, o ponto de equilíbrio e a cobertura efetiva
+- [x] Avaliar o encaixe do hedge e preparar perguntas para a reunião
+
+## Dimensionamento de Hedge da Carteira Nacional — Em andamento
+- [x] Atualizar as posições nacionais e segmentar os ativos por sensibilidade ao risco doméstico
+- [x] Definir o montante de cobertura e calcular o custo da put
+- [x] Simular ganho, perda e descasamento de beta da proteção
+
+## Relatório Visual de Hedge — Em andamento
+- [x] Consolidar as faixas de BOVA11 e os resultados econômicos da proteção
+- [x] Gerar gráfico visual de perda dos ativos, ganho da put e resultado combinado
+- [x] Montar e revisar o relatório DOCX com os cenários e premissas
+
+## Desdobramento ORVR3 — Em andamento
+- [x] Confirmar os campos atuais de ORVR3 e o fator do evento corporativo
+- [x] Aplicar o fator 1:4 à quantidade, preço médio e cotação de referência; preço-alvo não é campo persistido no painel
+- [x] Validar a preservação do valor econômico, testar e salvar checkpoint

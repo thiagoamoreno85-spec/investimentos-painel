@@ -358,3 +358,8 @@
 - [x] Confirmar os campos atuais de ORVR3 e o fator do evento corporativo
 - [x] Aplicar o fator 1:4 à quantidade, preço médio e cotação de referência; preço-alvo não é campo persistido no painel
 - [x] Validar a preservação do valor econômico, testar e salvar checkpoint
+
+## Atualização Manual de FGTS — Em andamento
+- [x] Conferir o registro atual e a classe do ativo FGTS
+- [x] Atualizar quantidade, custo médio, custo total e preço manual de FGTS
+- [x] Validar o lucro calculado, testar e salvar checkpoint

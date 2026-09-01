@@ -379,3 +379,10 @@
 - [x] Extrair da aba de ações as posições e operações de TWST, URNM, INDA, BTC, ETH, USDT, Tesouro Selic e CDBs
 - [x] Confrontar planilha, imagens e painel antes de inserir transações
 - [x] Registrar somente operações confirmadas e validar o resultado
+
+## Extrato de Investimentos — Agosto de 2026 — Em andamento
+- [x] Inspecionar o extrato e extrair todos os lançamentos de agosto
+- [x] Classificar aportes, proventos, aluguéis, juros, impostos e eventos não financeiros
+- [x] Conferir duplicidades e solicitar confirmação antes de registrar itens novos
+- [x] Registrar os eventos confirmados sem alterar o saldo atual de caixa
+- [x] Validar os lançamentos, rodar testes e salvar checkpoint

@@ -1,0 +1,2681 @@
+[
+  {
+    "row": 2,
+    "values": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Extrato da conta",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 3,
+    "values": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Data da consulta: 01/09/2026 16:24",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 4,
+    "values": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "De: 01/08/2026 Até: 31/08/2026",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 5,
+    "values": [
+      null,
+      "THIAGO DE AGUIRRE MORENO",
+      null,
+      null,
+      null,
+      null,
+      "Conta XP: 496056",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 6,
+    "values": [
+      null,
+      "Projeções futuras",
+      null,
+      null,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 7,
+    "values": [
+      null,
+      "Resgates de Fundos/Clubes Pendentes",
+      null,
+      null,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 8,
+    "values": [
+      null,
+      "Termos à vencer",
+      null,
+      null,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 9,
+    "values": [
+      null,
+      "Outros",
+      null,
+      null,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 10,
+    "values": [
+      null,
+      "Garantias",
+      null,
+      null,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 11,
+    "values": [
+      null,
+      "Operações de hoje",
+      null,
+      null,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 12,
+    "values": [
+      null,
+      "Saldo total projetado",
+      null,
+      null,
+      null,
+      null,
+      1515.7,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 14,
+    "values": [
+      null,
+      "Movimentação",
+      "Liquidação",
+      "Lançamento",
+      null,
+      "Valor (R$)",
+      "Saldo (R$)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 15,
+    "values": [
+      null,
+      "2026-08-28T00:00:00",
+      "2026-08-28T00:00:00",
+      "Taxa de intermediação doador  TTEN3 2026081901111734300001-1",
+      null,
+      -0.45,
+      563.18,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 16,
+    "values": [
+      null,
+      "2026-08-28T00:00:00",
+      "2026-08-28T00:00:00",
+      "Taxa de intermediação doador  CYRE3 2026082601074174590001-2",
+      null,
+      -1.74,
+      563.63,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 17,
+    "values": [
+      null,
+      "2026-08-28T00:00:00",
+      "2026-08-28T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC TTEN",
+      null,
+      -0.33,
+      565.37,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 18,
+    "values": [
+      null,
+      "2026-08-28T00:00:00",
+      "2026-08-28T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CYRE",
+      null,
+      -1.18,
+      565.7,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 19,
+    "values": [
+      null,
+      "2026-08-28T00:00:00",
+      "2026-08-28T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC TTEN",
+      null,
+      1.49,
+      566.88,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 20,
+    "values": [
+      null,
+      "2026-08-28T00:00:00",
+      "2026-08-28T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC CYRE",
+      null,
+      5.27,
+      565.39,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 21,
+    "values": [
+      null,
+      "2026-08-27T00:00:00",
+      "2026-08-27T00:00:00",
+      "Taxa de intermediação doador  MBRF3 2026072801046284870001-2",
+      null,
+      -81.4,
+      560.12,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 22,
+    "values": [
+      null,
+      "2026-08-27T00:00:00",
+      "2026-08-27T00:00:00",
+      "Taxa de intermediação doador  BBDC4 2026082001113678690001-1",
+      null,
+      -0.02,
+      641.52,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 23,
+    "values": [
+      null,
+      "2026-08-27T00:00:00",
+      "2026-08-27T00:00:00",
+      "Taxa de intermediação doador  MBRF3 2026072800998699400001-2",
+      null,
+      -0.83,
+      641.54,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 24,
+    "values": [
+      null,
+      "2026-08-27T00:00:00",
+      "2026-08-27T00:00:00",
+      "Taxa de intermediação doador  MBRF3 2026072800878449260001-2",
+      null,
+      -12.82,
+      642.37,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 25,
+    "values": [
+      null,
+      "2026-08-27T00:00:00",
+      "2026-08-27T00:00:00",
+      "Taxa de intermediação doador  CYRE3 2026072901074174590001-2",
+      null,
+      -0.96,
+      655.19,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 26,
+    "values": [
+      null,
+      "2026-08-27T00:00:00",
+      "2026-08-27T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC MBRF",
+      null,
+      311.02,
+      656.15,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 27,
+    "values": [
+      null,
+      "2026-08-27T00:00:00",
+      "2026-08-27T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC CYRE",
+      null,
+      3.2,
+      345.13,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 28,
+    "values": [
+      null,
+      "2026-08-27T00:00:00",
+      "2026-08-27T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC BBDC",
+      null,
+      0.09,
+      341.93,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 29,
+    "values": [
+      null,
+      "2026-08-27T00:00:00",
+      "2026-08-27T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC MBRF",
+      null,
+      -69.96,
+      341.84,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 30,
+    "values": [
+      null,
+      "2026-08-27T00:00:00",
+      "2026-08-27T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CYRE",
+      null,
+      -0.72,
+      411.8,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 31,
+    "values": [
+      null,
+      "2026-08-27T00:00:00",
+      "2026-08-27T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BBDC",
+      null,
+      -0.02,
+      412.52,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 32,
+    "values": [
+      null,
+      "2026-08-25T00:00:00",
+      "2026-08-25T00:00:00",
+      "Taxa de intermediação doador  CXSE3 2026073101076615430001-2",
+      null,
+      -0.62,
+      412.54,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 33,
+    "values": [
+      null,
+      "2026-08-25T00:00:00",
+      "2026-08-25T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CXSE",
+      null,
+      -0.46,
+      413.16,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 34,
+    "values": [
+      null,
+      "2026-08-25T00:00:00",
+      "2026-08-25T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC CXSE",
+      null,
+      2.08,
+      413.62,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 35,
+    "values": [
+      null,
+      "2026-08-25T00:00:00",
+      "2026-08-25T00:00:00",
+      "RENDIMENTOS DE CLIENTES XPML11 S/            112",
+      null,
+      103.04,
+      411.54,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 36,
+    "values": [
+      null,
+      "2026-08-20T00:00:00",
+      "2026-08-20T00:00:00",
+      "Taxa de intermediação doador  AURE3 2026072201006197950001-2",
+      null,
+      -0.03,
+      308.5,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 37,
+    "values": [
+      null,
+      "2026-08-20T00:00:00",
+      "2026-08-20T00:00:00",
+      "Taxa de intermediação doador  CYRE4 2026072201001707260001-2",
+      null,
+      -0.23,
+      308.53,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 38,
+    "values": [
+      null,
+      "2026-08-20T00:00:00",
+      "2026-08-20T00:00:00",
+      "Taxa de intermediação doador  MBRF3 2026080601099702560001-1",
+      null,
+      -0.2,
+      308.76,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 39,
+    "values": [
+      null,
+      "2026-08-20T00:00:00",
+      "2026-08-20T00:00:00",
+      "CREDITO SUBSCRIÇÃO-BTC BBDC S/",
+      null,
+      2.36,
+      308.96,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 40,
+    "values": [
+      null,
+      "2026-08-20T00:00:00",
+      "2026-08-20T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC MBRF",
+      null,
+      -0.14,
+      306.6,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 41,
+    "values": [
+      null,
+      "2026-08-20T00:00:00",
+      "2026-08-20T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CYRE",
+      null,
+      -0.17,
+      306.74,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 42,
+    "values": [
+      null,
+      "2026-08-20T00:00:00",
+      "2026-08-20T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC AURE",
+      null,
+      -0.02,
+      306.91,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 43,
+    "values": [
+      null,
+      "2026-08-20T00:00:00",
+      "2026-08-20T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC MBRF",
+      null,
+      0.65,
+      306.93,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 44,
+    "values": [
+      null,
+      "2026-08-20T00:00:00",
+      "2026-08-20T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC CYRE",
+      null,
+      0.79,
+      306.28,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 45,
+    "values": [
+      null,
+      "2026-08-20T00:00:00",
+      "2026-08-20T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC AURE",
+      null,
+      0.12,
+      305.49,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 46,
+    "values": [
+      null,
+      "2026-08-19T00:00:00",
+      "2026-08-19T00:00:00",
+      "COMPRA CDB | CDB BANCO C6 CONSIGNADO S.A. - AGO/2030",
+      null,
+      -7000,
+      305.37,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 47,
+    "values": [
+      null,
+      "2026-08-19T00:00:00",
+      "2026-08-19T00:00:00",
+      "Transferência recebida da conta digital",
+      null,
+      6000,
+      7305.37,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 48,
+    "values": [
+      null,
+      "2026-08-19T00:00:00",
+      "2026-08-19T00:00:00",
+      "CREDITO DE REEMBOLSO DE EVENTO   BRKLBNCDAM18",
+      null,
+      90.96,
+      1305.37,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 49,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-19T00:00:00",
+      "OPERAÇÕES EM BOLSA PR 17/08/2026 NOTA Nº 142304204",
+      null,
+      -652.46,
+      1214.41,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 50,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "AJUSTE DE CUSTOS BTC  - TTEN3 14",
+      null,
+      0.03,
+      1866.87,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 51,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "AJUSTE DE CUSTOS BTC  - TTEN3 656",
+      null,
+      2.15,
+      1866.84,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 52,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "AJUSTE DE CUSTOS BTC  - TTEN3 730",
+      null,
+      1.5,
+      1864.69,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 53,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "COMPRA TESOURO DIRETO CLIENTES",
+      null,
+      -11573.56,
+      1863.19,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 54,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "Taxa de intermediação doador  CMIN3 2026072801058073360001-2",
+      null,
+      -994.57,
+      13436.75,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 55,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "Taxa de intermediação doador  VALE3 2026072201051133390001-2",
+      null,
+      -4.16,
+      14431.32,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 56,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC VALE",
+      null,
+      -3.11,
+      14435.48,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 57,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CMIN",
+      null,
+      -639.69,
+      14438.59,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 58,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRTTENACNOR0",
+      null,
+      -2.74,
+      15078.28,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 59,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "EMOLUMENTOS BTC BRTTENACNOR0",
+      null,
+      -0.94,
+      15081.02,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 60,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC VALE",
+      null,
+      13.86,
+      15081.96,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 61,
+    "values": [
+      null,
+      "2026-08-18T00:00:00",
+      "2026-08-18T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC CMIN",
+      null,
+      2843.08,
+      15068.1,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 62,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-17T00:00:00",
+      "Cambio VD Intern",
+      null,
+      -5395.32,
+      12225.02,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 63,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-17T00:00:00",
+      "IOF Cambio Intern",
+      null,
+      -59.35,
+      17620.34,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 64,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-17T00:00:00",
+      "Cambio VD Intern",
+      null,
+      -7121.66,
+      17679.69,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 65,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-17T00:00:00",
+      "IOF Cambio Intern",
+      null,
+      -78.34,
+      24801.35,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 66,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-17T00:00:00",
+      "Taxa de intermediação doador  TTEN3 2026072401070300330001-2",
+      null,
+      -0.36,
+      24879.69,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 67,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-17T00:00:00",
+      "Taxa de intermediação doador  FLRY3 2026080701101288200001-1",
+      null,
+      -0.02,
+      24880.05,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 68,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-17T00:00:00",
+      "CREDITO DE REEMBOLSO DE EVENTO   BRCXSEACNOR7",
+      null,
+      619.5,
+      24880.07,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 69,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-17T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC TTEN",
+      null,
+      -0.27,
+      24260.57,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 70,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-17T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC FLRY",
+      null,
+      -0.01,
+      24260.84,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 71,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-17T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC TTEN",
+      null,
+      1.2,
+      24260.85,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 72,
+    "values": [
+      null,
+      "2026-08-17T00:00:00",
+      "2026-08-17T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC FLRY",
+      null,
+      0.08,
+      24259.65,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 73,
+    "values": [
+      null,
+      "2026-08-05T00:00:00",
+      "2026-08-17T00:00:00",
+      "OPERAÇÕES EM BOLSA PR 05/08/2026 NOTA Nº 141490300",
+      null,
+      23033.83,
+      24259.57,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 74,
+    "values": [
+      null,
+      "2026-08-14T00:00:00",
+      "2026-08-14T00:00:00",
+      "Taxa de intermediação doador  KLBN11 2026071601043907930001-2",
+      null,
+      -0.03,
+      1225.74,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 75,
+    "values": [
+      null,
+      "2026-08-14T00:00:00",
+      "2026-08-14T00:00:00",
+      "Taxa de intermediação doador  BPAC11 2026080601099740320001-1",
+      null,
+      -0.38,
+      1225.77,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 76,
+    "values": [
+      null,
+      "2026-08-14T00:00:00",
+      "2026-08-14T00:00:00",
+      "CREDITO DE REEMBOLSO DE EVENTO   BRBPACUNT006",
+      null,
+      734.96,
+      1226.15,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 77,
+    "values": [
+      null,
+      "2026-08-14T00:00:00",
+      "2026-08-14T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC KLBN",
+      null,
+      0.11,
+      491.19,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 78,
+    "values": [
+      null,
+      "2026-08-14T00:00:00",
+      "2026-08-14T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC BPAC",
+      null,
+      1.29,
+      491.08,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 79,
+    "values": [
+      null,
+      "2026-08-14T00:00:00",
+      "2026-08-14T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC KLBN",
+      null,
+      -0.02,
+      489.79,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 80,
+    "values": [
+      null,
+      "2026-08-14T00:00:00",
+      "2026-08-14T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BPAC",
+      null,
+      -0.29,
+      489.81,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 81,
+    "values": [
+      null,
+      "2026-08-13T00:00:00",
+      "2026-08-13T00:00:00",
+      "Taxa de intermediação doador  SBSP3 2026071501059542490001-2",
+      null,
+      -1.03,
+      490.1,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 82,
+    "values": [
+      null,
+      "2026-08-13T00:00:00",
+      "2026-08-13T00:00:00",
+      "RENDIMENTOS DE CLIENTES ZAVI11 S/            146",
+      null,
+      17.52,
+      491.13,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 83,
+    "values": [
+      null,
+      "2026-08-13T00:00:00",
+      "2026-08-13T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC SBSP",
+      null,
+      3.45,
+      473.61,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 84,
+    "values": [
+      null,
+      "2026-08-13T00:00:00",
+      "2026-08-13T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC SBSP",
+      null,
+      -0.77,
+      470.16,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 85,
+    "values": [
+      null,
+      "2026-08-11T00:00:00",
+      "2026-08-11T00:00:00",
+      "Taxa de intermediação doador  BBDC4 2026080301096014900001-1",
+      null,
+      -0.04,
+      470.93,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 86,
+    "values": [
+      null,
+      "2026-08-11T00:00:00",
+      "2026-08-11T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BBDC",
+      null,
+      -0.03,
+      470.97,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 87,
+    "values": [
+      null,
+      "2026-08-11T00:00:00",
+      "2026-08-11T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC BBDC",
+      null,
+      0.15,
+      471,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 88,
+    "values": [
+      null,
+      "2026-08-10T00:00:00",
+      "2026-08-10T00:00:00",
+      "AJUSTE DE CUSTOS BTC  - BRAV3 1009",
+      null,
+      21.37,
+      470.85,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 89,
+    "values": [
+      null,
+      "2026-08-10T00:00:00",
+      "2026-08-10T00:00:00",
+      "AJUSTE DE CUSTOS BTC  - TTEN3 744",
+      null,
+      1.13,
+      449.48,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 90,
+    "values": [
+      null,
+      "2026-08-10T00:00:00",
+      "2026-08-10T00:00:00",
+      "ESTORNO\n  AJUSTE TAXA DE LIQUIDAÇÃO BOVESPA 07/08",
+      null,
+      6.95,
+      448.35,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 91,
+    "values": [
+      null,
+      "2026-08-10T00:00:00",
+      "2026-08-10T00:00:00",
+      "Taxa de intermediação doador  BRAV3 2026080301096975220001-1",
+      null,
+      -17.24,
+      441.4,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 92,
+    "values": [
+      null,
+      "2026-08-10T00:00:00",
+      "2026-08-10T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC BRAV",
+      null,
+      55.94,
+      458.64,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 93,
+    "values": [
+      null,
+      "2026-08-10T00:00:00",
+      "2026-08-10T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BRAV",
+      null,
+      -12.58,
+      402.7,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 94,
+    "values": [
+      null,
+      "2026-08-10T00:00:00",
+      "2026-08-10T00:00:00",
+      "EMOLUMENTOS BTC BRTTENACNOR0",
+      null,
+      -0.3,
+      415.28,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 95,
+    "values": [
+      null,
+      "2026-08-10T00:00:00",
+      "2026-08-10T00:00:00",
+      "EMOLUMENTOS BTC BRBRAVACNOR3",
+      null,
+      -3.61,
+      415.58,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 96,
+    "values": [
+      null,
+      "2026-08-10T00:00:00",
+      "2026-08-10T00:00:00",
+      "DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRTTENACNOR0",
+      null,
+      -0.83,
+      419.19,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 97,
+    "values": [
+      null,
+      "2026-08-10T00:00:00",
+      "2026-08-10T00:00:00",
+      "DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRBRAVACNOR3",
+      null,
+      -17.76,
+      420.02,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 98,
+    "values": [
+      null,
+      "2026-08-07T00:00:00",
+      "2026-08-07T00:00:00",
+      "AJUSTE DE CUSTOS BTC  - BRAV3 1232",
+      null,
+      75.87,
+      437.78,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 99,
+    "values": [
+      null,
+      "2026-08-07T00:00:00",
+      "2026-08-07T00:00:00",
+      "AJUSTE\n  TAXA DE LIQUIDAÇÃO BOVESPA",
+      null,
+      -5.19,
+      361.91,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 100,
+    "values": [
+      null,
+      "2026-08-07T00:00:00",
+      "2026-08-07T00:00:00",
+      "AJUSTE\n  TAXA DE LIQUIDAÇÃO BOVESPA",
+      null,
+      -1.16,
+      367.1,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 101,
+    "values": [
+      null,
+      "2026-08-07T00:00:00",
+      "2026-08-07T00:00:00",
+      "COMPRA TESOURO DIRETO CLIENTES",
+      null,
+      -17590.18,
+      368.26,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 102,
+    "values": [
+      null,
+      "2026-08-07T00:00:00",
+      "2026-08-07T00:00:00",
+      "Taxa de intermediação tomador  BRAV3 2026080401098298050001-1",
+      null,
+      -58.11,
+      17958.44,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 103,
+    "values": [
+      null,
+      "2026-08-07T00:00:00",
+      "2026-08-07T00:00:00",
+      "Taxa de intermediação doador  SUZB3 2026071601066418540001-2",
+      null,
+      -0.33,
+      18016.55,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 104,
+    "values": [
+      null,
+      "2026-08-07T00:00:00",
+      "2026-08-07T00:00:00",
+      "DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRBRAVACNOR3",
+      null,
+      -14.46,
+      18016.88,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 105,
+    "values": [
+      null,
+      "2026-08-07T00:00:00",
+      "2026-08-07T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC SUZB",
+      null,
+      1.12,
+      18031.34,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 106,
+    "values": [
+      null,
+      "2026-08-07T00:00:00",
+      "2026-08-07T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC SUZB",
+      null,
+      -0.25,
+      18030.22,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 107,
+    "values": [
+      null,
+      "2026-08-07T00:00:00",
+      "2026-08-07T00:00:00",
+      "EMOLUMENTOS BTC BRBRAVACNOR3",
+      null,
+      -3.3,
+      18030.47,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 108,
+    "values": [
+      null,
+      "2026-08-06T00:00:00",
+      "2026-08-06T00:00:00",
+      "COMPRA CDB | CDB BANCO XP S.A. - AGO/2028",
+      null,
+      -7000,
+      18033.77,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 109,
+    "values": [
+      null,
+      "2026-08-06T00:00:00",
+      "2026-08-06T00:00:00",
+      "Transferência recebida da conta digital",
+      null,
+      1136.1,
+      25033.77,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 110,
+    "values": [
+      null,
+      "2026-08-06T00:00:00",
+      "2026-08-06T00:00:00",
+      "IOF Cambio Intern",
+      null,
+      -174.09,
+      23897.67,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 111,
+    "values": [
+      null,
+      "2026-08-06T00:00:00",
+      "2026-08-06T00:00:00",
+      "Cambio VD Intern",
+      null,
+      -15825.91,
+      24071.76,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 112,
+    "values": [
+      null,
+      "2026-08-06T00:00:00",
+      "2026-08-06T00:00:00",
+      "Taxa de intermediação doador  CMIN3 2026072801058073360001-2",
+      null,
+      -79.69,
+      39897.67,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 113,
+    "values": [
+      null,
+      "2026-08-06T00:00:00",
+      "2026-08-06T00:00:00",
+      "Taxa de intermediação doador  CXSE3 2026073101076615430001-2",
+      null,
+      -0.07,
+      39977.36,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 114,
+    "values": [
+      null,
+      "2026-08-06T00:00:00",
+      "2026-08-06T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC CXSE",
+      null,
+      0.24,
+      39977.43,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 115,
+    "values": [
+      null,
+      "2026-08-06T00:00:00",
+      "2026-08-06T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC CMIN",
+      null,
+      226.69,
+      39977.19,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 116,
+    "values": [
+      null,
+      "2026-08-06T00:00:00",
+      "2026-08-06T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CXSE",
+      null,
+      -0.05,
+      39750.5,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 117,
+    "values": [
+      null,
+      "2026-08-06T00:00:00",
+      "2026-08-06T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CMIN",
+      null,
+      -51,
+      39750.55,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 118,
+    "values": [
+      null,
+      "2026-08-04T00:00:00",
+      "2026-08-06T00:00:00",
+      "OPERAÇÕES EM BOLSA PR 04/08/2026 NOTA Nº 141396101",
+      null,
+      35258.25,
+      39801.55,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 119,
+    "values": [
+      null,
+      "2026-08-05T00:00:00",
+      "2026-08-05T00:00:00",
+      "Taxa de intermediação doador  MBRF3 2026080301095936840001-1",
+      null,
+      -0.02,
+      4543.3,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 120,
+    "values": [
+      null,
+      "2026-08-05T00:00:00",
+      "2026-08-05T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC MBRF",
+      null,
+      -0.01,
+      4543.32,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 121,
+    "values": [
+      null,
+      "2026-08-05T00:00:00",
+      "2026-08-05T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC MBRF",
+      null,
+      0.06,
+      4543.33,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 122,
+    "values": [
+      null,
+      "2026-08-04T00:00:00",
+      "2026-08-04T00:00:00",
+      "Cambio VD Intern",
+      null,
+      -11869.43,
+      4543.27,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 123,
+    "values": [
+      null,
+      "2026-08-04T00:00:00",
+      "2026-08-04T00:00:00",
+      "IOF Cambio Intern",
+      null,
+      -130.56,
+      16412.7,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 124,
+    "values": [
+      null,
+      "2026-08-03T00:00:00",
+      "2026-08-03T00:00:00",
+      "CREDITO DE REEMBOLSO DE EVENTO   BRBBDCACNPR8",
+      null,
+      16.32,
+      16543.26,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 125,
+    "values": [
+      null,
+      "2026-08-03T00:00:00",
+      "2026-08-03T00:00:00",
+      "Taxa de intermediação doador  CXSE3 2026070301076615430001-1",
+      null,
+      -0.64,
+      16526.94,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 126,
+    "values": [
+      null,
+      "2026-08-03T00:00:00",
+      "2026-08-03T00:00:00",
+      "Crédito Ref. Taxa de Remuneração BTC CXSE",
+      null,
+      2.14,
+      16527.58,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 127,
+    "values": [
+      null,
+      "2026-08-03T00:00:00",
+      "2026-08-03T00:00:00",
+      "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CXSE",
+      null,
+      -0.48,
+      16525.44,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 129,
+    "values": [
+      null,
+      "Lançamentos futuros",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 130,
+    "values": [
+      null,
+      "Movimentação",
+      "Liquidação",
+      "Lançamento",
+      null,
+      "Valor (R$)",
+      "Saldo (R$)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 131,
+    "values": [
+      null,
+      "",
+      "",
+      "Não há lançamentos para o período",
+      null,
+      "",
+      "",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 133,
+    "values": [
+      null,
+      "01 set. 2026 - 16:24",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 134,
+    "values": [
+      null,
+      "Extrato para simples conferência, sujeito a atualizações. ",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 136,
+    "values": [
+      null,
+      "Importante:\n",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 137,
+    "values": [
+      null,
+      "Estas informações são confidenciais e destinadas a indivíduo(s) e propósitos específicos, sendo protegidas por lei. O sistema utiliza diversas fontes de consulta e ",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 138,
+    "values": [
+      null,
+      "as informações são atualizadas em diferentes momentos, de modo que o extrato poderá sofrer alterações a qualquer momento e/ou apresentar alguma informação",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 139,
+    "values": [
+      null,
+      "desatualizada.\n",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 140,
+    "values": [
+      null,
+      "Para reclamações, contate nossa Ouvidoria no telefone n° 0800 722 3730.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 141,
+    "values": [
+      null,
+      "Para acesso ao SAC, ligar para: 0800-772-0202.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 142,
+    "values": [
+      null,
+      "XP INVESTIMENTOS CORRETORA DE CÂMBIO, TÍTULOS E VALORES MOBILIÁRIOS S.A.",
+      null,
+      null,
+      "Atendimento ao cliente: +55 11 4003-3710 (capitais e regiões metropolitanas) e 0800-880-3710 (demais regiões). Dias úteis, de segunda a sexta-feira, das 9h às 19h30.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 143,
+    "values": [
+      null,
+      "Alameda Rio Negro, 503 | SL 2020",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 144,
+    "values": [
+      null,
+      "Barueri | SP",
+      null,
+      null,
+      "Ouvidoria: 0800 722 3730.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 145,
+    "values": [
+      null,
+      "CEP: 06454-000",
+      null,
+      null,
+      "Dias úteis, de segunda a sexta-feira, das 9h às 18h.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "row": 146,
+    "values": [
+      null,
+      "CNPJ: 02.332.886/0001-04",
+      null,
+      null,
+      "https://www.xpi.com.br/",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  }
+]

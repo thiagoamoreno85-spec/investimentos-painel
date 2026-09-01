@@ -1,0 +1,1058 @@
+{
+  "aportes": [
+    {
+      "row": 47,
+      "movement_date": "2026-08-19",
+      "settlement_date": "2026-08-19",
+      "description": "Transferência recebida da conta digital",
+      "value_brl": 6000.0,
+      "balance_brl": 7305.37,
+      "category": "aporte_conta_digital",
+      "ticker": null
+    },
+    {
+      "row": 109,
+      "movement_date": "2026-08-06",
+      "settlement_date": "2026-08-06",
+      "description": "Transferência recebida da conta digital",
+      "value_brl": 1136.1,
+      "balance_brl": 25033.77,
+      "category": "aporte_conta_digital",
+      "ticker": null
+    }
+  ],
+  "proventos_fii": [
+    {
+      "row": 35,
+      "movement_date": "2026-08-25",
+      "settlement_date": "2026-08-25",
+      "description": "RENDIMENTOS DE CLIENTES XPML11 S/            112",
+      "value_brl": 103.04,
+      "balance_brl": 411.54,
+      "category": "provento_fii",
+      "ticker": "XPML11"
+    },
+    {
+      "row": 82,
+      "movement_date": "2026-08-13",
+      "settlement_date": "2026-08-13",
+      "description": "RENDIMENTOS DE CLIENTES ZAVI11 S/            146",
+      "value_brl": 17.52,
+      "balance_brl": 491.13,
+      "category": "provento_fii",
+      "ticker": "ZAVI11"
+    }
+  ],
+  "aluguéis_por_ativo": [
+    {
+      "ticker": "AURE3",
+      "gross_rent_brl": 0.12,
+      "intermediation_brl": -0.03,
+      "irrf_brl": -0.02,
+      "b3_fees_brl": 0.0,
+      "cost_adjustments_brl": 0.0,
+      "net_cash_effect_brl": 0.07
+    },
+    {
+      "ticker": "BBDC4",
+      "gross_rent_brl": 0.24,
+      "intermediation_brl": -0.06,
+      "irrf_brl": -0.05,
+      "b3_fees_brl": 0.0,
+      "cost_adjustments_brl": 0.0,
+      "net_cash_effect_brl": 0.13
+    },
+    {
+      "ticker": "BPAC11",
+      "gross_rent_brl": 1.29,
+      "intermediation_brl": -0.38,
+      "irrf_brl": -0.29,
+      "b3_fees_brl": 0.0,
+      "cost_adjustments_brl": 0.0,
+      "net_cash_effect_brl": 0.62
+    },
+    {
+      "ticker": "CMIN3",
+      "gross_rent_brl": 3069.77,
+      "intermediation_brl": -1074.26,
+      "irrf_brl": -690.69,
+      "b3_fees_brl": 0.0,
+      "cost_adjustments_brl": 0.0,
+      "net_cash_effect_brl": 1304.82
+    },
+    {
+      "ticker": "CXSE3",
+      "gross_rent_brl": 4.46,
+      "intermediation_brl": -1.33,
+      "irrf_brl": -0.99,
+      "b3_fees_brl": 0.0,
+      "cost_adjustments_brl": 0.0,
+      "net_cash_effect_brl": 2.14
+    },
+    {
+      "ticker": "CYRE?",
+      "gross_rent_brl": 9.26,
+      "intermediation_brl": -2.93,
+      "irrf_brl": -2.07,
+      "b3_fees_brl": 0.0,
+      "cost_adjustments_brl": 0.0,
+      "net_cash_effect_brl": 4.26
+    },
+    {
+      "ticker": "FLRY3",
+      "gross_rent_brl": 0.08,
+      "intermediation_brl": -0.02,
+      "irrf_brl": -0.01,
+      "b3_fees_brl": 0.0,
+      "cost_adjustments_brl": 0.0,
+      "net_cash_effect_brl": 0.05
+    },
+    {
+      "ticker": "KLBN11",
+      "gross_rent_brl": 0.11,
+      "intermediation_brl": -0.03,
+      "irrf_brl": -0.02,
+      "b3_fees_brl": 0.0,
+      "cost_adjustments_brl": 0.0,
+      "net_cash_effect_brl": 0.06
+    },
+    {
+      "ticker": "MBRF3",
+      "gross_rent_brl": 311.73,
+      "intermediation_brl": -95.27,
+      "irrf_brl": -70.11,
+      "b3_fees_brl": 0.0,
+      "cost_adjustments_brl": 0.0,
+      "net_cash_effect_brl": 146.35
+    },
+    {
+      "ticker": "NAO_IDENTIFICADO",
+      "gross_rent_brl": 60.51,
+      "intermediation_brl": -18.6,
+      "irrf_brl": -13.6,
+      "b3_fees_brl": -39.13,
+      "cost_adjustments_brl": 97.24,
+      "net_cash_effect_brl": 86.42
+    },
+    {
+      "ticker": "TTEN3",
+      "gross_rent_brl": 2.69,
+      "intermediation_brl": -0.81,
+      "irrf_brl": -0.6,
+      "b3_fees_brl": -4.81,
+      "cost_adjustments_brl": 4.81,
+      "net_cash_effect_brl": 1.28
+    },
+    {
+      "ticker": "VALE3",
+      "gross_rent_brl": 13.86,
+      "intermediation_brl": -4.16,
+      "irrf_brl": -3.11,
+      "b3_fees_brl": 0.0,
+      "cost_adjustments_brl": 0.0,
+      "net_cash_effect_brl": 6.59
+    }
+  ],
+  "aluguéis_lancamentos": [
+    {
+      "row": 15,
+      "movement_date": "2026-08-28",
+      "settlement_date": "2026-08-28",
+      "description": "Taxa de intermediação doador  TTEN3 2026081901111734300001-1",
+      "value_brl": -0.45,
+      "balance_brl": 563.18,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 16,
+      "movement_date": "2026-08-28",
+      "settlement_date": "2026-08-28",
+      "description": "Taxa de intermediação doador  CYRE3 2026082601074174590001-2",
+      "value_brl": -1.74,
+      "balance_brl": 563.63,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "CYRE?"
+    },
+    {
+      "row": 17,
+      "movement_date": "2026-08-28",
+      "settlement_date": "2026-08-28",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC TTEN",
+      "value_brl": -0.33,
+      "balance_brl": 565.37,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 18,
+      "movement_date": "2026-08-28",
+      "settlement_date": "2026-08-28",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CYRE",
+      "value_brl": -1.18,
+      "balance_brl": 565.7,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "CYRE?"
+    },
+    {
+      "row": 19,
+      "movement_date": "2026-08-28",
+      "settlement_date": "2026-08-28",
+      "description": "Crédito Ref. Taxa de Remuneração BTC TTEN",
+      "value_brl": 1.49,
+      "balance_brl": 566.88,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 20,
+      "movement_date": "2026-08-28",
+      "settlement_date": "2026-08-28",
+      "description": "Crédito Ref. Taxa de Remuneração BTC CYRE",
+      "value_brl": 5.27,
+      "balance_brl": 565.39,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "CYRE?"
+    },
+    {
+      "row": 21,
+      "movement_date": "2026-08-27",
+      "settlement_date": "2026-08-27",
+      "description": "Taxa de intermediação doador  MBRF3 2026072801046284870001-2",
+      "value_brl": -81.4,
+      "balance_brl": 560.12,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "MBRF3"
+    },
+    {
+      "row": 22,
+      "movement_date": "2026-08-27",
+      "settlement_date": "2026-08-27",
+      "description": "Taxa de intermediação doador  BBDC4 2026082001113678690001-1",
+      "value_brl": -0.02,
+      "balance_brl": 641.52,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "BBDC4"
+    },
+    {
+      "row": 23,
+      "movement_date": "2026-08-27",
+      "settlement_date": "2026-08-27",
+      "description": "Taxa de intermediação doador  MBRF3 2026072800998699400001-2",
+      "value_brl": -0.83,
+      "balance_brl": 641.54,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "MBRF3"
+    },
+    {
+      "row": 24,
+      "movement_date": "2026-08-27",
+      "settlement_date": "2026-08-27",
+      "description": "Taxa de intermediação doador  MBRF3 2026072800878449260001-2",
+      "value_brl": -12.82,
+      "balance_brl": 642.37,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "MBRF3"
+    },
+    {
+      "row": 25,
+      "movement_date": "2026-08-27",
+      "settlement_date": "2026-08-27",
+      "description": "Taxa de intermediação doador  CYRE3 2026072901074174590001-2",
+      "value_brl": -0.96,
+      "balance_brl": 655.19,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "CYRE?"
+    },
+    {
+      "row": 26,
+      "movement_date": "2026-08-27",
+      "settlement_date": "2026-08-27",
+      "description": "Crédito Ref. Taxa de Remuneração BTC MBRF",
+      "value_brl": 311.02,
+      "balance_brl": 656.15,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "MBRF3"
+    },
+    {
+      "row": 27,
+      "movement_date": "2026-08-27",
+      "settlement_date": "2026-08-27",
+      "description": "Crédito Ref. Taxa de Remuneração BTC CYRE",
+      "value_brl": 3.2,
+      "balance_brl": 345.13,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "CYRE?"
+    },
+    {
+      "row": 28,
+      "movement_date": "2026-08-27",
+      "settlement_date": "2026-08-27",
+      "description": "Crédito Ref. Taxa de Remuneração BTC BBDC",
+      "value_brl": 0.09,
+      "balance_brl": 341.93,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "BBDC4"
+    },
+    {
+      "row": 29,
+      "movement_date": "2026-08-27",
+      "settlement_date": "2026-08-27",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC MBRF",
+      "value_brl": -69.96,
+      "balance_brl": 341.84,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "MBRF3"
+    },
+    {
+      "row": 30,
+      "movement_date": "2026-08-27",
+      "settlement_date": "2026-08-27",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CYRE",
+      "value_brl": -0.72,
+      "balance_brl": 411.8,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "CYRE?"
+    },
+    {
+      "row": 31,
+      "movement_date": "2026-08-27",
+      "settlement_date": "2026-08-27",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BBDC",
+      "value_brl": -0.02,
+      "balance_brl": 412.52,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "BBDC4"
+    },
+    {
+      "row": 32,
+      "movement_date": "2026-08-25",
+      "settlement_date": "2026-08-25",
+      "description": "Taxa de intermediação doador  CXSE3 2026073101076615430001-2",
+      "value_brl": -0.62,
+      "balance_brl": 412.54,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "CXSE3"
+    },
+    {
+      "row": 33,
+      "movement_date": "2026-08-25",
+      "settlement_date": "2026-08-25",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CXSE",
+      "value_brl": -0.46,
+      "balance_brl": 413.16,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "CXSE3"
+    },
+    {
+      "row": 34,
+      "movement_date": "2026-08-25",
+      "settlement_date": "2026-08-25",
+      "description": "Crédito Ref. Taxa de Remuneração BTC CXSE",
+      "value_brl": 2.08,
+      "balance_brl": 413.62,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "CXSE3"
+    },
+    {
+      "row": 36,
+      "movement_date": "2026-08-20",
+      "settlement_date": "2026-08-20",
+      "description": "Taxa de intermediação doador  AURE3 2026072201006197950001-2",
+      "value_brl": -0.03,
+      "balance_brl": 308.5,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "AURE3"
+    },
+    {
+      "row": 37,
+      "movement_date": "2026-08-20",
+      "settlement_date": "2026-08-20",
+      "description": "Taxa de intermediação doador  CYRE4 2026072201001707260001-2",
+      "value_brl": -0.23,
+      "balance_brl": 308.53,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "CYRE?"
+    },
+    {
+      "row": 38,
+      "movement_date": "2026-08-20",
+      "settlement_date": "2026-08-20",
+      "description": "Taxa de intermediação doador  MBRF3 2026080601099702560001-1",
+      "value_brl": -0.2,
+      "balance_brl": 308.76,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "MBRF3"
+    },
+    {
+      "row": 40,
+      "movement_date": "2026-08-20",
+      "settlement_date": "2026-08-20",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC MBRF",
+      "value_brl": -0.14,
+      "balance_brl": 306.6,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "MBRF3"
+    },
+    {
+      "row": 41,
+      "movement_date": "2026-08-20",
+      "settlement_date": "2026-08-20",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CYRE",
+      "value_brl": -0.17,
+      "balance_brl": 306.74,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "CYRE?"
+    },
+    {
+      "row": 42,
+      "movement_date": "2026-08-20",
+      "settlement_date": "2026-08-20",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC AURE",
+      "value_brl": -0.02,
+      "balance_brl": 306.91,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "AURE3"
+    },
+    {
+      "row": 43,
+      "movement_date": "2026-08-20",
+      "settlement_date": "2026-08-20",
+      "description": "Crédito Ref. Taxa de Remuneração BTC MBRF",
+      "value_brl": 0.65,
+      "balance_brl": 306.93,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "MBRF3"
+    },
+    {
+      "row": 44,
+      "movement_date": "2026-08-20",
+      "settlement_date": "2026-08-20",
+      "description": "Crédito Ref. Taxa de Remuneração BTC CYRE",
+      "value_brl": 0.79,
+      "balance_brl": 306.28,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "CYRE?"
+    },
+    {
+      "row": 45,
+      "movement_date": "2026-08-20",
+      "settlement_date": "2026-08-20",
+      "description": "Crédito Ref. Taxa de Remuneração BTC AURE",
+      "value_brl": 0.12,
+      "balance_brl": 305.49,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "AURE3"
+    },
+    {
+      "row": 50,
+      "movement_date": "2026-08-18",
+      "settlement_date": "2026-08-18",
+      "description": "AJUSTE DE CUSTOS BTC  - TTEN3 14",
+      "value_brl": 0.03,
+      "balance_brl": 1866.87,
+      "category": "ajuste_custo_aluguel",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 51,
+      "movement_date": "2026-08-18",
+      "settlement_date": "2026-08-18",
+      "description": "AJUSTE DE CUSTOS BTC  - TTEN3 656",
+      "value_brl": 2.15,
+      "balance_brl": 1866.84,
+      "category": "ajuste_custo_aluguel",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 52,
+      "movement_date": "2026-08-18",
+      "settlement_date": "2026-08-18",
+      "description": "AJUSTE DE CUSTOS BTC  - TTEN3 730",
+      "value_brl": 1.5,
+      "balance_brl": 1864.69,
+      "category": "ajuste_custo_aluguel",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 54,
+      "movement_date": "2026-08-18",
+      "settlement_date": "2026-08-18",
+      "description": "Taxa de intermediação doador  CMIN3 2026072801058073360001-2",
+      "value_brl": -994.57,
+      "balance_brl": 13436.75,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "CMIN3"
+    },
+    {
+      "row": 55,
+      "movement_date": "2026-08-18",
+      "settlement_date": "2026-08-18",
+      "description": "Taxa de intermediação doador  VALE3 2026072201051133390001-2",
+      "value_brl": -4.16,
+      "balance_brl": 14431.32,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "VALE3"
+    },
+    {
+      "row": 56,
+      "movement_date": "2026-08-18",
+      "settlement_date": "2026-08-18",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC VALE",
+      "value_brl": -3.11,
+      "balance_brl": 14435.48,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "VALE3"
+    },
+    {
+      "row": 57,
+      "movement_date": "2026-08-18",
+      "settlement_date": "2026-08-18",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CMIN",
+      "value_brl": -639.69,
+      "balance_brl": 14438.59,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "CMIN3"
+    },
+    {
+      "row": 58,
+      "movement_date": "2026-08-18",
+      "settlement_date": "2026-08-18",
+      "description": "DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRTTENACNOR0",
+      "value_brl": -2.74,
+      "balance_brl": 15078.28,
+      "category": "aluguel_acoes_taxa_b3",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 59,
+      "movement_date": "2026-08-18",
+      "settlement_date": "2026-08-18",
+      "description": "EMOLUMENTOS BTC BRTTENACNOR0",
+      "value_brl": -0.94,
+      "balance_brl": 15081.02,
+      "category": "aluguel_acoes_emolumentos",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 60,
+      "movement_date": "2026-08-18",
+      "settlement_date": "2026-08-18",
+      "description": "Crédito Ref. Taxa de Remuneração BTC VALE",
+      "value_brl": 13.86,
+      "balance_brl": 15081.96,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "VALE3"
+    },
+    {
+      "row": 61,
+      "movement_date": "2026-08-18",
+      "settlement_date": "2026-08-18",
+      "description": "Crédito Ref. Taxa de Remuneração BTC CMIN",
+      "value_brl": 2843.08,
+      "balance_brl": 15068.1,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "CMIN3"
+    },
+    {
+      "row": 66,
+      "movement_date": "2026-08-17",
+      "settlement_date": "2026-08-17",
+      "description": "Taxa de intermediação doador  TTEN3 2026072401070300330001-2",
+      "value_brl": -0.36,
+      "balance_brl": 24879.69,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 67,
+      "movement_date": "2026-08-17",
+      "settlement_date": "2026-08-17",
+      "description": "Taxa de intermediação doador  FLRY3 2026080701101288200001-1",
+      "value_brl": -0.02,
+      "balance_brl": 24880.05,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "FLRY3"
+    },
+    {
+      "row": 69,
+      "movement_date": "2026-08-17",
+      "settlement_date": "2026-08-17",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC TTEN",
+      "value_brl": -0.27,
+      "balance_brl": 24260.57,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 70,
+      "movement_date": "2026-08-17",
+      "settlement_date": "2026-08-17",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC FLRY",
+      "value_brl": -0.01,
+      "balance_brl": 24260.84,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "FLRY3"
+    },
+    {
+      "row": 71,
+      "movement_date": "2026-08-17",
+      "settlement_date": "2026-08-17",
+      "description": "Crédito Ref. Taxa de Remuneração BTC TTEN",
+      "value_brl": 1.2,
+      "balance_brl": 24260.85,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 72,
+      "movement_date": "2026-08-17",
+      "settlement_date": "2026-08-17",
+      "description": "Crédito Ref. Taxa de Remuneração BTC FLRY",
+      "value_brl": 0.08,
+      "balance_brl": 24259.65,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "FLRY3"
+    },
+    {
+      "row": 74,
+      "movement_date": "2026-08-14",
+      "settlement_date": "2026-08-14",
+      "description": "Taxa de intermediação doador  KLBN11 2026071601043907930001-2",
+      "value_brl": -0.03,
+      "balance_brl": 1225.74,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "KLBN11"
+    },
+    {
+      "row": 75,
+      "movement_date": "2026-08-14",
+      "settlement_date": "2026-08-14",
+      "description": "Taxa de intermediação doador  BPAC11 2026080601099740320001-1",
+      "value_brl": -0.38,
+      "balance_brl": 1225.77,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "BPAC11"
+    },
+    {
+      "row": 77,
+      "movement_date": "2026-08-14",
+      "settlement_date": "2026-08-14",
+      "description": "Crédito Ref. Taxa de Remuneração BTC KLBN",
+      "value_brl": 0.11,
+      "balance_brl": 491.19,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "KLBN11"
+    },
+    {
+      "row": 78,
+      "movement_date": "2026-08-14",
+      "settlement_date": "2026-08-14",
+      "description": "Crédito Ref. Taxa de Remuneração BTC BPAC",
+      "value_brl": 1.29,
+      "balance_brl": 491.08,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "BPAC11"
+    },
+    {
+      "row": 79,
+      "movement_date": "2026-08-14",
+      "settlement_date": "2026-08-14",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC KLBN",
+      "value_brl": -0.02,
+      "balance_brl": 489.79,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "KLBN11"
+    },
+    {
+      "row": 80,
+      "movement_date": "2026-08-14",
+      "settlement_date": "2026-08-14",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BPAC",
+      "value_brl": -0.29,
+      "balance_brl": 489.81,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "BPAC11"
+    },
+    {
+      "row": 81,
+      "movement_date": "2026-08-13",
+      "settlement_date": "2026-08-13",
+      "description": "Taxa de intermediação doador  SBSP3 2026071501059542490001-2",
+      "value_brl": -1.03,
+      "balance_brl": 490.1,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": null
+    },
+    {
+      "row": 83,
+      "movement_date": "2026-08-13",
+      "settlement_date": "2026-08-13",
+      "description": "Crédito Ref. Taxa de Remuneração BTC SBSP",
+      "value_brl": 3.45,
+      "balance_brl": 473.61,
+      "category": "aluguel_acoes_bruto",
+      "ticker": null
+    },
+    {
+      "row": 84,
+      "movement_date": "2026-08-13",
+      "settlement_date": "2026-08-13",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC SBSP",
+      "value_brl": -0.77,
+      "balance_brl": 470.16,
+      "category": "aluguel_acoes_irrf",
+      "ticker": null
+    },
+    {
+      "row": 85,
+      "movement_date": "2026-08-11",
+      "settlement_date": "2026-08-11",
+      "description": "Taxa de intermediação doador  BBDC4 2026080301096014900001-1",
+      "value_brl": -0.04,
+      "balance_brl": 470.93,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "BBDC4"
+    },
+    {
+      "row": 86,
+      "movement_date": "2026-08-11",
+      "settlement_date": "2026-08-11",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BBDC",
+      "value_brl": -0.03,
+      "balance_brl": 470.97,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "BBDC4"
+    },
+    {
+      "row": 87,
+      "movement_date": "2026-08-11",
+      "settlement_date": "2026-08-11",
+      "description": "Crédito Ref. Taxa de Remuneração BTC BBDC",
+      "value_brl": 0.15,
+      "balance_brl": 471.0,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "BBDC4"
+    },
+    {
+      "row": 88,
+      "movement_date": "2026-08-10",
+      "settlement_date": "2026-08-10",
+      "description": "AJUSTE DE CUSTOS BTC  - BRAV3 1009",
+      "value_brl": 21.37,
+      "balance_brl": 470.85,
+      "category": "ajuste_custo_aluguel",
+      "ticker": null
+    },
+    {
+      "row": 89,
+      "movement_date": "2026-08-10",
+      "settlement_date": "2026-08-10",
+      "description": "AJUSTE DE CUSTOS BTC  - TTEN3 744",
+      "value_brl": 1.13,
+      "balance_brl": 449.48,
+      "category": "ajuste_custo_aluguel",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 91,
+      "movement_date": "2026-08-10",
+      "settlement_date": "2026-08-10",
+      "description": "Taxa de intermediação doador  BRAV3 2026080301096975220001-1",
+      "value_brl": -17.24,
+      "balance_brl": 441.4,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": null
+    },
+    {
+      "row": 92,
+      "movement_date": "2026-08-10",
+      "settlement_date": "2026-08-10",
+      "description": "Crédito Ref. Taxa de Remuneração BTC BRAV",
+      "value_brl": 55.94,
+      "balance_brl": 458.64,
+      "category": "aluguel_acoes_bruto",
+      "ticker": null
+    },
+    {
+      "row": 93,
+      "movement_date": "2026-08-10",
+      "settlement_date": "2026-08-10",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BRAV",
+      "value_brl": -12.58,
+      "balance_brl": 402.7,
+      "category": "aluguel_acoes_irrf",
+      "ticker": null
+    },
+    {
+      "row": 94,
+      "movement_date": "2026-08-10",
+      "settlement_date": "2026-08-10",
+      "description": "EMOLUMENTOS BTC BRTTENACNOR0",
+      "value_brl": -0.3,
+      "balance_brl": 415.28,
+      "category": "aluguel_acoes_emolumentos",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 95,
+      "movement_date": "2026-08-10",
+      "settlement_date": "2026-08-10",
+      "description": "EMOLUMENTOS BTC BRBRAVACNOR3",
+      "value_brl": -3.61,
+      "balance_brl": 415.58,
+      "category": "aluguel_acoes_emolumentos",
+      "ticker": null
+    },
+    {
+      "row": 96,
+      "movement_date": "2026-08-10",
+      "settlement_date": "2026-08-10",
+      "description": "DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRTTENACNOR0",
+      "value_brl": -0.83,
+      "balance_brl": 419.19,
+      "category": "aluguel_acoes_taxa_b3",
+      "ticker": "TTEN3"
+    },
+    {
+      "row": 97,
+      "movement_date": "2026-08-10",
+      "settlement_date": "2026-08-10",
+      "description": "DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRBRAVACNOR3",
+      "value_brl": -17.76,
+      "balance_brl": 420.02,
+      "category": "aluguel_acoes_taxa_b3",
+      "ticker": null
+    },
+    {
+      "row": 98,
+      "movement_date": "2026-08-07",
+      "settlement_date": "2026-08-07",
+      "description": "AJUSTE DE CUSTOS BTC  - BRAV3 1232",
+      "value_brl": 75.87,
+      "balance_brl": 437.78,
+      "category": "ajuste_custo_aluguel",
+      "ticker": null
+    },
+    {
+      "row": 103,
+      "movement_date": "2026-08-07",
+      "settlement_date": "2026-08-07",
+      "description": "Taxa de intermediação doador  SUZB3 2026071601066418540001-2",
+      "value_brl": -0.33,
+      "balance_brl": 18016.55,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": null
+    },
+    {
+      "row": 104,
+      "movement_date": "2026-08-07",
+      "settlement_date": "2026-08-07",
+      "description": "DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRBRAVACNOR3",
+      "value_brl": -14.46,
+      "balance_brl": 18016.88,
+      "category": "aluguel_acoes_taxa_b3",
+      "ticker": null
+    },
+    {
+      "row": 105,
+      "movement_date": "2026-08-07",
+      "settlement_date": "2026-08-07",
+      "description": "Crédito Ref. Taxa de Remuneração BTC SUZB",
+      "value_brl": 1.12,
+      "balance_brl": 18031.34,
+      "category": "aluguel_acoes_bruto",
+      "ticker": null
+    },
+    {
+      "row": 106,
+      "movement_date": "2026-08-07",
+      "settlement_date": "2026-08-07",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC SUZB",
+      "value_brl": -0.25,
+      "balance_brl": 18030.22,
+      "category": "aluguel_acoes_irrf",
+      "ticker": null
+    },
+    {
+      "row": 107,
+      "movement_date": "2026-08-07",
+      "settlement_date": "2026-08-07",
+      "description": "EMOLUMENTOS BTC BRBRAVACNOR3",
+      "value_brl": -3.3,
+      "balance_brl": 18030.47,
+      "category": "aluguel_acoes_emolumentos",
+      "ticker": null
+    },
+    {
+      "row": 112,
+      "movement_date": "2026-08-06",
+      "settlement_date": "2026-08-06",
+      "description": "Taxa de intermediação doador  CMIN3 2026072801058073360001-2",
+      "value_brl": -79.69,
+      "balance_brl": 39897.67,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "CMIN3"
+    },
+    {
+      "row": 113,
+      "movement_date": "2026-08-06",
+      "settlement_date": "2026-08-06",
+      "description": "Taxa de intermediação doador  CXSE3 2026073101076615430001-2",
+      "value_brl": -0.07,
+      "balance_brl": 39977.36,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "CXSE3"
+    },
+    {
+      "row": 114,
+      "movement_date": "2026-08-06",
+      "settlement_date": "2026-08-06",
+      "description": "Crédito Ref. Taxa de Remuneração BTC CXSE",
+      "value_brl": 0.24,
+      "balance_brl": 39977.43,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "CXSE3"
+    },
+    {
+      "row": 115,
+      "movement_date": "2026-08-06",
+      "settlement_date": "2026-08-06",
+      "description": "Crédito Ref. Taxa de Remuneração BTC CMIN",
+      "value_brl": 226.69,
+      "balance_brl": 39977.19,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "CMIN3"
+    },
+    {
+      "row": 116,
+      "movement_date": "2026-08-06",
+      "settlement_date": "2026-08-06",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CXSE",
+      "value_brl": -0.05,
+      "balance_brl": 39750.5,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "CXSE3"
+    },
+    {
+      "row": 117,
+      "movement_date": "2026-08-06",
+      "settlement_date": "2026-08-06",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CMIN",
+      "value_brl": -51.0,
+      "balance_brl": 39750.55,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "CMIN3"
+    },
+    {
+      "row": 119,
+      "movement_date": "2026-08-05",
+      "settlement_date": "2026-08-05",
+      "description": "Taxa de intermediação doador  MBRF3 2026080301095936840001-1",
+      "value_brl": -0.02,
+      "balance_brl": 4543.3,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "MBRF3"
+    },
+    {
+      "row": 120,
+      "movement_date": "2026-08-05",
+      "settlement_date": "2026-08-05",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC MBRF",
+      "value_brl": -0.01,
+      "balance_brl": 4543.32,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "MBRF3"
+    },
+    {
+      "row": 121,
+      "movement_date": "2026-08-05",
+      "settlement_date": "2026-08-05",
+      "description": "Crédito Ref. Taxa de Remuneração BTC MBRF",
+      "value_brl": 0.06,
+      "balance_brl": 4543.33,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "MBRF3"
+    },
+    {
+      "row": 125,
+      "movement_date": "2026-08-03",
+      "settlement_date": "2026-08-03",
+      "description": "Taxa de intermediação doador  CXSE3 2026070301076615430001-1",
+      "value_brl": -0.64,
+      "balance_brl": 16526.94,
+      "category": "aluguel_acoes_intermediacao",
+      "ticker": "CXSE3"
+    },
+    {
+      "row": 126,
+      "movement_date": "2026-08-03",
+      "settlement_date": "2026-08-03",
+      "description": "Crédito Ref. Taxa de Remuneração BTC CXSE",
+      "value_brl": 2.14,
+      "balance_brl": 16527.58,
+      "category": "aluguel_acoes_bruto",
+      "ticker": "CXSE3"
+    },
+    {
+      "row": 127,
+      "movement_date": "2026-08-03",
+      "settlement_date": "2026-08-03",
+      "description": "DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CXSE",
+      "value_brl": -0.48,
+      "balance_brl": 16525.44,
+      "category": "aluguel_acoes_irrf",
+      "ticker": "CXSE3"
+    }
+  ],
+  "reembolsos_corporativos": [
+    {
+      "row": 48,
+      "movement_date": "2026-08-19",
+      "settlement_date": "2026-08-19",
+      "description": "CREDITO DE REEMBOLSO DE EVENTO   BRKLBNCDAM18",
+      "value_brl": 90.96,
+      "balance_brl": 1305.37,
+      "category": "reembolso_evento_corporativo",
+      "ticker": "KLBN11"
+    },
+    {
+      "row": 68,
+      "movement_date": "2026-08-17",
+      "settlement_date": "2026-08-17",
+      "description": "CREDITO DE REEMBOLSO DE EVENTO   BRCXSEACNOR7",
+      "value_brl": 619.5,
+      "balance_brl": 24880.07,
+      "category": "reembolso_evento_corporativo",
+      "ticker": "CXSE3"
+    },
+    {
+      "row": 76,
+      "movement_date": "2026-08-14",
+      "settlement_date": "2026-08-14",
+      "description": "CREDITO DE REEMBOLSO DE EVENTO   BRBPACUNT006",
+      "value_brl": 734.96,
+      "balance_brl": 1226.15,
+      "category": "reembolso_evento_corporativo",
+      "ticker": "BPAC11"
+    },
+    {
+      "row": 124,
+      "movement_date": "2026-08-03",
+      "settlement_date": "2026-08-03",
+      "description": "CREDITO DE REEMBOLSO DE EVENTO   BRBBDCACNPR8",
+      "value_brl": 16.32,
+      "balance_brl": 16543.26,
+      "category": "reembolso_evento_corporativo",
+      "ticker": "BBDC4"
+    }
+  ],
+  "resgates_e_ir": [],
+  "totais": {
+    "aportes_brutos": 7136.1,
+    "proventos_fii": 120.56,
+    "aluguéis_efeito_caixa": 1552.79,
+    "aluguéis_brutos": 3474.12,
+    "reembolsos_corporativos": 1461.74
+  }
+}

@@ -1,0 +1,117 @@
+﻿row,movement_date,settlement_date,description,value_brl,balance_brl,category
+15,2026-08-28,2026-08-28,Taxa de intermediação doador  TTEN3 2026081901111734300001-1,-0.45,563.18,aluguel_acoes_intermediacao
+16,2026-08-28,2026-08-28,Taxa de intermediação doador  CYRE3 2026082601074174590001-2,-1.74,563.63,aluguel_acoes_intermediacao
+17,2026-08-28,2026-08-28,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC TTEN,-0.33,565.37,aluguel_acoes_irrf
+18,2026-08-28,2026-08-28,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CYRE,-1.18,565.7,aluguel_acoes_irrf
+19,2026-08-28,2026-08-28,Crédito Ref. Taxa de Remuneração BTC TTEN,1.49,566.88,aluguel_acoes_bruto
+20,2026-08-28,2026-08-28,Crédito Ref. Taxa de Remuneração BTC CYRE,5.27,565.39,aluguel_acoes_bruto
+21,2026-08-27,2026-08-27,Taxa de intermediação doador  MBRF3 2026072801046284870001-2,-81.4,560.12,aluguel_acoes_intermediacao
+22,2026-08-27,2026-08-27,Taxa de intermediação doador  BBDC4 2026082001113678690001-1,-0.02,641.52,aluguel_acoes_intermediacao
+23,2026-08-27,2026-08-27,Taxa de intermediação doador  MBRF3 2026072800998699400001-2,-0.83,641.54,aluguel_acoes_intermediacao
+24,2026-08-27,2026-08-27,Taxa de intermediação doador  MBRF3 2026072800878449260001-2,-12.82,642.37,aluguel_acoes_intermediacao
+25,2026-08-27,2026-08-27,Taxa de intermediação doador  CYRE3 2026072901074174590001-2,-0.96,655.19,aluguel_acoes_intermediacao
+26,2026-08-27,2026-08-27,Crédito Ref. Taxa de Remuneração BTC MBRF,311.02,656.15,aluguel_acoes_bruto
+27,2026-08-27,2026-08-27,Crédito Ref. Taxa de Remuneração BTC CYRE,3.2,345.13,aluguel_acoes_bruto
+28,2026-08-27,2026-08-27,Crédito Ref. Taxa de Remuneração BTC BBDC,0.09,341.93,aluguel_acoes_bruto
+29,2026-08-27,2026-08-27,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC MBRF,-69.96,341.84,aluguel_acoes_irrf
+30,2026-08-27,2026-08-27,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CYRE,-0.72,411.8,aluguel_acoes_irrf
+31,2026-08-27,2026-08-27,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BBDC,-0.02,412.52,aluguel_acoes_irrf
+32,2026-08-25,2026-08-25,Taxa de intermediação doador  CXSE3 2026073101076615430001-2,-0.62,412.54,aluguel_acoes_intermediacao
+33,2026-08-25,2026-08-25,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CXSE,-0.46,413.16,aluguel_acoes_irrf
+34,2026-08-25,2026-08-25,Crédito Ref. Taxa de Remuneração BTC CXSE,2.08,413.62,aluguel_acoes_bruto
+35,2026-08-25,2026-08-25,RENDIMENTOS DE CLIENTES XPML11 S/            112,103.04,411.54,provento_fii
+36,2026-08-20,2026-08-20,Taxa de intermediação doador  AURE3 2026072201006197950001-2,-0.03,308.5,aluguel_acoes_intermediacao
+37,2026-08-20,2026-08-20,Taxa de intermediação doador  CYRE4 2026072201001707260001-2,-0.23,308.53,aluguel_acoes_intermediacao
+38,2026-08-20,2026-08-20,Taxa de intermediação doador  MBRF3 2026080601099702560001-1,-0.2,308.76,aluguel_acoes_intermediacao
+39,2026-08-20,2026-08-20,CREDITO SUBSCRIÇÃO-BTC BBDC S/,2.36,308.96,outro
+40,2026-08-20,2026-08-20,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC MBRF,-0.14,306.6,aluguel_acoes_irrf
+41,2026-08-20,2026-08-20,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CYRE,-0.17,306.74,aluguel_acoes_irrf
+42,2026-08-20,2026-08-20,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC AURE,-0.02,306.91,aluguel_acoes_irrf
+43,2026-08-20,2026-08-20,Crédito Ref. Taxa de Remuneração BTC MBRF,0.65,306.93,aluguel_acoes_bruto
+44,2026-08-20,2026-08-20,Crédito Ref. Taxa de Remuneração BTC CYRE,0.79,306.28,aluguel_acoes_bruto
+45,2026-08-20,2026-08-20,Crédito Ref. Taxa de Remuneração BTC AURE,0.12,305.49,aluguel_acoes_bruto
+46,2026-08-19,2026-08-19,COMPRA CDB | CDB BANCO C6 CONSIGNADO S.A. - AGO/2030,-7000.0,305.37,outro
+47,2026-08-19,2026-08-19,Transferência recebida da conta digital,6000.0,7305.37,aporte_conta_digital
+48,2026-08-19,2026-08-19,CREDITO DE REEMBOLSO DE EVENTO   BRKLBNCDAM18,90.96,1305.37,reembolso_evento_corporativo
+49,2026-08-17,2026-08-19,OPERAÇÕES EM BOLSA PR 17/08/2026 NOTA Nº 142304204,-652.46,1214.41,outro
+50,2026-08-18,2026-08-18,AJUSTE DE CUSTOS BTC  - TTEN3 14,0.03,1866.87,ajuste_custo_aluguel
+51,2026-08-18,2026-08-18,AJUSTE DE CUSTOS BTC  - TTEN3 656,2.15,1866.84,ajuste_custo_aluguel
+52,2026-08-18,2026-08-18,AJUSTE DE CUSTOS BTC  - TTEN3 730,1.5,1864.69,ajuste_custo_aluguel
+53,2026-08-18,2026-08-18,COMPRA TESOURO DIRETO CLIENTES,-11573.56,1863.19,outro
+54,2026-08-18,2026-08-18,Taxa de intermediação doador  CMIN3 2026072801058073360001-2,-994.57,13436.75,aluguel_acoes_intermediacao
+55,2026-08-18,2026-08-18,Taxa de intermediação doador  VALE3 2026072201051133390001-2,-4.16,14431.32,aluguel_acoes_intermediacao
+56,2026-08-18,2026-08-18,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC VALE,-3.11,14435.48,aluguel_acoes_irrf
+57,2026-08-18,2026-08-18,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CMIN,-639.69,14438.59,aluguel_acoes_irrf
+58,2026-08-18,2026-08-18,DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRTTENACNOR0,-2.74,15078.28,aluguel_acoes_taxa_b3
+59,2026-08-18,2026-08-18,EMOLUMENTOS BTC BRTTENACNOR0,-0.94,15081.02,aluguel_acoes_emolumentos
+60,2026-08-18,2026-08-18,Crédito Ref. Taxa de Remuneração BTC VALE,13.86,15081.96,aluguel_acoes_bruto
+61,2026-08-18,2026-08-18,Crédito Ref. Taxa de Remuneração BTC CMIN,2843.08,15068.1,aluguel_acoes_bruto
+62,2026-08-17,2026-08-17,Cambio VD Intern,-5395.32,12225.02,outro
+63,2026-08-17,2026-08-17,IOF Cambio Intern,-59.35,17620.34,outro
+64,2026-08-17,2026-08-17,Cambio VD Intern,-7121.66,17679.69,outro
+65,2026-08-17,2026-08-17,IOF Cambio Intern,-78.34,24801.35,outro
+66,2026-08-17,2026-08-17,Taxa de intermediação doador  TTEN3 2026072401070300330001-2,-0.36,24879.69,aluguel_acoes_intermediacao
+67,2026-08-17,2026-08-17,Taxa de intermediação doador  FLRY3 2026080701101288200001-1,-0.02,24880.05,aluguel_acoes_intermediacao
+68,2026-08-17,2026-08-17,CREDITO DE REEMBOLSO DE EVENTO   BRCXSEACNOR7,619.5,24880.07,reembolso_evento_corporativo
+69,2026-08-17,2026-08-17,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC TTEN,-0.27,24260.57,aluguel_acoes_irrf
+70,2026-08-17,2026-08-17,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC FLRY,-0.01,24260.84,aluguel_acoes_irrf
+71,2026-08-17,2026-08-17,Crédito Ref. Taxa de Remuneração BTC TTEN,1.2,24260.85,aluguel_acoes_bruto
+72,2026-08-17,2026-08-17,Crédito Ref. Taxa de Remuneração BTC FLRY,0.08,24259.65,aluguel_acoes_bruto
+73,2026-08-05,2026-08-17,OPERAÇÕES EM BOLSA PR 05/08/2026 NOTA Nº 141490300,23033.83,24259.57,outro
+74,2026-08-14,2026-08-14,Taxa de intermediação doador  KLBN11 2026071601043907930001-2,-0.03,1225.74,aluguel_acoes_intermediacao
+75,2026-08-14,2026-08-14,Taxa de intermediação doador  BPAC11 2026080601099740320001-1,-0.38,1225.77,aluguel_acoes_intermediacao
+76,2026-08-14,2026-08-14,CREDITO DE REEMBOLSO DE EVENTO   BRBPACUNT006,734.96,1226.15,reembolso_evento_corporativo
+77,2026-08-14,2026-08-14,Crédito Ref. Taxa de Remuneração BTC KLBN,0.11,491.19,aluguel_acoes_bruto
+78,2026-08-14,2026-08-14,Crédito Ref. Taxa de Remuneração BTC BPAC,1.29,491.08,aluguel_acoes_bruto
+79,2026-08-14,2026-08-14,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC KLBN,-0.02,489.79,aluguel_acoes_irrf
+80,2026-08-14,2026-08-14,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BPAC,-0.29,489.81,aluguel_acoes_irrf
+81,2026-08-13,2026-08-13,Taxa de intermediação doador  SBSP3 2026071501059542490001-2,-1.03,490.1,aluguel_acoes_intermediacao
+82,2026-08-13,2026-08-13,RENDIMENTOS DE CLIENTES ZAVI11 S/            146,17.52,491.13,provento_fii
+83,2026-08-13,2026-08-13,Crédito Ref. Taxa de Remuneração BTC SBSP,3.45,473.61,aluguel_acoes_bruto
+84,2026-08-13,2026-08-13,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC SBSP,-0.77,470.16,aluguel_acoes_irrf
+85,2026-08-11,2026-08-11,Taxa de intermediação doador  BBDC4 2026080301096014900001-1,-0.04,470.93,aluguel_acoes_intermediacao
+86,2026-08-11,2026-08-11,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BBDC,-0.03,470.97,aluguel_acoes_irrf
+87,2026-08-11,2026-08-11,Crédito Ref. Taxa de Remuneração BTC BBDC,0.15,471.0,aluguel_acoes_bruto
+88,2026-08-10,2026-08-10,AJUSTE DE CUSTOS BTC  - BRAV3 1009,21.37,470.85,ajuste_custo_aluguel
+89,2026-08-10,2026-08-10,AJUSTE DE CUSTOS BTC  - TTEN3 744,1.13,449.48,ajuste_custo_aluguel
+90,2026-08-10,2026-08-10,"ESTORNO
+  AJUSTE TAXA DE LIQUIDAÇÃO BOVESPA 07/08",6.95,448.35,outro
+91,2026-08-10,2026-08-10,Taxa de intermediação doador  BRAV3 2026080301096975220001-1,-17.24,441.4,aluguel_acoes_intermediacao
+92,2026-08-10,2026-08-10,Crédito Ref. Taxa de Remuneração BTC BRAV,55.94,458.64,aluguel_acoes_bruto
+93,2026-08-10,2026-08-10,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC BRAV,-12.58,402.7,aluguel_acoes_irrf
+94,2026-08-10,2026-08-10,EMOLUMENTOS BTC BRTTENACNOR0,-0.3,415.28,aluguel_acoes_emolumentos
+95,2026-08-10,2026-08-10,EMOLUMENTOS BTC BRBRAVACNOR3,-3.61,415.58,aluguel_acoes_emolumentos
+96,2026-08-10,2026-08-10,DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRTTENACNOR0,-0.83,419.19,aluguel_acoes_taxa_b3
+97,2026-08-10,2026-08-10,DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRBRAVACNOR3,-17.76,420.02,aluguel_acoes_taxa_b3
+98,2026-08-07,2026-08-07,AJUSTE DE CUSTOS BTC  - BRAV3 1232,75.87,437.78,ajuste_custo_aluguel
+99,2026-08-07,2026-08-07,"AJUSTE
+  TAXA DE LIQUIDAÇÃO BOVESPA",-5.19,361.91,outro
+100,2026-08-07,2026-08-07,"AJUSTE
+  TAXA DE LIQUIDAÇÃO BOVESPA",-1.16,367.1,outro
+101,2026-08-07,2026-08-07,COMPRA TESOURO DIRETO CLIENTES,-17590.18,368.26,outro
+102,2026-08-07,2026-08-07,Taxa de intermediação tomador  BRAV3 2026080401098298050001-1,-58.11,17958.44,outro
+103,2026-08-07,2026-08-07,Taxa de intermediação doador  SUZB3 2026071601066418540001-2,-0.33,18016.55,aluguel_acoes_intermediacao
+104,2026-08-07,2026-08-07,DEBITO REF.TAXA DE REMUNERAÇÃO-BTC BRBRAVACNOR3,-14.46,18016.88,aluguel_acoes_taxa_b3
+105,2026-08-07,2026-08-07,Crédito Ref. Taxa de Remuneração BTC SUZB,1.12,18031.34,aluguel_acoes_bruto
+106,2026-08-07,2026-08-07,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC SUZB,-0.25,18030.22,aluguel_acoes_irrf
+107,2026-08-07,2026-08-07,EMOLUMENTOS BTC BRBRAVACNOR3,-3.3,18030.47,aluguel_acoes_emolumentos
+108,2026-08-06,2026-08-06,COMPRA CDB | CDB BANCO XP S.A. - AGO/2028,-7000.0,18033.77,outro
+109,2026-08-06,2026-08-06,Transferência recebida da conta digital,1136.1,25033.77,aporte_conta_digital
+110,2026-08-06,2026-08-06,IOF Cambio Intern,-174.09,23897.67,outro
+111,2026-08-06,2026-08-06,Cambio VD Intern,-15825.91,24071.76,outro
+112,2026-08-06,2026-08-06,Taxa de intermediação doador  CMIN3 2026072801058073360001-2,-79.69,39897.67,aluguel_acoes_intermediacao
+113,2026-08-06,2026-08-06,Taxa de intermediação doador  CXSE3 2026073101076615430001-2,-0.07,39977.36,aluguel_acoes_intermediacao
+114,2026-08-06,2026-08-06,Crédito Ref. Taxa de Remuneração BTC CXSE,0.24,39977.43,aluguel_acoes_bruto
+115,2026-08-06,2026-08-06,Crédito Ref. Taxa de Remuneração BTC CMIN,226.69,39977.19,aluguel_acoes_bruto
+116,2026-08-06,2026-08-06,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CXSE,-0.05,39750.5,aluguel_acoes_irrf
+117,2026-08-06,2026-08-06,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CMIN,-51.0,39750.55,aluguel_acoes_irrf
+118,2026-08-04,2026-08-06,OPERAÇÕES EM BOLSA PR 04/08/2026 NOTA Nº 141396101,35258.25,39801.55,outro
+119,2026-08-05,2026-08-05,Taxa de intermediação doador  MBRF3 2026080301095936840001-1,-0.02,4543.3,aluguel_acoes_intermediacao
+120,2026-08-05,2026-08-05,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC MBRF,-0.01,4543.32,aluguel_acoes_irrf
+121,2026-08-05,2026-08-05,Crédito Ref. Taxa de Remuneração BTC MBRF,0.06,4543.33,aluguel_acoes_bruto
+122,2026-08-04,2026-08-04,Cambio VD Intern,-11869.43,4543.27,outro
+123,2026-08-04,2026-08-04,IOF Cambio Intern,-130.56,16412.7,outro
+124,2026-08-03,2026-08-03,CREDITO DE REEMBOLSO DE EVENTO   BRBBDCACNPR8,16.32,16543.26,reembolso_evento_corporativo
+125,2026-08-03,2026-08-03,Taxa de intermediação doador  CXSE3 2026070301076615430001-1,-0.64,16526.94,aluguel_acoes_intermediacao
+126,2026-08-03,2026-08-03,Crédito Ref. Taxa de Remuneração BTC CXSE,2.14,16527.58,aluguel_acoes_bruto
+127,2026-08-03,2026-08-03,DEBITO CBLC IRRF S/ RENDIMENTO DE BTC CXSE,-0.48,16525.44,aluguel_acoes_irrf

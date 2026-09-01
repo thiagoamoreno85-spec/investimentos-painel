@@ -363,3 +363,19 @@
 - [x] Conferir o registro atual e a classe do ativo FGTS
 - [x] Atualizar quantidade, custo médio, custo total e preço manual de FGTS
 - [x] Validar o lucro calculado, testar e salvar checkpoint
+
+## Revisão de Índia, Aportes e Hedge — Em andamento
+- [x] Consolidar a exposição atual à Índia e as demais classes da carteira
+- [x] Verificar se a tese de Índia permanece ativa e avaliar 3,5% versus 2,5%
+- [x] Refazer a distribuição de aportes mensais para R$ 20.000,00
+- [x] Reavaliar a put de BOVA11 e gerar prompt para a planilha no Claude
+
+## Operações de 01/09/2026 — Em andamento
+- [x] Conferir os ativos existentes e consolidar compras, aplicações e criptoativos
+- [x] Registrar transações e atualizar posições e custos médios
+- [x] Validar os saldos atualizados, rodar testes e salvar checkpoint
+
+## Conciliação com Planilha — Operações de 01/09/2026 — Em andamento
+- [x] Extrair da aba de ações as posições e operações de TWST, URNM, INDA, BTC, ETH, USDT, Tesouro Selic e CDBs
+- [x] Confrontar planilha, imagens e painel antes de inserir transações
+- [x] Registrar somente operações confirmadas e validar o resultado

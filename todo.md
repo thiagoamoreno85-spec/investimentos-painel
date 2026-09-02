@@ -386,3 +386,9 @@
 - [x] Conferir duplicidades e solicitar confirmação antes de registrar itens novos
 - [x] Registrar os eventos confirmados sem alterar o saldo atual de caixa
 - [x] Validar os lançamentos, rodar testes e salvar checkpoint
+
+## Reinvestimento de Dividendos — 02/09/2026 — Em andamento
+- [x] Conferir FLRY3 e VALE3 e verificar a inexistência de lançamentos duplicados
+- [x] Registrar a compra confirmada de FLRY3 como reinvestimento de dividendos
+- [x] Confirmar os dados da ordem parcial de VALE3 antes de registrar
+- [x] Validar o lançamento confirmado, testar e salvar checkpoint

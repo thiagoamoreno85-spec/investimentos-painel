@@ -1,0 +1,335 @@
+{
+  "asOf": "2026-09-02T19:42:28.414Z",
+  "methodology": "Variação a mercado dos ativos já detidos no início de cada dia; compras do próprio dia são excluídas da variação para não tratar aporte/reinvestimento como ganho.",
+  "fx": {
+    "aug31": 5.191199779510498,
+    "sep1": 5.181700229644775,
+    "current": 5.1071
+  },
+  "sep1": {
+    "marketPnlBRL": -2171.813558700077,
+    "baseBRL": 1876214.54,
+    "returnPct": -0.11575507557361094
+  },
+  "sep2": {
+    "marketPnlBRL": 19188.042751231114,
+    "baseBRL": 1905519.863437995,
+    "returnPct": 1.0069715419608107
+  },
+  "coverage": {
+    "assets": 94,
+    "fallbackAssets": [
+      "AXIA6",
+      "KINEA_GAMA",
+      "AZ_QUEST",
+      "BNP_RUBI",
+      "ELET3",
+      "FGTS",
+      "TC_COSMOS",
+      "SISPRIME",
+      "TREND_INV",
+      "ABBV",
+      "15_55",
+      "IPCA_6_55",
+      "IPCA_7_95",
+      "IPCA_8_25_2",
+      "IPCA_6_85",
+      "IPCA_7_01",
+      "IPCA_7_4",
+      "SELIC_31",
+      "PRE_15",
+      "PRE_15_05",
+      "PRE_14_90",
+      "PRE_15_31",
+      "IPCA_8_8",
+      "IPCA_8_25_1",
+      "CDI_ISENTO",
+      "IPCA_8_3",
+      "ZAVI11",
+      "CRA025005V5",
+      "CDB_XP_2028",
+      "CDB32076NW3",
+      "AURY",
+      "FTT",
+      "CDB_C6_IPCA_2030",
+      "CDB_C6_IPCA_2029"
+    ],
+    "apiFailures": 0
+  },
+  "byClass": [
+    {
+      "pnlSep1": 8271.84686088562,
+      "pnlSep2": 26163.43234737395
+    },
+    {
+      "pnlSep1": 0,
+      "pnlSep2": -32.12000000000009
+    },
+    {
+      "pnlSep1": -7673.25408300084,
+      "pnlSep2": -4486.514695902281
+    },
+    {
+      "pnlSep1": -989.1758688877919,
+      "pnlSep2": -1765.8956701209543
+    },
+    {
+      "pnlSep1": 0,
+      "pnlSep2": 0
+    },
+    {
+      "pnlSep1": -1663.6244042628418,
+      "pnlSep2": -493.55463409523776
+    },
+    {
+      "pnlSep1": -117.60606343422414,
+      "pnlSep2": -197.3045960243616
+    }
+  ],
+  "topContributors": {
+    "sep1": [
+      {
+        "ticker": "CMIN3",
+        "assetClass": "rv_nacional",
+        "currency": "BRL",
+        "symbol": "CMIN3.SA",
+        "qtyAug31": 18457,
+        "qtySep1": 18457,
+        "aug31": 5.920000076293945,
+        "sep1": 6.079999923706055,
+        "livePrice": 6.35,
+        "pnlSep1": 2953.1171836853027,
+        "pnlSep2": 4983.391408157342,
+        "startSep2Value": 112218.55859184265,
+        "usedFallback": false
+      },
+      {
+        "ticker": "MU",
+        "assetClass": "rv_eua",
+        "currency": "USD",
+        "symbol": "MU",
+        "qtyAug31": 13.12204,
+        "qtySep1": 13.12204,
+        "aug31": 958.72998046875,
+        "sep1": 933.4400024414062,
+        "livePrice": 954.51,
+        "pnlSep1": -1839.087868584974,
+        "pnlSep2": 498.26676974728156,
+        "startSep2Value": 63468.76541293556,
+        "usedFallback": false
+      },
+      {
+        "ticker": "URNM",
+        "assetClass": "uranio",
+        "currency": "USD",
+        "symbol": "URNM",
+        "qtyAug31": 139.79477,
+        "qtySep1": 146.79695,
+        "aug31": 56.810001373291016,
+        "sep1": 54.66999816894531,
+        "livePrice": 54.82,
+        "pnlSep1": -1625.6069129936568,
+        "pnlSep2": -486.23848321585047,
+        "startSep2Value": 41585.15996058875,
+        "usedFallback": false
+      },
+      {
+        "ticker": "BPAC11",
+        "assetClass": "rv_nacional",
+        "currency": "BRL",
+        "symbol": "BPAC11.SA",
+        "qtyAug31": 1147,
+        "qtySep1": 1147,
+        "aug31": 54.709999084472656,
+        "sep1": 55.970001220703125,
+        "livePrice": 57.65,
+        "pnlSep1": 1445.2224502563477,
+        "pnlSep2": 1926.958599853514,
+        "startSep2Value": 64197.591400146484,
+        "usedFallback": false
+      },
+      {
+        "ticker": "CRWD",
+        "assetClass": "rv_eua",
+        "currency": "USD",
+        "symbol": "CRWD",
+        "qtyAug31": 16,
+        "qtySep1": 16,
+        "aug31": 231,
+        "sep1": 215.07000732421875,
+        "livePrice": 202.69,
+        "pnlSep1": -1355.8214836050756,
+        "pnlSep2": -1268.3233174657253,
+        "startSep2Value": 17830.852901465725,
+        "usedFallback": false
+      },
+      {
+        "ticker": "BRAV3",
+        "assetClass": "rv_nacional",
+        "currency": "BRL",
+        "symbol": "BRAV3.SA",
+        "qtyAug31": 1232,
+        "qtySep1": 1232,
+        "aug31": 17.1299991607666,
+        "sep1": 18,
+        "livePrice": 18.86,
+        "pnlSep1": 1071.8410339355469,
+        "pnlSep2": 1059.5199999999993,
+        "startSep2Value": 22176,
+        "usedFallback": false
+      },
+      {
+        "ticker": "NET",
+        "assetClass": "rv_eua",
+        "currency": "USD",
+        "symbol": "NET",
+        "qtyAug31": 10.22344,
+        "qtySep1": 10.22344,
+        "aug31": 305.1099853515625,
+        "sep1": 285.510009765625,
+        "livePrice": 270.84,
+        "pnlSep1": -1067.9365094068994,
+        "pnlSep2": -983.7026597992036,
+        "startSep2Value": 15124.836063835364,
+        "usedFallback": false
+      },
+      {
+        "ticker": "BBAS3",
+        "assetClass": "rv_nacional",
+        "currency": "BRL",
+        "symbol": "BBAS3.SA",
+        "qtyAug31": 2146,
+        "qtySep1": 2146,
+        "aug31": 20.739999771118164,
+        "sep1": 21.209999084472656,
+        "livePrice": 22.3,
+        "pnlSep1": 1008.6185264587402,
+        "pnlSep2": 2339.1419647216812,
+        "startSep2Value": 45516.65803527832,
+        "usedFallback": false
+      }
+    ],
+    "sep2": [
+      {
+        "ticker": "CMIN3",
+        "assetClass": "rv_nacional",
+        "currency": "BRL",
+        "symbol": "CMIN3.SA",
+        "qtyAug31": 18457,
+        "qtySep1": 18457,
+        "aug31": 5.920000076293945,
+        "sep1": 6.079999923706055,
+        "livePrice": 6.35,
+        "pnlSep1": 2953.1171836853027,
+        "pnlSep2": 4983.391408157342,
+        "startSep2Value": 112218.55859184265,
+        "usedFallback": false
+      },
+      {
+        "ticker": "SBSP3",
+        "assetClass": "rv_nacional",
+        "currency": "BRL",
+        "symbol": "SBSP3.SA",
+        "qtyAug31": 3585,
+        "qtySep1": 3585,
+        "aug31": 25.280000686645508,
+        "sep1": 25.100000381469727,
+        "livePrice": 26.09,
+        "pnlSep1": -645.3010940551758,
+        "pnlSep2": 3549.14863243103,
+        "startSep2Value": 89983.50136756897,
+        "usedFallback": false
+      },
+      {
+        "ticker": "VALE3",
+        "assetClass": "rv_nacional",
+        "currency": "BRL",
+        "symbol": "VALE3.SA",
+        "qtyAug31": 1346,
+        "qtySep1": 1346,
+        "aug31": 77.8499984741211,
+        "sep1": 78.30000305175781,
+        "livePrice": 80.66,
+        "pnlSep1": 605.7061614990234,
+        "pnlSep2": 3176.55589233398,
+        "startSep2Value": 105391.80410766602,
+        "usedFallback": false
+      },
+      {
+        "ticker": "BBAS3",
+        "assetClass": "rv_nacional",
+        "currency": "BRL",
+        "symbol": "BBAS3.SA",
+        "qtyAug31": 2146,
+        "qtySep1": 2146,
+        "aug31": 20.739999771118164,
+        "sep1": 21.209999084472656,
+        "livePrice": 22.3,
+        "pnlSep1": 1008.6185264587402,
+        "pnlSep2": 2339.1419647216812,
+        "startSep2Value": 45516.65803527832,
+        "usedFallback": false
+      },
+      {
+        "ticker": "CYRE3",
+        "assetClass": "rv_nacional",
+        "currency": "BRL",
+        "symbol": "CYRE3.SA",
+        "qtyAug31": 2679,
+        "qtySep1": 2679,
+        "aug31": 24.290000915527344,
+        "sep1": 24.65999984741211,
+        "livePrice": 25.45,
+        "pnlSep1": 991.2271385192871,
+        "pnlSep2": 2116.410408782957,
+        "startSep2Value": 66064.13959121704,
+        "usedFallback": false
+      },
+      {
+        "ticker": "BPAC11",
+        "assetClass": "rv_nacional",
+        "currency": "BRL",
+        "symbol": "BPAC11.SA",
+        "qtyAug31": 1147,
+        "qtySep1": 1147,
+        "aug31": 54.709999084472656,
+        "sep1": 55.970001220703125,
+        "livePrice": 57.65,
+        "pnlSep1": 1445.2224502563477,
+        "pnlSep2": 1926.958599853514,
+        "startSep2Value": 64197.591400146484,
+        "usedFallback": false
+      },
+      {
+        "ticker": "CRWD",
+        "assetClass": "rv_eua",
+        "currency": "USD",
+        "symbol": "CRWD",
+        "qtyAug31": 16,
+        "qtySep1": 16,
+        "aug31": 231,
+        "sep1": 215.07000732421875,
+        "livePrice": 202.69,
+        "pnlSep1": -1355.8214836050756,
+        "pnlSep2": -1268.3233174657253,
+        "startSep2Value": 17830.852901465725,
+        "usedFallback": false
+      },
+      {
+        "ticker": "MBRF3",
+        "assetClass": "rv_nacional",
+        "currency": "BRL",
+        "symbol": "MBRF3.SA",
+        "qtyAug31": 4130,
+        "qtySep1": 4130,
+        "aug31": 18.260000228881836,
+        "sep1": 18.299999237060547,
+        "livePrice": 18.6,
+        "pnlSep1": 165.19590377807617,
+        "pnlSep2": 1239.0031509399473,
+        "startSep2Value": 75578.99684906006,
+        "usedFallback": false
+      }
+    ]
+  }
+}

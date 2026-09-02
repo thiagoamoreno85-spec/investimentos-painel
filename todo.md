@@ -392,3 +392,8 @@
 - [x] Registrar a compra confirmada de FLRY3 como reinvestimento de dividendos
 - [x] Confirmar os dados da ordem parcial de VALE3 antes de registrar
 - [x] Validar o lançamento confirmado, testar e salvar checkpoint
+
+## Apuração de Rentabilidade Diária — 01/09/2026 e Dia Atual — Em andamento
+- [x] Conferir snapshots, posições e fluxos financeiros das datas solicitadas
+- [x] Calcular retorno diário ajustado por fluxos de caixa e validar as bases
+- [x] Entregar a apuração com metodologia e limitações

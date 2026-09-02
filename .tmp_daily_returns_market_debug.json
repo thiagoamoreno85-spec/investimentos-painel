@@ -1,0 +1,87 @@
+{
+  "usdBrlPoints": [
+    {
+      "date": "2026-08-26",
+      "close": 5.14739990234375
+    },
+    {
+      "date": "2026-08-27",
+      "close": 5.161099910736084
+    },
+    {
+      "date": "2026-08-30",
+      "close": 5.191199779510498
+    },
+    {
+      "date": "2026-08-31",
+      "close": 5.181700229644775
+    },
+    {
+      "date": "2026-09-02",
+      "close": 5.107100009918213
+    }
+  ],
+  "symbolsCollected": [
+    "VALE3.SA",
+    "SBSP3.SA",
+    "CMIN3.SA",
+    "MBRF3.SA",
+    "CYRE3.SA",
+    "BPAC11.SA",
+    "AXIA6.SA",
+    "ORVR3.SA",
+    "BBAS3.SA",
+    "BRAV3.SA",
+    "TTEN3.SA",
+    "INBR32.SA",
+    "KEPL3.SA",
+    "SUZB3.SA",
+    "CXSE3.SA",
+    "BBDC4.SA",
+    "CYRE4.SA",
+    "AGRO3.SA",
+    "AXIA7.SA",
+    "XPML11.SA",
+    "SOJA3.SA",
+    "FLRY3.SA",
+    "KLBN11.SA",
+    "AURE3.SA",
+    "TSM",
+    "MU",
+    "GOOGL",
+    "TSLA",
+    "MSFT",
+    "CVX",
+    "NVDA",
+    "NET",
+    "CRWD",
+    "BAC",
+    "AMZN",
+    "BANC",
+    "PGEN",
+    "UNH",
+    "TWST",
+    "AAPL",
+    "CRWV",
+    "ABBV",
+    "NEE",
+    "ENPH",
+    "SOUN",
+    "BTC-USD",
+    "ETH-USD",
+    "SOL-USD",
+    "BNB-USD",
+    "AVAX-USD",
+    "URNM",
+    "URA",
+    "INDA",
+    "INFY",
+    "HDB",
+    "IBN",
+    "LMT",
+    "PLTR",
+    "SPCX",
+    "USDBRL=X"
+  ],
+  "failures": []
+}

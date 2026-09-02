@@ -397,3 +397,10 @@
 - [x] Conferir snapshots, posições e fluxos financeiros das datas solicitadas
 - [x] Calcular retorno diário ajustado por fluxos de caixa e validar as bases
 - [x] Entregar a apuração com metodologia e limitações
+
+## Auditoria de Rentabilidade — Em andamento
+- [x] Mapear fontes de preço, câmbio, snapshots e fluxos usados pelos procedimentos
+- [x] Unificar a metodologia de retorno diário e mensal sem incluir compras ou aportes como ganho
+- [x] Corrigir os procedimentos e a apresentação do card sem modificar dados financeiros
+- [x] Criar testes de não-regressão para compra, aporte, ativo manual e falha de cotação
+- [x] Validar os resultados e documentar as limitações remanescentes

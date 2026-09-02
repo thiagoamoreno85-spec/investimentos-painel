@@ -1,0 +1,57 @@
+{
+  "totalPct": 1.481090403211978,
+  "totalBRL": 28147.71547257993,
+  "totalValueBRL": 1928620.1924758183,
+  "byClass": [
+    {
+      "classKey": "rv_nacional",
+      "className": "RV Nacional",
+      "changeBRL": 27533.042800000003,
+      "changePct": 3.0110185065975705,
+      "valueBRL": 941942.6600000001
+    },
+    {
+      "classKey": "rv_eua",
+      "className": "RV EUA",
+      "changeBRL": 862.8359154087001,
+      "changePct": 0.25089287412626365,
+      "valueBRL": 344768.94262072374
+    },
+    {
+      "classKey": "cripto",
+      "className": "Criptomoedas",
+      "changeBRL": -699.3433909988714,
+      "changePct": -0.5783139775420642,
+      "valueBRL": 120228.63313331125
+    },
+    {
+      "classKey": "india",
+      "className": "Índia",
+      "changeBRL": 231.6556600019253,
+      "changePct": 0.7739322631817057,
+      "valueBRL": 30163.947027410213
+    },
+    {
+      "classKey": "uranio",
+      "className": "Urânio",
+      "changeBRL": 210.7644881681671,
+      "changePct": 0.5021308711471316,
+      "valueBRL": 42184.77968597306
+    },
+    {
+      "classKey": "fundos",
+      "className": "Fundos",
+      "changeBRL": 8.760000000000073,
+      "changePct": 0.002447007004557571,
+      "valueBRL": 357997.11
+    },
+    {
+      "classKey": "renda_fixa",
+      "className": "Renda Fixa",
+      "changeBRL": 0,
+      "changePct": 0,
+      "valueBRL": 91334.12000840002
+    }
+  ],
+  "updatedAt": "2026-09-02T19:51:28.021Z"
+}

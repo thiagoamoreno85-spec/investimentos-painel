@@ -8,7 +8,7 @@
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { getDb, getAssetsByUser } from "../db";
 import { portfolioSnapshots, cashBalance } from "../../drizzle/schema";
-import { fetchUsdBrl } from "../quotes";
+import { fetchQuotes, fetchUsdBrl } from "../quotes";
 
 const USD_CLASSES = ["rv_eua", "cripto", "uranio", "india"];
 
@@ -28,7 +28,14 @@ export async function captureSnapshot(userId: number): Promise<SnapshotResult> {
   if (!db) throw new Error("Database not available");
 
   const assets = await getAssetsByUser(userId);
-  const usdBrl = await fetchUsdBrl().catch(() => 5.7);
+  const [usdBrl, quotes] = await Promise.all([
+    fetchUsdBrl().catch(() => 5.7),
+    fetchQuotes(
+      assets
+        .filter((asset) => asset.assetClass !== "caixa" && asset.assetClass !== "renda_fixa")
+        .map((asset) => ({ ticker: asset.ticker, assetClass: asset.assetClass }))
+    ).catch(() => new Map()),
+  ]);
 
   const cashRows = await db
     .select()
@@ -46,7 +53,10 @@ export async function captureSnapshot(userId: number): Promise<SnapshotResult> {
   for (const asset of assets) {
     if (asset.assetClass === "caixa") continue;
     const qty = parseFloat(asset.totalQuantity || "0");
-    const price = parseFloat(asset.lastPrice || asset.averageCost || "0");
+    const marketPrice = quotes.get(asset.ticker)?.price;
+    const price = marketPrice && marketPrice > 0
+      ? marketPrice
+      : parseFloat(asset.lastPrice || asset.averageCost || "0");
     const avgCost = parseFloat(asset.averageCost || "0");
     const fx = USD_CLASSES.includes(asset.assetClass) ? usdBrl : 1;
 
@@ -57,7 +67,11 @@ export async function captureSnapshot(userId: number): Promise<SnapshotResult> {
       (classBreakdown[asset.assetClass] ?? 0) + valueBRL;
   }
 
-  const snapshotDate = new Date().toISOString().slice(0, 10);
+  const dateParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(new Date());
+  const dateRecord = Object.fromEntries(dateParts.map((part) => [part.type, part.value]));
+  const snapshotDate = `${dateRecord.year}-${dateRecord.month}-${dateRecord.day}`;
 
   const existing = await db
     .select()

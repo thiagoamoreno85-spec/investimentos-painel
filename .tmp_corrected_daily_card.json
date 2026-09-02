@@ -1,0 +1,83 @@
+{
+  "date": "2026-09-02",
+  "totalPct": 1.5473544076604697,
+  "totalBRL": 29368.04441108828,
+  "marketPnlBRL": 29368.04441108828,
+  "incomePnlBRL": 0,
+  "totalValueBRL": 1929797.3756778908,
+  "startValueBRL": 1897952.0312668022,
+  "byClass": [
+    {
+      "classKey": "rv_nacional",
+      "className": "RV Nacional",
+      "startValueBRL": 911983.7771999999,
+      "valueBRL": 942554.1500000001,
+      "marketPnlBRL": 28093.07280000003,
+      "incomePnlBRL": 0,
+      "changeBRL": 28093.07280000003,
+      "changePct": 3.0804355847482543
+    },
+    {
+      "classKey": "rv_eua",
+      "className": "RV EUA",
+      "startValueBRL": 343845.4898948265,
+      "valueBRL": 344981.3241257143,
+      "marketPnlBRL": 1135.8342308876217,
+      "incomePnlBRL": 0,
+      "changeBRL": 1135.8342308876217,
+      "changePct": 0.3303327408002485
+    },
+    {
+      "classKey": "cripto",
+      "className": "Criptomoedas",
+      "startValueBRL": 120906.66178725605,
+      "valueBRL": 120605.50787229626,
+      "marketPnlBRL": -301.15391495978906,
+      "incomePnlBRL": 0,
+      "changeBRL": -301.15391495978906,
+      "changePct": -0.2490796706385716
+    },
+    {
+      "classKey": "india",
+      "className": "Índia",
+      "startValueBRL": 29927.01550868428,
+      "valueBRL": 30154.26006781924,
+      "marketPnlBRL": 227.24455913495973,
+      "incomePnlBRL": 0,
+      "changeBRL": 227.24455913495973,
+      "changePct": 0.7593291722290767
+    },
+    {
+      "classKey": "uranio",
+      "className": "Urânio",
+      "startValueBRL": 41966.61686763549,
+      "valueBRL": 42173.823603660945,
+      "marketPnlBRL": 207.20673602545548,
+      "incomePnlBRL": 0,
+      "changeBRL": 207.20673602545548,
+      "changePct": 0.49374181549824336
+    },
+    {
+      "classKey": "fundos",
+      "className": "Fundos",
+      "startValueBRL": 357988.35,
+      "valueBRL": 357994.19,
+      "marketPnlBRL": 5.8400000000001455,
+      "incomePnlBRL": 0,
+      "changeBRL": 5.8400000000001455,
+      "changePct": 0.0016313380030384078
+    },
+    {
+      "classKey": "renda_fixa",
+      "className": "Renda Fixa",
+      "startValueBRL": 91334.12000840002,
+      "valueBRL": 91334.12000840002,
+      "marketPnlBRL": 0,
+      "incomePnlBRL": 0,
+      "changeBRL": 0,
+      "changePct": 0
+    }
+  ],
+  "updatedAt": "2026-09-02T20:06:16.679Z",
+  "excludesCash": true
+}

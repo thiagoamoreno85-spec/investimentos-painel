@@ -10,6 +10,12 @@ interface QuoteResult {
   marketState: string;
 }
 
+export interface FxQuote {
+  price: number;
+  change: number;
+  previousClose: number;
+}
+
 /**
  * Converte ticker do formato interno para o formato Yahoo Finance
  */
@@ -130,10 +136,8 @@ export async function fetchQuotes(
   return results;
 }
 
-/**
- * Busca cotação do dólar (USD/BRL)
- */
-export async function fetchUsdBrl(): Promise<number> {
+/** Busca USD/BRL com preço atual e fechamento anterior para retorno em BRL. */
+export async function fetchUsdBrlQuote(): Promise<FxQuote> {
   try {
     const url = "https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X?interval=1d&range=1d";
     const response = await axios.get(url, {
@@ -143,9 +147,20 @@ export async function fetchUsdBrl(): Promise<number> {
       },
     });
     const meta = response.data?.chart?.result?.[0]?.meta;
-    return meta?.regularMarketPrice ?? DEFAULT_USD_BRL_RATE;
+    const price = Number(meta?.regularMarketPrice ?? DEFAULT_USD_BRL_RATE);
+    const change = Number(
+      meta?.regularMarketChange ??
+      (meta?.previousClose !== undefined ? price - Number(meta.previousClose) : 0)
+    );
+    const previousClose = Number(meta?.previousClose ?? (price - change));
+    return { price, change, previousClose };
   } catch {
     console.warn("[Quotes] Failed to fetch USD/BRL, using fallback");
-    return DEFAULT_USD_BRL_RATE;
+    return { price: DEFAULT_USD_BRL_RATE, change: 0, previousClose: DEFAULT_USD_BRL_RATE };
   }
+}
+
+/** Busca apenas a cotação atual do dólar (USD/BRL). */
+export async function fetchUsdBrl(): Promise<number> {
+  return (await fetchUsdBrlQuote()).price;
 }

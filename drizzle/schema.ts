@@ -311,6 +311,28 @@ export const portfolioSnapshots = mysqlTable("portfolio_snapshots", {
 export type PortfolioSnapshot = typeof portfolioSnapshots.$inferSelect;
 export type InsertPortfolioSnapshot = typeof portfolioSnapshots.$inferInsert;
 
+/**
+ * Retorno diário da carteira investida, calculado com ajuste de compras, vendas,
+ * corretagens e proventos. O caixa conciliado fica deliberadamente fora deste
+ * ledger porque não é derivado automaticamente das transações de ativos.
+ */
+export const dailyPerformanceSnapshots = mysqlTable("daily_performance_snapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  snapshotDate: varchar("snapshotDate", { length: 10 }).notNull(),
+  startValue: decimal("startValue", { precision: 18, scale: 2 }).notNull(),
+  endValue: decimal("endValue", { precision: 18, scale: 2 }).notNull(),
+  marketPnl: decimal("marketPnl", { precision: 18, scale: 2 }).notNull(),
+  incomePnl: decimal("incomePnl", { precision: 18, scale: 2 }).notNull(),
+  returnValue: decimal("returnValue", { precision: 18, scale: 2 }).notNull(),
+  returnPct: decimal("returnPct", { precision: 18, scale: 8 }).notNull(),
+  classBreakdown: text("classBreakdown"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type DailyPerformanceSnapshot = typeof dailyPerformanceSnapshots.$inferSelect;
+export type InsertDailyPerformanceSnapshot = typeof dailyPerformanceSnapshots.$inferInsert;
+
 // Patrimônio — Ativos imobilizados, créditos, participações
 export const patrimonialAssets = mysqlTable("patrimonial_assets", {
   id: int("id").autoincrement().primaryKey(),

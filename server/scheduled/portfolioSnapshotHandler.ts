@@ -12,6 +12,7 @@ import { users } from "../../drizzle/schema";
 import { ENV } from "../_core/env";
 import { eq } from "drizzle-orm";
 import { captureSnapshot } from "../services/snapshotService";
+import { captureDailyPerformanceSnapshot } from "../services/dailyPerformanceService";
 
 export async function portfolioSnapshotHandler(req: Request, res: Response) {
   const startTime = Date.now();
@@ -49,6 +50,7 @@ export async function portfolioSnapshotHandler(req: Request, res: Response) {
     }
 
     const result = await captureSnapshot(ownerRows[0].id);
+    const dailyPerformance = await captureDailyPerformanceSnapshot(ownerRows[0].id);
 
     const elapsed = Date.now() - startTime;
     console.log(
@@ -60,6 +62,11 @@ export async function portfolioSnapshotHandler(req: Request, res: Response) {
       taskUid: cronTaskUid,
       elapsed,
       ...result,
+      dailyPerformance: {
+        date: dailyPerformance.date,
+        returnPct: dailyPerformance.totalPct,
+        returnValue: dailyPerformance.totalBRL,
+      },
     });
   } catch (error) {
     const elapsed = Date.now() - startTime;

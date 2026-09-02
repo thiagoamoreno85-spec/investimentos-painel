@@ -207,10 +207,13 @@ export function PerformanceCards() {
               {performance.monthly.total.valueDiff >= 0 ? "+" : ""}
               {formatCurrency(performance.monthly.total.valueDiff)}
             </p>
-            {/* Indicador do método encadeado */}
+            {/* Indicador do método encadeado e ajustado por fluxos */}
             {(performance.monthly as any).chainedReturn !== null && (
-              <p className="text-xs text-muted-foreground/50 mt-1" title="Rentabilidade calculada pelo método encadeado (produto das variações diárias), isolando o retorno puro da carteira">
-                Encadeado · {(performance.monthly as any).snapshotCount ?? 0} snapshots
+              <p className="text-xs text-muted-foreground/50 mt-1" title="Retorno da carteira investida, encadeado por dia e ajustado por compras, vendas, corretagens e proventos. O caixa conciliado não é tratado como retorno de mercado.">
+                {(performance.monthly as any).isPartial ? "Parcial desde " : "Ajustada por fluxos · "}
+                {(performance.monthly as any).isPartial
+                  ? (performance.monthly as any).baseDate
+                  : `${(performance.monthly as any).snapshotCount ?? 0} dias`}
               </p>
             )}
             <ClassBreakdown
@@ -222,7 +225,7 @@ export function PerformanceCards() {
           </>
         ) : (
           <p className="text-xs text-muted-foreground">
-            Sem snapshot do mês anterior
+            Sem retorno diário disponível para o mês
           </p>
         )}
       </CardContent>

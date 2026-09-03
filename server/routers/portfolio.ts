@@ -33,6 +33,7 @@ import {
   captureDailyPerformanceSnapshot,
   getLiveDailyPerformance,
   getMonthlyPerformance,
+  getMonthlyPerformanceDetails,
 } from "../services/dailyPerformanceService";
 import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
 import { assets, transactions as transactionsTable, dividends, cashBalance, portfolioSnapshots } from "../../drizzle/schema";
@@ -710,6 +711,10 @@ export const portfolioRouter = router({
       },
       hasSnapshots: !!monthly,
     };
+  }),
+
+  getMonthlyPerformanceDetails: protectedProcedure.query(async ({ ctx }) => {
+    return getMonthlyPerformanceDetails(ctx.user.id);
   }),
 
   getAssetsDailyChange: protectedProcedure.query(async ({ ctx }) => {

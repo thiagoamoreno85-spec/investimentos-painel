@@ -1,0 +1,1 @@
+ALTER TABLE `daily_performance_snapshots` ADD `assetBreakdown` text;

@@ -8,6 +8,7 @@ import { BalanceVisibilityProvider } from "./contexts/BalanceVisibilityContext";
 import Home from "./pages/Home";
 import Alocacao from "./pages/Alocacao";
 import Rentabilidade from "./pages/Rentabilidade";
+import RentabilidadeDetalhada from "./pages/RentabilidadeDetalhada";
 import Aportes from "./pages/Aportes";
 import Patrimonio from "./pages/Patrimonio";
 import Transacoes from "./pages/Transacoes";
@@ -26,6 +27,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/alocacao"} component={Alocacao} />
       <Route path={"/rentabilidade"} component={Rentabilidade} />
+      <Route path={"/rentabilidade/detalhes"} component={RentabilidadeDetalhada} />
       <Route path={"/aportes"} component={Aportes} />
       <Route path={"/patrimonio"} component={Patrimonio} />
       <Route path={"/transacoes"} component={Transacoes} />

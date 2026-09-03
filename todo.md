@@ -412,3 +412,9 @@
 - [x] Conferir retornos diários persistidos e o cálculo exibido pelo card Rent. Mês
 - [x] Corrigir a composição para incluir todos os dias do mês corrente
 - [x] Criar teste de não-regressão para acúmulo de múltiplos dias e validar o card
+
+## Detalhamento Diário da Rentabilidade Mensal — Em andamento
+- [x] Mapear o ícone de calendário, o card Rent. Mês e os dados necessários por ativo/dia
+- [x] Implementar consulta de rentabilidade diária por ativo no mês corrente
+- [x] Criar tela responsiva e vincular o ícone de calendário ao detalhamento
+- [x] Testar a navegação e os dados

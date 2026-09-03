@@ -1,0 +1,190 @@
+{
+  "monthStart": "2026-09-01",
+  "today": "2026-09-03",
+  "summary": {
+    "total": {
+      "valueDiff": 44588.23988249281,
+      "percentDiff": 2.3388441494368584
+    },
+    "byClass": {
+      "rv_nacional": {
+        "valueDiff": 48377.0152501869,
+        "percentDiff": 5.3478166737058075
+      },
+      "fundos": {
+        "valueDiff": -32.1201058197023,
+        "percentDiff": -0.00897136410253907
+      },
+      "rv_eua": {
+        "valueDiff": -5240.822033732184,
+        "percentDiff": -1.468808802765087
+      },
+      "cripto": {
+        "valueDiff": 2481.8793106634257,
+        "percentDiff": 2.051530755765474
+      },
+      "renda_fixa": {
+        "valueDiff": -682.8281816000003,
+        "percentDiff": -0.7826147902417979
+      },
+      "uranio": {
+        "valueDiff": -216.40804067915906,
+        "percentDiff": -0.660255314078817
+      },
+      "india": {
+        "valueDiff": -98.47631652647362,
+        "percentDiff": -0.38822268887026556
+      }
+    },
+    "snapshotCount": 3,
+    "baseDate": "2026-09-01",
+    "includesLiveDay": true,
+    "isPartial": false
+  },
+  "days": [
+    {
+      "date": "2026-09-01",
+      "source": "reconstructed",
+      "returnPct": -0.24140917555317104,
+      "returnValue": -4578.908710206016,
+      "assetCount": 94,
+      "sample": [
+        {
+          "assetId": 1,
+          "ticker": "VALE3",
+          "name": "VALE3",
+          "classKey": "rv_nacional",
+          "currency": "BRL",
+          "startValueBRL": 104786.09794616699,
+          "valueBRL": 105391.80410766602,
+          "marketPnlBRL": 605.7061614990234,
+          "incomePnlBRL": 0,
+          "changeBRL": 605.7061614990234,
+          "changePct": 0.5780405734835169
+        },
+        {
+          "assetId": 2,
+          "ticker": "SBSP3",
+          "name": "SBSP3",
+          "classKey": "rv_nacional",
+          "currency": "BRL",
+          "startValueBRL": 90628.80246162415,
+          "valueBRL": 89983.50136756897,
+          "marketPnlBRL": -645.3010940551758,
+          "incomePnlBRL": 0,
+          "changeBRL": -645.3010940551758,
+          "changePct": -0.7120265042985888
+        },
+        {
+          "assetId": 3,
+          "ticker": "CMIN3",
+          "name": "CMIN3",
+          "classKey": "rv_nacional",
+          "currency": "BRL",
+          "startValueBRL": 109265.44140815735,
+          "valueBRL": 112218.55859184265,
+          "marketPnlBRL": 2953.1171836853027,
+          "incomePnlBRL": 0,
+          "changeBRL": 2953.1171836853027,
+          "changePct": 2.7027000903735274
+        }
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "source": "reconstructed",
+      "returnPct": 1.605950767701034,
+      "returnValue": 30558.224588660563,
+      "assetCount": 94,
+      "sample": [
+        {
+          "assetId": 1,
+          "ticker": "VALE3",
+          "name": "VALE3",
+          "classKey": "rv_nacional",
+          "currency": "BRL",
+          "startValueBRL": 105391.80410766602,
+          "valueBRL": 111180.80419921875,
+          "marketPnlBRL": 3389.9000915527345,
+          "incomePnlBRL": 0,
+          "changeBRL": 3389.9000915527345,
+          "changePct": 3.2164741084512465
+        },
+        {
+          "assetId": 2,
+          "ticker": "SBSP3",
+          "name": "SBSP3",
+          "classKey": "rv_nacional",
+          "currency": "BRL",
+          "startValueBRL": 89983.50136756897,
+          "valueBRL": 93747.74863243103,
+          "marketPnlBRL": 3764.2472648620605,
+          "incomePnlBRL": 0,
+          "changeBRL": 3764.2472648620605,
+          "changePct": 4.18326382909427
+        },
+        {
+          "assetId": 3,
+          "ticker": "CMIN3",
+          "name": "CMIN3",
+          "classKey": "rv_nacional",
+          "currency": "BRL",
+          "startValueBRL": 112218.55859184265,
+          "valueBRL": 118124.80176019669,
+          "marketPnlBRL": 5906.243168354034,
+          "incomePnlBRL": 0,
+          "changeBRL": 5906.243168354034,
+          "changePct": 5.263160784158717
+        }
+      ]
+    },
+    {
+      "date": "2026-09-03",
+      "source": "live",
+      "returnPct": 0.9650483971161177,
+      "returnValue": 18608.92400403826,
+      "assetCount": 94,
+      "sample": [
+        {
+          "assetId": 1,
+          "ticker": "VALE3",
+          "name": "VALE3",
+          "classKey": "rv_nacional",
+          "currency": "BRL",
+          "startValueBRL": 111180.8,
+          "valueBRL": 110190.08,
+          "marketPnlBRL": -990.7200000000012,
+          "incomePnlBRL": 0,
+          "changeBRL": -990.7200000000012,
+          "changePct": -0.8910891089108921
+        },
+        {
+          "assetId": 2,
+          "ticker": "SBSP3",
+          "name": "SBSP3",
+          "classKey": "rv_nacional",
+          "currency": "BRL",
+          "startValueBRL": 93747.75,
+          "valueBRL": 94966.65,
+          "marketPnlBRL": 1218.8999999999942,
+          "incomePnlBRL": 0,
+          "changeBRL": 1218.8999999999942,
+          "changePct": 1.300191204588904
+        },
+        {
+          "assetId": 3,
+          "ticker": "CMIN3",
+          "name": "CMIN3",
+          "classKey": "rv_nacional",
+          "currency": "BRL",
+          "startValueBRL": 118124.8,
+          "valueBRL": 122369.91,
+          "marketPnlBRL": 4245.110000000001,
+          "incomePnlBRL": 0,
+          "changeBRL": 4245.110000000001,
+          "changePct": 3.5937500000000004
+        }
+      ]
+    }
+  ]
+}

@@ -21,6 +21,20 @@ type DailyClassResult = {
   changePct: number;
 };
 
+export type DailyAssetResult = {
+  assetId: number;
+  ticker: string;
+  name: string;
+  classKey: string;
+  currency: "BRL" | "USD";
+  startValueBRL: number;
+  valueBRL: number;
+  marketPnlBRL: number;
+  incomePnlBRL: number;
+  changeBRL: number;
+  changePct: number;
+};
+
 export type DailyPerformanceResult = {
   date: string;
   totalPct: number;
@@ -30,6 +44,7 @@ export type DailyPerformanceResult = {
   totalValueBRL: number;
   startValueBRL: number;
   byClass: DailyClassResult[];
+  byAsset: DailyAssetResult[];
   byTicker: Record<string, { changeBRL: number; changePct: number }>;
   updatedAt: Date;
   excludesCash: true;
@@ -155,6 +170,8 @@ type MonthlyPoint = {
   returnPct: number;
   returnValue: number;
   byClass: DailyClassResult[];
+  byAsset?: DailyAssetResult[];
+  source?: "ledger" | "reconstructed" | "live";
 };
 
 export function calculateMonthlyReturn(
@@ -239,6 +256,7 @@ export async function getLiveDailyPerformance(
   }
 
   const classes = new Map<string, Omit<DailyClassResult, "classKey" | "className" | "changePct">>();
+  const byAsset: DailyAssetResult[] = [];
   const byTicker: Record<string, { changeBRL: number; changePct: number }> = {};
   for (const asset of investedAssets) {
     const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
@@ -283,6 +301,15 @@ export async function getLiveDailyPerformance(
       changeBRL: result.changeBRL,
       changePct: result.startValueBRL > 0 ? (result.changeBRL / result.startValueBRL) * 100 : 0,
     };
+    byAsset.push({
+      assetId: asset.id,
+      ticker: asset.ticker,
+      name: asset.name,
+      classKey: asset.assetClass,
+      currency,
+      ...result,
+      changePct: result.startValueBRL > 0 ? (result.changeBRL / result.startValueBRL) * 100 : 0,
+    });
 
     const current = classes.get(asset.assetClass) ?? {
       startValueBRL: 0,
@@ -321,6 +348,7 @@ export async function getLiveDailyPerformance(
     totalValueBRL,
     startValueBRL,
     byClass,
+    byAsset,
     byTicker,
     updatedAt: new Date(),
     excludesCash: true,
@@ -359,6 +387,7 @@ async function reconstructHistoricalDailyPoints(
   return dates.map((date) => {
     const { start, next } = dayBounds(date);
     const classes = new Map<string, Omit<DailyClassResult, "classKey" | "className" | "changePct">>();
+    const byAsset: DailyAssetResult[] = [];
 
     for (const asset of investedAssets) {
       const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
@@ -406,6 +435,15 @@ async function reconstructHistoricalDailyPoints(
         currentFx,
         previousFx,
       });
+      byAsset.push({
+        assetId: asset.id,
+        ticker: asset.ticker,
+        name: asset.name,
+        classKey: asset.assetClass,
+        currency,
+        ...result,
+        changePct: result.startValueBRL > 0 ? (result.changeBRL / result.startValueBRL) * 100 : 0,
+      });
       const current = classes.get(asset.assetClass) ?? {
         startValueBRL: 0,
         valueBRL: 0,
@@ -434,6 +472,7 @@ async function reconstructHistoricalDailyPoints(
       returnPct: startValue > 0 ? (returnValue / startValue) * 100 : 0,
       returnValue,
       byClass,
+      byAsset,
     };
   });
 }
@@ -452,6 +491,7 @@ export async function captureDailyPerformanceSnapshot(userId: number) {
     returnValue: performance.totalBRL.toFixed(2),
     returnPct: performance.totalPct.toFixed(8),
     classBreakdown: JSON.stringify(performance.byClass),
+    assetBreakdown: JSON.stringify(performance.byAsset),
   };
   const existing = await db.select().from(dailyPerformanceSnapshots).where(and(
     eq(dailyPerformanceSnapshots.userId, userId),
@@ -466,8 +506,7 @@ export async function captureDailyPerformanceSnapshot(userId: number) {
   return { ...performance, updated: existing.length > 0 };
 }
 
-/** Encadeia retornos fechados do mês e inclui o retorno intradiário até o próximo fechamento. */
-export async function getMonthlyPerformance(userId: number): Promise<MonthlyPerformanceResult | null> {
+async function getMonthlyPerformancePoints(userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Banco de dados indisponível.");
   const today = brtDate();
@@ -478,26 +517,66 @@ export async function getMonthlyPerformance(userId: number): Promise<MonthlyPerf
     lt(dailyPerformanceSnapshots.snapshotDate, `${today.slice(0, 7)}-32`),
   )).orderBy(dailyPerformanceSnapshots.snapshotDate);
 
-  const points = stored.map((row) => ({
+  const points: MonthlyPoint[] = stored.map((row) => ({
     date: row.snapshotDate,
     returnPct: numberOrZero(row.returnPct),
     returnValue: numberOrZero(row.returnValue),
     byClass: row.classBreakdown ? JSON.parse(row.classBreakdown) as DailyClassResult[] : [],
+    byAsset: row.assetBreakdown ? JSON.parse(row.assetBreakdown) as DailyAssetResult[] : [],
+    source: "ledger",
   }));
   const storedDates = new Set(points.map((point) => point.date));
   const previousBusinessDates = calendarDates(monthStart, previousCalendarDate(today));
   const missingDates = previousBusinessDates.filter((date) => !storedDates.has(date));
-  const reconstructed = await reconstructHistoricalDailyPoints(userId, missingDates, monthStart);
+  const reconstructed = (await reconstructHistoricalDailyPoints(userId, missingDates, monthStart))
+    .map((point) => ({ ...point, source: "reconstructed" as const }));
   points.push(...reconstructed);
   points.sort((left, right) => left.date.localeCompare(right.date));
 
   let includesLiveDay = false;
   if (!points.some((point) => point.date === today)) {
     const live = await getLiveDailyPerformance(userId, today);
-    points.push({ date: today, returnPct: live.totalPct, returnValue: live.totalBRL, byClass: live.byClass });
+    points.push({
+      date: today,
+      returnPct: live.totalPct,
+      returnValue: live.totalBRL,
+      byClass: live.byClass,
+      byAsset: live.byAsset,
+      source: "live",
+    });
     includesLiveDay = true;
   }
+  points.sort((left, right) => left.date.localeCompare(right.date));
+  return { monthStart, today, includesLiveDay, points };
+}
+
+/** Encadeia retornos fechados do mês e inclui o retorno intradiário até o próximo fechamento. */
+export async function getMonthlyPerformance(userId: number): Promise<MonthlyPerformanceResult | null> {
+  const { monthStart, includesLiveDay, points } = await getMonthlyPerformancePoints(userId);
   return calculateMonthlyReturn(points, monthStart, includesLiveDay);
+}
+
+/** Retorna a auditoria mensal por dia e por ativo sem modificar a carteira. */
+export async function getMonthlyPerformanceDetails(userId: number) {
+  const { monthStart, today, includesLiveDay, points } = await getMonthlyPerformancePoints(userId);
+  const missingAssetDetails = points
+    .filter((point) => point.date !== today && (!point.byAsset || point.byAsset.length === 0))
+    .map((point) => point.date);
+  const reconstructed = await reconstructHistoricalDailyPoints(userId, missingAssetDetails, monthStart);
+  const reconstructedByDate = new Map(reconstructed.map((point) => [point.date, point.byAsset ?? []]));
+  const days = points.map((point) => ({
+    ...point,
+    byAsset: point.byAsset?.length
+      ? point.byAsset
+      : reconstructedByDate.get(point.date) ?? [],
+  }));
+  return {
+    monthStart,
+    today,
+    includesLiveDay,
+    summary: calculateMonthlyReturn(points, monthStart, includesLiveDay),
+    days,
+  };
 }
 
 export const dailyPerformanceInternals = {

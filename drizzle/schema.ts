@@ -327,6 +327,7 @@ export const dailyPerformanceSnapshots = mysqlTable("daily_performance_snapshots
   returnValue: decimal("returnValue", { precision: 18, scale: 2 }).notNull(),
   returnPct: decimal("returnPct", { precision: 18, scale: 8 }).notNull(),
   classBreakdown: text("classBreakdown"),
+  assetBreakdown: text("assetBreakdown"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

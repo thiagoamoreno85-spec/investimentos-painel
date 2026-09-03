@@ -14,6 +14,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
+import { useLocation } from "wouter";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
   rv_nacional: "RV Nacional",
@@ -111,6 +112,7 @@ function ClassBreakdown({
  * O card de Rentabilidade Diária é renderizado separadamente pelo PerformanceCard (singular).
  */
 export function PerformanceCards() {
+  const [, setLocation] = useLocation();
   const { showBalances } = useBalanceVisibility();
   const { data: performance, isLoading } = trpc.portfolio.getPerformance.useQuery(
     undefined,
@@ -178,13 +180,16 @@ export function PerformanceCards() {
         <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
           Rent. Mês
         </CardTitle>
-        <Calendar
-          className={`h-4 w-4 ${
-            (performance.monthly.total?.valueDiff ?? 0) >= 0
-              ? "text-emerald-500"
-              : "text-red-400"
-          }`}
-        />
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Abrir detalhamento diário da rentabilidade mensal"
+          title="Ver detalhamento diário por ativo"
+          onClick={() => setLocation("/rentabilidade/detalhes")}
+          className="h-7 w-7"
+        >
+          <Calendar className={`h-4 w-4 ${(performance.monthly.total?.valueDiff ?? 0) >= 0 ? "text-emerald-500" : "text-red-400"}`} />
+        </Button>
       </CardHeader>
       <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
         {performance.monthly.total ? (

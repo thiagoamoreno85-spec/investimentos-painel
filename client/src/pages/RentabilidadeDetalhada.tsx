@@ -1,6 +1,7 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { trpc } from "@/lib/trpc";
+import { buildPerformanceCsv } from "@/lib/performanceCsv";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, ArrowDownRight, ArrowUpRight, CalendarDays, Filter, Landmark, Search } from "lucide-react";
+import { ArrowLeft, ArrowDownRight, ArrowUpRight, CalendarDays, Download, Filter, Landmark, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 
@@ -62,6 +63,7 @@ export default function RentabilidadeDetalhada() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [onlyMovements, setOnlyMovements] = useState(false);
+  const [selectedClass, setSelectedClass] = useState("all");
 
   const selectedDay = useMemo(() => {
     if (!data?.days.length) return null;
@@ -73,9 +75,30 @@ export default function RentabilidadeDetalhada() {
     const query = search.trim().toLowerCase();
     return selectedDay.byAsset
       .filter((asset) => !onlyMovements || Math.abs(asset.changeBRL) >= 0.01)
+      .filter((asset) => selectedClass === "all" || asset.classKey === selectedClass)
       .filter((asset) => !query || asset.ticker.toLowerCase().includes(query) || asset.name.toLowerCase().includes(query))
       .sort((a, b) => Math.abs(b.changeBRL) - Math.abs(a.changeBRL));
-  }, [selectedDay, search, onlyMovements]);
+  }, [selectedDay, search, onlyMovements, selectedClass]);
+
+  const availableClasses = useMemo(() => {
+    if (!selectedDay) return [];
+    return Array.from(new Set(selectedDay.byAsset.map((asset) => asset.classKey))).sort();
+  }, [selectedDay]);
+
+  function exportCsv() {
+    if (!selectedDay || visibleAssets.length === 0) return;
+    const csv = buildPerformanceCsv(selectedDay.date, SOURCE_LABELS[selectedDay.source ?? "reconstructed"], visibleAssets.map((asset) => ({
+      ...asset,
+      classLabel: CLASS_LABELS[asset.classKey] ?? asset.classKey,
+    })));
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `rentabilidade-detalhada-${selectedDay.date}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
 
   const dayMarketPnl = selectedDay?.byAsset.reduce((sum, asset) => sum + asset.marketPnlBRL, 0) ?? 0;
   const dayIncomePnl = selectedDay?.byAsset.reduce((sum, asset) => sum + asset.incomePnlBRL, 0) ?? 0;
@@ -132,7 +155,15 @@ export default function RentabilidadeDetalhada() {
                 <div><CardTitle className="text-base">Ativos em {formatDate(selectedDay.date)}</CardTitle><p className="mt-1 text-xs text-muted-foreground">{visibleAssets.length} ativos exibidos · {SOURCE_LABELS[selectedDay.source ?? "reconstructed"]}</p></div>
                 <div className="flex flex-wrap gap-2">
                   <label className="flex h-9 items-center gap-2 rounded-md border border-input bg-background px-2 text-sm"><Search className="h-3.5 w-3.5 text-muted-foreground" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar ativo" className="w-28 bg-transparent text-xs outline-none" /></label>
+                  <label className="flex h-9 items-center rounded-md border border-input bg-background px-2 text-sm text-muted-foreground">
+                    <span className="sr-only">Filtrar por classe de ativo</span>
+                    <select value={selectedClass} onChange={(event) => setSelectedClass(event.target.value)} className="max-w-[135px] bg-transparent text-xs outline-none">
+                      <option value="all">Todas as classes</option>
+                      {availableClasses.map((classKey) => <option key={classKey} value={classKey}>{CLASS_LABELS[classKey] ?? classKey}</option>)}
+                    </select>
+                  </label>
                   <Button variant={onlyMovements ? "secondary" : "outline"} size="sm" className="gap-2" onClick={() => setOnlyMovements(!onlyMovements)}><Filter className="h-3.5 w-3.5" />Movimentos</Button>
+                  <Button variant="outline" size="sm" className="gap-2" onClick={exportCsv} disabled={visibleAssets.length === 0}><Download className="h-3.5 w-3.5" />Exportar CSV</Button>
                 </div>
               </CardHeader>
               <CardContent className="p-0 md:p-2">

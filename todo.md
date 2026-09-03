@@ -418,3 +418,8 @@
 - [x] Implementar consulta de rentabilidade diária por ativo no mês corrente
 - [x] Criar tela responsiva e vincular o ícone de calendário ao detalhamento
 - [x] Testar a navegação e os dados
+
+## Filtros e Exportação CSV da Rentabilidade Detalhada — Em andamento
+- [x] Mapear classes disponíveis e definir colunas CSV compatíveis com os filtros
+- [x] Implementar filtro por classe de ativo e botão de exportação CSV
+- [x] Testar os filtros, o conteúdo exportado e a responsividade

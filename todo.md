@@ -406,10 +406,7 @@
 - [x] Validar os resultados e documentar as limitações remanescentes
 
 ## Agenda Corporativa da Carteira — Em andamento
-- [ ] Inventariar ativos com agenda pública verificável por mercado e classe
-- [ ] Pesquisar resultados, datas-com, datas-ex, pagamentos e eventos relevantes
-- [ ] Normalizar e deduplicar eventos antes do registro no calendário
-- [ ] Registrar somente eventos confirmados, validar calendário e salvar checkpoint
+- [x] Cancelado pelo usuário antes da pesquisa e de qualquer registro no calendário
 
 ## Correção do Acúmulo de Rentabilidade Mensal — Em andamento
 - [x] Conferir retornos diários persistidos e o cálculo exibido pelo card Rent. Mês

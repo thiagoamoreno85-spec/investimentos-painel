@@ -1,0 +1,40 @@
+{
+  "total": {
+    "valueDiff": 52129.55932050488,
+    "percentDiff": 2.7100601208986497
+  },
+  "byClass": {
+    "rv_nacional": {
+      "valueDiff": 52593.3152501869,
+      "percentDiff": 5.813006667873433
+    },
+    "fundos": {
+      "valueDiff": -39.420105819702485,
+      "percentDiff": -0.011010303771741281
+    },
+    "rv_eua": {
+      "valueDiff": -3457.705527901937,
+      "percentDiff": -0.8618194391642686
+    },
+    "cripto": {
+      "valueDiff": 3697.089357123573,
+      "percentDiff": 2.9766559492088396
+    },
+    "renda_fixa": {
+      "valueDiff": -682.8281816000003,
+      "percentDiff": -0.7826147902417979
+    },
+    "uranio": {
+      "valueDiff": -36.608647927891525,
+      "percentDiff": -0.020043888659770914
+    },
+    "india": {
+      "valueDiff": 55.7171764439459,
+      "percentDiff": 0.12580929186585266
+    }
+  },
+  "snapshotCount": 3,
+  "baseDate": "2026-09-01",
+  "includesLiveDay": true,
+  "isPartial": false
+}

@@ -404,3 +404,14 @@
 - [x] Corrigir os procedimentos e a apresentação do card sem modificar dados financeiros
 - [x] Criar testes de não-regressão para compra, aporte, ativo manual e falha de cotação
 - [x] Validar os resultados e documentar as limitações remanescentes
+
+## Agenda Corporativa da Carteira — Em andamento
+- [ ] Inventariar ativos com agenda pública verificável por mercado e classe
+- [ ] Pesquisar resultados, datas-com, datas-ex, pagamentos e eventos relevantes
+- [ ] Normalizar e deduplicar eventos antes do registro no calendário
+- [ ] Registrar somente eventos confirmados, validar calendário e salvar checkpoint
+
+## Correção do Acúmulo de Rentabilidade Mensal — Em andamento
+- [x] Conferir retornos diários persistidos e o cálculo exibido pelo card Rent. Mês
+- [x] Corrigir a composição para incluir todos os dias do mês corrente
+- [x] Criar teste de não-regressão para acúmulo de múltiplos dias e validar o card

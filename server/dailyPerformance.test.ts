@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { calculateAssetDayReturn, calculateMonthlyReturn } from "./services/dailyPerformanceService";
+import {
+  calculateAssetDayReturn,
+  calculateMonthlyReturn,
+  dailyPerformanceInternals,
+} from "./services/dailyPerformanceService";
 
 describe("calculateAssetDayReturn", () => {
   it("não trata uma compra no próprio dia como lucro", () => {
@@ -120,5 +124,10 @@ describe("calculateMonthlyReturn", () => {
     expect(result?.isPartial).toBe(true);
     expect(result?.baseDate).toBe("2026-09-02");
     expect(result?.includesLiveDay).toBe(true);
+  });
+
+  it("inclui todos os dias úteis anteriores do mês ao identificar lacunas no ledger", () => {
+    expect(dailyPerformanceInternals.calendarDates("2026-09-01", "2026-09-04"))
+      .toEqual(["2026-09-01", "2026-09-02", "2026-09-03", "2026-09-04"]);
   });
 });

@@ -16,6 +16,10 @@ export interface FxQuote {
   previousClose: number;
 }
 
+export interface HistoricalCloseSeries {
+  closesByDate: Map<string, number>;
+}
+
 /**
  * Converte ticker do formato interno para o formato Yahoo Finance
  */
@@ -52,6 +56,68 @@ function toYahooTicker(ticker: string, assetClass: string): string | null {
   }
 
   return ticker;
+}
+
+function brtDateFromTimestamp(timestampSeconds: number): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date(timestampSeconds * 1000));
+  const record = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${record.year}-${record.month}-${record.day}`;
+}
+
+async function fetchYahooHistoricalCloses(yahooTicker: string, range: string): Promise<HistoricalCloseSeries> {
+  const response = await axios.get(
+    `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooTicker)}?interval=1d&range=${range}`,
+    { timeout: 10000, headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" } }
+  );
+  const chart = response.data?.chart?.result?.[0];
+  const timestamps: number[] = chart?.timestamp ?? [];
+  const closes: Array<number | null> = chart?.indicators?.quote?.[0]?.close ?? [];
+  const closesByDate = new Map<string, number>();
+  for (let index = 0; index < timestamps.length; index += 1) {
+    const close = Number(closes[index]);
+    if (Number.isFinite(close) && close > 0) closesByDate.set(brtDateFromTimestamp(timestamps[index]), close);
+  }
+  return { closesByDate };
+}
+
+/** Busca fechamentos diários por ticker interno para recomposição histórica de rentabilidade. */
+export async function fetchHistoricalCloses(
+  tickers: { ticker: string; assetClass: string }[],
+  range = "1mo"
+): Promise<Map<string, HistoricalCloseSeries>> {
+  const results = new Map<string, HistoricalCloseSeries>();
+  const yahooMap = new Map<string, string[]>();
+  for (const { ticker, assetClass } of tickers) {
+    const yahooTicker = toYahooTicker(ticker, assetClass);
+    if (!yahooTicker) continue;
+    yahooMap.set(yahooTicker, [...(yahooMap.get(yahooTicker) ?? []), ticker]);
+  }
+  const entries = Array.from(yahooMap.entries());
+  for (let index = 0; index < entries.length; index += 10) {
+    await Promise.all(entries.slice(index, index + 10).map(async ([yahooTicker, originals]) => {
+      try {
+        const series = await fetchYahooHistoricalCloses(yahooTicker, range);
+        for (const ticker of originals) results.set(ticker, series);
+      } catch (error) {
+        console.warn(`[Quotes] Failed to fetch historical ${yahooTicker}:`, (error as Error).message);
+      }
+    }));
+  }
+  return results;
+}
+
+/** Busca fechamentos históricos do USD/BRL para converter retornos externos em BRL. */
+export async function fetchHistoricalUsdBrlCloses(range = "1mo"): Promise<HistoricalCloseSeries> {
+  try {
+    return await fetchYahooHistoricalCloses("USDBRL=X", range);
+  } catch {
+    return { closesByDate: new Map() };
+  }
 }
 
 /**

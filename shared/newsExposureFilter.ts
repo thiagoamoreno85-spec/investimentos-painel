@@ -2,6 +2,10 @@ export type ExposureNews = {
   affectedPortfolioPct: number;
 };
 
+export type TickerTaggedNews = {
+  affectedTickers: string[];
+};
+
 export type MajorExposureSelection<T extends ExposureNews> = {
   thresholdPct: number;
   items: T[];
@@ -28,4 +32,13 @@ export function selectMajorExposureNews<T extends ExposureNews>(
     thresholdPct,
     items: directItems.filter((item) => item.affectedPortfolioPct >= thresholdPct),
   };
+}
+
+/** Filtra notícias cujo conjunto de tickers contém o ativo selecionado, normalizando o sufixo .SA. */
+export function filterNewsByTicker<T extends TickerTaggedNews>(news: T[], ticker: string): T[] {
+  if (ticker === "all") return news;
+  const normalizedTicker = ticker.toUpperCase().replace(/\.SA$/, "");
+  return news.filter((item) => item.affectedTickers.some(
+    (affectedTicker) => affectedTicker.toUpperCase().replace(/\.SA$/, "") === normalizedTicker
+  ));
 }

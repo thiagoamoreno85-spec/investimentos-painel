@@ -471,3 +471,10 @@
 - [x] Adicionar o controle e o estado visual do filtro na seção de Notícias
 - [x] Criar testes e validar o filtro em desktop e mobile
 - [x] Salvar checkpoint sem alterar registros financeiros
+
+## Filtro por Ativo e Preferências de Notícias — Em andamento
+- [x] Definir a combinação entre ativo específico, categoria, impacto, exposição e não lidas
+- [x] Adicionar busca por ativo da carteira na seção de Notícias
+- [x] Persistir e restaurar a última preferência de filtros no navegador
+- [x] Criar testes e validar os controles em desktop e mobile
+- [x] Salvar checkpoint sem alterar registros financeiros

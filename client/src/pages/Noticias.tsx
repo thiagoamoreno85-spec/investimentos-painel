@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,7 +27,19 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { selectMajorExposureNews } from "@shared/newsExposureFilter";
+import { filterNewsByTicker, selectMajorExposureNews } from "@shared/newsExposureFilter";
+import {
+  DEFAULT_NEWS_FILTER_PREFERENCES,
+  NEWS_FILTER_PREFERENCES_KEY,
+  parseNewsFilterPreferences,
+} from "@/lib/newsFilterPreferences";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Category = "all" | "brasil" | "global" | "cripto" | "tech" | "politica" | "macro";
 type ImpactLevel = "all" | "alto" | "medio" | "baixo";
@@ -272,12 +284,18 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
 }
 
 export default function Noticias() {
-  const [activeCategory, setActiveCategory] = useState<Category>("all");
-  const [activeImpact, setActiveImpact] = useState<ImpactLevel>("all");
-  const [onlyUnread, setOnlyUnread] = useState(false);
-  const [onlyMajorExposure, setOnlyMajorExposure] = useState(false);
+  const [savedPreferences] = useState(() => {
+    if (typeof window === "undefined") return DEFAULT_NEWS_FILTER_PREFERENCES;
+    return parseNewsFilterPreferences(window.localStorage.getItem(NEWS_FILTER_PREFERENCES_KEY));
+  });
+  const [activeCategory, setActiveCategory] = useState<Category>(savedPreferences.category as Category);
+  const [activeImpact, setActiveImpact] = useState<ImpactLevel>(savedPreferences.impact as ImpactLevel);
+  const [onlyUnread, setOnlyUnread] = useState(savedPreferences.onlyUnread);
+  const [onlyMajorExposure, setOnlyMajorExposure] = useState(savedPreferences.onlyMajorExposure);
+  const [selectedTicker, setSelectedTicker] = useState(savedPreferences.selectedTicker);
 
   const utils = trpc.useUtils();
+  const { data: assets = [] } = trpc.portfolio.getAssets.useQuery();
 
   const { data: news = [], isLoading } = trpc.news.list.useQuery({
     category: activeCategory,
@@ -289,8 +307,32 @@ export default function Noticias() {
   const { data: unreadCount = 0 } = trpc.news.unreadCount.useQuery();
 
   const newsItems = news as NewsItem[];
-  const majorExposure = useMemo(() => selectMajorExposureNews(newsItems), [newsItems]);
-  const visibleNews = onlyMajorExposure ? majorExposure.items : newsItems;
+  const assetTickers = useMemo(
+    () => Array.from(new Set(assets.filter((asset) => asset.assetClass !== "caixa").map((asset) => asset.ticker))).sort((a, b) => a.localeCompare(b)),
+    [assets]
+  );
+  const newsForSelectedAsset = useMemo(
+    () => filterNewsByTicker(newsItems, selectedTicker),
+    [newsItems, selectedTicker]
+  );
+  const majorExposure = useMemo(() => selectMajorExposureNews(newsForSelectedAsset), [newsForSelectedAsset]);
+  const visibleNews = onlyMajorExposure ? majorExposure.items : newsForSelectedAsset;
+
+  useEffect(() => {
+    if (selectedTicker !== "all" && assets.length > 0 && !assetTickers.includes(selectedTicker)) {
+      setSelectedTicker("all");
+    }
+  }, [assetTickers, assets.length, selectedTicker]);
+
+  useEffect(() => {
+    window.localStorage.setItem(NEWS_FILTER_PREFERENCES_KEY, JSON.stringify({
+      category: activeCategory,
+      impact: activeImpact,
+      onlyUnread,
+      onlyMajorExposure,
+      selectedTicker,
+    }));
+  }, [activeCategory, activeImpact, onlyUnread, onlyMajorExposure, selectedTicker]);
 
   const refreshMutation = trpc.news.refresh.useMutation({
     onSuccess: (data) => {
@@ -448,7 +490,25 @@ export default function Noticias() {
           )}
 
           {/* Filtros — scroll horizontal em mobile */}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="rounded-lg border border-border/60 bg-card/40 p-2.5 sm:flex sm:items-center sm:justify-between sm:gap-3">
+            <div>
+              <p className="text-xs font-medium text-foreground">Buscar por ativo</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">Mostra apenas notícias que citam um ativo da carteira.</p>
+            </div>
+            <Select value={selectedTicker} onValueChange={setSelectedTicker}>
+              <SelectTrigger size="sm" className="mt-2 w-full sm:mt-0 sm:w-56" aria-label="Filtrar notícias por ativo">
+                <SelectValue placeholder="Todos os ativos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os ativos</SelectItem>
+                {assetTickers.map((ticker) => (
+                  <SelectItem key={ticker} value={ticker}>{ticker}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none xl:flex-wrap xl:overflow-visible">
             <div className="flex gap-1.5 flex-shrink-0">
               {categories.map(({ value, label, icon: Icon }) => (
                 <button
@@ -555,7 +615,9 @@ export default function Noticias() {
                     <Newspaper className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">Nenhuma notícia encontrada</h3>
                     <p className="text-muted-foreground text-sm mb-4">
-                      {onlyMajorExposure
+                      {selectedTicker !== "all"
+                        ? `Não há notícias com vínculo direto ao ativo ${selectedTicker} dentro dos demais filtros selecionados.`
+                        : onlyMajorExposure
                         ? "Não há notícias no quartil superior de exposição para a combinação de filtros selecionada."
                         : onlyUnread
                         ? "Todas as notícias já foram lidas."

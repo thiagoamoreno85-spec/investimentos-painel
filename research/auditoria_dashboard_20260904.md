@@ -59,3 +59,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - O filtro seleciona o quartil superior de notícias com exposição financeira direta, usando o percentual calculado sobre o valor da carteira e preservando empates no limiar.
 - Ele é combinável com categoria, nível de impacto e leitura; portanto, permite restringir, por exemplo, eventos de alto impacto que atinjam as maiores posições.
 - O controle foi validado no desktop e está disponível no trilho horizontal de filtros em dispositivos móveis. A regra foi coberta por testes unitários, incluindo ausência de exposição direta.
+
+## Filtro por ativo e preferência persistida — 04/09/2026
+
+- Foi incluído um seletor com os tickers ativos da carteira (com exclusão de caixa), que restringe a lista a itens cujo ticker afetado corresponde ao ativo escolhido, inclusive quando a fonte usa o sufixo `.SA`.
+- A última combinação de categoria, impacto, não lidas, maior exposição e ativo selecionado é persistida localmente no navegador e restaurada de forma defensiva na próxima abertura.
+- A verificação desktop confirmou a visibilidade do seletor e de todos os filtros; em telas amplas, a barra de filtros passa a quebrar linhas para não ocultar o controle de maior exposição. TypeScript sem erros e 134 testes aprovados.

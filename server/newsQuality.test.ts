@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { prioritizeNewsForPortfolio } from "./services/newsPrioritization";
 import { hasIrrecoverableNewsEncoding, sanitizeNewsText } from "./services/newsText";
-import { selectMajorExposureNews } from "../shared/newsExposureFilter";
+import { filterNewsByTicker, selectMajorExposureNews } from "../shared/newsExposureFilter";
+import { parseNewsFilterPreferences } from "../client/src/lib/newsFilterPreferences";
 
 describe("sanitizeNewsText", () => {
   it("remove markup e decodifica entidades HTML simples, numéricas e duplamente codificadas", () => {
@@ -99,5 +100,40 @@ describe("selectMajorExposureNews", () => {
     ]);
 
     expect(selection).toEqual({ thresholdPct: 0, items: [] });
+  });
+});
+
+describe("filterNewsByTicker", () => {
+  const news = [
+    { id: 1, affectedTickers: ["VALE3.SA", "CMIN3"] },
+    { id: 2, affectedTickers: ["MSFT"] },
+    { id: 3, affectedTickers: [] },
+  ];
+
+  it("normaliza o sufixo .SA e mantém a combinação de tickers", () => {
+    expect(filterNewsByTicker(news, "VALE3").map((item) => item.id)).toEqual([1]);
+    expect(filterNewsByTicker(news, "MSFT").map((item) => item.id)).toEqual([2]);
+  });
+
+  it("retorna toda a lista quando nenhum ativo específico é escolhido", () => {
+    expect(filterNewsByTicker(news, "all")).toEqual(news);
+  });
+});
+
+describe("parseNewsFilterPreferences", () => {
+  it("restaura apenas valores de filtro válidos e descarta conteúdo inválido", () => {
+    const preferences = parseNewsFilterPreferences(JSON.stringify({
+      category: "brasil",
+      impact: "alto",
+      onlyUnread: true,
+      onlyMajorExposure: true,
+      selectedTicker: "VALE3",
+    }));
+
+    expect(preferences).toMatchObject({ category: "brasil", impact: "alto", selectedTicker: "VALE3" });
+    expect(parseNewsFilterPreferences('{"category":"invalida","impact":"x"}')).toMatchObject({
+      category: "all",
+      impact: "all",
+    });
   });
 });

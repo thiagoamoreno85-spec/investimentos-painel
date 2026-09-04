@@ -27,6 +27,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { selectMajorExposureNews } from "@shared/newsExposureFilter";
 
 type Category = "all" | "brasil" | "global" | "cripto" | "tech" | "politica" | "macro";
 type ImpactLevel = "all" | "alto" | "medio" | "baixo";
@@ -274,6 +275,7 @@ export default function Noticias() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [activeImpact, setActiveImpact] = useState<ImpactLevel>("all");
   const [onlyUnread, setOnlyUnread] = useState(false);
+  const [onlyMajorExposure, setOnlyMajorExposure] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -285,6 +287,10 @@ export default function Noticias() {
   });
 
   const { data: unreadCount = 0 } = trpc.news.unreadCount.useQuery();
+
+  const newsItems = news as NewsItem[];
+  const majorExposure = useMemo(() => selectMajorExposureNews(newsItems), [newsItems]);
+  const visibleNews = onlyMajorExposure ? majorExposure.items : newsItems;
 
   const refreshMutation = trpc.news.refresh.useMutation({
     onSuccess: (data) => {
@@ -313,7 +319,7 @@ export default function Noticias() {
   });
 
   const stats = useMemo(() => {
-    const all = news as NewsItem[];
+    const all = visibleNews;
     const alto = all.filter((n) => n.impactLevel === "alto").length;
     const medio = all.filter((n) => n.impactLevel === "medio").length;
     const positivo = all.filter((n) => n.sentiment === "positivo").length;
@@ -330,7 +336,7 @@ export default function Noticias() {
       .slice(0, 8);
 
     return { alto, medio, positivo, negativo, topTickers };
-  }, [news]);
+  }, [visibleNews]);
 
   const categories: { value: Category; label: string; icon: React.ElementType }[] = [
     { value: "all", label: "Todas", icon: Newspaper },
@@ -506,6 +512,22 @@ export default function Noticias() {
             >
               Não lidas {unreadCount > 0 && `(${unreadCount})`}
             </button>
+
+            <button
+              onClick={() => setOnlyMajorExposure(!onlyMajorExposure)}
+              disabled={majorExposure.items.length === 0}
+              title={majorExposure.items.length > 0
+                ? `Exibe o quartil superior de exposição direta, a partir de ${majorExposure.thresholdPct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% da carteira.`
+                : "Ainda não há notícias com exposição direta calculada."}
+              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50 ${
+                onlyMajorExposure
+                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+                  : "bg-secondary text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Target className="w-3 h-3" />
+              Maior exposição {majorExposure.items.length > 0 && `(${majorExposure.items.length})`}
+            </button>
           </div>
         </div>
 
@@ -527,17 +549,19 @@ export default function Noticias() {
                     </Card>
                   ))}
                 </div>
-              ) : news.length === 0 ? (
+              ) : visibleNews.length === 0 ? (
                 <Card className="border-dashed">
                   <CardContent className="p-12 text-center">
                     <Newspaper className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">Nenhuma notícia encontrada</h3>
                     <p className="text-muted-foreground text-sm mb-4">
-                      {onlyUnread
+                      {onlyMajorExposure
+                        ? "Não há notícias no quartil superior de exposição para a combinação de filtros selecionada."
+                        : onlyUnread
                         ? "Todas as notícias já foram lidas."
                         : "Clique em \"Atualizar Notícias\" para buscar e analisar as últimas notícias do mercado."}
                     </p>
-                    {!onlyUnread && (
+                    {!onlyUnread && !onlyMajorExposure && (
                       <Button
                         onClick={() => refreshMutation.mutate()}
                         disabled={refreshMutation.isPending}
@@ -550,7 +574,7 @@ export default function Noticias() {
                 </Card>
               ) : (
                 <div className="space-y-3 pb-4">
-                  {(news as NewsItem[]).map((item) => (
+                  {visibleNews.map((item) => (
                     <NewsCard
                       key={item.id}
                       item={item}

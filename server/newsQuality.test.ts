@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { prioritizeNewsForPortfolio } from "./services/newsPrioritization";
 import { hasIrrecoverableNewsEncoding, sanitizeNewsText } from "./services/newsText";
+import { selectMajorExposureNews } from "../shared/newsExposureFilter";
 
 describe("sanitizeNewsText", () => {
   it("remove markup e decodifica entidades HTML simples, numéricas e duplamente codificadas", () => {
@@ -71,5 +72,32 @@ describe("prioritizeNewsForPortfolio", () => {
     expect(result[0]?.id).toBe(2);
     expect(result[0]?.portfolioRelevance).toBe("direta");
     expect(result[1]?.portfolioRelevance).toBe("contexto");
+  });
+});
+
+describe("selectMajorExposureNews", () => {
+  it("seleciona o quartil superior de notícias com exposição direta e preserva empates", () => {
+    const selection = selectMajorExposureNews([
+      { id: 1, affectedPortfolioPct: 9 },
+      { id: 2, affectedPortfolioPct: 6 },
+      { id: 3, affectedPortfolioPct: 6 },
+      { id: 4, affectedPortfolioPct: 3 },
+      { id: 5, affectedPortfolioPct: 0 },
+      { id: 6, affectedPortfolioPct: 1 },
+      { id: 7, affectedPortfolioPct: 2 },
+      { id: 8, affectedPortfolioPct: 4 },
+    ]);
+
+    expect(selection.thresholdPct).toBe(6);
+    expect(selection.items.map((item) => item.id)).toEqual([1, 2, 3]);
+  });
+
+  it("não seleciona notícias sem vínculo financeiro direto com a carteira", () => {
+    const selection = selectMajorExposureNews([
+      { id: 1, affectedPortfolioPct: 0 },
+      { id: 2, affectedPortfolioPct: Number.NaN },
+    ]);
+
+    expect(selection).toEqual({ thresholdPct: 0, items: [] });
   });
 });

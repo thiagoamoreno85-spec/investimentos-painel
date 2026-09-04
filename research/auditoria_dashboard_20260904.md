@@ -53,3 +53,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - Registros legados com caractere de substituição de codificação são ocultados da listagem para evitar a exibição de texto corrompido; serão naturalmente substituídos por conteúdo reprocessado dos feeds.
 - A ordem agora pondera nível de impacto, vínculo com tickers reais, percentual financeiro da carteira atingido, recência e status de leitura. A interface mostra selo de prioridade e percentual de exposição quando há vínculo direto.
 - A captura desktop confirmou cartões priorizados por exposição; a captura mobile confirmou que os controles “Marcar lidas” e “Atualizar” ficam completamente visíveis. TypeScript sem erros e 129 testes aprovados.
+
+## Filtro de Maior Exposição — 04/09/2026
+
+- O filtro seleciona o quartil superior de notícias com exposição financeira direta, usando o percentual calculado sobre o valor da carteira e preservando empates no limiar.
+- Ele é combinável com categoria, nível de impacto e leitura; portanto, permite restringir, por exemplo, eventos de alto impacto que atinjam as maiores posições.
+- O controle foi validado no desktop e está disponível no trilho horizontal de filtros em dispositivos móveis. A regra foi coberta por testes unitários, incluindo ausência de exposição direta.

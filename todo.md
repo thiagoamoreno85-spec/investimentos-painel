@@ -465,3 +465,9 @@
 - [x] Priorizar notícias por impacto, exposição e relação direta com a carteira
 - [x] Criar testes de não-regressão e validar a interface desktop/mobile
 - [x] Salvar checkpoint sem alterar registros financeiros
+
+## Filtro de Maior Exposição em Notícias — Em andamento
+- [x] Definir o limiar de exposição e preservar a combinação com os filtros existentes
+- [x] Adicionar o controle e o estado visual do filtro na seção de Notícias
+- [x] Criar testes e validar o filtro em desktop e mobile
+- [x] Salvar checkpoint sem alterar registros financeiros

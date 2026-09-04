@@ -46,3 +46,10 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 
 - Após a unificação do cálculo, o valor de resultado exibido na Visão Geral e em Rentabilidade convergiu para o mesmo número de referência, eliminando a divergência causada pela inclusão indevida de caixa na primeira tela.
 - As capturas alternaram entre o estado temporário de carregamento e os dados consolidados conforme a resposta das consultas; o carregamento agora é explicitamente informado e não expõe carteira demonstrativa.
+
+## Notícias — correção de texto e relevância — 04/09/2026
+
+- A ingestão passa a decodificar o charset declarado pelo feed, remover markup, scripts, estilos e entidades HTML antes de enviar conteúdo à análise e à persistência.
+- Registros legados com caractere de substituição de codificação são ocultados da listagem para evitar a exibição de texto corrompido; serão naturalmente substituídos por conteúdo reprocessado dos feeds.
+- A ordem agora pondera nível de impacto, vínculo com tickers reais, percentual financeiro da carteira atingido, recência e status de leitura. A interface mostra selo de prioridade e percentual de exposição quando há vínculo direto.
+- A captura desktop confirmou cartões priorizados por exposição; a captura mobile confirmou que os controles “Marcar lidas” e “Atualizar” ficam completamente visíveis. TypeScript sem erros e 129 testes aprovados.

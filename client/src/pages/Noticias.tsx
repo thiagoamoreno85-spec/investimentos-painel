@@ -19,6 +19,7 @@ import {
   Cpu,
   Flag,
   BarChart2,
+  Target,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -45,6 +46,11 @@ interface NewsItem {
   publishedAt: Date | null;
   createdAt: Date;
   isRead: number;
+  priorityScore: number;
+  affectedValueBRL: number;
+  affectedPortfolioPct: number;
+  matchedTickers: string[];
+  portfolioRelevance: "alta" | "direta" | "contexto";
 }
 
 const PRICE_DIRECTION_CONFIG: Record<string, { label: string; icon: string; color: string; bg: string; border: string; tooltip: string }> = {
@@ -93,6 +99,12 @@ const SENTIMENT_CONFIG: Record<string, { icon: React.ElementType; color: string;
   neutro: { icon: Minus, color: "text-muted-foreground", label: "Neutro" },
 };
 
+const RELEVANCE_CONFIG = {
+  alta: { label: "Prioridade alta", className: "border-rose-500/40 bg-rose-500/10 text-rose-300" },
+  direta: { label: "Afeta sua carteira", className: "border-blue-500/40 bg-blue-500/10 text-blue-300" },
+  contexto: { label: "Contexto de mercado", className: "border-border bg-secondary text-muted-foreground" },
+};
+
 function formatRelativeTime(date: Date | null): string {
   if (!date) return "";
   const d = new Date(date);
@@ -110,6 +122,7 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
   const impact = IMPACT_CONFIG[item.impactLevel ?? "baixo"] ?? IMPACT_CONFIG.baixo;
   const sentiment = SENTIMENT_CONFIG[item.sentiment ?? "neutro"] ?? SENTIMENT_CONFIG.neutro;
   const category = CATEGORY_CONFIG[item.category ?? "global"] ?? CATEGORY_CONFIG.global;
+  const relevance = RELEVANCE_CONFIG[item.portfolioRelevance ?? "contexto"];
   const SentimentIcon = sentiment.icon;
   const CategoryIcon = category.icon;
 
@@ -142,6 +155,10 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
               <span className={`inline-flex items-center gap-1 text-xs ${sentiment.color}`}>
                 <SentimentIcon className="w-3 h-3" />
                 {sentiment.label}
+              </span>
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold ${relevance.className}`}>
+                <Target className="h-3 w-3" />
+                {relevance.label}
               </span>
               {/* Badge de direção de preço com tooltip */}
               {item.priceDirection && item.priceDirection !== "neutro" && (() => {
@@ -225,6 +242,11 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
                 <span className="text-xs text-muted-foreground">+{item.affectedTickers.length - 6}</span>
               )}
             </div>
+            {item.affectedPortfolioPct > 0 && (
+              <span className="text-xs font-mono text-muted-foreground">
+                Exposição: {item.affectedPortfolioPct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
+              </span>
+            )}
             <div className="flex items-center gap-1">
               {item.sourceUrl ? (
                 <a
@@ -347,31 +369,32 @@ export default function Noticias() {
                 )}
               </h2>
               <p className="text-muted-foreground text-sm mt-1">
-                Notícias analisadas pela IA com impacto direto nos ativos da sua carteira
+                Notícias ordenadas por impacto, exposição e relação direta com sua carteira
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
               {unreadCount > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => markAllReadMutation.mutate()}
                   disabled={markAllReadMutation.isPending}
-                  className="text-muted-foreground hover:text-foreground"
+                  className="min-w-0 px-2 text-xs text-muted-foreground hover:text-foreground sm:px-3 sm:text-sm"
                 >
                   <CheckCheck className="w-4 h-4 mr-1" />
-                  Marcar todas como lidas
+                  <span className="sm:hidden">Marcar lidas</span>
+                  <span className="hidden sm:inline">Marcar todas como lidas</span>
                 </Button>
               )}
               <Button
                 onClick={() => refreshMutation.mutate()}
                 disabled={refreshMutation.isPending}
                 size="sm"
-                className="bg-primary hover:bg-primary/90"
+                className="min-w-0 px-2 text-xs whitespace-nowrap bg-primary hover:bg-primary/90 sm:px-3 sm:text-sm"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
-                {refreshMutation.isPending ? "Analisando..." : "Atualizar Notícias"}
+                {refreshMutation.isPending ? "Analisando..." : <><span className="sm:hidden">Atualizar</span><span className="hidden sm:inline">Atualizar Notícias</span></>}
               </Button>
             </div>
           </div>

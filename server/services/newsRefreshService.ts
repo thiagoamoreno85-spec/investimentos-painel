@@ -5,6 +5,7 @@
 import { getDb, getAssetsByUser, createNewsItem, deleteOldNewsItems } from "../db";
 import { alerts } from "../../drizzle/schema";
 import { invokeLLM } from "../_core/llm";
+import { readNewsFeedText, sanitizeNewsText } from "./newsText";
 
 // ─── Busca de notícias reais via RSS ─────────────────────────────────────────
 
@@ -32,7 +33,7 @@ async function fetchRSSFeed(feedUrl: string, source: string, maxItems: number = 
       signal: AbortSignal.timeout(10000),
     });
     if (!res.ok) return [];
-    const text = await res.text();
+    const text = await readNewsFeedText(res);
 
     if (feedUrl.includes("rss.app") || text.trim().startsWith("{")) {
       return parseJsonFeed(text, source, maxItems);
@@ -60,11 +61,11 @@ function parseXmlRss(xml: string, source: string, maxItems: number): RawNewsItem
     if (!title || !link) continue;
 
     items.push({
-      title: cleanHtml(title),
+      title: sanitizeNewsText(title),
       url: link,
-      source: cleanHtml(itemSource),
+      source: sanitizeNewsText(itemSource),
       publishedAt: pubDate || new Date().toISOString(),
-      summary: cleanHtml(description).substring(0, 300),
+      summary: sanitizeNewsText(description).substring(0, 300),
     });
   }
   return items;
@@ -75,11 +76,11 @@ function parseJsonFeed(json: string, source: string, maxItems: number): RawNewsI
     const data = JSON.parse(json);
     const entries = data.items || data.entries || [];
     return entries.slice(0, maxItems).map((item: any) => ({
-      title: item.title || "",
+      title: sanitizeNewsText(item.title),
       url: item.url || item.link || "",
-      source: item.author?.name || source,
+      source: sanitizeNewsText(item.author?.name || source),
       publishedAt: item.date_published || item.pubDate || new Date().toISOString(),
-      summary: (item.content_text || item.summary || "").substring(0, 300),
+      summary: sanitizeNewsText(item.content_text || item.summary || "").substring(0, 300),
     }));
   } catch {
     return [];
@@ -94,18 +95,6 @@ function extractTag(xml: string, tag: string): string {
   const simpleRegex = new RegExp(`<${tag}[^>]*>(.*?)</${tag}>`, "is");
   const simpleMatch = simpleRegex.exec(xml);
   return simpleMatch ? simpleMatch[1] : "";
-}
-
-function cleanHtml(text: string): string {
-  return text
-    .replace(/<[^>]+>/g, "")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .trim();
 }
 
 async function fetchAllRealNews(): Promise<RawNewsItem[]> {

@@ -458,3 +458,10 @@
 - [x] Exibir estados de carregamento, falha e ausência de dados com ação de nova tentativa
 - [x] Criar testes unitários para os cálculos e estados críticos alterados
 - [x] Validar desktop e mobile, rodar testes e salvar checkpoint
+
+## Qualidade e Priorização de Notícias — Em andamento
+- [x] Mapear a ingestão, a persistência e a ordenação dos feeds de notícias
+- [x] Normalizar HTML, entidades e caracteres de feeds antes da exibição
+- [x] Priorizar notícias por impacto, exposição e relação direta com a carteira
+- [x] Criar testes de não-regressão e validar a interface desktop/mobile
+- [x] Salvar checkpoint sem alterar registros financeiros

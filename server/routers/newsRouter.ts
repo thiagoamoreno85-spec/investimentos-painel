@@ -5,8 +5,22 @@ import {
   markNewsItemRead,
   markAllNewsRead,
   countUnreadNews,
+  getAssetsByUser,
 } from "../db";
 import { runNewsRefresh } from "../services/newsRefreshService";
+import { fetchUsdBrl } from "../quotes";
+import { prioritizeNewsForPortfolio } from "../services/newsPrioritization";
+import { hasIrrecoverableNewsEncoding, sanitizeNewsText } from "../services/newsText";
+
+function parseAffectedTickers(value: string | null): string[] {
+  if (!value) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((ticker): ticker is string => typeof ticker === "string") : [];
+  } catch {
+    return [];
+  }
+}
 
 export const newsRouter = router({
   /**
@@ -29,8 +43,29 @@ export const newsRouter = router({
       const userId = ctx.user.id;
       const limit = input?.limit ?? 50;
       const rows = await getNewsItemsByUser(userId, limit);
+      const assets = await getAssetsByUser(userId);
+      const hasUsdAssets = assets.some((asset) => asset.currency === "USD");
+      const usdBrl = hasUsdAssets ? await fetchUsdBrl() : 1;
 
-      let filtered = rows;
+      const displayableRows = rows.filter((row) => ![
+        row.title,
+        row.summary,
+        row.impactAnalysis,
+        row.source,
+      ].some(hasIrrecoverableNewsEncoding));
+
+      let filtered = prioritizeNewsForPortfolio(
+        displayableRows.map((row) => ({
+          ...row,
+          title: sanitizeNewsText(row.title),
+          summary: sanitizeNewsText(row.summary),
+          impactAnalysis: sanitizeNewsText(row.impactAnalysis),
+          source: sanitizeNewsText(row.source),
+          affectedTickers: parseAffectedTickers(row.affectedTickers),
+        })),
+        assets,
+        usdBrl
+      );
 
       if (input?.category && input.category !== "all") {
         filtered = filtered.filter((r) => r.category === input.category);
@@ -42,10 +77,7 @@ export const newsRouter = router({
         filtered = filtered.filter((r) => r.isRead === 0);
       }
 
-      return filtered.map((r) => ({
-        ...r,
-        affectedTickers: r.affectedTickers ? JSON.parse(r.affectedTickers) : [],
-      }));
+      return filtered;
     }),
 
   /**

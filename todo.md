@@ -439,3 +439,9 @@
 - [x] Mapear a interface de upload e os parsers atuais de XLSX e PDF
 - [x] Unificar a validação, a prévia e a deduplicação para os formatos aceitos
 - [x] Atualizar o botão de importação, criar testes e validar o fluxo completo
+
+## Análise Integral — Live e Apresentação Kinea — Em andamento
+- [x] Extrair a apresentação e a transcrição estruturada da live
+- [x] Organizar teses, premissas, dados, projeções e riscos apresentados
+- [x] Verificar os fatos materiais em fontes atuais e relacioná-los à carteira
+- [x] Preparar relatório completo com conclusão crítica e materiais extraídos

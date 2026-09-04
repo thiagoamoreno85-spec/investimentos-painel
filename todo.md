@@ -508,3 +508,10 @@
 - [x] Preservar a leitura das novas colunas na tabela móvel com rolagem horizontal e cabeçalhos alinhados
 - [x] Criar testes e validar a tabela em desktop e mobile
 - [x] Salvar checkpoint sem alterar posição, custo ou preço dos títulos
+
+## Adaptação Móvel da Aba Alocação — Em andamento
+- [x] Mapear colunas e informações essenciais para leitura imediata no celular
+- [x] Exibir cartões compactos por ativo no mobile e manter a tabela detalhada no desktop
+- [x] Manter acesso aos dados adicionais sem sobreposição e com indicação de visualização detalhada no desktop
+- [x] Criar testes e validar os estados desktop e mobile
+- [x] Salvar checkpoint sem alterar qualquer dado financeiro

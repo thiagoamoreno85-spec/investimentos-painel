@@ -77,3 +77,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - A tabela de renda fixa passa a reservar largura própria para emissor, vencimento, custo médio, preço atual, data-base, total e resultado, mantendo rolagem horizontal e sem sobreposição em telas estreitas.
 - A data-base é acompanhada de ícone e texto: “Atualizar preço” após 30 dias ou quando inexistente, e “Revisar em breve” entre 15 e 30 dias. A informação não depende exclusivamente de cor.
 - As capturas de prévia confirmaram a estrutura desktop e mobile no estado de carregamento da sessão sem autenticação; TypeScript e a suíte unitária validaram a tipagem e os limiares de atualização.
+
+## Adaptação móvel da alocação — 04/09/2026
+
+- A visualização abaixo de `md` passa a utilizar cartões por ativo, priorizando ticker, quantidade, valor atual, lucro/prejuízo e variação diária; para renda fixa, acrescenta custo, preço atual editável, emissor, vencimento e data-base.
+- As duas tabelas de alta densidade permanecem disponíveis apenas no desktop. Assim, a leitura móvel não depende de uma tabela horizontal extensa nem apresenta sobreposição de colunas.
+- As capturas de prévia nos dois viewports preservaram o estado de carregamento esperado sem erro visual. A confirmação dos cartões com dados reais exige sessão autenticada; a tipagem e a suíte foram validadas antes da captura.

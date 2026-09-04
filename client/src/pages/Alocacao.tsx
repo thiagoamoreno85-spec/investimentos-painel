@@ -576,12 +576,107 @@ export default function Alocacao() {
                         </p>
                       ) : (
                         <>
+                          {/* ── Cartões móveis: dados essenciais sem tabela comprimida ── */}
+                          <div className="md:hidden space-y-2 pb-2">
+                            <p className="px-1 text-[11px] text-muted-foreground">
+                              Exibindo informações essenciais. A tabela completa permanece disponível no desktop.
+                            </p>
+                            {filteredAssets.map((asset) => {
+                              const daily = getDailyChange(asset.id);
+                              const isUp = (daily?.changePct ?? 0) >= 0;
+                              const priceFreshness = getManualPriceFreshness(asset.priceReferenceDate);
+                              const needsPriceUpdate = priceFreshness.status === "desatualizado" || priceFreshness.status === "sem_data";
+                              const formattedPosition = asset.position === 0
+                                ? "—"
+                                : asset.position < 1
+                                  ? asset.position.toFixed(4)
+                                  : asset.position % 1 === 0
+                                    ? asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
+                                    : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+
+                              return (
+                                <article key={asset.id} className="rounded-lg border border-border/60 bg-secondary/20 p-3 shadow-sm">
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <p className="truncate font-mono text-sm font-semibold">{asset.id}</p>
+                                      {isFixedIncome && (
+                                        <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                                          {asset.issuer || "Emissor não informado"}{asset.maturityLabel ? ` · ${asset.maturityLabel}` : ""}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <div className={`shrink-0 text-right font-mono ${asset.profit >= 0 ? "text-emerald-400" : "text-red-400"} transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                      <p className="flex items-center justify-end gap-0.5 text-sm font-semibold">
+                                        {asset.profit >= 0 ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
+                                        {formatPct(asset.profitPercentage)}
+                                      </p>
+                                      {isFixedIncome && <p className="text-[10px] opacity-90">{formatBRLCompact(asset.profit)}</p>}
+                                    </div>
+                                  </div>
+
+                                  <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border/50 pt-2.5 text-xs">
+                                    <div>
+                                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Quantidade</p>
+                                      <p className="mt-0.5 font-mono text-foreground">{formattedPosition}</p>
+                                    </div>
+                                    <div className="text-right">
+                                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Valor atual</p>
+                                      <p className={`mt-0.5 font-mono font-semibold transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>{formatBRLCompact(asset.totalValue)}</p>
+                                    </div>
+                                    {isFixedIncome ? (
+                                      <>
+                                        <div>
+                                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Custo médio</p>
+                                          <p className={`mt-0.5 font-mono text-muted-foreground transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>{formatCurrency(asset.cost, asset.currency)}</p>
+                                        </div>
+                                        <div className="text-right">
+                                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Preço atual</p>
+                                          <div className={`mt-0.5 flex items-center justify-end gap-1 font-mono transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                            <span>{formatCurrency(asset.price, asset.currency)}</span>
+                                            <button
+                                              onClick={() => openEditDialog(asset)}
+                                              className="rounded p-0.5 text-amber-400/70 hover:bg-amber-400/10 hover:text-amber-400"
+                                              title="Atualizar preço manualmente"
+                                            >
+                                              <Pencil className="h-3 w-3" />
+                                            </button>
+                                          </div>
+                                        </div>
+                                        <div className="col-span-2 flex items-center justify-between gap-2 border-t border-border/40 pt-2 text-[11px]">
+                                          <span className="text-muted-foreground">Base do preço</span>
+                                          <span className={`flex items-center gap-1 ${needsPriceUpdate ? "font-medium text-amber-400" : priceFreshness.status === "atencao" ? "text-amber-300" : "text-muted-foreground"}`}>
+                                            {needsPriceUpdate ? <AlertTriangle className="h-3 w-3" /> : <CalendarClock className="h-3 w-3" />}
+                                            {formatReferenceDate(asset.priceReferenceDate)}
+                                            {needsPriceUpdate ? " · Atualizar" : priceFreshness.status === "atencao" ? " · Revisar" : ""}
+                                          </span>
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <div>
+                                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Preço unitário</p>
+                                          <p className={`mt-0.5 font-mono text-muted-foreground transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>{formatCurrency(asset.price, asset.currency)}</p>
+                                        </div>
+                                        <div className="text-right">
+                                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Hoje</p>
+                                          <p className={`mt-0.5 font-mono font-medium ${daily ? (isUp ? "text-emerald-400" : "text-red-400") : "text-muted-foreground"} transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                            {daily ? formatPct(daily.changePct) : "—"}
+                                          </p>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                </article>
+                              );
+                            })}
+                          </div>
+
                           {/* ── Tabela: thead sticky, tbody scroll ── */}
                           {/* Fundos: Ativo | Qtd | Preço Unitário | Total | L/P. Renda Fixa exibe metadados e marcação manual. */}
                           {/* Demais classes: Ativo | Qtd | Custo Médio | Preço | Total | L/P | Hoje */}
                           {MANUAL_CLASSES.includes(category.id) ? (
                             /* ═══════════════ TABELA MANUAL (Fundos / Renda Fixa) ═══════════════ */
-                            <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-border/30">
+                            <div className="hidden md:flex flex-1 min-h-0 overflow-hidden flex-col border-t border-border/30">
                               {/* thead fixo */}
                               <div className="flex-shrink-0 bg-secondary overflow-x-auto">
                                 <table className={`w-full text-sm text-left ${isFixedIncome ? "min-w-[1080px]" : "min-w-[420px]"}`}>
@@ -746,7 +841,7 @@ export default function Alocacao() {
                             </div>
                           ) : (
                             /* ═══════════════ TABELA AUTO (RV, Cripto, etc.) ═══════════════ */
-                            <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-border/30">
+                            <div className="hidden md:flex flex-1 min-h-0 overflow-hidden flex-col border-t border-border/30">
                             {/* thead fixo fora do scroll */}
                             <div className="flex-shrink-0 bg-secondary overflow-x-auto">
                               <table className="w-full min-w-[600px] text-sm text-left">

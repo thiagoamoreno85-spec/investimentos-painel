@@ -130,11 +130,15 @@ export async function updateAssetCalculations(assetId: number, totalQuantity: st
     .where(eq(assets.id, assetId));
 }
 
-export async function updateAssetPrice(assetId: number, lastPrice: string) {
+export async function updateAssetPrice(assetId: number, lastPrice: string, priceReferenceDate?: Date) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(assets)
-    .set({ lastPrice, lastPriceUpdatedAt: new Date() })
+    .set({
+      lastPrice,
+      lastPriceUpdatedAt: new Date(),
+      ...(priceReferenceDate ? { priceReferenceDate } : {}),
+    })
     .where(eq(assets.id, assetId));
 }
 

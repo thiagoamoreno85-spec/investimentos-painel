@@ -500,3 +500,11 @@
 - [x] Renomear títulos genéricos, ajustar posição/custo/preço e criar o título ausente
 - [x] Retirar da posição atual os registros sem correspondência na imagem confirmada
 - [x] Conferir o total e a apuração de lucro contra a imagem, testar e salvar checkpoint
+
+## Metadados e Atualidade da Renda Fixa — Em andamento
+- [x] Mapear emissor, vencimento e data-base disponíveis por título
+- [x] Adicionar campos de emissor, vencimento e data-base de preço aos ativos de renda fixa
+- [x] Exibir as novas colunas e o alerta de marcação manual desatualizada
+- [x] Preservar a leitura das novas colunas na tabela móvel com rolagem horizontal e cabeçalhos alinhados
+- [x] Criar testes e validar a tabela em desktop e mobile
+- [x] Salvar checkpoint sem alterar posição, custo ou preço dos títulos

@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from "react";
-import { ArrowUpDown, ChevronUp, ChevronDown, Pencil, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowUpDown, CalendarClock, ChevronUp, ChevronDown, Pencil, RefreshCw } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,6 +34,7 @@ import {
   classColor,
 } from "@/lib/assetClasses";
 import { calculatePositionValuation } from "@shared/positionValuation";
+import { getManualPriceFreshness } from "@shared/manualPriceStatus";
 
 interface ClassGroup {
   id: string;
@@ -52,6 +53,9 @@ interface ClassGroup {
     profitPercentage: number;
     currency: string;
     assetClass: string;
+    issuer?: string | null;
+    maturityLabel?: string | null;
+    priceReferenceDate?: Date | string | null;
   }[];
 }
 
@@ -81,6 +85,7 @@ export default function Alocacao() {
     name: string;
     currentPrice: number;
     currency: string;
+    priceReferenceDate?: Date | string | null;
   }>({
     open: false,
     assetId: 0,
@@ -88,8 +93,10 @@ export default function Alocacao() {
     name: "",
     currentPrice: 0,
     currency: "BRL",
+    priceReferenceDate: null,
   });
   const [newPriceInput, setNewPriceInput] = useState("");
+  const [priceReferenceDateInput, setPriceReferenceDateInput] = useState("");
 
   const utils = trpc.useUtils();
   const updateManualPrice = trpc.portfolio.updateManualPrice.useMutation({
@@ -99,6 +106,7 @@ export default function Alocacao() {
       toast.success("Preço atualizado com sucesso");
       setEditDialog((prev) => ({ ...prev, open: false }));
       setNewPriceInput("");
+      setPriceReferenceDateInput("");
     },
     onError: (err) => {
       toast.error(err.message || "Erro ao atualizar preço");
@@ -109,6 +117,8 @@ export default function Alocacao() {
 
   function openEditDialog(asset: ClassGroup["assets"][0]) {
     setNewPriceInput(asset.price.toFixed(2).replace(".", ","));
+    const reference = asset.priceReferenceDate ? new Date(asset.priceReferenceDate) : new Date();
+    setPriceReferenceDateInput(reference.toISOString().slice(0, 10));
     setEditDialog({
       open: true,
       assetId: asset.dbId,
@@ -116,6 +126,7 @@ export default function Alocacao() {
       name: asset.name,
       currentPrice: asset.price,
       currency: asset.currency,
+      priceReferenceDate: asset.priceReferenceDate,
     });
   }
 
@@ -125,7 +136,10 @@ export default function Alocacao() {
       toast.error("Informe um valor válido maior que zero");
       return;
     }
-    updateManualPrice.mutate({ assetId: editDialog.assetId, newPrice: parsed });
+    const priceReferenceDate = priceReferenceDateInput
+      ? new Date(`${priceReferenceDateInput}T12:00:00`)
+      : undefined;
+    updateManualPrice.mutate({ assetId: editDialog.assetId, newPrice: parsed, priceReferenceDate });
   }
 
   // Ordenação da tabela
@@ -206,6 +220,9 @@ export default function Alocacao() {
           profitPercentage: profitPct,
           currency,
           assetClass: asset.assetClass,
+          issuer: asset.issuer,
+          maturityLabel: asset.maturityLabel,
+          priceReferenceDate: asset.priceReferenceDate,
         });
       }
 
@@ -256,6 +273,13 @@ export default function Alocacao() {
     const sign = value < 0 ? "-" : "";
     if (abs >= 1000) return `${sign}R$${(abs / 1000).toFixed(1)}k`;
     return formatBRL(value);
+  }
+
+  function formatReferenceDate(value: Date | string | null | undefined) {
+    if (!value) return "Sem data";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "Sem data";
+    return date.toLocaleDateString("pt-BR", { timeZone: "UTC" });
   }
 
   function formatPct(value: number) {
@@ -553,22 +577,25 @@ export default function Alocacao() {
                       ) : (
                         <>
                           {/* ── Tabela: thead sticky, tbody scroll ── */}
-                          {/* Fundos: Ativo | Qtd | Preço Unitário | Total | L/P. Renda Fixa separa custo e preço atual. */}
+                          {/* Fundos: Ativo | Qtd | Preço Unitário | Total | L/P. Renda Fixa exibe metadados e marcação manual. */}
                           {/* Demais classes: Ativo | Qtd | Custo Médio | Preço | Total | L/P | Hoje */}
                           {MANUAL_CLASSES.includes(category.id) ? (
                             /* ═══════════════ TABELA MANUAL (Fundos / Renda Fixa) ═══════════════ */
                             <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-border/30">
                               {/* thead fixo */}
                               <div className="flex-shrink-0 bg-secondary overflow-x-auto">
-                                <table className={`w-full text-sm text-left ${isFixedIncome ? "min-w-[660px]" : "min-w-[420px]"}`}>
+                                <table className={`w-full text-sm text-left ${isFixedIncome ? "min-w-[1080px]" : "min-w-[420px]"}`}>
                                   <colgroup>
                                     {isFixedIncome ? <>
-                                      <col style={{width:'23%'}} />
+                                      <col style={{width:'18%'}} />
+                                      <col style={{width:'12%'}} />
+                                      <col style={{width:'10%'}} />
+                                      <col style={{width:'7%'}} />
+                                      <col style={{width:'12%'}} />
+                                      <col style={{width:'13%'}} />
+                                      <col style={{width:'11%'}} />
                                       <col style={{width:'9%'}} />
-                                      <col style={{width:'15%'}} />
-                                      <col style={{width:'17%'}} />
-                                      <col style={{width:'18%'}} />
-                                      <col style={{width:'18%'}} />
+                                      <col style={{width:'8%'}} />
                                     </> : <>
                                       <col style={{width:'28%'}} />
                                       <col style={{width:'12%'}} />
@@ -582,6 +609,8 @@ export default function Alocacao() {
                                       <th className="px-2 py-2.5 font-medium text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("name")}>
                                         <span className="flex items-center gap-0.5">Ativo <SortIcon col="name" /></span>
                                       </th>
+                                      {isFixedIncome && <th className="px-1 py-2.5 font-medium text-xs">Emissor</th>}
+                                      {isFixedIncome && <th className="px-1 py-2.5 font-medium text-xs">Vencimento</th>}
                                       <th className="px-1 py-2.5 font-medium text-right text-xs">Qtd</th>
                                       {isFixedIncome && (
                                         <th className="px-1 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("cost")}>
@@ -591,6 +620,7 @@ export default function Alocacao() {
                                       <th className="px-1 py-2.5 font-medium text-right text-xs text-amber-400 cursor-pointer hover:text-amber-300 select-none" onClick={() => handleSort("price")}>
                                         <span className="flex items-center justify-end gap-0.5">{isFixedIncome ? "Preço atual" : "Preço unit."} <SortIcon col="price" /></span>
                                       </th>
+                                      {isFixedIncome && <th className="px-1 py-2.5 font-medium text-xs">Base do preço</th>}
                                       <th className="px-1 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("totalValue")}>
                                         <span className="flex items-center justify-end gap-0.5">Total <SortIcon col="totalValue" /></span>
                                       </th>
@@ -604,15 +634,18 @@ export default function Alocacao() {
                               {/* tbody scrolável */}
                               <ScrollArea className="flex-1 min-h-0">
                                 <div className="overflow-x-auto">
-                                <table className={`w-full text-sm text-left ${isFixedIncome ? "min-w-[660px]" : "min-w-[420px]"}`}>
+                                <table className={`w-full text-sm text-left ${isFixedIncome ? "min-w-[1080px]" : "min-w-[420px]"}`}>
                                   <colgroup>
                                     {isFixedIncome ? <>
-                                      <col style={{width:'23%'}} />
+                                      <col style={{width:'18%'}} />
+                                      <col style={{width:'12%'}} />
+                                      <col style={{width:'10%'}} />
+                                      <col style={{width:'7%'}} />
+                                      <col style={{width:'12%'}} />
+                                      <col style={{width:'13%'}} />
+                                      <col style={{width:'11%'}} />
                                       <col style={{width:'9%'}} />
-                                      <col style={{width:'15%'}} />
-                                      <col style={{width:'17%'}} />
-                                      <col style={{width:'18%'}} />
-                                      <col style={{width:'18%'}} />
+                                      <col style={{width:'8%'}} />
                                     </> : <>
                                       <col style={{width:'28%'}} />
                                       <col style={{width:'12%'}} />
@@ -622,12 +655,25 @@ export default function Alocacao() {
                                     </>}
                                   </colgroup>
                                   <tbody className="divide-y divide-border/50">
-                                    {filteredAssets.map((asset) => (
+                                    {filteredAssets.map((asset) => {
+                                      const priceFreshness = getManualPriceFreshness(asset.priceReferenceDate);
+                                      const needsPriceUpdate = priceFreshness.status === "desatualizado" || priceFreshness.status === "sem_data";
+                                      return (
                                       <tr key={asset.id} className="hover:bg-secondary/20 transition-colors">
                                         {/* Ativo */}
                                         <td className="px-2 py-2.5 font-medium text-xs">
                                           <span className="font-mono">{asset.id}</span>
                                         </td>
+                                        {isFixedIncome && (
+                                          <td className="px-1 py-2.5 text-xs text-muted-foreground whitespace-nowrap">
+                                            {asset.issuer || "Não informado"}
+                                          </td>
+                                        )}
+                                        {isFixedIncome && (
+                                          <td className="px-1 py-2.5 text-xs font-mono text-muted-foreground whitespace-nowrap">
+                                            {asset.maturityLabel || "Não informado"}
+                                          </td>
+                                        )}
                                         {/* Qtd */}
                                         <td className="px-1 py-2.5 text-right font-mono text-xs text-muted-foreground">
                                           {asset.position === 0 ? (
@@ -658,6 +704,18 @@ export default function Alocacao() {
                                             )}
                                           </span>
                                         </td>
+                                        {isFixedIncome && (
+                                          <td className="px-1 py-2.5 text-xs">
+                                            <div className={`flex items-center gap-1 whitespace-nowrap ${
+                                              needsPriceUpdate ? "text-amber-400" : priceFreshness.status === "atencao" ? "text-amber-300" : "text-muted-foreground"
+                                            }`}>
+                                              {needsPriceUpdate ? <AlertTriangle className="h-3 w-3 shrink-0" /> : <CalendarClock className="h-3 w-3 shrink-0" />}
+                                              <span>{formatReferenceDate(asset.priceReferenceDate)}</span>
+                                            </div>
+                                            {needsPriceUpdate && <span className="block mt-0.5 text-[10px] font-medium text-amber-400">Atualizar preço</span>}
+                                            {!needsPriceUpdate && priceFreshness.status === "atencao" && <span className="block mt-0.5 text-[10px] text-amber-300">Revisar em breve</span>}
+                                          </td>
+                                        )}
                                         {/* Total */}
                                         <td className={`px-1 py-2.5 text-right font-mono font-medium text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                           {formatBRLCompact(asset.totalValue)}
@@ -679,7 +737,8 @@ export default function Alocacao() {
                                           </div>
                                         </td>
                                       </tr>
-                                    ))}
+                                      );
+                                    })}
                                   </tbody>
                                 </table>
                                 </div>
@@ -888,6 +947,18 @@ export default function Alocacao() {
               />
               <p className="text-[11px] text-muted-foreground">
                 Informe o valor unitário da cota/título. Use vírgula ou ponto como decimal.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="price-reference-date">Data-base do preço</Label>
+              <Input
+                id="price-reference-date"
+                type="date"
+                value={priceReferenceDateInput}
+                onChange={(e) => setPriceReferenceDateInput(e.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Esta data define o alerta de atualização da marcação manual.
               </p>
             </div>
           </div>

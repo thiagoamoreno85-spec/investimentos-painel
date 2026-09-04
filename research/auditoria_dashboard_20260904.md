@@ -71,3 +71,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - O controle de ocultar/exibir valores passou a ficar disponível no rodapé da navegação em desktop e na barra superior em mobile, persistindo a mesma preferência global já usada pela Visão Geral, Alocação e Patrimônio.
 - A cobertura foi ampliada para os resultados e gráficos de Rentabilidade e Aportes, posições e histórico de Transações, totais, gráfico e tabelas de Proventos, análises e snapshots de Melhor Compra, percentual de exposição em Notícias e gráfico de evolução patrimonial.
 - A inspeção desktop confirmou o novo controle no sidebar e a integridade visual das telas atualizadas. O comportamento da preferência armazenada foi coberto por testes unitários.
+
+## Metadados e alerta de marcação — renda fixa — 04/09/2026
+
+- A tabela de renda fixa passa a reservar largura própria para emissor, vencimento, custo médio, preço atual, data-base, total e resultado, mantendo rolagem horizontal e sem sobreposição em telas estreitas.
+- A data-base é acompanhada de ícone e texto: “Atualizar preço” após 30 dias ou quando inexistente, e “Revisar em breve” entre 15 e 30 dias. A informação não depende exclusivamente de cor.
+- As capturas de prévia confirmaram a estrutura desktop e mobile no estado de carregamento da sessão sem autenticação; TypeScript e a suíte unitária validaram a tipagem e os limiares de atualização.

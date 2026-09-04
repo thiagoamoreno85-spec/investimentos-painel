@@ -102,6 +102,7 @@ export const portfolioRouter = router({
       z.object({
         assetId: z.number(),
         newPrice: z.number().positive(),
+        priceReferenceDate: z.date().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -115,8 +116,9 @@ export const portfolioRouter = router({
           message: "Apenas Fundos e Renda Fixa suportam atualização manual de preço",
         });
       }
-      await updateAssetPrice(input.assetId, input.newPrice.toFixed(8));
-      return { success: true, assetId: input.assetId, newPrice: input.newPrice };
+      const priceReferenceDate = input.priceReferenceDate ?? new Date();
+      await updateAssetPrice(input.assetId, input.newPrice.toFixed(8), priceReferenceDate);
+      return { success: true, assetId: input.assetId, newPrice: input.newPrice, priceReferenceDate };
     }),
 
   // ========== TRANSACTIONS ==========

@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, bigint } from "drizzle-orm/mysql-core";
+import { date, int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, bigint } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -47,6 +47,14 @@ export const assets = mysqlTable("assets", {
   lastPrice: decimal("lastPrice", { precision: 18, scale: 8 }).default("0").notNull(),
   /** Timestamp da última atualização de preço */
   lastPriceUpdatedAt: timestamp("lastPriceUpdatedAt"),
+  /** Instituição emissora do título, aplicável especialmente à renda fixa */
+  issuer: varchar("issuer", { length: 128 }),
+  /** Data de vencimento contratual do título */
+  maturityDate: date("maturityDate"),
+  /** Vencimento conforme a granularidade disponível na referência, como "mai/2028" */
+  maturityLabel: varchar("maturityLabel", { length: 32 }),
+  /** Data-base informada para a marcação manual do preço */
+  priceReferenceDate: timestamp("priceReferenceDate"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

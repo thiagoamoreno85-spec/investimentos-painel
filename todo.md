@@ -491,3 +491,12 @@
 - [x] Preservar a edição manual apenas do preço atual para renda fixa
 - [x] Criar testes e validar o comportamento em desktop e mobile
 - [x] Salvar checkpoint sem alterar registros financeiros
+
+## Conciliação Confirmada da Renda Fixa — Em andamento
+- [x] Escopo substituído pela conciliação exata após a confirmação de que o painel deve coincidir com a imagem
+
+## Conciliação Exata da Renda Fixa pela Imagem — Em andamento
+- [x] Validar vínculos históricos antes de substituir ou retirar registros sem correspondência
+- [x] Renomear títulos genéricos, ajustar posição/custo/preço e criar o título ausente
+- [x] Retirar da posição atual os registros sem correspondência na imagem confirmada
+- [x] Conferir o total e a apuração de lucro contra a imagem, testar e salvar checkpoint

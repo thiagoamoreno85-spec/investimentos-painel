@@ -161,6 +161,7 @@ export default function Alocacao() {
         if (asset.assetClass === "caixa") continue;
 
         const qty = parseFloat(asset.totalQuantity);
+        if (qty <= 0) continue;
         const avgCost = parseFloat(asset.averageCost);
         const lastPrice = parseFloat(asset.lastPrice);
         const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";

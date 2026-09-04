@@ -1,4 +1,4 @@
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, gt, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction, analysisHistory, InsertAnalysisHistory, newsItems, InsertNewsItem, events, InsertEvent } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -94,7 +94,7 @@ export async function getUserByOpenId(openId: string) {
 export async function getAssetsByUser(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(assets).where(eq(assets.userId, userId));
+  return db.select().from(assets).where(and(eq(assets.userId, userId), gt(assets.totalQuantity, "0")));
 }
 
 export async function getAssetById(assetId: number, userId: number) {

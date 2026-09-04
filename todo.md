@@ -423,3 +423,14 @@
 - [x] Mapear classes disponíveis e definir colunas CSV compatíveis com os filtros
 - [x] Implementar filtro por classe de ativo e botão de exportação CSV
 - [x] Testar os filtros, o conteúdo exportado e a responsividade
+
+## Briefing Diário de Notícias da Carteira — Em andamento
+- [x] Consolidar a composição atual e os vetores de risco relevantes
+- [x] Pesquisar notícias recentes por classe de ativo e mercado
+- [x] Relacionar impactos às posições e entregar briefing com fontes verificadas
+
+## Proventos Internacionais — Julho e Agosto de 2026 — Em andamento
+- [x] Extrair os créditos e impostos dos extratos internacionais
+- [x] Classificar proventos por ativo, moeda e data de pagamento
+- [x] Conferir duplicidades e solicitar confirmação antes de registrar itens novos
+- [x] Registrar os proventos confirmados, validar e salvar checkpoint

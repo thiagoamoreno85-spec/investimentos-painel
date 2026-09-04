@@ -484,3 +484,10 @@
 - [x] Aplicar a ocultação de valores nas telas prioritárias sem alterar os dados
 - [x] Criar testes e validar o comportamento em desktop e mobile
 - [x] Salvar checkpoint sem alterar registros financeiros
+
+## Renda Fixa — Custo, Preço Atual e Lucro/Prejuízo — Em andamento
+- [x] Mapear campos de custo, preço manual e cálculo exibidos na tabela de renda fixa
+- [x] Exibir colunas separadas de preço de custo, preço atual e lucro/prejuízo
+- [x] Preservar a edição manual apenas do preço atual para renda fixa
+- [x] Criar testes e validar o comportamento em desktop e mobile
+- [x] Salvar checkpoint sem alterar registros financeiros

@@ -33,6 +33,7 @@ import {
   CLASS_CURRENCY,
   classColor,
 } from "@/lib/assetClasses";
+import { calculatePositionValuation } from "@shared/positionValuation";
 
 interface ClassGroup {
   id: string;
@@ -128,7 +129,7 @@ export default function Alocacao() {
   }
 
   // Ordenação da tabela
-  type SortKey = "name" | "totalValue" | "profit" | "profitPercentage" | "todayBRL" | "todayPct";
+  type SortKey = "name" | "cost" | "price" | "totalValue" | "profit" | "profitPercentage" | "todayBRL" | "todayPct";
   type SortDir = "asc" | "desc";
   const [sortKey, setSortKey] = useState<SortKey>("totalValue");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -164,8 +165,9 @@ export default function Alocacao() {
         const lastPrice = parseFloat(asset.lastPrice);
         const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
 
-        let valueBRL = qty * lastPrice;
-        let costBRL = qty * avgCost;
+        const valuation = calculatePositionValuation(qty, avgCost, lastPrice);
+        let valueBRL = valuation.currentValue;
+        let costBRL = valuation.costValue;
         if (currency === "USD") {
           valueBRL *= usdBrl;
           costBRL *= usdBrl;
@@ -400,7 +402,9 @@ export default function Alocacao() {
                     : b.name.localeCompare(a.name);
                 }
                 let va = 0, vb = 0;
-                if (sortKey === "totalValue") { va = a.totalValue; vb = b.totalValue; }
+                if (sortKey === "cost") { va = a.cost; vb = b.cost; }
+                else if (sortKey === "price") { va = a.price; vb = b.price; }
+                else if (sortKey === "totalValue") { va = a.totalValue; vb = b.totalValue; }
                 else if (sortKey === "profit") { va = a.profit; vb = b.profit; }
                 else if (sortKey === "profitPercentage") { va = a.profitPercentage; vb = b.profitPercentage; }
                 else if (sortKey === "todayBRL") {
@@ -418,6 +422,7 @@ export default function Alocacao() {
                 category.totalValue > 0
                   ? (classDailyTotal / category.totalValue) * 100
                   : 0;
+              const isFixedIncome = category.id === "renda_fixa";
 
               return (
                 <TabsContent
@@ -547,21 +552,29 @@ export default function Alocacao() {
                       ) : (
                         <>
                           {/* ── Tabela: thead sticky, tbody scroll ── */}
-                          {/* Fundos e Renda Fixa: colunas Ativo | Qtd | Preço Unitário | Total | L/P (sem Hoje) */}
+                          {/* Fundos: Ativo | Qtd | Preço Unitário | Total | L/P. Renda Fixa separa custo e preço atual. */}
                           {/* Demais classes: Ativo | Qtd | Custo Médio | Preço | Total | L/P | Hoje */}
                           {MANUAL_CLASSES.includes(category.id) ? (
                             /* ═══════════════ TABELA MANUAL (Fundos / Renda Fixa) ═══════════════ */
                             <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-border/30">
                               {/* thead fixo */}
                               <div className="flex-shrink-0 bg-secondary overflow-x-auto">
-                                <table className="w-full min-w-[420px] text-sm text-left">
+                                <table className={`w-full text-sm text-left ${isFixedIncome ? "min-w-[660px]" : "min-w-[420px]"}`}>
                                   <colgroup>
-                                    {/* Ativo 28% | Qtd 12% | Preço Unit. 28% | Total 18% | L/P 14% */}
-                                    <col style={{width:'28%'}} />
-                                    <col style={{width:'12%'}} />
-                                    <col style={{width:'28%'}} />
-                                    <col style={{width:'18%'}} />
-                                    <col style={{width:'14%'}} />
+                                    {isFixedIncome ? <>
+                                      <col style={{width:'23%'}} />
+                                      <col style={{width:'9%'}} />
+                                      <col style={{width:'15%'}} />
+                                      <col style={{width:'17%'}} />
+                                      <col style={{width:'18%'}} />
+                                      <col style={{width:'18%'}} />
+                                    </> : <>
+                                      <col style={{width:'28%'}} />
+                                      <col style={{width:'12%'}} />
+                                      <col style={{width:'28%'}} />
+                                      <col style={{width:'18%'}} />
+                                      <col style={{width:'14%'}} />
+                                    </>}
                                   </colgroup>
                                   <thead>
                                     <tr className="text-muted-foreground">
@@ -569,12 +582,19 @@ export default function Alocacao() {
                                         <span className="flex items-center gap-0.5">Ativo <SortIcon col="name" /></span>
                                       </th>
                                       <th className="px-1 py-2.5 font-medium text-right text-xs">Qtd</th>
-                                      <th className="px-1 py-2.5 font-medium text-right text-xs text-amber-400">Preço Unit.</th>
+                                      {isFixedIncome && (
+                                        <th className="px-1 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("cost")}>
+                                          <span className="flex items-center justify-end gap-0.5">Custo méd. <SortIcon col="cost" /></span>
+                                        </th>
+                                      )}
+                                      <th className="px-1 py-2.5 font-medium text-right text-xs text-amber-400 cursor-pointer hover:text-amber-300 select-none" onClick={() => handleSort("price")}>
+                                        <span className="flex items-center justify-end gap-0.5">{isFixedIncome ? "Preço atual" : "Preço unit."} <SortIcon col="price" /></span>
+                                      </th>
                                       <th className="px-1 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("totalValue")}>
                                         <span className="flex items-center justify-end gap-0.5">Total <SortIcon col="totalValue" /></span>
                                       </th>
                                       <th className="px-1 py-2.5 font-medium text-right text-xs cursor-pointer hover:text-foreground select-none" onClick={() => handleSort("profitPercentage")}>
-                                        <span className="flex items-center justify-end gap-0.5">L/P <SortIcon col="profitPercentage" /></span>
+                                        <span className="flex items-center justify-end gap-0.5">{isFixedIncome ? "L/P (R$ / %)" : "L/P"} <SortIcon col="profitPercentage" /></span>
                                       </th>
                                     </tr>
                                   </thead>
@@ -583,13 +603,22 @@ export default function Alocacao() {
                               {/* tbody scrolável */}
                               <ScrollArea className="flex-1 min-h-0">
                                 <div className="overflow-x-auto">
-                                <table className="w-full min-w-[420px] text-sm text-left">
+                                <table className={`w-full text-sm text-left ${isFixedIncome ? "min-w-[660px]" : "min-w-[420px]"}`}>
                                   <colgroup>
-                                    <col style={{width:'28%'}} />
-                                    <col style={{width:'12%'}} />
-                                    <col style={{width:'28%'}} />
-                                    <col style={{width:'18%'}} />
-                                    <col style={{width:'14%'}} />
+                                    {isFixedIncome ? <>
+                                      <col style={{width:'23%'}} />
+                                      <col style={{width:'9%'}} />
+                                      <col style={{width:'15%'}} />
+                                      <col style={{width:'17%'}} />
+                                      <col style={{width:'18%'}} />
+                                      <col style={{width:'18%'}} />
+                                    </> : <>
+                                      <col style={{width:'28%'}} />
+                                      <col style={{width:'12%'}} />
+                                      <col style={{width:'28%'}} />
+                                      <col style={{width:'18%'}} />
+                                      <col style={{width:'14%'}} />
+                                    </>}
                                   </colgroup>
                                   <tbody className="divide-y divide-border/50">
                                     {filteredAssets.map((asset) => (
@@ -608,7 +637,12 @@ export default function Alocacao() {
                                             ? asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
                                             : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
                                         </td>
-                                        {/* Preço Unitário — editável */}
+                                        {isFixedIncome && (
+                                          <td className={`px-1 py-2.5 text-right font-mono text-xs text-muted-foreground transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                            {formatCurrency(asset.cost, asset.currency)}
+                                          </td>
+                                        )}
+                                        {/* Preço atual — editável manualmente */}
                                         <td className={`px-1 py-2.5 text-right font-mono text-xs transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                           <span className="flex items-center justify-end gap-1">
                                             {formatCurrency(asset.price, asset.currency)}
@@ -633,9 +667,14 @@ export default function Alocacao() {
                                             asset.profit >= 0 ? "text-emerald-500" : "text-red-400"
                                           } transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                             {asset.profit >= 0 ? <ArrowUpRight className="h-3 w-3 shrink-0" /> : <ArrowDownRight className="h-3 w-3 shrink-0" />}
-                                            <span>
-                                              {asset.profitPercentage >= 0 ? "+" : ""}{asset.profitPercentage.toFixed(1)}%
-                                            </span>
+                                            {isFixedIncome ? (
+                                              <span className="flex flex-col items-end leading-tight">
+                                                <span>{formatBRLCompact(asset.profit)}</span>
+                                                <span className="text-[10px] opacity-90">{formatPct(asset.profitPercentage)}</span>
+                                              </span>
+                                            ) : (
+                                              <span>{asset.profitPercentage >= 0 ? "+" : ""}{asset.profitPercentage.toFixed(1)}%</span>
+                                            )}
                                           </div>
                                         </td>
                                       </tr>

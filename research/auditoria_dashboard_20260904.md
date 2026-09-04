@@ -33,3 +33,16 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - O sanitizador de RSS remove tags e poucas entidades HTML nomeadas, mas não executa decodificação robusta de entidades/UTF-8. Isso explica o HTML residual e a codificação defeituosa observados na interface.
 - Rentabilidade não participa do contexto global `BalanceVisibilityContext`; assim, a privacidade é inconsistente fora da Home.
 - Patrimônio usa três colunas fixas na síntese móvel, sem contenção adequada de valores extensos; o corte de números visualizado é reproduzível pela estrutura de layout.
+
+## Validação das correções prioritárias — 04/09/2026
+
+- A Visão Geral agora exibe apenas dados reais consolidados, identifica a origem por selo explícito e informa que o resultado exclui saldo de caixa.
+- A métrica de resultado usa uma função pura que separa patrimônio, valor investido, custo, resultado dos investimentos e caixa; foram incluídos testes para caixa e registros legados.
+- Em caso de indisponibilidade de ativos, caixa ou câmbio, Visão Geral e Alocação deixam de recorrer a valores estáticos e passam a exibir carregamento, falha ou ausência de carteira de maneira explícita.
+- As seções de Mercado receberam estados de indisponibilidade com ação de nova tentativa; a captura mostrou o estado de carregamento com mensagem compreensível em desktop e mobile.
+- A validação de tipos e a suíte Vitest foram concluídas com êxito: 124 testes aprovados.
+
+## Verificação de consistência entre telas
+
+- Após a unificação do cálculo, o valor de resultado exibido na Visão Geral e em Rentabilidade convergiu para o mesmo número de referência, eliminando a divergência causada pela inclusão indevida de caixa na primeira tela.
+- As capturas alternaram entre o estado temporário de carregamento e os dados consolidados conforme a resposta das consultas; o carregamento agora é explicitamente informado e não expõe carteira demonstrativa.

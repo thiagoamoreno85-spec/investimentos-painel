@@ -66,7 +66,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 // ─── Componentes de seção ─────────────────────────────────────────────────────
 
 function IndicesSection() {
-  const { data, isLoading, refetch, isFetching } = trpc.market.getIndices.useQuery(undefined, {
+  const { data, isLoading, isError, refetch, isFetching } = trpc.market.getIndices.useQuery(undefined, {
     refetchInterval: 60_000,
   });
 
@@ -101,6 +101,14 @@ function IndicesSection() {
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : isError || !data?.indices.length ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
+            <p className="text-sm text-muted-foreground">Índices indisponíveis no momento. Nenhum valor estimado será exibido.</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} className="gap-2">
+              <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
+              Tentar novamente
+            </Button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -139,7 +147,7 @@ function IndicesSection() {
 }
 
 function MacroRatesSection() {
-  const { data, isLoading } = trpc.market.getMacroRates.useQuery(undefined, {
+  const { data, isLoading, isError, refetch, isFetching } = trpc.market.getMacroRates.useQuery(undefined, {
     refetchInterval: 300_000, // 5 min
   });
 
@@ -156,8 +164,14 @@ function MacroRatesSection() {
           <div className="flex items-center justify-center py-6">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
-        ) : !data?.rates.length ? (
-          <p className="text-sm text-muted-foreground text-center py-6">Dados indisponíveis no momento.</p>
+        ) : isError || !data?.rates.length ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-6 text-center">
+            <p className="text-sm text-muted-foreground">Dados macro indisponíveis no momento.</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} className="gap-2">
+              <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
+              Tentar novamente
+            </Button>
+          </div>
         ) : (
           <div className="space-y-2">
             {data.rates.map((rate) => (
@@ -185,7 +199,7 @@ function MacroRatesSection() {
 }
 
 function PortfolioQuotesSection() {
-  const { data, isLoading, refetch, isFetching } = trpc.market.getPortfolioQuotes.useQuery(undefined, {
+  const { data, isLoading, isError, refetch, isFetching } = trpc.market.getPortfolioQuotes.useQuery(undefined, {
     refetchInterval: 60_000,
   });
 
@@ -207,9 +221,17 @@ function PortfolioQuotesSection() {
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
+        ) : isError ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
+            <p className="text-sm text-muted-foreground">Não foi possível obter as cotações da carteira.</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} className="gap-2">
+              <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
+              Tentar novamente
+            </Button>
+          </div>
         ) : !data?.quotes.length ? (
           <p className="text-sm text-muted-foreground text-center py-6">
-            Nenhum ativo na carteira. Importe em Transações.
+            Nenhum ativo financeiro cadastrado.
           </p>
         ) : (
           <div className="overflow-x-auto">
@@ -269,7 +291,7 @@ function PortfolioQuotesSection() {
 
 function NewsSection() {
   const [expanded, setExpanded] = useState<number | null>(null);
-  const { data, isLoading, refetch, isFetching } = trpc.market.getPortfolioNews.useQuery(
+  const { data, isLoading, isError, refetch, isFetching } = trpc.market.getPortfolioNews.useQuery(
     { limit: 20 },
     { refetchInterval: 300_000 }
   );
@@ -299,6 +321,14 @@ function NewsSection() {
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : isError ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
+            <p className="text-sm text-muted-foreground">Não foi possível atualizar as notícias agora.</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} className="gap-2">
+              <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
+              Tentar novamente
+            </Button>
           </div>
         ) : !data?.news.length ? (
           <p className="text-sm text-muted-foreground text-center py-6">Nenhuma notícia encontrada no momento.</p>

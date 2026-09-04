@@ -1,7 +1,6 @@
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { summaryData, portfolioData } from "@/lib/data";
 import {
   ArrowUpRight,
   ArrowDownRight,
@@ -9,7 +8,6 @@ import {
   TrendingUp,
   RefreshCw,
   Loader2,
-  Upload,
   Eye,
   EyeOff,
   Zap,
@@ -38,13 +36,17 @@ import { PatrimonyEvolutionChart } from "@/components/PatrimonyEvolutionChart";
 import { ConsolidatedNetWorthCard } from "@/components/ConsolidatedNetWorthCard";
 
 import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
+import { buildHomePortfolioSummary } from "@shared/homePortfolioSummary";
 
 export default function Home() {
   const utils = trpc.useUtils();
   const { showBalances, toggleShowBalances } = useBalanceVisibility();
-  const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
-  const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
-  const { data: cashBalanceData } = trpc.cash.getBalance.useQuery();
+  const assetsQuery = trpc.portfolio.getAssets.useQuery();
+  const usdBrlQuery = trpc.portfolio.getUsdBrl.useQuery();
+  const cashBalanceQuery = trpc.cash.getBalance.useQuery();
+  const { data: dbAssets } = assetsQuery;
+  const { data: usdBrlData } = usdBrlQuery;
+  const { data: cashBalanceData } = cashBalanceQuery;
   const { data: patrimonialSummary } = trpc.patrimonial.getSummary.useQuery();
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
@@ -59,130 +61,42 @@ export default function Home() {
     onError: (err) => toast.error(`Erro: ${err.message}`),
   });
 
-  const seedPortfolio = trpc.portfolio.seedPortfolio.useMutation({
-    onSuccess: (result) => {
-      toast.success(
-        `Carteira importada! ${result.created} ativos criados, ${result.skipped} já existiam.`
-      );
-      utils.portfolio.getAssets.invalidate();
-    },
-    onError: (err) => toast.error(`Erro ao importar: ${err.message}`),
-  });
-
-  const usdBrl = usdBrlData?.rate ?? 5.7;
+  const usdBrl = usdBrlData?.rate ?? 0;
   const cashBalance = Number(cashBalanceData?.balance ?? 0);
-  const hasDbData = dbAssets && dbAssets.length > 0;
-  // Computar dados a partir do banco ou dados estáticos
-  const { totalPatrimony, totalProfit, profitPct, pieData, topAssets, cashValue, largestClass, largestClassPct, topAssetTicker, topAssetName, topAssetClass, topAssetValue, topAssetPct } =
-    useMemo(() => {
-      if (hasDbData) {
-        // Dados do banco
-        const classMap = new Map<string, number>();
-        let patrimony = cashBalance; // inclui caixa dinâmico
-        let cost = 0;
-        const assetValues: {
-          ticker: string;
-          name: string;
-          classLabel: string;
-          valueBRL: number;
-          profitPct: number;
-        }[] = [];
-        for (const asset of dbAssets!) {
-          // Ignorar ativos de classe caixa (agora gerenciados pelo cash_balance)
-          if (asset.assetClass === "caixa") continue;
-          const qty = parseFloat(asset.totalQuantity);
-          const avgCost = parseFloat(asset.averageCost);
-          const lastPrice = parseFloat(asset.lastPrice);
-          const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
-          let valueBRL = qty * lastPrice;
-          let costBRL = qty * avgCost;
-          if (currency === "USD") {
-            valueBRL *= usdBrl;
-            costBRL *= usdBrl;
-          }
-          patrimony += valueBRL;
-          cost += costBRL;
-          const classLabel = ASSET_CLASS_LABELS[asset.assetClass] || asset.assetClass;
-          classMap.set(classLabel, (classMap.get(classLabel) || 0) + valueBRL);
-          const profitVal = valueBRL - costBRL;
-          const profitP = costBRL > 0 ? (profitVal / costBRL) * 100 : 0;
-          assetValues.push({
-            ticker: asset.ticker,
-            name: asset.name || asset.ticker,
-            classLabel,
-            valueBRL,
-            profitPct: profitP,
-          });
-        }
-        // Adicionar caixa dinâmico ao mapa de classes
-        if (cashBalance > 0) {
-          classMap.set("Caixa", (classMap.get("Caixa") || 0) + cashBalance);
-        }
+  const hasDbData = (dbAssets?.length ?? 0) > 0;
+  const hasUsdAssets = dbAssets?.some((asset) => (asset.currency || CLASS_CURRENCY[asset.assetClass]) === "USD") ?? false;
+  const isLoading = assetsQuery.isLoading || cashBalanceQuery.isLoading || usdBrlQuery.isLoading;
+  const hasCriticalError = assetsQuery.isError || cashBalanceQuery.isError || usdBrlQuery.isError;
+  const needsFxRate = hasUsdAssets && !usdBrlData;
 
-        const profit = patrimony - cost;
-        const pPct = cost > 0 ? (profit / cost) * 100 : 0;
+  const overview = useMemo(() => {
+    if (!hasDbData || !dbAssets || needsFxRate) return null;
 
-        const pie = Array.from(classMap.entries())
-          .map(([name, value]) => ({ name, value }))
-          .sort((a, b) => b.value - a.value);
+    const summary = buildHomePortfolioSummary(dbAssets, cashBalance, usdBrl);
+    const pieData = summary.classValues.map((entry) => ({
+      classId: entry.assetClass,
+      name: ASSET_CLASS_LABELS[entry.assetClass] || entry.assetClass,
+      value: entry.value,
+    }));
+    const topAssets = summary.assets.slice(0, 5).map((asset) => ({
+      name: asset.ticker,
+      class: ASSET_CLASS_LABELS[asset.assetClass] || asset.assetClass,
+      value: asset.valueBRL,
+      profit: asset.profitPct,
+    }));
+    const topAsset = summary.assets[0];
 
-        const top = assetValues
-          .sort((a, b) => b.valueBRL - a.valueBRL)
-          .slice(0, 5);
-
-                const largest = pie[0];
-        // Ativo individual de maior valor (para o card Maior Posição)
-        const topAsset = assetValues.sort((a, b) => b.valueBRL - a.valueBRL)[0];
-        return {
-          totalPatrimony: patrimony,
-          totalProfit: profit,
-          profitPct: pPct,
-          pieData: pie,
-          topAssets: top.map((a) => ({
-            name: a.ticker,
-            class: a.classLabel,
-            value: a.valueBRL,
-            profit: a.profitPct,
-          })),
-          cashValue: cashBalance,
-          largestClass: largest?.name || "—",
-          largestClassPct: patrimony > 0 ? ((largest?.value || 0) / patrimony) * 100 : 0,
-          topAssetTicker: topAsset?.ticker || "—",
-          topAssetName: topAsset?.name || "—",
-          topAssetClass: topAsset?.classLabel || "—",
-          topAssetValue: topAsset?.valueBRL || 0,
-          topAssetPct: patrimony > 0 ? ((topAsset?.valueBRL || 0) / patrimony) * 100 : 0,
-        };
-      }
-
-      // Fallback: dados estáticos
-      const pie = portfolioData.map((item) => ({
-        name: item.name,
-        value: item.totalValue,
-      }));
-
-      return {
-        totalPatrimony: summaryData.totalPatrimony,
-        totalProfit: summaryData.totalProfit,
-        profitPct: summaryData.profitPercentage,
-        pieData: pie,
-        topAssets: [
-          { name: "VALE3", class: "RV Nacional", value: 117963.44, profit: 38.2 },
-          { name: "SBSP3", class: "RV Nacional", value: 116131.71, profit: 168.8 },
-          { name: "CMIN3", class: "RV Nacional", value: 108150.66, profit: 2.4 },
-          { name: "KINEA GAMA", class: "Fundos", value: 103553.74, profit: -2.0 },
-          { name: "MBRF3", class: "RV Nacional", value: 78980.40, profit: 44.2 },
-        ],
-        cashValue: 0,
-        largestClass: "RV Nacional",
-        largestClassPct: 58.8,
-        topAssetTicker: "VALE3",
-        topAssetName: "VALE3",
-        topAssetClass: "RV Nacional",
-        topAssetValue: 117963.44,
-        topAssetPct: 6.2,
-      };
-    }, [hasDbData, dbAssets, usdBrl, cashBalance]);
+    return {
+      totalPatrimony: summary.totalPatrimony,
+      totalProfit: summary.investmentProfit,
+      profitPct: summary.investmentProfitPct,
+      pieData,
+      topAssets,
+      topAssetTicker: topAsset?.ticker || "—",
+      topAssetClass: topAsset ? ASSET_CLASS_LABELS[topAsset.assetClass] || topAsset.assetClass : "—",
+      topAssetPct: summary.totalPatrimony > 0 ? ((topAsset?.valueBRL || 0) / summary.totalPatrimony) * 100 : 0,
+    };
+  }, [cashBalance, dbAssets, hasDbData, needsFxRate, usdBrl]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -191,58 +105,67 @@ export default function Home() {
     }).format(value);
   };
 
-  // Função para importar carteira estática para o banco
-  function handleSeedPortfolio() {
-    const allAssets: {
-      ticker: string;
-      name: string;
-      assetClass: "rv_nacional" | "rv_eua" | "fundos" | "cripto" | "renda_fixa" | "uranio" | "india" | "caixa";
-      currency: "BRL" | "USD";
-      quantity: number;
-      averageCost: number;
-      lastPrice: number;
-    }[] = [];
+  const retryDashboardQueries = () => {
+    void Promise.all([
+      assetsQuery.refetch(),
+      cashBalanceQuery.refetch(),
+      usdBrlQuery.refetch(),
+    ]);
+  };
 
-    const classMapping: Record<string, "rv_nacional" | "rv_eua" | "fundos" | "cripto" | "renda_fixa" | "uranio" | "india" | "caixa"> = {
-      "rv-nacional": "rv_nacional",
-      "rv-eua": "rv_eua",
-      fundos: "fundos",
-      cripto: "cripto",
-      "renda-fixa": "renda_fixa",
-      uranio: "uranio",
-      india: "india",
-      caixa: "caixa",
-    };
-
-    for (const cls of portfolioData) {
-      const assetClass = classMapping[cls.id] || "rv_nacional";
-      const currency = CLASS_CURRENCY[assetClass] as "BRL" | "USD";
-
-      for (const asset of cls.assets) {
-        allAssets.push({
-          ticker: asset.id,
-          name: asset.name,
-          assetClass,
-          currency,
-          quantity: asset.position,
-          averageCost: asset.cost,
-          lastPrice: asset.price,
-        });
-      }
-    }
-
-    seedPortfolio.mutate({ assets: allAssets });
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <Card className="bg-card/50 border-border/50">
+          <CardContent className="flex min-h-56 flex-col items-center justify-center gap-3 text-center">
+            <Loader2 className="h-7 w-7 animate-spin text-primary" />
+            <div>
+              <p className="font-medium">Carregando dados da carteira</p>
+              <p className="mt-1 text-sm text-muted-foreground">Os valores serão exibidos apenas após a confirmação das fontes.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </DashboardLayout>
+    );
   }
+
+  if (hasCriticalError || needsFxRate) {
+    return (
+      <DashboardLayout>
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <CardContent className="flex min-h-56 flex-col items-center justify-center gap-4 p-6 text-center">
+            <div>
+              <p className="font-medium text-amber-300">Não foi possível consolidar a carteira agora.</p>
+              <p className="mt-1 max-w-lg text-sm text-muted-foreground">A tela não exibirá valores de demonstração. Tente atualizar novamente; se o problema persistir, verifique a cotação do dólar e a conexão das fontes.</p>
+            </div>
+            <Button variant="outline" onClick={retryDashboardQueries} className="gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Tentar novamente
+            </Button>
+          </CardContent>
+        </Card>
+      </DashboardLayout>
+    );
+  }
+
+  if (!overview) {
+    return (
+      <DashboardLayout>
+        <Card className="border-dashed border-border bg-card/50">
+          <CardContent className="flex min-h-56 flex-col items-center justify-center gap-3 p-6 text-center">
+            <p className="font-medium">Nenhum ativo financeiro cadastrado</p>
+            <p className="max-w-lg text-sm text-muted-foreground">Quando houver ativos ou transações confirmados, a Visão Geral consolidará os dados reais. O painel não criará uma carteira demonstrativa automaticamente.</p>
+          </CardContent>
+        </Card>
+      </DashboardLayout>
+    );
+  }
+
+  const { totalPatrimony, totalProfit, profitPct, pieData, topAssets, topAssetTicker, topAssetClass, topAssetPct } = overview;
 
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        {!hasDbData && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-sm">
-            <span>⚠️</span>
-            <span>Exibindo dados de demonstração. Importe sua carteira para ver valores reais.</span>
-          </div>
-        )}
         {/* ── HERO: Patrimônio Total ── */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
@@ -250,12 +173,10 @@ export default function Home() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
                 Patrimônio Financeiro Total
               </p>
-              {hasDbData && (
-                <span className="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2 py-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  ao vivo
-                </span>
-              )}
+              <span className="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2 py-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                dados reais
+              </span>
             </div>
             <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
               <h2 className={`text-3xl md:text-5xl font-bold tracking-tight font-mono text-gradient-hero transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
@@ -278,26 +199,10 @@ export default function Home() {
               )}
             </div>
             <p className="text-muted-foreground text-sm mt-1.5">
-              Inclui caixa e dividendos · capital + proventos
+              Inclui caixa no patrimônio · resultado exclui saldo de caixa
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            {!hasDbData && !isLoading && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSeedPortfolio}
-                disabled={seedPortfolio.isPending}
-                className="gap-2"
-              >
-                {seedPortfolio.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Upload className="w-4 h-4" />
-                )}
-                Importar Carteira
-              </Button>
-            )}
             {/* Botão ocultar/mostrar valores — sempre visível */}
             <Button
               variant="ghost"
@@ -309,29 +214,27 @@ export default function Home() {
               {showBalances ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               <span className="hidden sm:inline">{showBalances ? "Ocultar" : "Mostrar"}</span>
             </Button>
-            {hasDbData && (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => refreshPrices.mutate()}
-                  disabled={refreshPrices.isPending}
-                  className="gap-2"
-                >
-                  {refreshPrices.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <RefreshCw className="w-4 h-4" />
-                  )}
-                  Atualizar Cotações
-                </Button>
-                {lastUpdated && (
-                  <span className="text-xs text-muted-foreground">
-                    Atualizado {formatDistanceToNow(lastUpdated, { addSuffix: true, locale: ptBR })}
-                  </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refreshPrices.mutate()}
+                disabled={refreshPrices.isPending}
+                className="gap-2"
+              >
+                {refreshPrices.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
                 )}
-              </div>
-            )}
+                Atualizar Cotações
+              </Button>
+              {lastUpdated && (
+                <span className="text-xs text-muted-foreground">
+                  Atualizado {formatDistanceToNow(lastUpdated, { addSuffix: true, locale: ptBR })}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -346,7 +249,7 @@ export default function Home() {
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-                Rentabilidade Total
+                Resultado de Investimentos
               </CardTitle>
               <TrendingUp
                 className={`h-4 w-4 ${
@@ -375,7 +278,7 @@ export default function Home() {
                 ) : (
                   <ArrowDownRight className="h-3 w-3" />
                 )}
-                {Math.abs(profitPct).toFixed(1)}% desde o aporte
+                {Math.abs(profitPct).toFixed(1)}% sobre o custo médio
               </p>
             </CardContent>
           </Card>
@@ -487,7 +390,7 @@ export default function Home() {
                         {pieData.map((entry, index) => (
                           <Cell
                             key={`cell-${index}`}
-                            fill={classColor(entry.name)}
+                            fill={classColor(entry.classId)}
                           />
                         ))}
                       </Pie>

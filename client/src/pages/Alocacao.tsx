@@ -1,7 +1,6 @@
 import { useMemo, useState, useCallback } from "react";
-import { ArrowUpDown, ChevronUp, ChevronDown, Pencil } from "lucide-react";
+import { ArrowUpDown, ChevronUp, ChevronDown, Pencil, RefreshCw } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { portfolioData } from "@/lib/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -57,13 +56,19 @@ interface ClassGroup {
 
 export default function Alocacao() {
   const { showBalances, toggleShowBalances } = useBalanceVisibility();
-  const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
-  const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
-  const { data: cashData } = trpc.cash.getBalance.useQuery();
+  const assetsQuery = trpc.portfolio.getAssets.useQuery();
+  const usdBrlQuery = trpc.portfolio.getUsdBrl.useQuery();
+  const cashQuery = trpc.cash.getBalance.useQuery();
+  const { data: dbAssets } = assetsQuery;
+  const { data: usdBrlData } = usdBrlQuery;
+  const { data: cashData } = cashQuery;
   const { data: cashMovements } = trpc.cash.listMovements.useQuery({ limit: 8 });
   const { data: dailyChangeData } = trpc.portfolio.getAssetsDailyChange.useQuery();
-  const usdBrl = usdBrlData?.rate ?? 5.7;
+  const usdBrl = usdBrlData?.rate ?? 0;
   const hasDbData = dbAssets && dbAssets.length > 0;
+  const hasUsdAssets = dbAssets?.some((asset) => (asset.currency || CLASS_CURRENCY[asset.assetClass]) === "USD") ?? false;
+  const isLoading = assetsQuery.isLoading || usdBrlQuery.isLoading || cashQuery.isLoading;
+  const hasCriticalDataError = assetsQuery.isError || usdBrlQuery.isError || cashQuery.isError || (hasUsdAssets && !usdBrlData);
   const cashBalance = Number(cashData?.balance ?? 0);
   const [search, setSearch] = useState("");
 
@@ -220,15 +225,7 @@ export default function Alocacao() {
       return result;
     }
 
-    return portfolioData.map((cat) => ({
-      ...cat,
-      assets: cat.assets.map((a) => ({
-        ...a,
-        dbId: 0,
-        assetClass: cat.id,
-        currency: CLASS_CURRENCY[cat.id] || "BRL",
-      })),
-    }));
+    return [];
   }, [hasDbData, dbAssets, usdBrl, cashBalance]);
 
   function formatCurrency(value: number, currency: string = "BRL") {
@@ -282,9 +279,38 @@ export default function Alocacao() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          <div>
+            <p className="font-medium">Carregando alocação</p>
+            <p className="mt-1 text-sm text-muted-foreground">Os valores serão exibidos apenas após a confirmação das fontes.</p>
+          </div>
         </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (hasCriticalDataError) {
+    return (
+      <DashboardLayout>
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <CardContent className="flex min-h-56 flex-col items-center justify-center gap-4 p-6 text-center">
+            <div>
+              <p className="font-medium text-amber-300">Não foi possível consolidar a alocação agora.</p>
+              <p className="mt-1 max-w-lg text-sm text-muted-foreground">Para evitar números incompletos, a tela não usará valores de demonstração nem câmbio estimado.</p>
+            </div>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => {
+                void Promise.all([assetsQuery.refetch(), usdBrlQuery.refetch(), cashQuery.refetch()]);
+              }}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Tentar novamente
+            </Button>
+          </CardContent>
+        </Card>
       </DashboardLayout>
     );
   }

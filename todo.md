@@ -451,3 +451,10 @@
 - [x] Inspecionar desktop e mobile quanto a hierarquia visual, responsividade e acessibilidade
 - [x] Avaliar clareza dos indicadores, fluxos e riscos de confiabilidade dos dados
 - [x] Consolidar recomendações priorizadas sem modificar dados financeiros
+
+## Correções Prioritárias de Confiabilidade do Dashboard — Em andamento
+- [x] Separar saldo de caixa do resultado de investimentos exibido na Visão Geral
+- [x] Remover fallback e seed demonstrativos da experiência produtiva sem criar dados financeiros
+- [x] Exibir estados de carregamento, falha e ausência de dados com ação de nova tentativa
+- [x] Criar testes unitários para os cálculos e estados críticos alterados
+- [x] Validar desktop e mobile, rodar testes e salvar checkpoint

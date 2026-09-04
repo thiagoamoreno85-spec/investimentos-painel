@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   ResponsiveContainer,
   BarChart,
@@ -11,7 +12,6 @@ import {
   Tooltip,
   Cell,
 } from "recharts";
-import { portfolioData } from "@/lib/data";
 import {
   ArrowUpRight,
   ArrowDownRight,
@@ -20,16 +20,23 @@ import {
   TrendingUp,
   Trophy,
   Layers,
+  RefreshCw,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
 import { BenchmarkChart } from "@/components/BenchmarkChart";
+import { buildHomePortfolioSummary } from "@shared/homePortfolioSummary";
 
 export default function Rentabilidade() {
-  const { data: dbAssets, isLoading } = trpc.portfolio.getAssets.useQuery();
-  const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
-  const usdBrl = usdBrlData?.rate ?? 5.7;
+  const assetsQuery = trpc.portfolio.getAssets.useQuery();
+  const usdBrlQuery = trpc.portfolio.getUsdBrl.useQuery();
+  const { data: dbAssets } = assetsQuery;
+  const { data: usdBrlData } = usdBrlQuery;
+  const usdBrl = usdBrlData?.rate ?? 0;
   const hasDbData = dbAssets && dbAssets.length > 0;
+  const hasUsdAssets = dbAssets?.some((asset) => (asset.currency || CLASS_CURRENCY[asset.assetClass]) === "USD") ?? false;
+  const isLoading = assetsQuery.isLoading || usdBrlQuery.isLoading;
+  const hasCriticalDataError = assetsQuery.isError || usdBrlQuery.isError || (hasUsdAssets && !usdBrlData);
 
   const { profitByClass, winners, losers, totalProfit, assetCount } = useMemo(() => {
     if (hasDbData) {
@@ -41,32 +48,16 @@ export default function Rentabilidade() {
         profitPct: number;
       }[] = [];
 
-      for (const asset of dbAssets!) {
-        const qty = parseFloat(asset.totalQuantity);
-        const avgCost = parseFloat(asset.averageCost);
-        const lastPrice = parseFloat(asset.lastPrice);
-        const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
-
-        let valueBRL = qty * lastPrice;
-        let costBRL = qty * avgCost;
-        if (currency === "USD") {
-          valueBRL *= usdBrl;
-          costBRL *= usdBrl;
-        }
-
-        const profit = valueBRL - costBRL;
-        const profitPct = costBRL > 0 ? (profit / costBRL) * 100 : 0;
+      const summary = buildHomePortfolioSummary(dbAssets!, 0, usdBrl);
+      for (const asset of summary.assets) {
         const classLabel = ASSET_CLASS_LABELS[asset.assetClass] || asset.assetClass;
-
-        if (asset.assetClass !== "caixa") {
-          classProfit.set(classLabel, (classProfit.get(classLabel) || 0) + profit);
-          assetList.push({
-            name: asset.ticker,
-            class: classLabel,
-            profitBRL: profit,
-            profitPct,
-          });
-        }
+        classProfit.set(classLabel, (classProfit.get(classLabel) || 0) + asset.profitBRL);
+        assetList.push({
+          name: asset.ticker,
+          class: classLabel,
+          profitBRL: asset.profitBRL,
+          profitPct: asset.profitPct,
+        });
       }
 
       const pbc = Array.from(classProfit.entries())
@@ -79,7 +70,7 @@ export default function Rentabilidade() {
 
       const w = [...assetList].sort((a, b) => b.profitBRL - a.profitBRL).slice(0, 5);
       const l = [...assetList].sort((a, b) => a.profitBRL - b.profitBRL).slice(0, 5);
-      const total = assetList.reduce((sum, a) => sum + a.profitBRL, 0);
+      const total = summary.investmentProfit;
 
       return {
         profitByClass: pbc,
@@ -100,39 +91,12 @@ export default function Rentabilidade() {
       };
     }
 
-    // Fallback estático
-    const pbc = portfolioData
-      .map((category) => {
-        const totalProfit = category.assets.reduce((sum, asset) => sum + asset.profit, 0);
-        return {
-          name: category.name,
-          profit: totalProfit,
-          isPositive: totalProfit >= 0,
-        };
-      })
-      .filter((item) => item.name !== "Caixa + Dividendos");
-
-    const allAssets = portfolioData.flatMap((c) => c.assets).filter((a) => a.class !== "Caixa");
-    const w = [...allAssets].sort((a, b) => b.profit - a.profit).slice(0, 5);
-    const l = [...allAssets].sort((a, b) => a.profit - b.profit).slice(0, 5);
-    const total = allAssets.reduce((sum, a) => sum + a.profit, 0);
-
     return {
-      profitByClass: pbc,
-      winners: w.map((a) => ({
-        name: a.name,
-        class: a.class,
-        profit: a.profit,
-        profitPercentage: a.profitPercentage,
-      })),
-      losers: l.map((a) => ({
-        name: a.name,
-        class: a.class,
-        profit: a.profit,
-        profitPercentage: a.profitPercentage,
-      })),
-      totalProfit: total,
-      assetCount: allAssets.length,
+      profitByClass: [],
+      winners: [],
+      losers: [],
+      totalProfit: 0,
+      assetCount: 0,
     };
   }, [hasDbData, dbAssets, usdBrl]);
 
@@ -152,6 +116,42 @@ export default function Rentabilidade() {
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
         </div>
+      </DashboardLayout>
+    );
+  }
+
+  const retryPerformanceQueries = () => {
+    void Promise.all([assetsQuery.refetch(), usdBrlQuery.refetch()]);
+  };
+
+  if (hasCriticalDataError) {
+    return (
+      <DashboardLayout>
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <CardContent className="flex min-h-56 flex-col items-center justify-center gap-4 p-6 text-center">
+            <div>
+              <p className="font-medium text-amber-300">Não foi possível calcular a rentabilidade agora.</p>
+              <p className="mt-1 max-w-lg text-sm text-muted-foreground">Para evitar resultados incompletos, a tela aguarda a confirmação dos ativos e do câmbio.</p>
+            </div>
+            <Button variant="outline" className="gap-2" onClick={retryPerformanceQueries}>
+              <RefreshCw className="h-4 w-4" />
+              Tentar novamente
+            </Button>
+          </CardContent>
+        </Card>
+      </DashboardLayout>
+    );
+  }
+
+  if (!hasDbData) {
+    return (
+      <DashboardLayout>
+        <Card className="border-dashed border-border bg-card/50">
+          <CardContent className="flex min-h-56 flex-col items-center justify-center gap-3 p-6 text-center">
+            <p className="font-medium">Nenhum ativo financeiro cadastrado</p>
+            <p className="max-w-lg text-sm text-muted-foreground">A análise de rentabilidade será exibida quando houver operações ou ativos confirmados. O painel não criará dados demonstrativos.</p>
+          </CardContent>
+        </Card>
       </DashboardLayout>
     );
   }

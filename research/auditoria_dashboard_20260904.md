@@ -83,3 +83,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - A visualização abaixo de `md` passa a utilizar cartões por ativo, priorizando ticker, quantidade, valor atual, lucro/prejuízo e variação diária; para renda fixa, acrescenta custo, preço atual editável, emissor, vencimento e data-base.
 - As duas tabelas de alta densidade permanecem disponíveis apenas no desktop. Assim, a leitura móvel não depende de uma tabela horizontal extensa nem apresenta sobreposição de colunas.
 - As capturas de prévia nos dois viewports preservaram o estado de carregamento esperado sem erro visual. A confirmação dos cartões com dados reais exige sessão autenticada; a tipagem e a suíte foram validadas antes da captura.
+
+## Rolagem de ativos na alocação móvel — 04/09/2026
+
+- A versão móvel foi convertida de cartões estáticos para tabela compacta com quatro colunas essenciais: ativo, quantidade, total e L/P.
+- O cabeçalho é um bloco fixo independente; apenas a lista de ativos fica dentro de uma área de rolagem vertical de altura limitada. A tabela detalhada permanece reservada ao desktop.
+- As capturas de prévia nos formatos móvel e desktop mostraram os estados de carregamento sem regressão visual. A compilação e os testes validaram a estrutura atualizada.

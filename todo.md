@@ -515,3 +515,10 @@
 - [x] Manter acesso aos dados adicionais sem sobreposição e com indicação de visualização detalhada no desktop
 - [x] Criar testes e validar os estados desktop e mobile
 - [x] Salvar checkpoint sem alterar qualquer dado financeiro
+
+## Rolagem da Lista de Ativos na Alocação Móvel — Em andamento
+- [x] Definir colunas essenciais sem perder a leitura do resultado por ativo
+- [x] Deixar o cabeçalho móvel fixo e rolar somente a lista de ativos
+- [x] Preservar a tabela detalhada completa para desktop
+- [x] Criar testes e validar ausência de sobreposição em mobile
+- [x] Salvar checkpoint sem alterar qualquer dado financeiro

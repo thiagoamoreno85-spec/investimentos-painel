@@ -445,3 +445,9 @@
 - [x] Organizar teses, premissas, dados, projeções e riscos apresentados
 - [x] Verificar os fatos materiais em fontes atuais e relacioná-los à carteira
 - [x] Preparar relatório completo com conclusão crítica e materiais extraídos
+
+## Auditoria do Dashboard de Investimentos — Em andamento
+- [x] Mapear as telas, componentes e estados críticos do dashboard
+- [x] Inspecionar desktop e mobile quanto a hierarquia visual, responsividade e acessibilidade
+- [x] Avaliar clareza dos indicadores, fluxos e riscos de confiabilidade dos dados
+- [x] Consolidar recomendações priorizadas sem modificar dados financeiros

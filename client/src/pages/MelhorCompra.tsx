@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 
 const FOCUS_OPTIONS = [
   { value: "brasil", label: "🇧🇷 Ativos Brasileiros", description: "Ações, FIIs e fundos nacionais" },
@@ -53,6 +54,7 @@ const FOCUS_LABELS: Record<string, string> = {
 };
 
 export default function MelhorCompra() {
+  const { showBalances } = useBalanceVisibility();
   const [amount, setAmount] = useState("1200");
   const [focus, setFocus] = useState<"brasil" | "eua" | "todos">("brasil");
   const [userContext, setUserContext] = useState("");
@@ -272,7 +274,7 @@ export default function MelhorCompra() {
 
               {/* Snapshot de cotações */}
               {result && Object.keys(result.quotesSnapshot).length > 0 && (
-                <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+                <Card className={`bg-card/50 backdrop-blur-sm border-border/50 shadow-sm transition-[filter] duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm flex items-center gap-2">
                       <TrendingUp className="w-4 h-4 text-blue-400" />
@@ -328,7 +330,7 @@ export default function MelhorCompra() {
                   </CardContent>
                 </Card>
               ) : result ? (
-                <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+                <Card className={`bg-card/50 backdrop-blur-sm border-border/50 shadow-sm transition-[filter] duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                   <CardHeader className="border-b border-border/50">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <CardTitle className="flex items-center gap-2">
@@ -540,7 +542,7 @@ export default function MelhorCompra() {
                           {/* Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-mono font-bold text-emerald-400">
+                              <span className={`font-mono font-bold text-emerald-400 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                 R$ {parseFloat(item.availableAmount).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                               </span>
                               <span className="px-2 py-0.5 rounded-full bg-secondary text-xs text-muted-foreground border border-border/50">
@@ -613,7 +615,7 @@ export default function MelhorCompra() {
           </DialogHeader>
 
           {selectedRecord ? (
-            <div className="space-y-4">
+            <div className={`space-y-4 transition-[filter] duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
               {/* Meta da análise */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[

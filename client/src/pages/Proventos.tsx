@@ -28,6 +28,7 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 import { ImportStatementModal } from "@/components/ImportStatementModal";
+import { PrivacyMask } from "@/components/PrivacyMask";
 import { toast } from "sonner";
 import {
   ResponsiveContainer,
@@ -209,6 +210,7 @@ export default function Proventos() {
         />
 
         {/* Cards de resumo fixos */}
+        <PrivacyMask>
         <div className="flex-shrink-0 grid grid-cols-3 gap-2 md:gap-4">
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3 md:px-6 md:pt-6 md:pb-2">
@@ -267,6 +269,7 @@ export default function Proventos() {
             </CardContent>
           </Card>
         </div>
+        </PrivacyMask>
 
         <div className="grid gap-3 md:gap-6 grid-cols-1 lg:grid-cols-3 flex-1 min-h-0 mt-3">
           {/* Formulário */}
@@ -347,12 +350,12 @@ export default function Proventos() {
                 {valuePerShare && quantity && (
                   <div className="p-3 rounded-md bg-emerald-500/10 border border-emerald-500/20">
                     <p className="text-xs text-muted-foreground">Total do provento</p>
-                    <p className="text-lg font-bold font-mono text-emerald-500">
+                    <PrivacyMask as="div" className="text-lg font-bold font-mono text-emerald-500">
                       {formatCurrency(
                         parseFloat(valuePerShare) * parseFloat(quantity),
                         currency
                       )}
-                    </p>
+                    </PrivacyMask>
                   </div>
                 )}
 
@@ -435,7 +438,7 @@ export default function Proventos() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="h-[130px] w-full">
+                  <PrivacyMask className="h-[130px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                         <CartesianGrid
@@ -472,7 +475,7 @@ export default function Proventos() {
                         <Bar dataKey="total" fill="#10b981" radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
-                  </div>
+                  </PrivacyMask>
                 </CardContent>
               </Card>
             )}
@@ -494,7 +497,7 @@ export default function Proventos() {
                     </p>
                   </div>
                 ) : (
-                  <div className="flex flex-col flex-1 min-h-0 overflow-hidden rounded-md border border-border/50">
+                  <PrivacyMask className="flex flex-col flex-1 min-h-0 overflow-hidden rounded-md border border-border/50">
                     {/* Cabeçalho da tabela fixo */}
                     <div className="flex-shrink-0 overflow-x-auto">
                       <table className="w-full text-sm">
@@ -547,7 +550,7 @@ export default function Proventos() {
                         </tbody>
                       </table>
                     </ScrollArea>
-                  </div>
+                  </PrivacyMask>
                 )}
               </CardContent>
             </Card>
@@ -569,7 +572,7 @@ export default function Proventos() {
                     <p className="text-muted-foreground">Nenhum provento registrado.</p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
+                  <PrivacyMask className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-border/50 text-muted-foreground">
@@ -642,7 +645,7 @@ export default function Proventos() {
                         >Próxima</Button>
                       </div>
                     )}
-                  </div>
+                  </PrivacyMask>
                 )}
               </CardContent>
             </Card>

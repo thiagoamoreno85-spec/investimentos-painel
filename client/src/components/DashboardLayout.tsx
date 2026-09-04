@@ -17,10 +17,13 @@ import {
   Newspaper,
   Calendar,
   Building2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -43,6 +46,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { logout } = useAuth();
+  const { showBalances, toggleShowBalances } = useBalanceVisibility();
 
   const { data: alertCounts } = trpc.alerts.getAlertCounts.useQuery();
   const { data: unreadNewsCount } = trpc.news.unreadCount.useQuery();
@@ -147,6 +151,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const SidebarFooter = ({ onNavigate }: { onNavigate?: () => void }) => (
     <div className="p-3 border-t border-sidebar-border space-y-0.5">
+      <button
+        onClick={toggleShowBalances}
+        className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-secondary/70 hover:text-foreground w-full transition-all duration-150 text-sm"
+      >
+        {showBalances ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
+        {showBalances ? "Ocultar valores" : "Exibir valores"}
+      </button>
       <Link
         href="/configuracoes"
         onClick={onNavigate}
@@ -249,6 +260,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           {/* Quick badges */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggleShowBalances}
+              className="relative p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              aria-label={showBalances ? "Ocultar valores" : "Exibir valores"}
+              title={showBalances ? "Ocultar valores" : "Exibir valores"}
+            >
+              {showBalances ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
             {(alertCounts?.triggered ?? 0) > 0 && (
               <Link href="/alertas" className="relative p-1.5" aria-label="Alertas">
                 <Bell className="w-5 h-5 text-muted-foreground" />

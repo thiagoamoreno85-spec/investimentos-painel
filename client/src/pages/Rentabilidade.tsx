@@ -26,8 +26,10 @@ import { trpc } from "@/lib/trpc";
 import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
 import { BenchmarkChart } from "@/components/BenchmarkChart";
 import { buildHomePortfolioSummary } from "@shared/homePortfolioSummary";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 
 export default function Rentabilidade() {
+  const { showBalances } = useBalanceVisibility();
   const assetsQuery = trpc.portfolio.getAssets.useQuery();
   const usdBrlQuery = trpc.portfolio.getUsdBrl.useQuery();
   const { data: dbAssets } = assetsQuery;
@@ -178,7 +180,7 @@ export default function Rentabilidade() {
               </div>
               <p className={`mt-1.5 text-base md:text-xl font-bold font-mono tracking-tight truncate ${
                 totalProfit >= 0 ? "text-emerald-500" : "text-red-400"
-              }`}>
+              } ${!showBalances ? "blur-sm select-none" : ""}`}>
                 {totalProfit >= 0 ? "+" : ""}{formatCurrency(totalProfit)}
               </p>
             </CardContent>
@@ -194,7 +196,7 @@ export default function Rentabilidade() {
                 {bestAsset?.name ?? "—"}
               </p>
               {bestAsset && (
-                <p className="text-xs text-emerald-500/80 font-mono">
+                <p className={`text-xs text-emerald-500/80 font-mono ${!showBalances ? "blur-sm select-none" : ""}`}>
                   +{formatCurrency(bestAsset.profit)}
                 </p>
               )}
@@ -211,7 +213,7 @@ export default function Rentabilidade() {
                 {worstAsset?.name ?? "—"}
               </p>
               {worstAsset && (
-                <p className="text-xs text-red-400/80 font-mono">
+                <p className={`text-xs text-red-400/80 font-mono ${!showBalances ? "blur-sm select-none" : ""}`}>
                   {formatCurrency(worstAsset.profit)}
                 </p>
               )}
@@ -241,7 +243,7 @@ export default function Rentabilidade() {
               <CardTitle>Lucro/Prejuízo por Classe</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[220px] md:h-[350px] w-full mt-4">
+              <div className={`h-[220px] md:h-[350px] w-full mt-4 transition-all duration-200 ${!showBalances ? "blur-md select-none" : ""}`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={profitByClass}
@@ -322,10 +324,10 @@ export default function Rentabilidade() {
                         </div>
                       </div>
                       <div className="text-right space-y-0.5 flex-shrink-0">
-                        <p className="text-sm font-medium font-mono text-emerald-500">
+                        <p className={`text-sm font-medium font-mono text-emerald-500 ${!showBalances ? "blur-sm select-none" : ""}`}>
                           +{formatCurrency(asset.profit)}
                         </p>
-                        <p className="text-xs text-emerald-500/80 font-mono">
+                        <p className={`text-xs text-emerald-500/80 font-mono ${!showBalances ? "blur-sm select-none" : ""}`}>
                           +{asset.profitPercentage.toFixed(1)}%
                         </p>
                       </div>
@@ -362,10 +364,10 @@ export default function Rentabilidade() {
                         </div>
                       </div>
                       <div className="text-right space-y-0.5 flex-shrink-0">
-                        <p className="text-sm font-medium font-mono text-red-400">
+                        <p className={`text-sm font-medium font-mono text-red-400 ${!showBalances ? "blur-sm select-none" : ""}`}>
                           {formatCurrency(asset.profit)}
                         </p>
-                        <p className="text-xs text-red-400/80 font-mono">
+                        <p className={`text-xs text-red-400/80 font-mono ${!showBalances ? "blur-sm select-none" : ""}`}>
                           {asset.profitPercentage.toFixed(1)}%
                         </p>
                       </div>

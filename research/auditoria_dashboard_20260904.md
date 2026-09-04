@@ -65,3 +65,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - Foi incluído um seletor com os tickers ativos da carteira (com exclusão de caixa), que restringe a lista a itens cujo ticker afetado corresponde ao ativo escolhido, inclusive quando a fonte usa o sufixo `.SA`.
 - A última combinação de categoria, impacto, não lidas, maior exposição e ativo selecionado é persistida localmente no navegador e restaurada de forma defensiva na próxima abertura.
 - A verificação desktop confirmou a visibilidade do seletor e de todos os filtros; em telas amplas, a barra de filtros passa a quebrar linhas para não ocultar o controle de maior exposição. TypeScript sem erros e 134 testes aprovados.
+
+## Unificação do modo de privacidade — 04/09/2026
+
+- O controle de ocultar/exibir valores passou a ficar disponível no rodapé da navegação em desktop e na barra superior em mobile, persistindo a mesma preferência global já usada pela Visão Geral, Alocação e Patrimônio.
+- A cobertura foi ampliada para os resultados e gráficos de Rentabilidade e Aportes, posições e histórico de Transações, totais, gráfico e tabelas de Proventos, análises e snapshots de Melhor Compra, percentual de exposição em Notícias e gráfico de evolução patrimonial.
+- A inspeção desktop confirmou o novo controle no sidebar e a integridade visual das telas atualizadas. O comportamento da preferência armazenada foi coberto por testes unitários.

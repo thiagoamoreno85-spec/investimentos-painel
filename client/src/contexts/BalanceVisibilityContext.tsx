@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { parseBalanceVisibilityPreference } from "@shared/balanceVisibility";
 
 interface BalanceVisibilityContextType {
   showBalances: boolean;
@@ -14,9 +15,7 @@ export function BalanceVisibilityProvider({ children }: { children: ReactNode })
   // Carregar estado do localStorage ao montar
   useEffect(() => {
     const saved = localStorage.getItem("showBalances");
-    if (saved !== null) {
-      setShowBalances(JSON.parse(saved));
-    }
+    setShowBalances(parseBalanceVisibilityPreference(saved));
     setMounted(true);
   }, []);
 

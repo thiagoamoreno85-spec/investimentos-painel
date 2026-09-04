@@ -12,6 +12,8 @@ import {
 } from "recharts";
 import { LineChart as LineChartIcon, Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { PrivacyMask } from "@/components/PrivacyMask";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 
 const formatBRL = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
@@ -52,12 +54,15 @@ const computeYDomain = (data: { totalValue: number }[]): [number, number] => {
 
 export function PatrimonyEvolutionChart() {
   const utils = trpc.useUtils();
+  const { showBalances } = useBalanceVisibility();
   const { data, isLoading } = trpc.portfolio.getSnapshotHistory.useQuery({ days: 365 });
 
   const capture = trpc.portfolio.captureSnapshot.useMutation({
     onSuccess: (result) => {
       toast.success(
-        `Snapshot ${result.updated ? "atualizado" : "capturado"}: ${formatBRL(result.totalValue)}`
+        showBalances
+          ? `Snapshot ${result.updated ? "atualizado" : "capturado"}: ${formatBRL(result.totalValue)}`
+          : `Snapshot ${result.updated ? "atualizado" : "capturado"}.`
       );
       utils.portfolio.getSnapshotHistory.invalidate();
     },
@@ -123,7 +128,7 @@ export function PatrimonyEvolutionChart() {
             </Button>
           </div>
         ) : (
-          <div className="h-[220px] md:h-[280px] w-full">
+          <PrivacyMask className="h-[220px] md:h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={history} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
                 <defs>
@@ -179,7 +184,7 @@ export function PatrimonyEvolutionChart() {
                 />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </PrivacyMask>
         )}
       </CardContent>
     </Card>

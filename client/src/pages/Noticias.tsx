@@ -28,6 +28,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { filterNewsByTicker, selectMajorExposureNews } from "@shared/newsExposureFilter";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import {
   DEFAULT_NEWS_FILTER_PREFERENCES,
   NEWS_FILTER_PREFERENCES_KEY,
@@ -132,6 +133,7 @@ function formatRelativeTime(date: Date | null): string {
 }
 
 function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: number) => void }) {
+  const { showBalances } = useBalanceVisibility();
   const impact = IMPACT_CONFIG[item.impactLevel ?? "baixo"] ?? IMPACT_CONFIG.baixo;
   const sentiment = SENTIMENT_CONFIG[item.sentiment ?? "neutro"] ?? SENTIMENT_CONFIG.neutro;
   const category = CATEGORY_CONFIG[item.category ?? "global"] ?? CATEGORY_CONFIG.global;
@@ -257,7 +259,7 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
             </div>
             {item.affectedPortfolioPct > 0 && (
               <span className="text-xs font-mono text-muted-foreground">
-                Exposição: {item.affectedPortfolioPct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
+                Exposição: {showBalances ? `${item.affectedPortfolioPct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%` : "••••"}
               </span>
             )}
             <div className="flex items-center gap-1">

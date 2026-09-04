@@ -478,3 +478,9 @@
 - [x] Persistir e restaurar a última preferência de filtros no navegador
 - [x] Criar testes e validar os controles em desktop e mobile
 - [x] Salvar checkpoint sem alterar registros financeiros
+
+## Unificação do Modo de Privacidade — Em andamento
+- [x] Mapear valores financeiros ainda expostos fora da cobertura atual
+- [x] Aplicar a ocultação de valores nas telas prioritárias sem alterar os dados
+- [x] Criar testes e validar o comportamento em desktop e mobile
+- [x] Salvar checkpoint sem alterar registros financeiros

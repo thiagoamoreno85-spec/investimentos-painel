@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import DashboardLayout from "@/components/DashboardLayout";
 import { ImportCSVModal } from "@/components/ImportCSVModal";
+import { PrivacyMask } from "@/components/PrivacyMask";
 import { trpc } from "@/lib/trpc";
 import {
   ArrowUpRight,
@@ -398,12 +399,12 @@ export default function Transacoes() {
                     <p className="text-xs text-muted-foreground">
                       Total da operação
                     </p>
-                    <p className="text-lg font-bold font-mono">
+                    <PrivacyMask as="div" className="text-lg font-bold font-mono">
                       {formatCurrency(
                         parseFloat(quantity) * parseFloat(unitPrice),
                         CLASS_CURRENCY[assetClass] || "BRL"
                       )}
-                    </p>
+                    </PrivacyMask>
                   </div>
                 )}
 
@@ -482,7 +483,7 @@ export default function Transacoes() {
                     </p>
                   </div>
                 ) : (
-                  <div className="flex flex-col flex-1 min-h-0 overflow-hidden rounded-md border border-border/50">
+                  <PrivacyMask className="flex flex-col flex-1 min-h-0 overflow-hidden rounded-md border border-border/50">
                     {/* Cabeçalho fixo */}
                     <div className="flex-shrink-0">
                       <table className="w-full text-sm">
@@ -561,7 +562,7 @@ export default function Transacoes() {
                         </tbody>
                       </table>
                     </ScrollArea>
-                  </div>
+                  </PrivacyMask>
                 )}
               </CardContent>
             </Card>
@@ -596,7 +597,7 @@ export default function Transacoes() {
                     </p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
+                  <PrivacyMask className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-border/50 text-muted-foreground">
@@ -687,7 +688,7 @@ export default function Transacoes() {
                         >Próxima</Button>
                       </div>
                     )}
-                  </div>
+                  </PrivacyMask>
                 )}
               </CardContent>
             </Card>

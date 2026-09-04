@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { Calculator, Target, Calendar } from "lucide-react";
 import { summaryData } from "@/lib/data";
+import { PrivacyMask } from "@/components/PrivacyMask";
 
 export default function Aportes() {
   const [aporteMensal, setAporteMensal] = useState(10000);
@@ -102,7 +103,7 @@ export default function Aportes() {
               <div className="pt-4 border-t border-border/50">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Patrimônio Atual Base:</span>
-                  <span className="font-mono font-medium">{formatCurrency(patrimonioAtual)}</span>
+                  <PrivacyMask as="span" className="font-mono font-medium">{formatCurrency(patrimonioAtual)}</PrivacyMask>
                 </div>
               </div>
             </CardContent>
@@ -118,6 +119,7 @@ export default function Aportes() {
                     Patrimônio Projetado
                   </CardTitle>
                 </CardHeader>
+                <PrivacyMask as="div">
                 <CardContent>
                   <div className="text-3xl font-bold font-mono text-primary tracking-tight">
                     {formatCurrency(valorFinal)}
@@ -126,6 +128,7 @@ export default function Aportes() {
                     Em {anos} anos com aportes de {formatCurrency(aporteMensal)}/mês
                   </p>
                 </CardContent>
+                </PrivacyMask>
               </Card>
 
               <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
@@ -135,6 +138,7 @@ export default function Aportes() {
                     Renda Passiva Mensal Estimada
                   </CardTitle>
                 </CardHeader>
+                <PrivacyMask as="div">
                 <CardContent>
                   <div className="text-3xl font-bold font-mono tracking-tight">
                     {formatCurrency(valorFinal * 0.005)}
@@ -143,6 +147,7 @@ export default function Aportes() {
                     Considerando retirada segura de 0,5% ao mês
                   </p>
                 </CardContent>
+                </PrivacyMask>
               </Card>
             </div>
 
@@ -150,6 +155,7 @@ export default function Aportes() {
               <CardHeader>
                 <CardTitle>Evolução do Patrimônio</CardTitle>
               </CardHeader>
+              <PrivacyMask as="div">
               <CardContent>
                 <div className="h-[300px] w-full mt-4">
                   <ResponsiveContainer width="100%" height="100%">
@@ -191,6 +197,7 @@ export default function Aportes() {
                   </ResponsiveContainer>
                 </div>
               </CardContent>
+              </PrivacyMask>
             </Card>
           </div>
         </div>

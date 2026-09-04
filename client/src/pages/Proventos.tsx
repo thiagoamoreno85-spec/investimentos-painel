@@ -191,7 +191,7 @@ export default function Proventos() {
             onClick={() => setImportModalOpen(true)}
           >
             <FileSpreadsheet className="h-4 w-4" />
-            <span className="hidden sm:inline">Importar Extrato XP</span>
+            <span className="hidden sm:inline">Importar PDF ou planilha</span>
             <span className="sm:hidden">Importar</span>
           </Button>
         </div>

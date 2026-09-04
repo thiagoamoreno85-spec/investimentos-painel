@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   Loader2,
   FileSpreadsheet,
+  FileText,
 } from "lucide-react";
 
 interface Props {
@@ -82,6 +83,10 @@ export function ImportStatementModal({ open, onClose, onImported }: Props) {
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
+    if (!/\.(pdf|xlsx|xls)$/i.test(f.name)) {
+      toast.error("Formato inválido. Envie um arquivo PDF, XLSX ou XLS.");
+      return;
+    }
     setFile(f);
     const reader = new FileReader();
     reader.onload = (ev) => {
@@ -95,6 +100,10 @@ export function ImportStatementModal({ open, onClose, onImported }: Props) {
     e.preventDefault();
     const f = e.dataTransfer.files?.[0];
     if (!f) return;
+    if (!/\.(pdf|xlsx|xls)$/i.test(f.name)) {
+      toast.error("Formato inválido. Envie um arquivo PDF, XLSX ou XLS.");
+      return;
+    }
     setFile(f);
     const reader = new FileReader();
     reader.onload = (ev) => {
@@ -106,12 +115,12 @@ export function ImportStatementModal({ open, onClose, onImported }: Props) {
 
   function handlePreview() {
     if (!fileBase64) return;
-    previewMutation.mutate({ fileBase64 });
+    previewMutation.mutate({ fileBase64, fileName: file?.name ?? "extrato.xlsx" });
   }
 
   function handleImport() {
     if (!fileBase64) return;
-    importMutation.mutate({ fileBase64, selectedIndices });
+    importMutation.mutate({ fileBase64, fileName: file?.name ?? "extrato.xlsx", selectedIndices });
   }
 
   function toggleIndex(i: number) {
@@ -141,8 +150,8 @@ export function ImportStatementModal({ open, onClose, onImported }: Props) {
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FileSpreadsheet className="h-5 w-5 text-emerald-400" />
-            Importar Extrato XP (XLSX)
+            <FileText className="h-5 w-5 text-emerald-400" />
+            Importar Extrato XP
           </DialogTitle>
         </DialogHeader>
 
@@ -150,7 +159,7 @@ export function ImportStatementModal({ open, onClose, onImported }: Props) {
         {step === "upload" && (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Faça upload do extrato de conta corrente da XP em formato <strong>.xlsx</strong>. O sistema
+              Faça upload do extrato da XP em formato <strong>PDF, XLSX ou XLS</strong>. O sistema
               identificará automaticamente os proventos (dividendos, JCP, rendimentos de FII) e ignorará
               lançamentos já registrados.
             </p>
@@ -165,16 +174,16 @@ export function ImportStatementModal({ open, onClose, onImported }: Props) {
               <p className="text-sm text-muted-foreground">
                 Arraste o arquivo aqui ou <span className="text-emerald-400 underline">clique para selecionar</span>
               </p>
-              <p className="text-xs text-muted-foreground mt-1">Apenas arquivos .xlsx</p>
+              <p className="text-xs text-muted-foreground mt-1">Arquivos PDF, XLSX ou XLS de até 10 MB</p>
               {file && (
                 <p className="text-sm font-medium mt-3 text-emerald-400">
-                  📊 {file.name}
+                  {file.name.toLowerCase().endsWith(".pdf") ? "📄" : "📊"} {file.name}
                 </p>
               )}
               <input
                 ref={inputRef}
                 type="file"
-                accept=".xlsx"
+                accept=".pdf,.xlsx,.xls,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
                 onChange={handleFile}
                 className="hidden"
               />
@@ -182,7 +191,7 @@ export function ImportStatementModal({ open, onClose, onImported }: Props) {
 
             <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 p-3 text-xs text-blue-300 space-y-1">
               <p>📌 <strong>Como exportar o extrato da XP:</strong></p>
-              <p>• Acesse a área logada da XP → <strong>Extrato</strong> → selecione o período → <strong>Exportar XLSX</strong></p>
+              <p>• Acesse a área logada da XP → <strong>Extrato</strong> → selecione o período → exporte em <strong>PDF, XLSX ou XLS</strong>.</p>
             </div>
 
             <div className="flex gap-2 justify-end">

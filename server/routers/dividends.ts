@@ -4,7 +4,7 @@ import { getDb } from "../db";
 import { dividends, assets, type Dividend } from "../../drizzle/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { parseXPDividendsPDF, deduplicateDividends } from "../lib/pdfDividendParser";
-import { parseXPStatementXLSX } from "../lib/xpStatementParser";
+import { parseXPStatementFile } from "../lib/statementFileParser";
 import { TRPCError } from "@trpc/server";
 
 export const dividendsRouter = router({
@@ -213,17 +213,25 @@ export const dividendsRouter = router({
     }),
 
   /**
-   * Preview de proventos extraídos de extrato XLSX da XP
+   * Preview de proventos extraídos de extrato PDF, XLSX ou XLS da XP.
    * Verifica quais já foram lançados (deduplicação) e retorna o relatório.
    */
   previewDividendsFromStatement: protectedProcedure
-    .input(z.object({ fileBase64: z.string() }))
+    .input(z.object({ fileBase64: z.string(), fileName: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
       const buffer = Buffer.from(input.fileBase64, "base64");
-      const parsed = parseXPStatementXLSX(buffer);
+      let parsed;
+      try {
+        parsed = await parseXPStatementFile(buffer, input.fileName);
+      } catch (error) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: error instanceof Error ? error.message : "Não foi possível ler o arquivo.",
+        });
+      }
 
       const userAssets = await db
         .select()
@@ -267,13 +275,14 @@ export const dividendsRouter = router({
     }),
 
   /**
-   * Importar proventos do extrato XLSX da XP com deduplicação automática.
+   * Importar proventos do extrato PDF, XLSX ou XLS da XP com deduplicação automática.
    * Insere apenas os proventos novos (não duplicados) cujo ativo está cadastrado.
    */
   importDividendsFromStatement: protectedProcedure
     .input(
       z.object({
         fileBase64: z.string(),
+        fileName: z.string().min(1),
         /** Índices dos proventos a importar (da lista retornada por previewDividendsFromStatement) */
         selectedIndices: z.array(z.number()),
       })
@@ -283,7 +292,15 @@ export const dividendsRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
       const buffer = Buffer.from(input.fileBase64, "base64");
-      const parsed = parseXPStatementXLSX(buffer);
+      let parsed;
+      try {
+        parsed = await parseXPStatementFile(buffer, input.fileName);
+      } catch (error) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: error instanceof Error ? error.message : "Não foi possível ler o arquivo.",
+        });
+      }
 
       const userAssets = await db
         .select()
@@ -333,13 +350,13 @@ export const dividendsRouter = router({
             userId: ctx.user.id,
             assetId: asset.id,
             type: prov.type,
-            valuePerShare: "0",
-            quantity: "0",
+            valuePerShare: (prov.valuePerShare ?? 0).toFixed(8),
+            quantity: (prov.quantity ?? 0).toString(),
             totalValue: prov.totalValue.toFixed(2),
             currency: "BRL",
             exDate: prov.paymentDate,
             paymentDate: prov.paymentDate,
-            notes: `Importado extrato XP - ${prov.description.substring(0, 80)}`,
+            notes: `Importado extrato XP ${prov.source === "pdf" ? "PDF" : "planilha"} - ${prov.description.substring(0, 80)}`,
           });
           imported++;
         } catch (err) {
@@ -419,7 +436,7 @@ export const dividendsRouter = router({
     .input(z.object({ pdfPath: z.string() }))
     .query(async ({ ctx, input }) => {
       try {
-        const parsed = parseXPDividendsPDF(input.pdfPath);
+        const parsed = await parseXPDividendsPDF(input.pdfPath);
         const deduplicated = deduplicateDividends(parsed);
         const db = await getDb();
         if (!db) return { preview: [], warnings: [] };
@@ -460,7 +477,7 @@ export const dividendsRouter = router({
     .input(z.object({ pdfPath: z.string(), selectedIndices: z.array(z.number()) }))
     .mutation(async ({ ctx, input }) => {
       try {
-        const parsed = parseXPDividendsPDF(input.pdfPath);
+        const parsed = await parseXPDividendsPDF(input.pdfPath);
         const deduplicated = deduplicateDividends(parsed);
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });

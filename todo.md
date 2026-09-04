@@ -434,3 +434,8 @@
 - [x] Classificar proventos por ativo, moeda e data de pagamento
 - [x] Conferir duplicidades e solicitar confirmação antes de registrar itens novos
 - [x] Registrar os proventos confirmados, validar e salvar checkpoint
+
+## Importação de Extrato XP por PDF e Planilha — Em andamento
+- [x] Mapear a interface de upload e os parsers atuais de XLSX e PDF
+- [x] Unificar a validação, a prévia e a deduplicação para os formatos aceitos
+- [x] Atualizar o botão de importação, criar testes e validar o fluxo completo

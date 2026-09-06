@@ -107,3 +107,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - O detalhe expansível do ativo passou a exibir os proventos de caixa acumulados e o **Yield sobre Custo**, calculado como proventos registrados divididos pelo custo atual da posição.
 - Entram no cálculo dividendos, JCP, rendimentos, amortizações e lançamentos classificados como outros — categoria que abrange créditos de aluguel já importados. Bonificações ficam fora por não representarem caixa recebido.
 - A interface diferencia carregamento, ausência de histórico e indisponibilidade da consulta, evitando que uma falha seja interpretada como retorno zero. TypeScript e 151 testes Vitest foram aprovados.
+
+## Gráfico anual de proventos no detalhe do ativo — 06/09/2026
+
+- O detalhe expansível da Alocação passou a incluir um gráfico de barras com a evolução anual dos proventos de caixa já recebidos pelo ativo selecionado.
+- A série é agrupada pelo ano de pagamento; quando o lançamento não contém data de pagamento, utiliza-se a data-ex como referência explicitamente indicada na interface.
+- Dividendos, JCP, rendimentos, amortizações e créditos de aluguel registrados entram no gráfico; bonificações não monetárias permanecem excluídas. O gráfico respeita o modo de privacidade e é mostrado apenas quando há histórico.

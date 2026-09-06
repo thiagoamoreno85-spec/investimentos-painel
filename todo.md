@@ -543,3 +543,10 @@
 - [x] Exibir a métrica no detalhe expansível do ativo sem omitir dados indisponíveis
 - [x] Criar testes e validar em desktop e mobile
 - [x] Salvar checkpoint sem alterar registros financeiros
+
+## Evolução Anual de Proventos por Ativo — Em andamento
+- [x] Mapear a série anual de proventos de caixa por ativo
+- [x] Agregar e testar os totais anuais sem incluir bonificações não monetárias
+- [x] Exibir um gráfico anual responsivo no detalhe expansível do ativo
+- [x] Garantir privacidade, estados vazios e validação desktop/mobile
+- [x] Salvar checkpoint sem alterar registros financeiros

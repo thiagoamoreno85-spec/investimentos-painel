@@ -6,7 +6,7 @@ import { eq, and, desc, sql } from "drizzle-orm";
 import { parseXPDividendsPDF, deduplicateDividends } from "../lib/pdfDividendParser";
 import { parseXPStatementFile } from "../lib/statementFileParser";
 import { TRPCError } from "@trpc/server";
-import { calculateYieldOnCost, isCashProvent } from "@shared/dividendReturn";
+import { calculateYieldOnCost, groupCashProceedsByYear, isCashProvent } from "@shared/dividendReturn";
 
 export const dividendsRouter = router({
   /**
@@ -92,6 +92,7 @@ export const dividendsRouter = router({
       totalCost: number;
       lastPrice: number;
       currentYield: number;
+      annualProceeds: { year: number; total: number }[];
     };
 
       const summaryMap = new Map<number, SummaryEntry>();
@@ -120,6 +121,7 @@ export const dividendsRouter = router({
           totalCost: parseFloat(asset.totalCost),
           lastPrice: parseFloat(asset.lastPrice),
           currentYield: 0,
+          annualProceeds: [],
         });
       }
 
@@ -156,6 +158,10 @@ export const dividendsRouter = router({
 
         entry.currentYield = (annualDivPerShare / entry.lastPrice) * 100;
       }
+
+      entry.annualProceeds = groupCashProceedsByYear(
+        divRows.filter((d: Dividend) => d.assetId === entry.assetId)
+      );
     }
 
     return Array.from(summaryMap.values()).sort(

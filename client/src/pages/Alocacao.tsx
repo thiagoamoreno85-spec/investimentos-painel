@@ -36,6 +36,7 @@ import {
 import { calculatePositionValuation } from "@shared/positionValuation";
 import { getManualPriceFreshness } from "@shared/manualPriceStatus";
 import { ALLOCATION_MOBILE_SORT_OPTIONS, parseAllocationMobileSort } from "@shared/allocationMobileControls";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import {
   ALLOCATION_MOBILE_SORT_PREFERENCE_KEY,
   parseAllocationMobileSortPreference,
@@ -788,6 +789,53 @@ export default function Alocacao() {
                                               </p>
                                             </div>
                                           </div>
+                                          {hasDividendHistory && dividendSummary!.annualProceeds.length > 0 && (
+                                            <div className="col-span-2 rounded-md border border-border/60 bg-card/40 px-3 py-3">
+                                              <div className="mb-2 flex items-start justify-between gap-3">
+                                                <div>
+                                                  <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Evolução anual dos proventos</p>
+                                                  <p className="mt-0.5 text-[10px] text-muted-foreground">Por ano de pagamento; usa a data-ex quando o pagamento não foi informado.</p>
+                                                </div>
+                                                <span className="text-[10px] text-muted-foreground">Histórico registrado</span>
+                                              </div>
+                                              <div className={`h-36 w-full transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                  <BarChart data={dividendSummary!.annualProceeds} margin={{ top: 6, right: 8, left: -14, bottom: 0 }}>
+                                                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.30 0.01 250)" vertical={false} />
+                                                    <XAxis
+                                                      dataKey="year"
+                                                      stroke="oklch(0.55 0 0)"
+                                                      fontSize={10}
+                                                      tickLine={false}
+                                                      axisLine={false}
+                                                    />
+                                                    <YAxis
+                                                      stroke="oklch(0.55 0 0)"
+                                                      fontSize={10}
+                                                      tickLine={false}
+                                                      axisLine={false}
+                                                      width={42}
+                                                      tickFormatter={(value) => value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value.toFixed(0)}
+                                                    />
+                                                    <Tooltip
+                                                      formatter={(value: number) => formatCurrency(value, asset.currency)}
+                                                      labelFormatter={(year) => `Ano ${year}`}
+                                                      cursor={{ fill: "oklch(0.25 0.01 250 / 0.35)" }}
+                                                      contentStyle={{
+                                                        backgroundColor: "oklch(0.20 0.01 250)",
+                                                        borderColor: "oklch(0.30 0.01 250)",
+                                                        borderRadius: "8px",
+                                                        color: "oklch(0.90 0 0)",
+                                                      }}
+                                                      itemStyle={{ color: "oklch(0.90 0 0)" }}
+                                                      labelStyle={{ color: "oklch(0.70 0 0)" }}
+                                                    />
+                                                    <Bar dataKey="total" name="Proventos recebidos" fill="#10b981" radius={[4, 4, 0, 0]} />
+                                                  </BarChart>
+                                                </ResponsiveContainer>
+                                              </div>
+                                            </div>
+                                          )}
                                           {isFixedIncome && (
                                             <div className="col-span-2 flex items-center justify-between gap-3 border-t border-border/40 pt-2">
                                               <span className="text-muted-foreground">Base do preço</span>

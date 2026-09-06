@@ -6,6 +6,7 @@ import { eq, and, desc, sql } from "drizzle-orm";
 import { parseXPDividendsPDF, deduplicateDividends } from "../lib/pdfDividendParser";
 import { parseXPStatementFile } from "../lib/statementFileParser";
 import { TRPCError } from "@trpc/server";
+import { calculateYieldOnCost, isCashProvent } from "@shared/dividendReturn";
 
 export const dividendsRouter = router({
   /**
@@ -93,10 +94,12 @@ export const dividendsRouter = router({
       currentYield: number;
     };
 
-    const summaryMap = new Map<number, SummaryEntry>();
+      const summaryMap = new Map<number, SummaryEntry>();
 
-    for (const div of divRows) {
-      const asset = userAssets.find((a) => a.id === div.assetId);
+      for (const div of divRows) {
+        // Bonificações não são caixa recebido e, portanto, não entram no retorno de proventos sobre custo.
+        if (!isCashProvent(div.type)) continue;
+        const asset = userAssets.find((a) => a.id === div.assetId);
       if (!asset) continue;
 
       if (!summaryMap.has(div.assetId)) {
@@ -137,18 +140,18 @@ export const dividendsRouter = router({
       const totalCost = entry.totalCost;
 
       if (totalCost > 0) {
-        entry.yieldOnCost = (entry.totalDividends / totalCost) * 100;
+        entry.yieldOnCost = calculateYieldOnCost(entry.totalDividends, totalCost);
 
         const last12MonthsDivs = divRows
-          .filter((d: Dividend) => d.assetId === entry.assetId && d.exDate >= oneYearAgo)
+          .filter((d: Dividend) => d.assetId === entry.assetId && isCashProvent(d.type) && d.exDate >= oneYearAgo)
           .reduce((sum: number, d: Dividend) => sum + parseFloat(d.totalValue), 0);
 
-        entry.yieldOnCostAnnualized = (last12MonthsDivs / totalCost) * 100;
+        entry.yieldOnCostAnnualized = calculateYieldOnCost(last12MonthsDivs, totalCost);
       }
 
       if (entry.lastPrice > 0) {
         const annualDivPerShare = divRows
-          .filter((d: Dividend) => d.assetId === entry.assetId && d.exDate >= oneYearAgo)
+          .filter((d: Dividend) => d.assetId === entry.assetId && isCashProvent(d.type) && d.exDate >= oneYearAgo)
           .reduce((sum: number, d: Dividend) => sum + parseFloat(d.valuePerShare), 0);
 
         entry.currentYield = (annualDivPerShare / entry.lastPrice) * 100;

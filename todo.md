@@ -536,3 +536,10 @@
 - [x] Persistir e restaurar a ordenação móvel escolhida pelo usuário
 - [x] Criar testes e validar o comportamento em desktop e mobile
 - [x] Salvar checkpoint sem alterar qualquer dado financeiro
+
+## Retorno de Proventos sobre Custo na Alocação — Em andamento
+- [x] Mapear dividendos, JCP, rendimentos e aluguéis já registrados por ativo
+- [x] Calcular proventos acumulados e Yield on Cost a partir do custo investido
+- [x] Exibir a métrica no detalhe expansível do ativo sem omitir dados indisponíveis
+- [x] Criar testes e validar em desktop e mobile
+- [x] Salvar checkpoint sem alterar registros financeiros

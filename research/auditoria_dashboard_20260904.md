@@ -101,3 +101,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - Foram incluídos atalhos horizontais por classe e o filtro **Apenas perdas**, que restringe a lista móvel aos ativos com L/P negativo. Linhas deficitárias recebem uma borda lateral discreta em vermelho para facilitar a triagem visual.
 - A ordenação escolhida pelo usuário é salva localmente e restaurada na próxima abertura com validação de valor, voltando ao padrão de maior valor caso a preferência esteja ausente ou seja inválida.
 - A suíte passou a cobrir a lista de ordenações permitidas e a recuperação segura da preferência. TypeScript e 147 testes Vitest foram aprovados.
+
+## Retorno de proventos sobre custo no detalhe do ativo — 06/09/2026
+
+- O detalhe expansível do ativo passou a exibir os proventos de caixa acumulados e o **Yield sobre Custo**, calculado como proventos registrados divididos pelo custo atual da posição.
+- Entram no cálculo dividendos, JCP, rendimentos, amortizações e lançamentos classificados como outros — categoria que abrange créditos de aluguel já importados. Bonificações ficam fora por não representarem caixa recebido.
+- A interface diferencia carregamento, ausência de histórico e indisponibilidade da consulta, evitando que uma falha seja interpretada como retorno zero. TypeScript e 151 testes Vitest foram aprovados.

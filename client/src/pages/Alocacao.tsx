@@ -74,6 +74,7 @@ export default function Alocacao() {
   const { data: cashData } = cashQuery;
   const { data: cashMovements } = trpc.cash.listMovements.useQuery({ limit: 8 });
   const { data: dailyChangeData } = trpc.portfolio.getAssetsDailyChange.useQuery();
+  const dividendSummaryQuery = trpc.dividends.getDividendSummary.useQuery();
   const usdBrl = usdBrlData?.rate ?? 0;
   const hasDbData = dbAssets && dbAssets.length > 0;
   const hasUsdAssets = dbAssets?.some((asset) => (asset.currency || CLASS_CURRENCY[asset.assetClass]) === "USD") ?? false;
@@ -271,6 +272,11 @@ export default function Alocacao() {
 
     return [];
   }, [hasDbData, dbAssets, usdBrl, cashBalance]);
+
+  const dividendSummaryByAsset = useMemo(
+    () => new Map((dividendSummaryQuery.data ?? []).map((summary) => [summary.assetId, summary])),
+    [dividendSummaryQuery.data]
+  );
 
   function formatCurrency(value: number, currency: string = "BRL") {
     if (currency === "USD") {
@@ -679,6 +685,8 @@ export default function Alocacao() {
                                   const priceFreshness = getManualPriceFreshness(asset.priceReferenceDate);
                                   const needsPriceUpdate = priceFreshness.status === "desatualizado" || priceFreshness.status === "sem_data";
                                   const isExpanded = expandedMobileAssetId === asset.dbId;
+                                  const dividendSummary = dividendSummaryByAsset.get(asset.dbId);
+                                  const hasDividendHistory = Boolean(dividendSummary && dividendSummary.dividendCount > 0);
                                   const formattedPosition = asset.position === 0
                                     ? "—"
                                     : asset.position < 1
@@ -751,6 +759,34 @@ export default function Alocacao() {
                                           <div className="text-right">
                                             <p className="uppercase tracking-wide text-[9px] text-muted-foreground">L/P em reais</p>
                                             <p className={`mt-0.5 font-mono ${asset.profit >= 0 ? "text-emerald-400" : "text-red-400"} transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>{formatBRLCompact(asset.profit)}</p>
+                                          </div>
+                                          <div className="col-span-2 rounded-md border border-emerald-500/20 bg-emerald-500/[0.045] px-3 py-2.5">
+                                            <div className="flex items-start justify-between gap-3">
+                                              <div>
+                                                <p className="text-[10px] font-medium uppercase tracking-wide text-emerald-300">Proventos recebidos</p>
+                                                <p className="mt-0.5 text-[10px] text-muted-foreground">
+                                                  Dividendos, JCP, rendimentos, amortizações e aluguéis já registrados.
+                                                </p>
+                                              </div>
+                                              <div className={`text-right font-mono font-semibold transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                                {dividendSummaryQuery.isLoading
+                                                  ? <span className="text-xs text-muted-foreground">Calculando…</span>
+                                                  : dividendSummaryQuery.isError
+                                                    ? <span className="text-xs text-amber-300">Indisponível</span>
+                                                    : hasDividendHistory
+                                                      ? formatCurrency(dividendSummary!.totalDividends, asset.currency)
+                                                      : <span className="text-xs text-muted-foreground">Sem histórico</span>}
+                                              </div>
+                                            </div>
+                                            <div className="mt-2 flex items-end justify-between gap-3 border-t border-emerald-500/15 pt-2">
+                                              <div>
+                                                <p className="text-[10px] font-medium uppercase tracking-wide text-emerald-300">Yield sobre custo</p>
+                                                <p className="mt-0.5 text-[10px] text-muted-foreground">Proventos de caixa acumulados ÷ custo atual da posição.</p>
+                                              </div>
+                                              <p className={`font-mono text-base font-bold text-emerald-300 transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                                {dividendSummaryQuery.isLoading || dividendSummaryQuery.isError ? "—" : hasDividendHistory ? formatPct(dividendSummary!.yieldOnCost) : "0,00%"}
+                                              </p>
+                                            </div>
                                           </div>
                                           {isFixedIncome && (
                                             <div className="col-span-2 flex items-center justify-between gap-3 border-t border-border/40 pt-2">

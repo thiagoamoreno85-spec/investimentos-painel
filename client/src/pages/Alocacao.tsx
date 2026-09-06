@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { AlertTriangle, ArrowUpDown, CalendarClock, ChevronUp, ChevronDown, ChevronRight, Pencil, RefreshCw } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +36,10 @@ import {
 import { calculatePositionValuation } from "@shared/positionValuation";
 import { getManualPriceFreshness } from "@shared/manualPriceStatus";
 import { ALLOCATION_MOBILE_SORT_OPTIONS, parseAllocationMobileSort } from "@shared/allocationMobileControls";
+import {
+  ALLOCATION_MOBILE_SORT_PREFERENCE_KEY,
+  parseAllocationMobileSortPreference,
+} from "@/lib/allocationMobilePreferences";
 
 interface ClassGroup {
   id: string;
@@ -78,6 +82,8 @@ export default function Alocacao() {
   const cashBalance = Number(cashData?.balance ?? 0);
   const [search, setSearch] = useState("");
   const [expandedMobileAssetId, setExpandedMobileAssetId] = useState<number | null>(null);
+  const [mobileShowLossesOnly, setMobileShowLossesOnly] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Estado do modal de edição manual de preço
   const [editDialog, setEditDialog] = useState<{
@@ -150,6 +156,15 @@ export default function Alocacao() {
   const [sortKey, setSortKey] = useState<SortKey>("totalValue");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
+  useEffect(() => {
+    const storedSort = parseAllocationMobileSortPreference(
+      window.localStorage.getItem(ALLOCATION_MOBILE_SORT_PREFERENCE_KEY)
+    );
+    const parsed = parseAllocationMobileSort(storedSort);
+    setSortKey(parsed.key);
+    setSortDir(parsed.direction);
+  }, []);
+
   const handleSort = useCallback((key: SortKey) => {
     setSortKey((prev) => {
       if (prev === key) {
@@ -165,6 +180,7 @@ export default function Alocacao() {
     const parsed = parseAllocationMobileSort(value);
     setSortKey(parsed.key);
     setSortDir(parsed.direction);
+    window.localStorage.setItem(ALLOCATION_MOBILE_SORT_PREFERENCE_KEY, value);
   }, []);
 
   function SortIcon({ col }: { col: SortKey }) {
@@ -397,7 +413,11 @@ export default function Alocacao() {
         ) : (
           /* Tabs ocupa o restante da altura */
           <Tabs
-            defaultValue={categories[0]?.id || "rv_nacional"}
+            value={selectedCategory ?? (categories[0]?.id || "rv_nacional")}
+            onValueChange={(value) => {
+              setSelectedCategory(value);
+              setExpandedMobileAssetId(null);
+            }}
             className="flex flex-col flex-1 min-h-0"
           >
             {/* ── Tabs fixas ── */}
@@ -449,6 +469,10 @@ export default function Alocacao() {
                 }
                 return sortDir === "desc" ? vb - va : va - vb;
               });
+
+              const mobileVisibleAssets = mobileShowLossesOnly
+                ? filteredAssets.filter((asset) => asset.profit < 0)
+                : filteredAssets;
 
               const classDailyTotal = getClassDailyTotal(category.assets);
               const classDailyPct =
@@ -596,7 +620,7 @@ export default function Alocacao() {
                               />
                             </div>
                             <div className="flex items-center justify-between gap-3">
-                              <span className="text-[11px] text-muted-foreground">{filteredAssets.length} {filteredAssets.length === 1 ? "ativo" : "ativos"}</span>
+                              <span className="text-[11px] text-muted-foreground">{mobileVisibleAssets.length} {mobileVisibleAssets.length === 1 ? "ativo" : "ativos"}</span>
                               <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
                                 Ordenar
                                 <select
@@ -611,6 +635,32 @@ export default function Alocacao() {
                                 </select>
                               </label>
                             </div>
+                            <div className="flex gap-1 overflow-x-auto pb-0.5" aria-label="Filtros rápidos por classe">
+                              {categories.filter((quickCategory) => quickCategory.id !== "caixa").map((quickCategory) => (
+                                <button
+                                  key={quickCategory.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedCategory(quickCategory.id);
+                                    setExpandedMobileAssetId(null);
+                                  }}
+                                  className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors ${category.id === quickCategory.id ? "border-primary/50 bg-primary/15 text-primary" : "border-border/60 bg-secondary/30 text-muted-foreground hover:text-foreground"}`}
+                                >
+                                  {quickCategory.name}
+                                </button>
+                              ))}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setMobileShowLossesOnly((current) => !current);
+                                  setExpandedMobileAssetId(null);
+                                }}
+                                aria-pressed={mobileShowLossesOnly}
+                                className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors ${mobileShowLossesOnly ? "border-red-400/60 bg-red-500/15 text-red-300" : "border-border/60 bg-secondary/30 text-muted-foreground hover:text-foreground"}`}
+                              >
+                                Apenas perdas
+                              </button>
+                            </div>
                           </div>
 
                           {/* ── Tabela móvel: cabeçalho fixo e rolagem exclusiva dos ativos ── */}
@@ -623,7 +673,9 @@ export default function Alocacao() {
                             </div>
                             <ScrollArea className="min-h-0 flex-1">
                               <div className="divide-y divide-border/50">
-                                {filteredAssets.map((asset) => {
+                                {mobileVisibleAssets.length === 0 ? (
+                                  <p className="px-4 py-8 text-center text-xs text-muted-foreground">Nenhum ativo corresponde aos filtros móveis.</p>
+                                ) : mobileVisibleAssets.map((asset) => {
                                   const priceFreshness = getManualPriceFreshness(asset.priceReferenceDate);
                                   const needsPriceUpdate = priceFreshness.status === "desatualizado" || priceFreshness.status === "sem_data";
                                   const isExpanded = expandedMobileAssetId === asset.dbId;
@@ -636,7 +688,7 @@ export default function Alocacao() {
                                         : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 
                                   return (
-                                    <div key={asset.id}>
+                                    <div key={asset.id} className={asset.profit < 0 ? "border-l-2 border-red-400/70 bg-red-500/[0.035]" : ""}>
                                       <div
                                         role="button"
                                         tabIndex={0}

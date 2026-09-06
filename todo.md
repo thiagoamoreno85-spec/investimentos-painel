@@ -529,3 +529,10 @@
 - [x] Permitir expandir um ativo no mobile para consultar detalhes sem perder a rolagem
 - [x] Criar testes e validar os controles em desktop e mobile
 - [x] Salvar checkpoint sem alterar qualquer dado financeiro
+
+## Filtros e Preferências da Alocação Móvel — Em andamento
+- [x] Definir filtros rápidos por classe e regra de destaque para L/P negativo
+- [x] Implementar os filtros e o destaque de perdas na lista móvel
+- [x] Persistir e restaurar a ordenação móvel escolhida pelo usuário
+- [x] Criar testes e validar o comportamento em desktop e mobile
+- [x] Salvar checkpoint sem alterar qualquer dado financeiro

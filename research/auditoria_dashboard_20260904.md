@@ -95,3 +95,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - A busca foi transferida para uma barra fixa imediatamente acima da lista móvel, para que permaneça acessível durante a navegação por ativos.
 - A ordenação rápida permite alternar entre maior/menor valor, melhor/pior L/P e ordem alfabética. A expansão por linha revela custo médio, preço atual, classe, L/P em reais e, em renda fixa, a data-base da marcação.
 - A linha expansível é acessível por teclado; a edição manual de preço permanece disponível apenas para as classes que a permitem. TypeScript e 145 testes Vitest foram aprovados.
+
+## Filtros e preferência da alocação móvel — 06/09/2026
+
+- Foram incluídos atalhos horizontais por classe e o filtro **Apenas perdas**, que restringe a lista móvel aos ativos com L/P negativo. Linhas deficitárias recebem uma borda lateral discreta em vermelho para facilitar a triagem visual.
+- A ordenação escolhida pelo usuário é salva localmente e restaurada na próxima abertura com validação de valor, voltando ao padrão de maior valor caso a preferência esteja ausente ou seja inválida.
+- A suíte passou a cobrir a lista de ordenações permitidas e a recuperação segura da preferência. TypeScript e 147 testes Vitest foram aprovados.

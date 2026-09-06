@@ -89,3 +89,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - A versão móvel foi convertida de cartões estáticos para tabela compacta com quatro colunas essenciais: ativo, quantidade, total e L/P.
 - O cabeçalho é um bloco fixo independente; apenas a lista de ativos fica dentro de uma área de rolagem vertical de altura limitada. A tabela detalhada permanece reservada ao desktop.
 - As capturas de prévia nos formatos móvel e desktop mostraram os estados de carregamento sem regressão visual. A compilação e os testes validaram a estrutura atualizada.
+
+## Controles da lista móvel de alocação — 06/09/2026
+
+- A busca foi transferida para uma barra fixa imediatamente acima da lista móvel, para que permaneça acessível durante a navegação por ativos.
+- A ordenação rápida permite alternar entre maior/menor valor, melhor/pior L/P e ordem alfabética. A expansão por linha revela custo médio, preço atual, classe, L/P em reais e, em renda fixa, a data-base da marcação.
+- A linha expansível é acessível por teclado; a edição manual de preço permanece disponível apenas para as classes que a permitem. TypeScript e 145 testes Vitest foram aprovados.

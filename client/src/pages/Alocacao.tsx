@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from "react";
-import { AlertTriangle, ArrowUpDown, CalendarClock, ChevronUp, ChevronDown, Pencil, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowUpDown, CalendarClock, ChevronUp, ChevronDown, ChevronRight, Pencil, RefreshCw } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,6 +35,7 @@ import {
 } from "@/lib/assetClasses";
 import { calculatePositionValuation } from "@shared/positionValuation";
 import { getManualPriceFreshness } from "@shared/manualPriceStatus";
+import { ALLOCATION_MOBILE_SORT_OPTIONS, parseAllocationMobileSort } from "@shared/allocationMobileControls";
 
 interface ClassGroup {
   id: string;
@@ -76,6 +77,7 @@ export default function Alocacao() {
   const hasCriticalDataError = assetsQuery.isError || usdBrlQuery.isError || cashQuery.isError || (hasUsdAssets && !usdBrlData);
   const cashBalance = Number(cashData?.balance ?? 0);
   const [search, setSearch] = useState("");
+  const [expandedMobileAssetId, setExpandedMobileAssetId] = useState<number | null>(null);
 
   // Estado do modal de edição manual de preço
   const [editDialog, setEditDialog] = useState<{
@@ -157,6 +159,12 @@ export default function Alocacao() {
       setSortDir("desc");
       return key;
     });
+  }, []);
+
+  const handleMobileSortChange = useCallback((value: string) => {
+    const parsed = parseAllocationMobileSort(value);
+    setSortKey(parsed.key);
+    setSortDir(parsed.direction);
   }, []);
 
   function SortIcon({ col }: { col: SortKey }) {
@@ -366,7 +374,7 @@ export default function Alocacao() {
               {showBalances ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               <span className="hidden sm:inline">{showBalances ? "Ocultar" : "Mostrar"}</span>
             </Button>
-            <div className="relative w-full sm:w-64">
+            <div className="relative hidden w-full sm:block sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
               <Input
                 placeholder="Buscar ativo…"
@@ -576,8 +584,37 @@ export default function Alocacao() {
                         </p>
                       ) : (
                         <>
+                          {/* ── Controles móveis: permanecem fixos acima da lista ── */}
+                          <div className="md:hidden flex shrink-0 flex-col gap-2 border-b border-border/50 bg-card/70 px-3 py-2.5">
+                            <div className="relative">
+                              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                              <Input
+                                placeholder="Buscar ativo…"
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                                className="h-9 bg-secondary/40 pl-9 text-sm"
+                              />
+                            </div>
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="text-[11px] text-muted-foreground">{filteredAssets.length} {filteredAssets.length === 1 ? "ativo" : "ativos"}</span>
+                              <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                                Ordenar
+                                <select
+                                  aria-label="Ordenar ativos"
+                                  value={ALLOCATION_MOBILE_SORT_OPTIONS.find((option) => option.key === sortKey && option.direction === sortDir)?.value ?? "totalValue:desc"}
+                                  onChange={(event) => handleMobileSortChange(event.target.value)}
+                                  className="h-8 rounded-md border border-border/60 bg-secondary/50 px-2 text-xs text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                >
+                                  {ALLOCATION_MOBILE_SORT_OPTIONS.map((option) => (
+                                    <option key={option.value} value={option.value}>{option.label}</option>
+                                  ))}
+                                </select>
+                              </label>
+                            </div>
+                          </div>
+
                           {/* ── Tabela móvel: cabeçalho fixo e rolagem exclusiva dos ativos ── */}
-                          <div className="md:hidden flex h-[min(56vh,540px)] min-h-[300px] flex-col overflow-hidden rounded-lg border border-border/60 bg-card/40">
+                          <div className="md:hidden flex h-[min(52vh,500px)] min-h-[270px] flex-col overflow-hidden rounded-b-lg border-x border-b border-border/60 bg-card/40">
                             <div className="grid shrink-0 grid-cols-[minmax(0,1fr)_42px_76px_62px] gap-1 border-b border-border/60 bg-secondary/80 px-3 py-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                               <span>Ativo</span>
                               <span className="text-right">Qtd</span>
@@ -589,6 +626,7 @@ export default function Alocacao() {
                                 {filteredAssets.map((asset) => {
                                   const priceFreshness = getManualPriceFreshness(asset.priceReferenceDate);
                                   const needsPriceUpdate = priceFreshness.status === "desatualizado" || priceFreshness.status === "sem_data";
+                                  const isExpanded = expandedMobileAssetId === asset.dbId;
                                   const formattedPosition = asset.position === 0
                                     ? "—"
                                     : asset.position < 1
@@ -598,24 +636,81 @@ export default function Alocacao() {
                                         : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 
                                   return (
-                                    <div key={asset.id} className="grid grid-cols-[minmax(0,1fr)_42px_76px_62px] items-center gap-1 px-3 py-2.5 text-xs hover:bg-secondary/20">
-                                      <div className="min-w-0">
-                                        <div className="flex items-center gap-1">
-                                          <span className="truncate font-mono font-semibold">{asset.id}</span>
-                                          {isFixedIncome && needsPriceUpdate && <AlertTriangle className="h-3 w-3 shrink-0 text-amber-400" aria-label="Preço manual desatualizado" />}
-                                        </div>
-                                        {isFixedIncome && (
-                                          <span className="block truncate text-[10px] text-muted-foreground">
-                                            {asset.issuer || "Emissor não informado"}{asset.maturityLabel ? ` · ${asset.maturityLabel}` : ""}
+                                    <div key={asset.id}>
+                                      <div
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => setExpandedMobileAssetId((current) => current === asset.dbId ? null : asset.dbId)}
+                                        onKeyDown={(event) => {
+                                          if (event.key === "Enter" || event.key === " ") {
+                                            event.preventDefault();
+                                            setExpandedMobileAssetId((current) => current === asset.dbId ? null : asset.dbId);
+                                          }
+                                        }}
+                                        aria-expanded={isExpanded}
+                                        className="grid w-full cursor-pointer grid-cols-[minmax(0,1fr)_42px_76px_62px] items-center gap-1 px-3 py-2.5 text-left text-xs hover:bg-secondary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                                      >
+                                        <span className="min-w-0">
+                                          <span className="flex items-center gap-1">
+                                            <ChevronRight className={`h-3 w-3 shrink-0 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+                                            <span className="truncate font-mono font-semibold">{asset.id}</span>
+                                            {isFixedIncome && needsPriceUpdate && <AlertTriangle className="h-3 w-3 shrink-0 text-amber-400" aria-label="Preço manual desatualizado" />}
                                           </span>
-                                        )}
+                                          {isFixedIncome && (
+                                            <span className="ml-4 block truncate text-[10px] text-muted-foreground">
+                                              {asset.issuer || "Emissor não informado"}{asset.maturityLabel ? ` · ${asset.maturityLabel}` : ""}
+                                            </span>
+                                          )}
+                                        </span>
+                                        <span className="text-right font-mono text-muted-foreground">{formattedPosition}</span>
+                                        <span className={`text-right font-mono font-medium transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>{formatBRLCompact(asset.totalValue)}</span>
+                                        <span className={`flex items-center justify-end gap-0.5 text-right font-mono font-medium ${asset.profit >= 0 ? "text-emerald-400" : "text-red-400"} transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                          {asset.profit >= 0 ? <ArrowUpRight className="h-3 w-3 shrink-0" /> : <ArrowDownRight className="h-3 w-3 shrink-0" />}
+                                          {formatPct(asset.profitPercentage)}
+                                        </span>
                                       </div>
-                                      <span className="text-right font-mono text-muted-foreground">{formattedPosition}</span>
-                                      <span className={`text-right font-mono font-medium transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>{formatBRLCompact(asset.totalValue)}</span>
-                                      <span className={`flex items-center justify-end gap-0.5 text-right font-mono font-medium ${asset.profit >= 0 ? "text-emerald-400" : "text-red-400"} transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
-                                        {asset.profit >= 0 ? <ArrowUpRight className="h-3 w-3 shrink-0" /> : <ArrowDownRight className="h-3 w-3 shrink-0" />}
-                                        {formatPct(asset.profitPercentage)}
-                                      </span>
+                                      {isExpanded && (
+                                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border/40 bg-secondary/10 px-7 py-3 text-[11px]">
+                                          <div>
+                                            <p className="uppercase tracking-wide text-[9px] text-muted-foreground">Custo médio</p>
+                                            <p className={`mt-0.5 font-mono transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>{formatCurrency(asset.cost, asset.currency)}</p>
+                                          </div>
+                                          <div className="text-right">
+                                            <p className="uppercase tracking-wide text-[9px] text-muted-foreground">Preço atual</p>
+                                            <div className={`mt-0.5 flex items-center justify-end gap-1 font-mono transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
+                                              <span>{formatCurrency(asset.price, asset.currency)}</span>
+                                              {MANUAL_CLASSES.includes(asset.assetClass) && (
+                                                <button
+                                                  type="button"
+                                                  onClick={(event) => { event.stopPropagation(); openEditDialog(asset); }}
+                                                  onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); openEditDialog(asset); } }}
+                                                  className="rounded p-0.5 text-amber-400/70 hover:bg-amber-400/10 hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                                  aria-label={`Atualizar preço de ${asset.id}`}
+                                                >
+                                                  <Pencil className="h-3 w-3" />
+                                                </button>
+                                              )}
+                                            </div>
+                                          </div>
+                                          <div>
+                                            <p className="uppercase tracking-wide text-[9px] text-muted-foreground">Classe</p>
+                                            <p className="mt-0.5 text-muted-foreground">{ASSET_CLASS_LABELS[asset.assetClass] || asset.assetClass}</p>
+                                          </div>
+                                          <div className="text-right">
+                                            <p className="uppercase tracking-wide text-[9px] text-muted-foreground">L/P em reais</p>
+                                            <p className={`mt-0.5 font-mono ${asset.profit >= 0 ? "text-emerald-400" : "text-red-400"} transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>{formatBRLCompact(asset.profit)}</p>
+                                          </div>
+                                          {isFixedIncome && (
+                                            <div className="col-span-2 flex items-center justify-between gap-3 border-t border-border/40 pt-2">
+                                              <span className="text-muted-foreground">Base do preço</span>
+                                              <span className={`flex items-center gap-1 ${needsPriceUpdate ? "font-medium text-amber-400" : priceFreshness.status === "atencao" ? "text-amber-300" : "text-muted-foreground"}`}>
+                                                {needsPriceUpdate ? <AlertTriangle className="h-3 w-3" /> : <CalendarClock className="h-3 w-3" />}
+                                                {formatReferenceDate(asset.priceReferenceDate)}
+                                              </span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
                                   );
                                 })}

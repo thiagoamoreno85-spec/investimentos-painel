@@ -522,3 +522,10 @@
 - [x] Preservar a tabela detalhada completa para desktop
 - [x] Criar testes e validar ausência de sobreposição em mobile
 - [x] Salvar checkpoint sem alterar qualquer dado financeiro
+
+## Controles da Lista de Ativos na Alocação Móvel — Em andamento
+- [x] Mapear os estados de busca, ordenação e expansão já disponíveis na tela
+- [x] Manter a busca visível acima da lista móvel e adicionar ordenação rápida
+- [x] Permitir expandir um ativo no mobile para consultar detalhes sem perder a rolagem
+- [x] Criar testes e validar os controles em desktop e mobile
+- [x] Salvar checkpoint sem alterar qualquer dado financeiro

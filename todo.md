@@ -560,4 +560,4 @@
 - [x] Inspecionar logs de produção e chamadas iniciais da aplicação autenticada
 - [x] Identificar a consulta ou dependência que bloqueia a tela após o login
 - [x] Corrigir o bloqueio e evitar carregamento indefinido em falhas de dados
-- [ ] Publicar a correção e validar o acesso com uma sessão autenticada
+- [x] Publicar a correção e validar o acesso com uma sessão autenticada

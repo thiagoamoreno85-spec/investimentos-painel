@@ -3,6 +3,7 @@ import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getAssetsByUser } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
 import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
+import { safeJsonFetch } from "../lib/safeJsonFetch";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -269,47 +270,47 @@ export const marketRouter = router({
   getBenchmarkHistory: protectedProcedure
     .input(z.object({ fromDate: z.string() }))
     .query(async ({ input }) => {
-      try {
-        const from = Math.floor(new Date(input.fromDate).getTime() / 1000);
-        const to = Math.floor(Date.now() / 1000);
+      const from = Math.floor(new Date(input.fromDate).getTime() / 1000);
+      const to = Math.floor(Date.now() / 1000);
+      let ibov: { date: string; value: number }[] = [];
+      let cdi: { date: string; value: number }[] = [];
 
-        // Buscar Ibovespa histórico
-        const ibovRes = await fetch(
+      try {
+        const ibovData = await safeJsonFetch<{ chart?: { result?: Array<{ timestamp?: number[]; indicators?: { quote?: Array<{ close?: Array<number | null> }> } }> } }>(
           `https://query1.finance.yahoo.com/v8/finance/chart/%5EBVSP?interval=1mo&period1=${from}&period2=${to}`
         );
-        const ibovData = await ibovRes.json();
-        const ibovTimestamps = ibovData.chart.result[0].timestamp;
-        const ibovClose = ibovData.chart.result[0].indicators.quote[0].close;
-
-        // Normalizar para base 100 (retorno acumulado percentual)
-        const ibovBase = ibovClose[0];
-        const ibov = ibovTimestamps.map((ts: number, i: number) => ({
-          date: new Date(ts * 1000).toISOString().slice(0, 7), // "2023-01"
-          value: ((ibovClose[i] / ibovBase) - 1) * 100, // % acumulado
-        }));
-
-        // Buscar taxa CDI mensal da API Banco Central
-        // Série 4390 = CDI diário acumulado mensal
-        const cdiRes = await fetch(
-          `https://api.bcb.gov.br/dados/serie/bcdata.sgs.4390/dados?formato=json&dataInicial=${input.fromDate.split('-').reverse().join('/')}&dataFinal=${new Date().toLocaleDateString('pt-BR')}`
-        );
-        const cdiRaw = await cdiRes.json();
-
-        // Acumular CDI mês a mês
-        let cdiAcum = 0;
-        const cdi = cdiRaw.map((item: { data: string; valor: string }) => {
-          cdiAcum += parseFloat(item.valor);
-          return {
-            date: item.data.slice(6) + '-' + item.data.slice(3, 5), // "2023-01"
-            value: cdiAcum,
-          };
-        });
-
-        return { ibov, cdi };
-      } catch (err) {
-        console.error("[getBenchmarkHistory] Error:", err);
-        return { ibov: [], cdi: [] };
+        const result = ibovData.chart?.result?.[0];
+        const timestamps = result?.timestamp ?? [];
+        const closes = result?.indicators?.quote?.[0]?.close ?? [];
+        const base = closes.find((value): value is number => typeof value === "number" && value > 0);
+        if (base) {
+          ibov = timestamps.flatMap((timestamp, index) => {
+            const close = closes[index];
+            return typeof close === "number" && close > 0
+              ? [{ date: new Date(timestamp * 1000).toISOString().slice(0, 7), value: ((close / base) - 1) * 100 }]
+              : [];
+          });
+        }
+      } catch (error) {
+        console.warn("[getBenchmarkHistory] Ibovespa indisponível:", (error as Error).message);
       }
+
+      try {
+        const cdiRaw = await safeJsonFetch<Array<{ data: string; valor: string }>>(
+          `https://api.bcb.gov.br/dados/serie/bcdata.sgs.4390/dados?formato=json&dataInicial=${input.fromDate.split("-").reverse().join("/")}&dataFinal=${new Date().toLocaleDateString("pt-BR")}`
+        );
+        let accumulated = 0;
+        cdi = cdiRaw.flatMap((item) => {
+          const value = Number(String(item.valor).replace(",", "."));
+          if (!Number.isFinite(value) || !/^\d{2}\/\d{2}\/\d{4}$/.test(item.data)) return [];
+          accumulated += value;
+          return [{ date: `${item.data.slice(6)}-${item.data.slice(3, 5)}`, value: accumulated }];
+        });
+      } catch (error) {
+        console.warn("[getBenchmarkHistory] CDI indisponível:", (error as Error).message);
+      }
+
+      return { ibov, cdi };
     }),
 
   /** Busca cotações dos ativos da carteira com variação do dia */

@@ -113,3 +113,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - O detalhe expansível da Alocação passou a incluir um gráfico de barras com a evolução anual dos proventos de caixa já recebidos pelo ativo selecionado.
 - A série é agrupada pelo ano de pagamento; quando o lançamento não contém data de pagamento, utiliza-se a data-ex como referência explicitamente indicada na interface.
 - Dividendos, JCP, rendimentos, amortizações e créditos de aluguel registrados entram no gráfico; bonificações não monetárias permanecem excluídas. O gráfico respeita o modo de privacidade e é mostrado apenas quando há histórico.
+
+## Diagnóstico de carregamento após login — 08/09/2026
+
+- Os dois domínios publicados responderam e redirecionaram corretamente para a autenticação. O problema não é de publicação nem de DNS.
+- Os logs de produção registraram retorno XML da fonte do Banco Central em uma consulta que esperava JSON no comparativo de benchmarks. A resposta provocava erro de parse em `getBenchmarkHistory`; outros componentes também não distinguiam falha de carregamento.
+- O cliente passou a limitar requisições tRPC a 15 segundos e a encerrar tentativas após uma repetição. O endpoint de benchmarks passou a validar HTTP e `content-type`, aplicar prazo à fonte e preservar a série disponível quando Ibovespa ou CDI falhar. Os cartões afetados agora oferecem estado explícito e ação de nova tentativa, evitando spinner permanente.

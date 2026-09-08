@@ -550,3 +550,14 @@
 - [x] Exibir um gráfico anual responsivo no detalhe expansível do ativo
 - [x] Garantir privacidade, estados vazios e validação desktop/mobile
 - [x] Salvar checkpoint sem alterar registros financeiros
+
+## Acesso à Versão Publicada — Em andamento
+- [x] Verificar o status da versão e os domínios publicados disponíveis
+- [x] Testar o acesso externo ao painel e identificar o bloqueio
+- [x] Confirmar os endereços funcionais e orientar o acesso autenticado
+
+## Carregamento Infinito Após Login — Em andamento
+- [x] Inspecionar logs de produção e chamadas iniciais da aplicação autenticada
+- [x] Identificar a consulta ou dependência que bloqueia a tela após o login
+- [x] Corrigir o bloqueio e evitar carregamento indefinido em falhas de dados
+- [ ] Publicar a correção e validar o acesso com uma sessão autenticada

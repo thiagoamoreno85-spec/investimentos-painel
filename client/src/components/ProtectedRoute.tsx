@@ -8,7 +8,10 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ component: Component }: ProtectedRouteProps) {
-  const { data: user, isLoading, error } = trpc.auth.me.useQuery();
+  const { data: user, isLoading, error } = trpc.auth.me.useQuery(undefined, {
+    retry: 1,
+    retryDelay: 500,
+  });
 
   useEffect(() => {
     if (!isLoading && (error || !user)) {

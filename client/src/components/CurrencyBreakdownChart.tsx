@@ -2,6 +2,8 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import { trpc } from '@/lib/trpc';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useBalanceVisibility } from '@/contexts/BalanceVisibilityContext';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -11,10 +13,10 @@ function formatCurrency(value: number) {
 }
 
 export function CurrencyBreakdownChart() {
-  const { data, isLoading } = trpc.portfolio.getCurrencyBreakdown.useQuery();
+  const { data, isLoading, isError, refetch } = trpc.portfolio.getCurrencyBreakdown.useQuery();
   const { showBalances } = useBalanceVisibility();
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
       <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
         <CardHeader>
@@ -22,6 +24,20 @@ export function CurrencyBreakdownChart() {
         </CardHeader>
         <CardContent>
           <div className="h-48 animate-pulse rounded-xl bg-muted" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <Card className="bg-card/50 backdrop-blur-sm border-amber-500/25 shadow-sm">
+        <CardHeader><CardTitle>Exposição Cambial</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">Não foi possível consolidar a exposição cambial agora.</p>
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => void refetch()}>
+            <RefreshCw className="h-4 w-4" /> Tentar novamente
+          </Button>
         </CardContent>
       </Card>
     );

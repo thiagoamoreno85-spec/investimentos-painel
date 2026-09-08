@@ -1,0 +1,408 @@
+{
+  "count": 80,
+  "entries": [
+    {
+      "timestamp": "2026-09-08T14:59:37Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T14:59:37Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T14:59:37Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T14:59:37Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T14:59:37Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T14:59:38Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T14:59:38Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T14:59:38Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:00:40Z",
+      "severity": "Default",
+      "message": "[Auth] Missing session cookie"
+    },
+    {
+      "timestamp": "2026-09-08T15:10:30Z",
+      "severity": "Default",
+      "message": "[Auth] Missing session cookie"
+    },
+    {
+      "timestamp": "2026-09-08T15:20:27Z",
+      "severity": "Default",
+      "message": "[Auth] Missing session cookie"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:09Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:10Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:10Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:10Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:10Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:10Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:10Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:10Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:10Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:10Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:10Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:10Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:11Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:11Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:11Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:11Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:12Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:12Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:14Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:29:14Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:30:40Z",
+      "severity": "Default",
+      "message": "[Auth] Missing session cookie"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:28Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:28Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:28Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:28Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:29Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:29Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:29Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:29Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:29Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:29Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:29Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:29Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:29Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:30Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:31Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:31:31Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:03Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:03Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:03Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:03Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:03Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:03Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:03Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:03Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:03Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:03Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:03Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:04Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch historical AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:04Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AXIA6.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:04Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch ELET3.SA: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:04Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch AURY: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:04Z",
+      "severity": "Default",
+      "message": "[Quotes] Failed to fetch FTT: Request failed with status code 404"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:33Z",
+      "severity": "Default",
+      "message": "[getBenchmarkHistory] Error: SyntaxError: Unexpected token '\u003c', \"\u003c?xml vers\"... is not valid JSON"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:33Z",
+      "severity": "Default",
+      "message": "    at JSON.parse (\u003canonymous\u003e)"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:33Z",
+      "severity": "Default",
+      "message": "    at parseJSONFromBytes (node:internal/deps/undici/undici:5880:19)"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:33Z",
+      "severity": "Default",
+      "message": "    at successSteps (node:internal/deps/undici/undici:5861:27)"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:33Z",
+      "severity": "Default",
+      "message": "    at fullyReadBody (node:internal/deps/undici/undici:4753:9)"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:33Z",
+      "severity": "Default",
+      "message": "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:33Z",
+      "severity": "Default",
+      "message": "    at async consumeBody (node:internal/deps/undici/undici:5870:7)"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:33Z",
+      "severity": "Default",
+      "message": "    at async file:///usr/src/app/dist/index.js:4068:22"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:33Z",
+      "severity": "Default",
+      "message": "    at async resolveMiddleware (file:///usr/src/app/node_modules/.pnpm/@trpc+server@11.16.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-B1ggxyJl.mjs:221:17)"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:33Z",
+      "severity": "Default",
+      "message": "    at async callRecursive (file:///usr/src/app/node_modules/.pnpm/@trpc+server@11.16.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-B1ggxyJl.mjs:256:18)"
+    },
+    {
+      "timestamp": "2026-09-08T15:37:33Z",
+      "severity": "Default",
+      "message": "    at async callRecursive (file:///usr/src/app/node_modules/.pnpm/@trpc+server@11.16.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-B1ggxyJl.mjs:256:18)"
+    },
+    {
+      "timestamp": "2026-09-08T15:40:36Z",
+      "severity": "Default",
+      "message": "[Auth] Missing session cookie"
+    },
+    {
+      "timestamp": "2026-09-08T15:50:29Z",
+      "severity": "Default",
+      "message": "[Auth] Missing session cookie"
+    },
+    {
+      "timestamp": "2026-09-08T16:00:29Z",
+      "severity": "Default",
+      "message": "[Auth] Missing session cookie"
+    },
+    {
+      "timestamp": "2026-09-08T16:10:24Z",
+      "severity": "Default",
+      "message": "[Auth] Missing session cookie"
+    },
+    {
+      "timestamp": "2026-09-08T16:20:37Z",
+      "severity": "Default",
+      "message": "[Auth] Missing session cookie"
+    }
+  ],
+  "has_more": true,
+  "oldest_time": "2026-09-08T14:59:37Z",
+  "project_id": "inNn2GrYAEeStrPTZHgZq4"
+}

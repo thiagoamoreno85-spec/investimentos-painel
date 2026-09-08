@@ -19,25 +19,47 @@ import DashboardMercado from "./pages/DashboardMercado";
 import Noticias from "./pages/Noticias";
 import Calendario from "./pages/Calendario";
 import Configuracoes from "./pages/Configuracoes";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+
+function protectedPage(Component: React.ComponentType) {
+  return function AuthenticatedPage() {
+    return <ProtectedRoute component={Component} />;
+  };
+}
+
+const ProtectedHome = protectedPage(Home);
+const ProtectedAlocacao = protectedPage(Alocacao);
+const ProtectedRentabilidade = protectedPage(Rentabilidade);
+const ProtectedRentabilidadeDetalhada = protectedPage(RentabilidadeDetalhada);
+const ProtectedAportes = protectedPage(Aportes);
+const ProtectedPatrimonio = protectedPage(Patrimonio);
+const ProtectedTransacoes = protectedPage(Transacoes);
+const ProtectedProventos = protectedPage(Proventos);
+const ProtectedAlertas = protectedPage(Alertas);
+const ProtectedMelhorCompra = protectedPage(MelhorCompra);
+const ProtectedDashboardMercado = protectedPage(DashboardMercado);
+const ProtectedNoticias = protectedPage(Noticias);
+const ProtectedCalendario = protectedPage(Calendario);
+const ProtectedConfiguracoes = protectedPage(Configuracoes);
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/alocacao"} component={Alocacao} />
-      <Route path={"/rentabilidade"} component={Rentabilidade} />
-      <Route path={"/rentabilidade/detalhes"} component={RentabilidadeDetalhada} />
-      <Route path={"/aportes"} component={Aportes} />
-      <Route path={"/patrimonio"} component={Patrimonio} />
-      <Route path={"/transacoes"} component={Transacoes} />
-      <Route path={"/dividendos"} component={Proventos} />
-      <Route path={"/alertas"} component={Alertas} />
-      <Route path={"/melhor-compra"} component={MelhorCompra} />
-      <Route path={"/mercado"} component={DashboardMercado} />
-      <Route path={"/noticias"} component={Noticias} />
-      <Route path={"/calendario"} component={Calendario} />
-      <Route path={"/configuracoes"} component={Configuracoes} />
+      <Route path={"/"} component={ProtectedHome} />
+      <Route path={"/alocacao"} component={ProtectedAlocacao} />
+      <Route path={"/rentabilidade"} component={ProtectedRentabilidade} />
+      <Route path={"/rentabilidade/detalhes"} component={ProtectedRentabilidadeDetalhada} />
+      <Route path={"/aportes"} component={ProtectedAportes} />
+      <Route path={"/patrimonio"} component={ProtectedPatrimonio} />
+      <Route path={"/transacoes"} component={ProtectedTransacoes} />
+      <Route path={"/dividendos"} component={ProtectedProventos} />
+      <Route path={"/alertas"} component={ProtectedAlertas} />
+      <Route path={"/melhor-compra"} component={ProtectedMelhorCompra} />
+      <Route path={"/mercado"} component={ProtectedDashboardMercado} />
+      <Route path={"/noticias"} component={ProtectedNoticias} />
+      <Route path={"/calendario"} component={ProtectedCalendario} />
+      <Route path={"/configuracoes"} component={ProtectedConfiguracoes} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

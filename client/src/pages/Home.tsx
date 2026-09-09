@@ -65,9 +65,11 @@ export default function Home() {
   const cashBalance = Number(cashBalanceData?.balance ?? 0);
   const hasDbData = (dbAssets?.length ?? 0) > 0;
   const hasUsdAssets = dbAssets?.some((asset) => (asset.currency || CLASS_CURRENCY[asset.assetClass]) === "USD") ?? false;
-  const isLoading = assetsQuery.isLoading || cashBalanceQuery.isLoading || usdBrlQuery.isLoading;
-  const hasCriticalError = assetsQuery.isError || cashBalanceQuery.isError || usdBrlQuery.isError;
-  const needsFxRate = hasUsdAssets && !usdBrlData;
+  const isLoading = assetsQuery.isLoading;
+  const hasCriticalError = assetsQuery.isError;
+  const isFxPending = hasUsdAssets && usdBrlQuery.isLoading;
+  const needsFxRate = hasUsdAssets && (!usdBrlData || !Number.isFinite(usdBrlData.rate) || usdBrlData.rate <= 0);
+  const isCashUnavailable = cashBalanceQuery.isError;
 
   const overview = useMemo(() => {
     if (!hasDbData || !dbAssets || needsFxRate) return null;
@@ -129,7 +131,7 @@ export default function Home() {
     );
   }
 
-  if (hasCriticalError || needsFxRate) {
+  if (hasCriticalError || (needsFxRate && !isFxPending)) {
     return (
       <DashboardLayout>
         <Card className="border-amber-500/30 bg-amber-500/5">
@@ -201,6 +203,11 @@ export default function Home() {
             <p className="text-muted-foreground text-sm mt-1.5">
               Inclui caixa no patrimônio · resultado exclui saldo de caixa
             </p>
+            {isCashUnavailable && (
+              <p className="mt-1 text-xs text-amber-300">
+                O saldo de caixa está temporariamente indisponível e será atualizado em nova tentativa.
+              </p>
+            )}
           </div>
           <div className="flex gap-2 flex-wrap">
             {/* Botão ocultar/mostrar valores — sempre visível */}

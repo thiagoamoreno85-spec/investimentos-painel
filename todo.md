@@ -561,3 +561,16 @@
 - [x] Identificar a consulta ou dependência que bloqueia a tela após o login
 - [x] Corrigir o bloqueio e evitar carregamento indefinido em falhas de dados
 - [x] Publicar a correção e validar o acesso com uma sessão autenticada
+
+## Carregamento Exclusivo na Versão Desktop — Em andamento
+- [x] Reproduzir o acesso autenticado em desktop e registrar o comportamento observado
+- [x] Comparar componentes e consultas exclusivos do layout desktop
+- [x] Corrigir o carregamento bloqueado sem regredir a versão mobile
+- [x] Validar ambos os tamanhos de tela, testar e salvar checkpoint
+
+## Resiliência Reforçada do Carregamento Desktop — Em andamento
+- [x] Substituir timeout incompatível por cancelamento compatível com navegadores desktop
+- [x] Impedir que consultas auxiliares bloqueiem a renderização inicial da Visão Geral
+- [x] Evitar redirecionamento global em erros de rede que não sejam falha de autenticação
+- [x] Aplicar timeout e fallback às consultas de câmbio dependentes de fonte externa
+- [x] Criar testes, validar desktop/mobile e salvar checkpoint

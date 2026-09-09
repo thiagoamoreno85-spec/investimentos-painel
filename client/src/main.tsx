@@ -1,12 +1,14 @@
 import { trpc } from "@/lib/trpc";
 import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink, TRPCClientError } from "@trpc/client";
+import { httpLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
+import { fetchWithTimeout } from "./lib/fetchWithTimeout";
 import "./index.css";
+import { isConfirmedUnauthorized } from "@shared/authFailurePolicy";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,7 +23,7 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
   if (typeof window === "undefined") return;
 
-  const isUnauthorized = error.message === UNAUTHED_ERR_MSG;
+  const isUnauthorized = isConfirmedUnauthorized(error, UNAUTHED_ERR_MSG);
 
   if (!isUnauthorized) return;
 
@@ -46,16 +48,15 @@ queryClient.getMutationCache().subscribe(event => {
 
 const trpcClient = trpc.createClient({
   links: [
-    httpBatchLink({
+    // Consultas independentes não compartilham a mesma resposta HTTP: uma fonte lenta
+    // (por exemplo, benchmark externo) não pode bloquear os dados centrais da carteira.
+    httpLink({
       url: "/api/trpc",
       transformer: superjson,
       fetch(input, init) {
-        const timeoutSignal = AbortSignal.timeout(15_000);
-        const signal = init?.signal ? AbortSignal.any([init.signal, timeoutSignal]) : timeoutSignal;
-        return globalThis.fetch(input, {
+        return fetchWithTimeout(input, {
           ...(init ?? {}),
           credentials: "include",
-          signal,
         });
       },
     }),

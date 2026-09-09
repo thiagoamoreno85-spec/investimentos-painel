@@ -119,3 +119,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - Os dois domínios publicados responderam e redirecionaram corretamente para a autenticação. O problema não é de publicação nem de DNS.
 - Os logs de produção registraram retorno XML da fonte do Banco Central em uma consulta que esperava JSON no comparativo de benchmarks. A resposta provocava erro de parse em `getBenchmarkHistory`; outros componentes também não distinguiam falha de carregamento.
 - O cliente passou a limitar requisições tRPC a 15 segundos e a encerrar tentativas após uma repetição. O endpoint de benchmarks passou a validar HTTP e `content-type`, aplicar prazo à fonte e preservar a série disponível quando Ibovespa ou CDI falhar. Os cartões afetados agora oferecem estado explícito e ação de nova tentativa, evitando spinner permanente.
+
+## Resiliência específica do carregamento desktop — 09/09/2026
+
+- O cliente passou a usar um `AbortController` compatível para limitar requisições sem depender de `AbortSignal.timeout` ou `AbortSignal.any`, APIs de suporte desigual entre navegadores desktop.
+- As consultas tRPC deixaram de compartilhar uma única resposta HTTP. Uma fonte lenta de benchmark, rentabilidade ou cotação não pode mais reter a resposta que contém os ativos centrais da carteira.
+- A política de autenticação diferencia erro de rede de sessão efetivamente ausente: apenas uma falha de autenticação confirmada redireciona ao login; demais falhas recebem ação de nova tentativa. A inspeção desktop exibiu a Visão Geral com dados consolidados; no mobile, o estado sem ativos é explícito e não há carregamento permanente.

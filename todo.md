@@ -574,3 +574,9 @@
 - [x] Evitar redirecionamento global em erros de rede que não sejam falha de autenticação
 - [x] Aplicar timeout e fallback às consultas de câmbio dependentes de fonte externa
 - [x] Criar testes, validar desktop/mobile e salvar checkpoint
+
+## Análise do Crédito de Aluguel de CMIN3 — Em andamento
+- [x] Extrair da matriz os pesos, alvos e sinalizações de CMIN3, ZAVI11 e XPML11
+- [x] Atualizar os dados de mercado e os fatos relevantes dos três ativos
+- [x] Comparar reinvestimento em CMIN3 versus FIIs sob diversificação, renda e risco
+- [x] Entregar recomendação condicional para os R$ 1.040,00 sem executar qualquer ordem

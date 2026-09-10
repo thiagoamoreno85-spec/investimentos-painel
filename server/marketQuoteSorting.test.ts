@@ -19,4 +19,26 @@ describe("sortMarketQuotesByYield", () => {
   it("ordena do menor para o maior rendimento acumulado", () => {
     expect(sortMarketQuotesByYield(quotes, "yield_asc").map((quote) => quote.ticker)).toEqual(["BBB", "CCC", "AAA"]);
   });
+
+  it("ordena da maior para a menor alta mensal e deixa históricos indisponíveis ao final", () => {
+    const monthlyChanges = new Map([
+      ["AAA", 2.3],
+      ["BBB", -4.8],
+    ]);
+
+    expect(
+      sortMarketQuotesByYield(quotes, "monthly_desc", (quote) => monthlyChanges.get(quote.ticker)).map((quote) => quote.ticker),
+    ).toEqual(["AAA", "BBB", "CCC"]);
+  });
+
+  it("ordena da menor para a maior variação mensal e deixa históricos indisponíveis ao final", () => {
+    const monthlyChanges = new Map([
+      ["AAA", 2.3],
+      ["BBB", -4.8],
+    ]);
+
+    expect(
+      sortMarketQuotesByYield(quotes, "monthly_asc", (quote) => monthlyChanges.get(quote.ticker)).map((quote) => quote.ticker),
+    ).toEqual(["BBB", "AAA", "CCC"]);
+  });
 });

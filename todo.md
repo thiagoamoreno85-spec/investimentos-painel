@@ -604,3 +604,9 @@
 - [x] Verificar domínios, publicação e autenticação do painel
 - [x] Reproduzir a indisponibilidade relatada e identificar sua causa
 - [x] Confirmar que o domínio está ativo e que o acesso requer seleção manual da conta Manus antes do carregamento dos arquivos protegidos
+
+## Dashboard de Mercado — Ordenação por Variação Mensal
+- [x] Mapear a variação mensal já exposta e os controles de ordenação da lista
+- [x] Adicionar opções de maiores altas e maiores baixas mensais
+- [x] Destacar visualmente o critério mensal selecionado sem quebrar as abas por classe
+- [x] Criar testes, validar desktop/mobile e salvar checkpoint

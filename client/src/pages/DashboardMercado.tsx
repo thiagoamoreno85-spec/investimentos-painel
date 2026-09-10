@@ -234,8 +234,12 @@ function PortfolioQuotesSection() {
   const monthlyQuery = trpc.market.getPortfolioMonthlyChanges.useQuery(undefined, { refetchInterval: 300_000, retry: 1 });
   const monthlyByTicker = useMemo(() => new Map((monthlyQuery.data?.changes ?? []).map((item) => [item.ticker, item])), [monthlyQuery.data?.changes]);
   const quotesInActiveClass = useMemo(
-    () => sortMarketQuotesByYield(filterMarketAssetsByClass(data?.quotes ?? [], activeClass), quoteSort),
-    [activeClass, data?.quotes, quoteSort],
+    () => sortMarketQuotesByYield(
+      filterMarketAssetsByClass(data?.quotes ?? [], activeClass),
+      quoteSort,
+      (quote) => monthlyByTicker.get(quote.ticker)?.changePercent,
+    ),
+    [activeClass, data?.quotes, monthlyByTicker, quoteSort],
   );
 
   return (
@@ -290,25 +294,47 @@ function PortfolioQuotesSection() {
                 <p className="text-xs text-muted-foreground">{MARKET_ASSET_TABS.find((assetTab) => assetTab.id === activeClass)?.label}</p>
                 <span className="font-mono text-xs text-muted-foreground">{quotesInActiveClass.length} ativo{quotesInActiveClass.length === 1 ? "" : "s"}</span>
               </div>
-              <div className="flex items-center gap-1 rounded-lg border border-border/50 bg-secondary/25 p-1" aria-label="Ordenar por rendimento acumulado">
-                <button
-                  type="button"
-                  onClick={() => setQuoteSort("yield_desc")}
-                  className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "yield_desc" ? "bg-emerald-500/15 text-emerald-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
-                  aria-pressed={quoteSort === "yield_desc"}
-                  title="Ordenar rendimento (L/P) do maior para o menor"
-                >
-                  <ArrowDownAZ className="h-3 w-3" /> Melhor L/P
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setQuoteSort("yield_asc")}
-                  className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "yield_asc" ? "bg-red-500/15 text-red-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
-                  aria-pressed={quoteSort === "yield_asc"}
-                  title="Ordenar rendimento (L/P) do menor para o maior"
-                >
-                  <ArrowUpAZ className="h-3 w-3" /> Pior L/P
-                </button>
+              <div className="flex flex-wrap items-center gap-1.5" aria-label="Ordenar ativos da carteira">
+                <div className="flex items-center gap-1 rounded-lg border border-border/50 bg-secondary/25 p-1" aria-label="Ordenar por rendimento acumulado">
+                  <button
+                    type="button"
+                    onClick={() => setQuoteSort("yield_desc")}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "yield_desc" ? "bg-emerald-500/15 text-emerald-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    aria-pressed={quoteSort === "yield_desc"}
+                    title="Ordenar rendimento (L/P) do maior para o menor"
+                  >
+                    <ArrowDownAZ className="h-3 w-3" /> Melhor L/P
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuoteSort("yield_asc")}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "yield_asc" ? "bg-red-500/15 text-red-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    aria-pressed={quoteSort === "yield_asc"}
+                    title="Ordenar rendimento (L/P) do menor para o maior"
+                  >
+                    <ArrowUpAZ className="h-3 w-3" /> Pior L/P
+                  </button>
+                </div>
+                <div className="flex items-center gap-1 rounded-lg border border-border/50 bg-secondary/25 p-1" aria-label="Ordenar por variação mensal">
+                  <button
+                    type="button"
+                    onClick={() => setQuoteSort("monthly_desc")}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "monthly_desc" ? "bg-emerald-500/15 text-emerald-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    aria-pressed={quoteSort === "monthly_desc"}
+                    title="Ordenar variação mensal da maior alta para a menor"
+                  >
+                    <TrendingUp className="h-3 w-3" /> Maiores altas
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuoteSort("monthly_asc")}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "monthly_asc" ? "bg-red-500/15 text-red-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    aria-pressed={quoteSort === "monthly_asc"}
+                    title="Ordenar variação mensal da maior baixa para a menor"
+                  >
+                    <TrendingDown className="h-3 w-3" /> Maiores baixas
+                  </button>
+                </div>
               </div>
             </div>
 

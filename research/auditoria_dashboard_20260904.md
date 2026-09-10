@@ -137,3 +137,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - A visualização **Minha Carteira** foi estruturada com oito abas de classe: RV Nacional, Fundos, RV EUA, Criptomoedas, Renda Fixa, Urânio, Índia e Caixa.
 - Cada aba mantém apenas ativos da classe selecionada e apresenta uma linha expansível por ativo, preservando preço, variações diária e mensal, valor de posição e os detalhes financeiros já existentes.
 - As abas usam rolagem horizontal controlada em mobile e exibem contador de ativos por classe. Os previews desktop e mobile confirmaram que a navegação principal do Mercado permaneceu responsiva; a inspeção dos dados da aba requer sessão autenticada.
+
+## Dashboard de Mercado — ordenação por variação mensal — 10/09/2026
+
+- A lista de cada classe passou a oferecer os controles **Maiores altas** e **Maiores baixas**, usando a variação mensal de preço já exibida na coluna “Mês”. O primeiro ordena da maior alta à menor; o segundo, da maior baixa à maior.
+- Ativos sem preço histórico suficiente permanecem ao final da ordenação, para que a ausência de série não seja interpretada como variação de 0,00%.
+- Os previews desktop e mobile mantiveram a página responsiva; a conferência automatizada aprovou a ordenação mensal, o desempate por ticker e a preservação do critério de rendimento acumulado.

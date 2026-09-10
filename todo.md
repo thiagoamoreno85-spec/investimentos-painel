@@ -601,6 +601,6 @@
 - [x] Salvar checkpoint sem alterar dados financeiros
 
 ## Acesso ao Endereço Publicado — 10/09/2026
-- [ ] Verificar domínios, publicação e autenticação do painel
-- [ ] Reproduzir a indisponibilidade relatada e identificar sua causa
-- [ ] Corrigir ou fornecer um endereço funcional testado
+- [x] Verificar domínios, publicação e autenticação do painel
+- [x] Reproduzir a indisponibilidade relatada e identificar sua causa
+- [x] Confirmar que o domínio está ativo e que o acesso requer seleção manual da conta Manus antes do carregamento dos arquivos protegidos

@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getAssetsByUser } from "../db";
-import { fetchQuotes, fetchUsdBrl } from "../quotes";
+import { fetchHistoricalCloses, fetchQuotes, fetchUsdBrl, type HistoricalCloseSeries } from "../quotes";
 import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
 import { safeJsonFetch } from "../lib/safeJsonFetch";
+import { calculateMonthlyPriceChange } from "../../shared/monthlyPriceChange";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -33,6 +34,42 @@ interface NewsItem {
   publishedAt: string;
   tickers: string[];
   sentiment: "positive" | "negative" | "neutral";
+}
+
+const MONTHLY_HISTORY_TIMEOUT_MS = 12_000;
+
+/** Calcula a variação de preço do mês sem bloquear as cotações principais da carteira. */
+async function getMonthlyPortfolioChanges(userId: number) {
+  const assets = await getAssetsByUser(userId);
+  if (assets.length === 0) return { changes: [], updatedAt: new Date() };
+
+  const tickerList = assets.map((asset) => ({ ticker: asset.ticker, assetClass: asset.assetClass }));
+  const [historicalCloses, quotes] = await Promise.all([
+    Promise.race<Map<string, HistoricalCloseSeries>>([
+      fetchHistoricalCloses(tickerList, "3mo").catch(() => new Map<string, HistoricalCloseSeries>()),
+      new Promise<Map<string, HistoricalCloseSeries>>((resolve) => {
+        setTimeout(() => resolve(new Map<string, HistoricalCloseSeries>()), MONTHLY_HISTORY_TIMEOUT_MS);
+      }),
+    ]),
+    fetchQuotes(tickerList).catch(() => new Map()),
+  ]);
+
+  const changes = assets.map((asset) => {
+    const quote = quotes.get(asset.ticker);
+    const currentPrice = quote?.price ?? parseFloat(asset.lastPrice ?? "0");
+    const series = historicalCloses.get(asset.ticker);
+    const result = series ? calculateMonthlyPriceChange(currentPrice, series.closesByDate) : null;
+
+    return {
+      ticker: asset.ticker,
+      change: result?.change ?? null,
+      changePercent: result?.changePercent ?? null,
+      referencePrice: result?.price ?? null,
+      referenceDate: result?.date ?? null,
+    };
+  });
+
+  return { changes, updatedAt: new Date() };
 }
 
 // ─── Índices globais via Yahoo Finance ────────────────────────────────────────
@@ -348,5 +385,10 @@ export const marketRouter = router({
       quotes: result.sort((a, b) => b.totalValue - a.totalValue),
       updatedAt: new Date(),
     };
+  }),
+
+  /** Variação de preço no mês corrente; proventos e aportes não entram nesta métrica. */
+  getPortfolioMonthlyChanges: protectedProcedure.query(async ({ ctx }) => {
+    return getMonthlyPortfolioChanges(ctx.user.id);
   }),
 });

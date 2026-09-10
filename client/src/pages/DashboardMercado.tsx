@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { PrivacyMask } from "@/components/PrivacyMask";
 import { trpc } from "@/lib/trpc";
 import {
   TrendingUp,
@@ -16,7 +17,11 @@ import {
   Clock,
   Loader2,
   ChevronRight,
+  ChevronDown,
   Minus,
+  WalletCards,
+  CalendarDays,
+  Layers3,
 } from "lucide-react";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -41,6 +46,25 @@ function ChangeChip({ value }: { value: number }) {
       {isPos ? "+" : ""}{value.toFixed(2)}%
     </span>
   );
+}
+
+function MonthlyChangeChip({ value, isLoading }: { value: number | null | undefined; isLoading: boolean }) {
+  if (isLoading) return <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" aria-label="Calculando variação mensal" />;
+  if (value === null || value === undefined || !Number.isFinite(value)) return <span className="text-xs font-mono text-muted-foreground">—</span>;
+  if (value === 0) return <span className="flex items-center gap-0.5 text-xs font-mono font-semibold text-muted-foreground"><Minus className="h-3 w-3" />0,00%</span>;
+  const isPositive = value > 0;
+  return (
+    <span className={`flex items-center gap-0.5 text-xs font-mono font-semibold ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
+      {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+      {isPositive ? "+" : ""}{value.toFixed(2)}%
+    </span>
+  );
+}
+
+function formatShortDate(value: string | null | undefined) {
+  if (!value) return "Histórico indisponível";
+  const [year, month, day] = value.split("-");
+  return year && month && day ? `${day}/${month}/${year}` : value;
 }
 
 function SentimentBadge({ sentiment }: { sentiment: "positive" | "negative" | "neutral" }) {
@@ -199,89 +223,63 @@ function MacroRatesSection() {
 }
 
 function PortfolioQuotesSection() {
-  const { data, isLoading, isError, refetch, isFetching } = trpc.market.getPortfolioQuotes.useQuery(undefined, {
-    refetchInterval: 60_000,
-  });
+  const [expandedTicker, setExpandedTicker] = useState<string | null>(null);
+  const { data, isLoading, isError, refetch, isFetching } = trpc.market.getPortfolioQuotes.useQuery(undefined, { refetchInterval: 60_000 });
+  const monthlyQuery = trpc.market.getPortfolioMonthlyChanges.useQuery(undefined, { refetchInterval: 300_000, retry: 1 });
+  const monthlyByTicker = useMemo(() => new Map((monthlyQuery.data?.changes ?? []).map((item) => [item.ticker, item])), [monthlyQuery.data?.changes]);
 
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-amber-400" />
-            Minha Carteira — Cotações do Dia
-          </CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => refetch()} disabled={isFetching} className="h-7 w-7 p-0">
-            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
-          </Button>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle className="flex items-center gap-2"><WalletCards className="w-5 h-5 text-amber-400" />Minha Carteira — Cotações e Posições</CardTitle>
+            <p className="mt-1 text-xs text-muted-foreground">Preço, desempenho diário, variação mensal e detalhes da posição por ativo.</p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => refetch()} disabled={isFetching} className="h-7 w-7 shrink-0 p-0" aria-label="Atualizar cotações"><RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} /></Button>
         </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
+          <div className="flex items-center justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
         ) : isError ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
-            <p className="text-sm text-muted-foreground">Não foi possível obter as cotações da carteira.</p>
-            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} className="gap-2">
-              <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
-              Tentar novamente
-            </Button>
-          </div>
+          <div className="flex flex-col items-center justify-center gap-3 py-8 text-center"><p className="text-sm text-muted-foreground">Não foi possível obter as cotações da carteira.</p><Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} className="gap-2"><RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />Tentar novamente</Button></div>
         ) : !data?.quotes.length ? (
-          <p className="text-sm text-muted-foreground text-center py-6">
-            Nenhum ativo financeiro cadastrado.
-          </p>
+          <p className="py-6 text-center text-sm text-muted-foreground">Nenhum ativo financeiro cadastrado.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border/50">
-                  <th className="text-left py-2 text-xs text-muted-foreground font-medium">Ativo</th>
-                  <th className="text-right py-2 text-xs text-muted-foreground font-medium">Preço</th>
-                  <th className="text-right py-2 text-xs text-muted-foreground font-medium">Dia</th>
-                  <th className="text-right py-2 text-xs text-muted-foreground font-medium">PM</th>
-                  <th className="text-right py-2 text-xs text-muted-foreground font-medium">Resultado</th>
-                  <th className="text-right py-2 text-xs text-muted-foreground font-medium">Posição</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.quotes.map((q) => (
-                  <tr key={q.ticker} className="border-b border-border/20 last:border-0 hover:bg-secondary/20 transition-colors">
-                    <td className="py-2.5">
-                      <div>
-                        <span className="font-mono font-bold text-sm">{q.ticker}</span>
-                        <p className="text-xs text-muted-foreground truncate max-w-[120px]">{q.name}</p>
-                      </div>
-                    </td>
-                    <td className="py-2.5 text-right font-mono text-sm">
-                      {q.price === 0 ? "—" : q.currency === "BRL"
-                        ? `R$ ${q.price.toFixed(2)}`
-                        : `$ ${q.price.toFixed(2)}`}
-                    </td>
-                    <td className="py-2.5 text-right">
-                      <ChangeChip value={q.changePercent} />
-                    </td>
-                    <td className="py-2.5 text-right font-mono text-xs text-muted-foreground">
-                      {q.avgCost > 0 ? (q.currency === "BRL" ? `R$ ${q.avgCost.toFixed(2)}` : `$ ${q.avgCost.toFixed(2)}`) : "—"}
-                    </td>
-                    <td className="py-2.5 text-right">
-                      <span className={`font-mono text-xs font-semibold ${
-                        q.profitPct > 0 ? "text-emerald-400" : q.profitPct < 0 ? "text-red-400" : "text-muted-foreground"
-                      }`}>
-                        {q.profitPct === 0 ? "—" : `${q.profitPct >= 0 ? "+" : ""}${q.profitPct.toFixed(1)}%`}
-                      </span>
-                    </td>
-                    <td className="py-2.5 text-right font-mono text-xs">
-                      {q.totalValue > 0
-                        ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(q.totalValue)
-                        : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid gap-3 lg:grid-cols-2">
+            {data.quotes.map((q) => {
+              const monthly = monthlyByTicker.get(q.ticker);
+              const isExpanded = expandedTicker === q.ticker;
+              const profitValue = (q.price - q.avgCost) * q.qty;
+              return (
+                <article key={q.ticker} className={`overflow-hidden rounded-xl border bg-card/60 shadow-sm transition-colors ${q.profitPct < 0 ? "border-red-500/25" : "border-border/60 hover:border-primary/35"}`}>
+                  <button type="button" onClick={() => setExpandedTicker((current) => current === q.ticker ? null : q.ticker)} aria-expanded={isExpanded} className="w-full p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0"><div className="flex items-center gap-2"><span className="font-mono text-sm font-bold text-foreground">{q.ticker}</span><span className="rounded border border-border/50 bg-secondary/40 px-1.5 py-0.5 text-[10px] capitalize text-muted-foreground">{q.assetClass.replaceAll("_", " ")}</span></div><p className="mt-1 truncate text-xs text-muted-foreground">{q.name}</p></div>
+                      <ChevronDown className={`mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                    </div>
+                    <div className="mt-3 grid grid-cols-4 gap-2 border-t border-border/40 pt-3">
+                      <div className="min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Preço</p><PrivacyMask as="span" className="mt-1 block truncate font-mono text-xs font-semibold">{formatPrice(q.price, q.currency)}</PrivacyMask></div>
+                      <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Dia</p><div className="mt-1"><ChangeChip value={q.changePercent} /></div></div>
+                      <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Mês</p><div className="mt-1"><MonthlyChangeChip value={monthly?.changePercent} isLoading={monthlyQuery.isLoading} /></div></div>
+                      <div className="min-w-0 text-right"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Posição</p><PrivacyMask as="span" className="mt-1 block truncate font-mono text-xs font-semibold">{formatPrice(q.totalValue, q.currency)}</PrivacyMask></div>
+                    </div>
+                  </button>
+                  {isExpanded && (
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border/50 bg-secondary/15 px-3 py-3 text-xs sm:grid-cols-3">
+                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Quantidade</p><PrivacyMask as="span" className="mt-1 block font-mono">{q.qty.toLocaleString("pt-BR", { maximumFractionDigits: 4 })}</PrivacyMask></div>
+                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Preço médio</p><PrivacyMask as="span" className="mt-1 block font-mono">{q.avgCost > 0 ? formatPrice(q.avgCost, q.currency) : "—"}</PrivacyMask></div>
+                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">L/P</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${q.profitPct > 0 ? "text-emerald-400" : q.profitPct < 0 ? "text-red-400" : "text-muted-foreground"}`}>{q.profitPct === 0 ? "—" : `${q.profitPct >= 0 ? "+" : ""}${q.profitPct.toFixed(2)}%`}</PrivacyMask></div>
+                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">L/P em valor</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${profitValue > 0 ? "text-emerald-400" : profitValue < 0 ? "text-red-400" : "text-muted-foreground"}`}>{formatPrice(profitValue, q.currency)}</PrivacyMask></div>
+                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Base do mês</p><PrivacyMask as="span" className="mt-1 block font-mono">{monthly?.referencePrice ? formatPrice(monthly.referencePrice, q.currency) : "—"}</PrivacyMask></div>
+                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Data-base</p><p className="mt-1 flex items-center gap-1 text-muted-foreground"><CalendarDays className="h-3 w-3" />{formatShortDate(monthly?.referenceDate)}</p></div>
+                      <div className="col-span-2 flex items-center justify-between gap-3 rounded-md border border-border/50 bg-card/40 px-2.5 py-2 sm:col-span-3"><span className="flex items-center gap-1.5 text-muted-foreground"><Layers3 className="h-3.5 w-3.5" />Variação mensal de preço</span><span className="text-right text-[10px] text-muted-foreground">Preço atual versus último fechamento antes do mês; não inclui proventos.</span></div>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
           </div>
         )}
       </CardContent>

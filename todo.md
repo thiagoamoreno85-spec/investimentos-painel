@@ -580,3 +580,10 @@
 - [x] Atualizar os dados de mercado e os fatos relevantes dos três ativos
 - [x] Comparar reinvestimento em CMIN3 versus FIIs sob diversificação, renda e risco
 - [x] Entregar recomendação condicional para os R$ 1.040,00 sem executar qualquer ordem
+
+## Dashboard de Mercado — Cartões de Posição e Variação Mensal
+- [x] Mapear consultas, componentes e fontes de variação mensal disponíveis
+- [x] Exibir variação mensal auditável ao lado de cada ativo da carteira
+- [x] Criar cartões de posição expansíveis com informações principais do ativo
+- [x] Preservar privacidade e adaptar cartões para desktop e mobile
+- [x] Criar testes, validar visualmente e salvar checkpoint

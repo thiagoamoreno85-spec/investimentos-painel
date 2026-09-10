@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PrivacyMask } from "@/components/PrivacyMask";
 import { trpc } from "@/lib/trpc";
+import { filterMarketAssetsByClass, MARKET_ASSET_TABS, type MarketAssetTabId } from "@shared/marketAssetTabs";
 import {
   TrendingUp,
   TrendingDown,
@@ -224,9 +225,14 @@ function MacroRatesSection() {
 
 function PortfolioQuotesSection() {
   const [expandedTicker, setExpandedTicker] = useState<string | null>(null);
+  const [activeClass, setActiveClass] = useState<MarketAssetTabId>("rv_nacional");
   const { data, isLoading, isError, refetch, isFetching } = trpc.market.getPortfolioQuotes.useQuery(undefined, { refetchInterval: 60_000 });
   const monthlyQuery = trpc.market.getPortfolioMonthlyChanges.useQuery(undefined, { refetchInterval: 300_000, retry: 1 });
   const monthlyByTicker = useMemo(() => new Map((monthlyQuery.data?.changes ?? []).map((item) => [item.ticker, item])), [monthlyQuery.data?.changes]);
+  const quotesInActiveClass = useMemo(
+    () => filterMarketAssetsByClass(data?.quotes ?? [], activeClass),
+    [activeClass, data?.quotes],
+  );
 
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
@@ -247,39 +253,77 @@ function PortfolioQuotesSection() {
         ) : !data?.quotes.length ? (
           <p className="py-6 text-center text-sm text-muted-foreground">Nenhum ativo financeiro cadastrado.</p>
         ) : (
-          <div className="grid gap-3 lg:grid-cols-2">
-            {data.quotes.map((q) => {
+          <div className="space-y-3">
+            <div className="-mx-1 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]">
+              <div className="flex min-w-max gap-2">
+                {MARKET_ASSET_TABS.map((assetTab) => {
+                  const isActive = activeClass === assetTab.id;
+                  return (
+                    <button
+                      key={assetTab.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveClass(assetTab.id);
+                        setExpandedTicker(null);
+                      }}
+                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                        isActive
+                          ? "border-primary/45 bg-primary/10 text-foreground shadow-sm"
+                          : "border-border/50 bg-secondary/25 text-muted-foreground hover:border-border hover:text-foreground"
+                      }`}
+                      aria-pressed={isActive}
+                    >
+                      <span className={`h-2 w-2 rounded-full ${assetTab.dotClass}`} />
+                      {assetTab.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between px-1">
+              <p className="text-xs text-muted-foreground">{MARKET_ASSET_TABS.find((assetTab) => assetTab.id === activeClass)?.label}</p>
+              <span className="font-mono text-xs text-muted-foreground">{quotesInActiveClass.length} ativo{quotesInActiveClass.length === 1 ? "" : "s"}</span>
+            </div>
+
+            {quotesInActiveClass.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border/60 bg-secondary/15 px-4 py-8 text-center text-sm text-muted-foreground">
+                Não há ativos desta classe com cotação na carteira.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {quotesInActiveClass.map((q) => {
               const monthly = monthlyByTicker.get(q.ticker);
               const isExpanded = expandedTicker === q.ticker;
               const profitValue = (q.price - q.avgCost) * q.qty;
               return (
-                <article key={q.ticker} className={`overflow-hidden rounded-xl border bg-card/60 shadow-sm transition-colors ${q.profitPct < 0 ? "border-red-500/25" : "border-border/60 hover:border-primary/35"}`}>
-                  <button type="button" onClick={() => setExpandedTicker((current) => current === q.ticker ? null : q.ticker)} aria-expanded={isExpanded} className="w-full p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0"><div className="flex items-center gap-2"><span className="font-mono text-sm font-bold text-foreground">{q.ticker}</span><span className="rounded border border-border/50 bg-secondary/40 px-1.5 py-0.5 text-[10px] capitalize text-muted-foreground">{q.assetClass.replaceAll("_", " ")}</span></div><p className="mt-1 truncate text-xs text-muted-foreground">{q.name}</p></div>
-                      <ChevronDown className={`mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                    </div>
-                    <div className="mt-3 grid grid-cols-4 gap-2 border-t border-border/40 pt-3">
-                      <div className="min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Preço</p><PrivacyMask as="span" className="mt-1 block truncate font-mono text-xs font-semibold">{formatPrice(q.price, q.currency)}</PrivacyMask></div>
-                      <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Dia</p><div className="mt-1"><ChangeChip value={q.changePercent} /></div></div>
-                      <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Mês</p><div className="mt-1"><MonthlyChangeChip value={monthly?.changePercent} isLoading={monthlyQuery.isLoading} /></div></div>
-                      <div className="min-w-0 text-right"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Posição</p><PrivacyMask as="span" className="mt-1 block truncate font-mono text-xs font-semibold">{formatPrice(q.totalValue, q.currency)}</PrivacyMask></div>
-                    </div>
-                  </button>
-                  {isExpanded && (
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border/50 bg-secondary/15 px-3 py-3 text-xs sm:grid-cols-3">
-                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Quantidade</p><PrivacyMask as="span" className="mt-1 block font-mono">{q.qty.toLocaleString("pt-BR", { maximumFractionDigits: 4 })}</PrivacyMask></div>
-                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Preço médio</p><PrivacyMask as="span" className="mt-1 block font-mono">{q.avgCost > 0 ? formatPrice(q.avgCost, q.currency) : "—"}</PrivacyMask></div>
-                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">L/P</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${q.profitPct > 0 ? "text-emerald-400" : q.profitPct < 0 ? "text-red-400" : "text-muted-foreground"}`}>{q.profitPct === 0 ? "—" : `${q.profitPct >= 0 ? "+" : ""}${q.profitPct.toFixed(2)}%`}</PrivacyMask></div>
-                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">L/P em valor</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${profitValue > 0 ? "text-emerald-400" : profitValue < 0 ? "text-red-400" : "text-muted-foreground"}`}>{formatPrice(profitValue, q.currency)}</PrivacyMask></div>
-                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Base do mês</p><PrivacyMask as="span" className="mt-1 block font-mono">{monthly?.referencePrice ? formatPrice(monthly.referencePrice, q.currency) : "—"}</PrivacyMask></div>
-                      <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Data-base</p><p className="mt-1 flex items-center gap-1 text-muted-foreground"><CalendarDays className="h-3 w-3" />{formatShortDate(monthly?.referenceDate)}</p></div>
-                      <div className="col-span-2 flex items-center justify-between gap-3 rounded-md border border-border/50 bg-card/40 px-2.5 py-2 sm:col-span-3"><span className="flex items-center gap-1.5 text-muted-foreground"><Layers3 className="h-3.5 w-3.5" />Variação mensal de preço</span><span className="text-right text-[10px] text-muted-foreground">Preço atual versus último fechamento antes do mês; não inclui proventos.</span></div>
-                    </div>
-                  )}
-                </article>
+                    <article key={q.ticker} className={`overflow-hidden rounded-xl border bg-card/60 shadow-sm transition-colors ${q.profitPct < 0 ? "border-red-500/25" : "border-border/60 hover:border-primary/35"}`}>
+                      <button type="button" onClick={() => setExpandedTicker((current) => current === q.ticker ? null : q.ticker)} aria-expanded={isExpanded} className="w-full p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring">
+                        <div className="grid grid-cols-[minmax(0,1.7fr)_minmax(5rem,0.9fr)_minmax(3.6rem,0.6fr)_minmax(3.6rem,0.6fr)_minmax(5.75rem,0.9fr)_1rem] items-center gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(6rem,1fr)_minmax(4.5rem,0.7fr)_minmax(4.5rem,0.7fr)_minmax(6.5rem,1fr)_1rem]">
+                          <div className="min-w-0"><span className="font-mono text-sm font-bold text-foreground">{q.ticker}</span><p className="mt-0.5 truncate text-xs text-muted-foreground">{q.name}</p></div>
+                          <div className="min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Preço</p><PrivacyMask as="span" className="mt-0.5 block truncate font-mono text-xs font-semibold">{formatPrice(q.price, q.currency)}</PrivacyMask></div>
+                          <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Dia</p><div className="mt-0.5"><ChangeChip value={q.changePercent} /></div></div>
+                          <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Mês</p><div className="mt-0.5"><MonthlyChangeChip value={monthly?.changePercent} isLoading={monthlyQuery.isLoading} /></div></div>
+                          <div className="min-w-0 text-right"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Posição</p><PrivacyMask as="span" className="mt-0.5 block truncate font-mono text-xs font-semibold">{formatPrice(q.totalValue, q.currency)}</PrivacyMask></div>
+                          <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                        </div>
+                      </button>
+                      {isExpanded && (
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border/50 bg-secondary/15 px-3 py-3 text-xs sm:grid-cols-3">
+                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Quantidade</p><PrivacyMask as="span" className="mt-1 block font-mono">{q.qty.toLocaleString("pt-BR", { maximumFractionDigits: 4 })}</PrivacyMask></div>
+                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Preço médio</p><PrivacyMask as="span" className="mt-1 block font-mono">{q.avgCost > 0 ? formatPrice(q.avgCost, q.currency) : "—"}</PrivacyMask></div>
+                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">L/P</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${q.profitPct > 0 ? "text-emerald-400" : q.profitPct < 0 ? "text-red-400" : "text-muted-foreground"}`}>{q.profitPct === 0 ? "—" : `${q.profitPct >= 0 ? "+" : ""}${q.profitPct.toFixed(2)}%`}</PrivacyMask></div>
+                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">L/P em valor</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${profitValue > 0 ? "text-emerald-400" : profitValue < 0 ? "text-red-400" : "text-muted-foreground"}`}>{formatPrice(profitValue, q.currency)}</PrivacyMask></div>
+                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Base do mês</p><PrivacyMask as="span" className="mt-1 block font-mono">{monthly?.referencePrice ? formatPrice(monthly.referencePrice, q.currency) : "—"}</PrivacyMask></div>
+                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Data-base</p><p className="mt-1 flex items-center gap-1 text-muted-foreground"><CalendarDays className="h-3 w-3" />{formatShortDate(monthly?.referenceDate)}</p></div>
+                          <div className="col-span-2 flex items-center justify-between gap-3 rounded-md border border-border/50 bg-card/40 px-2.5 py-2 sm:col-span-3"><span className="flex items-center gap-1.5 text-muted-foreground"><Layers3 className="h-3.5 w-3.5" />Variação mensal de preço</span><span className="text-right text-[10px] text-muted-foreground">Preço atual versus último fechamento antes do mês; não inclui proventos.</span></div>
+                        </div>
+                      )}
+                    </article>
               );
-            })}
+                })}
+              </div>
+            )}
           </div>
         )}
       </CardContent>

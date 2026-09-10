@@ -587,3 +587,9 @@
 - [x] Criar cartões de posição expansíveis com informações principais do ativo
 - [x] Preservar privacidade e adaptar cartões para desktop e mobile
 - [x] Criar testes, validar visualmente e salvar checkpoint
+
+## Dashboard de Mercado — Lista por Classe de Ativo — Em andamento
+- [x] Mapear classes e labels usadas nas posições de mercado
+- [x] Criar abas de classe e exibir um ativo por linha
+- [x] Preservar expansão de detalhes e navegação responsiva
+- [x] Criar testes, validar desktop/mobile e salvar checkpoint

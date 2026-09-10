@@ -131,3 +131,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - A aba **Minha Carteira** foi reorganizada em cartões expansíveis com preço, desempenho diário, variação mensal e valor da posição visíveis na camada inicial.
 - Ao expandir o ativo, a interface apresenta quantidade, preço médio, lucro/prejuízo percentual e em valor, base de cálculo e data do fechamento de referência. A variação mensal é estritamente de preço, sem proventos, aportes ou custos.
 - A prévia desktop e mobile preservou a estrutura de navegação; como o preview não possui sessão autenticada, a validação dos cartões com posições reais será realizada no domínio publicado após o checkpoint. Os valores novos usam a máscara global de privacidade.
+
+## Dashboard de Mercado — lista de uma linha por ativo e abas de classe — 10/09/2026
+
+- A visualização **Minha Carteira** foi estruturada com oito abas de classe: RV Nacional, Fundos, RV EUA, Criptomoedas, Renda Fixa, Urânio, Índia e Caixa.
+- Cada aba mantém apenas ativos da classe selecionada e apresenta uma linha expansível por ativo, preservando preço, variações diária e mensal, valor de posição e os detalhes financeiros já existentes.
+- As abas usam rolagem horizontal controlada em mobile e exibem contador de ativos por classe. Os previews desktop e mobile confirmaram que a navegação principal do Mercado permaneceu responsiva; a inspeção dos dados da aba requer sessão autenticada.

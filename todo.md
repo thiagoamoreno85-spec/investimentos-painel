@@ -593,3 +593,14 @@
 - [x] Criar abas de classe e exibir um ativo por linha
 - [x] Preservar expansão de detalhes e navegação responsiva
 - [x] Criar testes, validar desktop/mobile e salvar checkpoint
+
+## Dashboard de Mercado — Ordenação por Rendimento — Em andamento
+- [x] Mapear a métrica de L/P percentual e os controles de ordenação existentes
+- [x] Adicionar ordenação por rendimento de maior para menor e de menor para maior
+- [x] Criar testes e validar a ordenação em desktop e mobile
+- [x] Salvar checkpoint sem alterar dados financeiros
+
+## Acesso ao Endereço Publicado — 10/09/2026
+- [ ] Verificar domínios, publicação e autenticação do painel
+- [ ] Reproduzir a indisponibilidade relatada e identificar sua causa
+- [ ] Corrigir ou fornecer um endereço funcional testado

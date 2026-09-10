@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PrivacyMask } from "@/components/PrivacyMask";
 import { trpc } from "@/lib/trpc";
 import { filterMarketAssetsByClass, MARKET_ASSET_TABS, type MarketAssetTabId } from "@shared/marketAssetTabs";
+import { sortMarketQuotesByYield, type MarketQuoteSort } from "@shared/marketQuoteSorting";
 import {
   TrendingUp,
   TrendingDown,
@@ -20,6 +21,8 @@ import {
   ChevronRight,
   ChevronDown,
   Minus,
+  ArrowDownAZ,
+  ArrowUpAZ,
   WalletCards,
   CalendarDays,
   Layers3,
@@ -226,12 +229,13 @@ function MacroRatesSection() {
 function PortfolioQuotesSection() {
   const [expandedTicker, setExpandedTicker] = useState<string | null>(null);
   const [activeClass, setActiveClass] = useState<MarketAssetTabId>("rv_nacional");
+  const [quoteSort, setQuoteSort] = useState<MarketQuoteSort>("portfolio");
   const { data, isLoading, isError, refetch, isFetching } = trpc.market.getPortfolioQuotes.useQuery(undefined, { refetchInterval: 60_000 });
   const monthlyQuery = trpc.market.getPortfolioMonthlyChanges.useQuery(undefined, { refetchInterval: 300_000, retry: 1 });
   const monthlyByTicker = useMemo(() => new Map((monthlyQuery.data?.changes ?? []).map((item) => [item.ticker, item])), [monthlyQuery.data?.changes]);
   const quotesInActiveClass = useMemo(
-    () => filterMarketAssetsByClass(data?.quotes ?? [], activeClass),
-    [activeClass, data?.quotes],
+    () => sortMarketQuotesByYield(filterMarketAssetsByClass(data?.quotes ?? [], activeClass), quoteSort),
+    [activeClass, data?.quotes, quoteSort],
   );
 
   return (
@@ -281,9 +285,31 @@ function PortfolioQuotesSection() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between px-1">
-              <p className="text-xs text-muted-foreground">{MARKET_ASSET_TABS.find((assetTab) => assetTab.id === activeClass)?.label}</p>
-              <span className="font-mono text-xs text-muted-foreground">{quotesInActiveClass.length} ativo{quotesInActiveClass.length === 1 ? "" : "s"}</span>
+            <div className="flex flex-col justify-between gap-2 px-1 sm:flex-row sm:items-center">
+              <div className="flex items-center justify-between gap-3 sm:justify-start">
+                <p className="text-xs text-muted-foreground">{MARKET_ASSET_TABS.find((assetTab) => assetTab.id === activeClass)?.label}</p>
+                <span className="font-mono text-xs text-muted-foreground">{quotesInActiveClass.length} ativo{quotesInActiveClass.length === 1 ? "" : "s"}</span>
+              </div>
+              <div className="flex items-center gap-1 rounded-lg border border-border/50 bg-secondary/25 p-1" aria-label="Ordenar por rendimento acumulado">
+                <button
+                  type="button"
+                  onClick={() => setQuoteSort("yield_desc")}
+                  className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "yield_desc" ? "bg-emerald-500/15 text-emerald-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                  aria-pressed={quoteSort === "yield_desc"}
+                  title="Ordenar rendimento (L/P) do maior para o menor"
+                >
+                  <ArrowDownAZ className="h-3 w-3" /> Melhor L/P
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuoteSort("yield_asc")}
+                  className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "yield_asc" ? "bg-red-500/15 text-red-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                  aria-pressed={quoteSort === "yield_asc"}
+                  title="Ordenar rendimento (L/P) do menor para o maior"
+                >
+                  <ArrowUpAZ className="h-3 w-3" /> Pior L/P
+                </button>
+              </div>
             </div>
 
             {quotesInActiveClass.length === 0 ? (

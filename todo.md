@@ -616,3 +616,13 @@
 - [x] Aplicar cores e rótulos acessíveis às linhas de ativos afetadas
 - [x] Criar testes e validar os destaques em desktop e mobile
 - [x] Salvar checkpoint sem alterar dados financeiros
+
+## Novo Diagnóstico de Acesso Publicado — 10/09/2026
+- [x] Verificar domínio, publicação e redirecionamento de autenticação
+- [x] Inspecionar logs recentes e reproduzir o bloqueio informado
+- [x] Corrigir o acesso ou orientar o procedimento funcional verificado
+
+## Acesso pelo Navegador — Diagnóstico Reforçado
+- [x] Mapear o comportamento de redirecionamento, cookie e sessão no navegador
+- [x] Exibir recuperação de login e orientação específica quando a sessão não puder ser criada
+- [x] Validar o fluxo publicado e documentar o caminho de acesso funcional

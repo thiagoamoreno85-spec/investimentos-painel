@@ -149,3 +149,13 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - A lista de ativos passa a realçar altas mensais estritamente superiores a **+5%** com borda lateral, fundo verde reforçado e selo textual **“Alta mensal forte”**. Baixas estritamente inferiores a **−5%** recebem o equivalente em vermelho e o selo **“Queda mensal forte”**.
 - A identificação textual permanece visível no detalhe expandido, evitando que o significado do alerta dependa somente de cor. Valores exatamente em +5,00% ou −5,00% mantêm estilo neutro.
 - As prévias desktop e mobile preservaram a estrutura do Dashboard de Mercado; a inspeção dos cards com posições reais requer sessão autenticada. A regra de limiar foi validada por testes unitários.
+
+## Novo diagnóstico de acesso publicado — 10/09/2026
+
+- O domínio principal respondeu e encaminhou ao fluxo oficial de autenticação, mas os logs de produção registraram apenas **“Missing session cookie”**. Não houve erro de aplicação ou indisponibilidade do servidor.
+- A inspeção da tela de autenticação no navegador do usuário excedeu o tempo de resposta, portanto a conclusão do login manual é necessária para restabelecer a sessão antes de validar o painel autenticado.
+
+## Recuperação de sessão no navegador — 10/09/2026
+
+- A proteção de rotas passou a fazer somente uma tentativa automática de autenticação por sessão do navegador. Se o callback voltar sem o cookie protegido, a aplicação deixa de exibir carregamento contínuo e mostra uma tela de recuperação com as instruções de cookies, navegação privada e bloqueadores.
+- A validação automatizada cobriu a tentativa inicial, a prevenção de ciclo após callback sem sessão e a não interferência em sessão válida ou falha de rede. A prévia desktop permaneceu acessível e sem tela de carregamento permanente.

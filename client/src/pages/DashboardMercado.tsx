@@ -6,6 +6,7 @@ import { PrivacyMask } from "@/components/PrivacyMask";
 import { trpc } from "@/lib/trpc";
 import { filterMarketAssetsByClass, MARKET_ASSET_TABS, type MarketAssetTabId } from "@shared/marketAssetTabs";
 import { sortMarketQuotesByYield, type MarketQuoteSort } from "@shared/marketQuoteSorting";
+import { getMonthlyVariationHighlight } from "@shared/monthlyVariationHighlight";
 import {
   TrendingUp,
   TrendingDown,
@@ -348,11 +349,35 @@ function PortfolioQuotesSection() {
               const monthly = monthlyByTicker.get(q.ticker);
               const isExpanded = expandedTicker === q.ticker;
               const profitValue = (q.price - q.avgCost) * q.qty;
+              const monthlyHighlight = getMonthlyVariationHighlight(monthly?.changePercent);
+              const isStrongMonthlyGain = monthlyHighlight === "high_gain";
+              const isStrongMonthlyLoss = monthlyHighlight === "high_loss";
+              const monthlyHighlightLabel = isStrongMonthlyGain ? "Alta mensal forte" : isStrongMonthlyLoss ? "Queda mensal forte" : null;
               return (
-                    <article key={q.ticker} className={`overflow-hidden rounded-xl border bg-card/60 shadow-sm transition-colors ${q.profitPct < 0 ? "border-red-500/25" : "border-border/60 hover:border-primary/35"}`}>
+                    <article key={q.ticker} className={`overflow-hidden rounded-xl border bg-card/60 shadow-sm transition-colors ${
+                      isStrongMonthlyGain
+                        ? "border-emerald-400/70 border-l-4 border-l-emerald-400 bg-emerald-500/10"
+                        : isStrongMonthlyLoss
+                        ? "border-red-400/70 border-l-4 border-l-red-400 bg-red-500/10"
+                        : q.profitPct < 0
+                        ? "border-red-500/25"
+                        : "border-border/60 hover:border-primary/35"
+                    }`}>
                       <button type="button" onClick={() => setExpandedTicker((current) => current === q.ticker ? null : q.ticker)} aria-expanded={isExpanded} className="w-full p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring">
                         <div className="grid grid-cols-[minmax(0,1.7fr)_minmax(5rem,0.9fr)_minmax(3.6rem,0.6fr)_minmax(3.6rem,0.6fr)_minmax(5.75rem,0.9fr)_1rem] items-center gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(6rem,1fr)_minmax(4.5rem,0.7fr)_minmax(4.5rem,0.7fr)_minmax(6.5rem,1fr)_1rem]">
-                          <div className="min-w-0"><span className="font-mono text-sm font-bold text-foreground">{q.ticker}</span><p className="mt-0.5 truncate text-xs text-muted-foreground">{q.name}</p></div>
+                          <div className="min-w-0">
+                            <div className="flex min-w-0 items-center gap-1.5">
+                              <span className="truncate font-mono text-sm font-bold text-foreground">{q.ticker}</span>
+                              {monthlyHighlightLabel && (
+                                <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
+                                  isStrongMonthlyGain ? "bg-emerald-400/20 text-emerald-200" : "bg-red-400/20 text-red-200"
+                                }`}>
+                                  {monthlyHighlightLabel}
+                                </span>
+                              )}
+                            </div>
+                            <p className="mt-0.5 truncate text-xs text-muted-foreground">{q.name}</p>
+                          </div>
                           <div className="min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Preço</p><PrivacyMask as="span" className="mt-0.5 block truncate font-mono text-xs font-semibold">{formatPrice(q.price, q.currency)}</PrivacyMask></div>
                           <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Dia</p><div className="mt-0.5"><ChangeChip value={q.changePercent} /></div></div>
                           <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Mês</p><div className="mt-0.5"><MonthlyChangeChip value={monthly?.changePercent} isLoading={monthlyQuery.isLoading} /></div></div>
@@ -368,7 +393,19 @@ function PortfolioQuotesSection() {
                           <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">L/P em valor</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${profitValue > 0 ? "text-emerald-400" : profitValue < 0 ? "text-red-400" : "text-muted-foreground"}`}>{formatPrice(profitValue, q.currency)}</PrivacyMask></div>
                           <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Base do mês</p><PrivacyMask as="span" className="mt-1 block font-mono">{monthly?.referencePrice ? formatPrice(monthly.referencePrice, q.currency) : "—"}</PrivacyMask></div>
                           <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Data-base</p><p className="mt-1 flex items-center gap-1 text-muted-foreground"><CalendarDays className="h-3 w-3" />{formatShortDate(monthly?.referenceDate)}</p></div>
-                          <div className="col-span-2 flex items-center justify-between gap-3 rounded-md border border-border/50 bg-card/40 px-2.5 py-2 sm:col-span-3"><span className="flex items-center gap-1.5 text-muted-foreground"><Layers3 className="h-3.5 w-3.5" />Variação mensal de preço</span><span className="text-right text-[10px] text-muted-foreground">Preço atual versus último fechamento antes do mês; não inclui proventos.</span></div>
+                          <div className={`col-span-2 flex items-center justify-between gap-3 rounded-md border px-2.5 py-2 sm:col-span-3 ${
+                            isStrongMonthlyGain
+                              ? "border-emerald-400/35 bg-emerald-500/10"
+                              : isStrongMonthlyLoss
+                              ? "border-red-400/35 bg-red-500/10"
+                              : "border-border/50 bg-card/40"
+                          }`}>
+                            <span className={`flex items-center gap-1.5 ${isStrongMonthlyGain ? "text-emerald-200" : isStrongMonthlyLoss ? "text-red-200" : "text-muted-foreground"}`}>
+                              <Layers3 className="h-3.5 w-3.5" />
+                              {monthlyHighlightLabel ?? "Variação mensal de preço"}
+                            </span>
+                            <span className="text-right text-[10px] text-muted-foreground">Preço atual versus último fechamento antes do mês; não inclui proventos.</span>
+                          </div>
                         </div>
                       )}
                     </article>

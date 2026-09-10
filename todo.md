@@ -610,3 +610,9 @@
 - [x] Adicionar opções de maiores altas e maiores baixas mensais
 - [x] Destacar visualmente o critério mensal selecionado sem quebrar as abas por classe
 - [x] Criar testes, validar desktop/mobile e salvar checkpoint
+
+## Dashboard de Mercado — Destaque de Variação Mensal Extrema
+- [x] Definir a regra de alerta visual para variações mensais acima de +5% e abaixo de -5%
+- [x] Aplicar cores e rótulos acessíveis às linhas de ativos afetadas
+- [x] Criar testes e validar os destaques em desktop e mobile
+- [x] Salvar checkpoint sem alterar dados financeiros

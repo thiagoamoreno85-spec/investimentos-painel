@@ -143,3 +143,9 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 - A lista de cada classe passou a oferecer os controles **Maiores altas** e **Maiores baixas**, usando a variação mensal de preço já exibida na coluna “Mês”. O primeiro ordena da maior alta à menor; o segundo, da maior baixa à maior.
 - Ativos sem preço histórico suficiente permanecem ao final da ordenação, para que a ausência de série não seja interpretada como variação de 0,00%.
 - Os previews desktop e mobile mantiveram a página responsiva; a conferência automatizada aprovou a ordenação mensal, o desempate por ticker e a preservação do critério de rendimento acumulado.
+
+## Dashboard de Mercado — destaques de variação mensal extrema — 10/09/2026
+
+- A lista de ativos passa a realçar altas mensais estritamente superiores a **+5%** com borda lateral, fundo verde reforçado e selo textual **“Alta mensal forte”**. Baixas estritamente inferiores a **−5%** recebem o equivalente em vermelho e o selo **“Queda mensal forte”**.
+- A identificação textual permanece visível no detalhe expandido, evitando que o significado do alerta dependa somente de cor. Valores exatamente em +5,00% ou −5,00% mantêm estilo neutro.
+- As prévias desktop e mobile preservaram a estrutura do Dashboard de Mercado; a inspeção dos cards com posições reais requer sessão autenticada. A regra de limiar foi validada por testes unitários.

@@ -336,6 +336,26 @@ function PortfolioQuotesSection() {
                     <TrendingDown className="h-3 w-3" /> Maiores baixas
                   </button>
                 </div>
+                <div className="flex items-center gap-1 rounded-lg border border-border/50 bg-secondary/25 p-1" aria-label="Ordenar por variação diária">
+                  <button
+                    type="button"
+                    onClick={() => setQuoteSort("daily_desc")}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "daily_desc" ? "bg-emerald-500/15 text-emerald-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    aria-pressed={quoteSort === "daily_desc"}
+                    title="Ordenar variação diária da maior alta para a menor"
+                  >
+                    <TrendingUp className="h-3 w-3" /> Altas dia
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuoteSort("daily_asc")}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "daily_asc" ? "bg-red-500/15 text-red-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    aria-pressed={quoteSort === "daily_asc"}
+                    title="Ordenar variação diária da maior baixa para a menor"
+                  >
+                    <TrendingDown className="h-3 w-3" /> Baixas dia
+                  </button>
+                </div>
               </div>
             </div>
 

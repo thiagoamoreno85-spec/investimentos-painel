@@ -1,8 +1,16 @@
-export type MarketQuoteSort = "portfolio" | "yield_desc" | "yield_asc" | "monthly_desc" | "monthly_asc";
+export type MarketQuoteSort =
+  | "portfolio"
+  | "yield_desc"
+  | "yield_asc"
+  | "monthly_desc"
+  | "monthly_asc"
+  | "daily_desc"
+  | "daily_asc";
 
 export type YieldSortableMarketQuote = {
   ticker: string;
   profitPct: number;
+  changePercent?: number | null;
 };
 
 export type MonthlyChangeLookup<T extends YieldSortableMarketQuote> = (quote: T) => number | null | undefined;
@@ -35,8 +43,11 @@ export function sortMarketQuotesByYield<T extends YieldSortableMarketQuote>(
 
   return [...quotes].sort((left, right) => {
     const isMonthlySort = sort === "monthly_desc" || sort === "monthly_asc";
+    const isDailySort = sort === "daily_desc" || sort === "daily_asc";
     const difference = isMonthlySort
       ? compareNullableMetric(getMonthlyChange?.(left), getMonthlyChange?.(right), sort === "monthly_desc" ? "desc" : "asc")
+      : isDailySort
+      ? compareNullableMetric(left.changePercent, right.changePercent, sort === "daily_desc" ? "desc" : "asc")
       : compareNullableMetric(left.profitPct, right.profitPct, sort === "yield_desc" ? "desc" : "asc");
     return difference !== 0 ? difference : left.ticker.localeCompare(right.ticker, "pt-BR");
   });

@@ -632,3 +632,9 @@
 - [x] Reorganizar título, preço e indicadores para preservar a leitura no celular
 - [x] Validar abas por classe, expansão e desktop sem regressões
 - [x] Salvar checkpoint sem alterar dados financeiros
+
+## Dashboard de Mercado — Ordenação por Variação Diária
+- [x] Mapear a variação diária e os controles de ordenação existentes
+- [x] Adicionar opções de maiores altas e maiores baixas diárias
+- [x] Manter os controles alinhados e a navegação responsiva
+- [x] Criar testes, validar desktop/mobile e salvar checkpoint

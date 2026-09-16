@@ -364,7 +364,43 @@ function PortfolioQuotesSection() {
                         : "border-border/60 hover:border-primary/35"
                     }`}>
                       <button type="button" onClick={() => setExpandedTicker((current) => current === q.ticker ? null : q.ticker)} aria-expanded={isExpanded} className="w-full p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring">
-                        <div className="grid grid-cols-[minmax(0,1.7fr)_minmax(5rem,0.9fr)_minmax(3.6rem,0.6fr)_minmax(3.6rem,0.6fr)_minmax(5.75rem,0.9fr)_1rem] items-center gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(6rem,1fr)_minmax(4.5rem,0.7fr)_minmax(4.5rem,0.7fr)_minmax(6.5rem,1fr)_1rem]">
+                        <div className="space-y-2 sm:hidden">
+                          <div className="flex items-start gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <span className="break-all font-mono text-base font-bold leading-tight text-foreground">{q.ticker}</span>
+                                {monthlyHighlightLabel && (
+                                  <span className={`rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
+                                    isStrongMonthlyGain ? "bg-emerald-400/20 text-emerald-200" : "bg-red-400/20 text-red-200"
+                                  }`}>
+                                    {monthlyHighlightLabel}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="mt-1 line-clamp-1 text-xs leading-snug text-muted-foreground">{q.name}</p>
+                            </div>
+                            <div className="min-w-0 shrink-0 text-right">
+                              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Preço</p>
+                              <PrivacyMask as="span" className="mt-0.5 block font-mono text-xs font-semibold">{formatPrice(q.price, q.currency)}</PrivacyMask>
+                            </div>
+                            <ChevronDown className={`mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 border-t border-border/35 pt-2">
+                            <div>
+                              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Dia</p>
+                              <div className="mt-0.5"><ChangeChip value={q.changePercent} /></div>
+                            </div>
+                            <div>
+                              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Mês</p>
+                              <div className="mt-0.5"><MonthlyChangeChip value={monthly?.changePercent} isLoading={monthlyQuery.isLoading} /></div>
+                            </div>
+                            <div className="min-w-0 text-right">
+                              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Posição</p>
+                              <PrivacyMask as="span" className="mt-0.5 block truncate font-mono text-xs font-semibold">{formatPrice(q.totalValue, q.currency)}</PrivacyMask>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="hidden grid-cols-[minmax(0,2fr)_minmax(6rem,1fr)_minmax(4.5rem,0.7fr)_minmax(4.5rem,0.7fr)_minmax(6.5rem,1fr)_1rem] items-center gap-2 sm:grid">
                           <div className="min-w-0">
                             <div className="flex min-w-0 items-center gap-1.5">
                               <span className="truncate font-mono text-sm font-bold text-foreground">{q.ticker}</span>

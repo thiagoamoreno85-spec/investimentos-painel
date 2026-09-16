@@ -626,3 +626,9 @@
 - [x] Mapear o comportamento de redirecionamento, cookie e sessão no navegador
 - [x] Exibir recuperação de login e orientação específica quando a sessão não puder ser criada
 - [x] Validar o fluxo publicado e documentar o caminho de acesso funcional
+
+## Dashboard de Mercado — Nome de Ativo no Mobile
+- [x] Reproduzir a sobreposição de nome nos cards de Minha Carteira
+- [x] Reorganizar título, preço e indicadores para preservar a leitura no celular
+- [x] Validar abas por classe, expansão e desktop sem regressões
+- [x] Salvar checkpoint sem alterar dados financeiros

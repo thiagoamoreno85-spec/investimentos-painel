@@ -159,3 +159,8 @@ Inspeção visual das rotas Visão Geral, Alocação, Rentabilidade, Dashboard M
 
 - A proteção de rotas passou a fazer somente uma tentativa automática de autenticação por sessão do navegador. Se o callback voltar sem o cookie protegido, a aplicação deixa de exibir carregamento contínuo e mostra uma tela de recuperação com as instruções de cookies, navegação privada e bloqueadores.
 - A validação automatizada cobriu a tentativa inicial, a prevenção de ciclo após callback sem sessão e a não interferência em sessão válida ou falha de rede. A prévia desktop permaneceu acessível e sem tela de carregamento permanente.
+
+## Cartões de Minha Carteira no mobile — 16/09/2026
+
+- A identificação do ativo foi separada da grade de indicadores em viewport móvel: ticker, nome e selo de variação ficam em uma primeira linha de largura flexível; preço fica à direita; Dia, Mês e Posição passam para uma segunda linha de três colunas.
+- A grade detalhada anterior permanece ativa apenas a partir do breakpoint `sm`, preservando a visualização desktop. A estrutura foi coberta por teste de regressão e a rota do Dashboard de Mercado manteve a renderização responsiva no preview.

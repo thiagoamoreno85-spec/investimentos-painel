@@ -20,7 +20,7 @@ const updates = [
   { ticker: 'BBAS3',      qty: 2146,        cost: 20.41,       currency: 'BRL' },
   { ticker: 'BBDC4',      qty: 1042,        cost: 14.83,       currency: 'BRL' },
   { ticker: 'CXSE3',      qty: 1770,        cost: 12.23,       currency: 'BRL' },
-  { ticker: 'AXIA6',      qty: 967,         cost: 41.05,       currency: 'BRL' },
+  { ticker: 'AXIA3',      qty: 967,         cost: 41.05,       currency: 'BRL' },
   { ticker: 'AXIA7',      qty: 246,         cost: 30.10,       currency: 'BRL' },
   { ticker: 'AURE3',      qty: 353,         cost: 11.74,       currency: 'BRL' },
   { ticker: 'KEPL3',      qty: 4672,        cost: 8.29,        currency: 'BRL' },

@@ -30,7 +30,7 @@ function nullableNumber(value) {
 const aliases = new Map([
   ['INDA ETF', 'INDA'],
   ['NVIDIA', 'NVIDIA'],
-  ['AXIA3', 'AXIA6'],
+  ['AXIA3', 'AXIA3'],
   ['XP FMP ELET3', 'ELET3'],
   ['BNP PARIBAS RUBI CIC RF CP', 'BNP_RUBI'],
   ['AZ QUEST VALORE FIRF CP', 'AZ_QUEST'],

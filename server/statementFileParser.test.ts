@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import * as XLSX from "xlsx";
 import { detectStatementFileType } from "./lib/statementFileParser";
 import { parseXPDividendsPDFText } from "./lib/pdfDividendParser";
+import { parseXPStatementXLSX } from "./lib/xpStatementParser";
 
 describe("importação de extratos XP", () => {
   it("aceita PDF, XLSX e XLS e rejeita formatos não suportados", () => {
@@ -22,5 +24,19 @@ describe("importação de extratos XP", () => {
     expect(entries).toHaveLength(2);
     expect(entries[0]).toMatchObject({ ticker: "BBDC4", type: "jcp", quantity: 1042, totalValue: 19.77 });
     expect(entries[1]).toMatchObject({ ticker: "XPML11", type: "rendimento", quantity: 115, totalValue: 103.04 });
+  });
+
+  it("mapeia o ISIN de AXIA para AXIA3", () => {
+    const workbook = XLSX.utils.book_new();
+    const sheet = XLSX.utils.aoa_to_sheet([
+      ["", "Data", "", "Descrição", "", "Valor"],
+      ["", "2026-09-22", "", "CREDITO DE REEMBOLSO DE EVENTO BRAXIAACNOR0", "", 125.5],
+    ]);
+    XLSX.utils.book_append_sheet(workbook, sheet, "Extrato");
+
+    const entries = parseXPStatementXLSX(XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }));
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({ ticker: "AXIA3", type: "dividendo", totalValue: 125.5 });
   });
 });

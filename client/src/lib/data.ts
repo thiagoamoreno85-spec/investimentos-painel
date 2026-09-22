@@ -31,7 +31,7 @@ export const portfolioData: PortfolioClass[] = [
       { id: "MBRF3", name: "MBRF3", class: "RV Nacional", position: 4120, cost: 13.30, price: 19.17, totalValue: 78980.40, profit: 24184.40, profitPercentage: 44.2 },
       { id: "CYRE3", name: "CYRE3", class: "RV Nacional", position: 2679, cost: 20.83, price: 27.31, totalValue: 73163.49, profit: 17359.92, profitPercentage: 31.1 },
       { id: "BPAC11", name: "BPAC11", class: "RV Nacional", position: 1122, cost: 34.11, price: 62.16, totalValue: 69743.52, profit: 31468.73, profitPercentage: 82.3 },
-      { id: "AXIA6", name: "AXIA6", class: "RV Nacional", position: 967, cost: 41.05, price: 68.97, totalValue: 66693.99, profit: 26997.67, profitPercentage: 68.0 },
+      { id: "AXIA3", name: "AXIA3", class: "RV Nacional", position: 967, cost: 41.05, price: 68.97, totalValue: 66693.99, profit: 26997.67, profitPercentage: 68.0 },
       { id: "ORVR3", name: "ORVR3", class: "RV Nacional", position: 677, cost: 31.66, price: 82.20, totalValue: 55649.40, profit: 34215.58, profitPercentage: 159.7 },
       { id: "BBAS3", name: "BBAS3", class: "RV Nacional", position: 2130, cost: 20.41, price: 23.46, totalValue: 49969.80, profit: 6505.02, profitPercentage: 15.0 },
       { id: "BRAV3", name: "BRAV3", class: "RV Nacional", position: 2241, cost: 29.85, price: 20.37, totalValue: 45649.17, profit: -21237.96, profitPercentage: -31.8 },

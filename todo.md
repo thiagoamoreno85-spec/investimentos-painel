@@ -638,3 +638,10 @@
 - [x] Adicionar opções de maiores altas e maiores baixas diárias
 - [x] Manter os controles alinhados e a navegação responsiva
 - [x] Criar testes, validar desktop/mobile e salvar checkpoint
+
+## Substituição de AXIA6 por AXIA3 — Em andamento
+- [x] Mapear a posição atual e as referências operacionais do ticker
+- [x] Confirmar a inexistência de registro AXIA3 concorrente e preservar os campos econômicos
+- [x] Substituir somente o ticker no cadastro real e nos mapeamentos operacionais
+- [x] Validar quantidade, custo, transações, proventos e cotações após a troca
+- [x] Rodar verificações técnicas e salvar checkpoint

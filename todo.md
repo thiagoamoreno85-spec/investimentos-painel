@@ -645,3 +645,11 @@
 - [x] Substituir somente o ticker no cadastro real e nos mapeamentos operacionais
 - [x] Validar quantidade, custo, transações, proventos e cotações após a troca
 - [x] Rodar verificações técnicas e salvar checkpoint
+
+## Compras em Dólar — 25/09/2026 — Em andamento
+- [x] Extrair ordens executadas e dados da conversão cambial das capturas
+- [x] Conferir os três ativos existentes e a ausência de duplicidade no dia
+- [x] Obter confirmação explícita para as compras e a conversão de R$ 5.700,00
+- [x] Registrar compras e atualizar quantidades e custos médios
+- [x] Registrar a conversão como movimento histórico de caixa, sem alterar saldo corrente não conciliado
+- [x] Validar lançamentos, posição, custo, caixa e salvar checkpoint

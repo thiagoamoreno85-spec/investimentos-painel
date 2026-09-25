@@ -653,3 +653,11 @@
 - [x] Registrar compras e atualizar quantidades e custos médios
 - [x] Registrar a conversão como movimento histórico de caixa, sem alterar saldo corrente não conciliado
 - [x] Validar lançamentos, posição, custo, caixa e salvar checkpoint
+
+## Aplicações de Renda Fixa — 25/09/2026 — Em andamento
+- [x] Identificar as duas ordens e confirmar que eram títulos distintos do CDB Pine de out/2026
+- [x] Conferir ausência de cadastros e transações duplicadas no dia
+- [x] Obter confirmação explícita de aplicação efetivada
+- [x] Criar os dois títulos com custo, emissor, vencimento, indexador em descrição e preço manual inicial
+- [x] Registrar as aplicações e os movimentos históricos de caixa sem alterar saldo corrente não conciliado
+- [x] Validar registros e salvar checkpoint

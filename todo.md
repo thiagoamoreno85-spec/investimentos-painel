@@ -661,3 +661,17 @@
 - [x] Criar os dois títulos com custo, emissor, vencimento, indexador em descrição e preço manual inicial
 - [x] Registrar as aplicações e os movimentos históricos de caixa sem alterar saldo corrente não conciliado
 - [x] Validar registros e salvar checkpoint
+
+## Aplicação Tesouro IPCA+ 2032 — 30/09/2026 — Em andamento
+- [x] Extrair os dados da solicitação e conferir ausência de duplicidade no painel
+- [x] Obter confirmação explícita para considerar a aplicação efetivada
+- [x] Criar título com custo, taxa, emissor, vencimento e preço manual inicial
+- [x] Registrar aplicação e saída histórica de caixa sem alterar saldo corrente não conciliado
+- [x] Validar registro e salvar checkpoint
+
+## Compra de BTC Binance — 30/09/2026 — Em andamento
+- [x] Extrair execução BTC/USDT e conferir ausência de duplicidade
+- [x] Obter instrução para registrar somente BTC e manter custo agregado não conciliado
+- [x] Registrar transação de BTC e atualizar somente a quantidade da posição Binance
+- [x] Validar transação, quantidade e preservação do custo agregado
+- [x] Salvar checkpoint com os lançamentos de 30/09/2026

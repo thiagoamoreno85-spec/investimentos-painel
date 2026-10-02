@@ -675,3 +675,19 @@
 - [x] Registrar transação de BTC e atualizar somente a quantidade da posição Binance
 - [x] Validar transação, quantidade e preservação do custo agregado
 - [x] Salvar checkpoint com os lançamentos de 30/09/2026
+
+## Importação do Extrato XP — Setembro/2026 — Em andamento
+- [x] Extrair e conferir os 102 lançamentos do XLSX contra o PDF de 4 páginas
+- [x] Identificar proventos, reembolsos corporativos, aluguéis, resgate de renda variável e saldo final
+- [x] Confrontar candidatos com o painel: não há dividendos de setembro registrados
+- [ ] Obter aprovação da prévia deduplicada antes de gravar qualquer dado
+- [ ] Registrar proventos, aluguéis líquidos, reembolsos e resgate com chave de origem
+- [ ] Atualizar saldo de caixa pelo extrato e validar conciliação
+
+## Atualização Manual de Renda Fixa — 02/10/2026 — Em andamento
+- [x] Ler integralmente a tabela enviada e extrair os 23 valores informados
+- [x] Mapear 22 títulos já existentes e identificar o Tesouro Prefixado 2029 como nova posição
+- [x] Calcular preços unitários das posições fracionadas e a variação agregada
+- [x] Obter aprovação da prévia antes de alterar qualquer preço ou cadastrar título
+- [x] Atualizar preços manuais e cadastrar o Tesouro Prefixado conforme aprovado
+- [x] Validar totais, data-base e ausência de alterações em custo/quantidade não autorizadas

@@ -680,9 +680,9 @@
 - [x] Extrair e conferir os 102 lançamentos do XLSX contra o PDF de 4 páginas
 - [x] Identificar proventos, reembolsos corporativos, aluguéis, resgate de renda variável e saldo final
 - [x] Confrontar candidatos com o painel: não há dividendos de setembro registrados
-- [ ] Obter aprovação da prévia deduplicada antes de gravar qualquer dado
-- [ ] Registrar proventos, aluguéis líquidos, reembolsos e resgate com chave de origem
-- [ ] Atualizar saldo de caixa pelo extrato e validar conciliação
+- [x] Obter aprovação da prévia deduplicada antes de gravar qualquer dado
+- [x] Registrar proventos, aluguéis líquidos, reembolsos e resgate com chave de origem
+- [x] Atualizar saldo de caixa pelo extrato e validar conciliação
 
 ## Atualização Manual de Renda Fixa — 02/10/2026 — Em andamento
 - [x] Ler integralmente a tabela enviada e extrair os 23 valores informados

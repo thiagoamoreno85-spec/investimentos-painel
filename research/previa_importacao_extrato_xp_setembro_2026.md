@@ -4,7 +4,7 @@
 **Período de movimentações:** 01/09/2026 a 30/09/2026  
 **Data/hora de consulta do extrato:** 01/10/2026 às 14:10  
 **Fontes confrontadas:** `Extrato496056SET.2026.xlsx` (102 movimentações) e PDF de 4 páginas.  
-**Status:** prévia deduplicada; **nenhum evento abaixo foi gravado**.
+**Status:** importação integral aprovada e aplicada em 02/10/2026; validação concluída.
 
 ## Saldo de Caixa — Marcos Temporais
 
@@ -93,3 +93,18 @@ Serão registrados como provento de caixa do tipo `outro`, vinculados ao ativo e
 2. Criar 3 registros de dividendo/rendimento e 5 registros de reembolso corporativo, todos com chave de origem do extrato para impedir duplicação.
 3. Criar uma entrada de caixa de R$ 2.500,20 do resgate vinculado à AXIA3, sem atribuí-la a provento.
 4. Atualizar o saldo de caixa para R$ 6.075,67, identificado como saldo disponível na consulta de 01/10/2026 às 14:10, sem criar movimento compensatório fictício.
+
+## Registro de Execução
+
+| Controle | Resultado verificado |
+|---|---|
+| Registros de aluguéis líquidos | 12 — R$ 2.323,54 |
+| Dividendos e rendimentos | 3 — R$ 197,55 |
+| Reembolsos corporativos | 5 — R$ 3.393,07 |
+| Total registrado em proventos | 20 — R$ 5.914,16 |
+| Resgate de renda variável AXIA3 | 1 entrada de caixa — R$ 2.500,20 |
+| Saldo disponível registrado | R$ 6.075,67 em 01/10/2026 às 14:10 |
+| Movimentos de compra/venda criados pela importação | Nenhum |
+| Alteração do FGTS na importação | Nenhuma |
+| Proteção contra duplicidade | Chave de origem `[IMPORT_XP_SET_2026]` |
+| Validação técnica | TypeScript sem erros; 180 testes automatizados aprovados |

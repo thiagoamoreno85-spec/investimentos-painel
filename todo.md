@@ -691,3 +691,8 @@
 - [x] Obter aprovação da prévia antes de alterar qualquer preço ou cadastrar título
 - [x] Atualizar preços manuais e cadastrar o Tesouro Prefixado conforme aprovado
 - [x] Validar totais, data-base e ausência de alterações em custo/quantidade não autorizadas
+
+## Correção Manual de Preços — FTT e AURY — 02/10/2026 — Em andamento
+- [x] Conferir ativos, moeda, quantidades, custos e preços atualmente cadastrados
+- [x] Registrar os preços manuais informados pelo usuário: FTT US$ 1,82 e AURY US$ 0,3175
+- [x] Validar a preservação de quantidade e custo, os valores recalculados e a consistência técnica

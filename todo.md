@@ -696,3 +696,11 @@
 - [x] Conferir ativos, moeda, quantidades, custos e preços atualmente cadastrados
 - [x] Registrar os preços manuais informados pelo usuário: FTT US$ 1,82 e AURY US$ 0,3175
 - [x] Validar a preservação de quantidade e custo, os valores recalculados e a consistência técnica
+
+## Auditoria do Patrimônio Financeiro Total — 05/10/2026 — Em andamento
+- [x] Registrar a divergência reportada no cartão de patrimônio financeiro
+- [x] Mapear todas as fontes de dados e a fórmula utilizada pelo painel
+- [x] Recalcular o patrimônio por classe e moeda diretamente do banco
+- [x] Identificar duplicidades, posições zeradas, cotações inválidas, conversões e inconsistências de caixa
+- [x] Confrontar resultado independente com o cartão da Visão Geral
+- [x] Documentar causa(s), impacto e plano de correção sem alterar dados financeiros

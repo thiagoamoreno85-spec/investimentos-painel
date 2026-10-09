@@ -729,3 +729,10 @@
 - [x] Separar quantitativos explicitamente revisados de divergências que ainda exigem documento
 - [x] Obter autorização para reconciliar BBDC4, AXIA3 e AXIA7 e definir o custo de AXIA3
 - [x] Aplicar somente os ajustes aprovados, validar e salvar checkpoint
+
+## Reconciliação Integral para R$ 2.075.392,00 — 09/10/2026 — Em andamento
+- [x] Receber meta consolidada de patrimônio financeiro e autorização para conciliação integral
+- [x] Identificar a célula-fonte e a composição exata do total na planilha revisada
+- [x] Recalcular o dashboard pela mesma fórmula, com quantidades, preços, câmbio e caixa discriminados
+- [x] Corrigir somente os campos necessários para convergir ao total aprovado, preservando a trilha de auditoria
+- [x] Validar total final, subtotais por classe, dados não alterados e testes técnicos

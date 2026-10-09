@@ -711,3 +711,9 @@
 - [x] Apresentar prévia com custos, data de liquidação e regra de caixa para confirmação
 - [x] Registrar somente as compras autorizadas e preservar a trilha de origem
 - [x] Validar posições, custo médio, caixa e salvar checkpoint
+
+## Auditoria de Quantitativos de RV Nacional — 09/10/2026 — Em andamento
+- [x] Extrair as posições informadas na planilha enviada
+- [x] Confrontar cadastro atual e saldo reconstruído pelas transações, sem alterar dados
+- [x] Identificar divergências e dependências de confirmação documental
+- [x] Concluir que os quantitativos atuais estão corretos e que eventual correção depende de conciliação documental do histórico

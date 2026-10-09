@@ -747,3 +747,10 @@
 - [x] Criar configuração por usuário para usar o câmbio-base da conciliação no consolidado
 - [x] Aplicar o câmbio-base de R$ 4,9870 ao usuário e expor sua origem na Visão Geral
 - [x] Revalidar o cartão principal, snapshots e testes sem alterar posições financeiras
+
+## Auditoria Operacional Integral — 09/10/2026 — Em andamento
+- [x] Delimitar os fluxos críticos: operações, caixa, importação, preços, consolidação, eventos e acesso
+- [x] Auditar contratos de dados, rotinas de cálculo, confirmações e trilhas de auditoria
+- [x] Verificar consistência entre banco, APIs, telas e testes automatizados
+- [x] Identificar simplificações de arquitetura, interface e processo operacional
+- [x] Documentar achados, riscos priorizados e plano de evolução sem alterar dados financeiros

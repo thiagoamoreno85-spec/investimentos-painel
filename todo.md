@@ -717,3 +717,15 @@
 - [x] Confrontar cadastro atual e saldo reconstruído pelas transações, sem alterar dados
 - [x] Identificar divergências e dependências de confirmação documental
 - [x] Concluir que os quantitativos atuais estão corretos e que eventual correção depende de conciliação documental do histórico
+
+## Conciliação da Aba Ações — Planilha TAM — 09/10/2026 — Em andamento
+- [x] Identificar a aba AÇÕES e extrair suas posições, valores cacheados e fórmulas do resumo de AXIA3
+- [x] Cruzar cada linha da aba com os ativos e quantitativos do painel
+- [x] Quantificar impactos de quantidade, cotação, custo e marcação de renda fixa no saldo final
+- [x] Documentar causas e preparar qualquer correção apenas para confirmação explícita
+
+## Conciliação Revisada da Aba Ações — 09/10/2026 — Em andamento
+- [x] Reprocessar a versão atualizada da planilha e confirmar as alterações de BBDC4, AXIA3 e AXIA7
+- [x] Separar quantitativos explicitamente revisados de divergências que ainda exigem documento
+- [x] Obter autorização para reconciliar BBDC4, AXIA3 e AXIA7 e definir o custo de AXIA3
+- [x] Aplicar somente os ajustes aprovados, validar e salvar checkpoint

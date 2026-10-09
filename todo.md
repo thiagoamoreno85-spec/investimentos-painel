@@ -704,3 +704,10 @@
 - [x] Identificar duplicidades, posições zeradas, cotações inválidas, conversões e inconsistências de caixa
 - [x] Confrontar resultado independente com o cartão da Visão Geral
 - [x] Documentar causa(s), impacto e plano de correção sem alterar dados financeiros
+
+## Compras de 09/10/2026 — Em andamento
+- [x] Extrair das capturas a compra fracionária de AXIA3F e a aplicação em Tesouro Selic 2031
+- [x] Conferir os cadastros existentes, as transações do dia e eventuais duplicidades
+- [x] Apresentar prévia com custos, data de liquidação e regra de caixa para confirmação
+- [x] Registrar somente as compras autorizadas e preservar a trilha de origem
+- [x] Validar posições, custo médio, caixa e salvar checkpoint

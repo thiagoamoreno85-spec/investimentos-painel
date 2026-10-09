@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: "/home/ubuntu/investimentos-painel/.env", quiet: true });
 
 const TARGET = 2_075_392.00;
-const FX = 4.9873;
+const FX = 4.9870;
 const db = await mysql.createConnection(process.env.DATABASE_URL);
 try {
   const [assets] = await db.execute(
@@ -13,7 +13,7 @@ try {
       WHERE userId = 1 AND totalQuantity > 0`,
   );
   const [cashRows] = await db.execute("SELECT balance FROM cash_balance WHERE userId = 1 LIMIT 1");
-  if (cashRows.length !== 1 || Number(cashRows[0].balance) !== 2635.72) {
+  if (cashRows.length !== 1 || Number(cashRows[0].balance) !== 2668.11) {
     throw new Error(`Saldo de caixa inválido: ${cashRows[0]?.balance ?? "ausente"}.`);
   }
 

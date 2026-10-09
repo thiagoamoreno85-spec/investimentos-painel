@@ -35,6 +35,7 @@ import {
   getMonthlyPerformance,
   getMonthlyPerformanceDetails,
 } from "../services/dailyPerformanceService";
+import { resolveValuationFxRateForUser } from "../services/valuationFxService";
 import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
 import { assets, transactions as transactionsTable, dividends, cashBalance, portfolioSnapshots } from "../../drizzle/schema";
 import { eq, asc, and, desc, gte } from "drizzle-orm";
@@ -305,10 +306,10 @@ export const portfolioRouter = router({
     };
   }),
 
-  /** Busca cotação do dólar */
-  getUsdBrl: protectedProcedure.query(async () => {
-    const rate = await fetchUsdBrl();
-    return { rate };
+  /** Busca o câmbio do consolidado: referência aprovada ou mercado. */
+  getUsdBrl: protectedProcedure.query(async ({ ctx }) => {
+    const marketRate = await fetchUsdBrl();
+    return resolveValuationFxRateForUser(ctx.user.id, marketRate);
   }),
 
   /** Calcula histórico de rentabilidade da carteira mês a mês */
@@ -319,7 +320,8 @@ export const portfolioRouter = router({
 
       const fxRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X?interval=1d&range=1d');
       const fxData = await fxRes.json();
-      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? 5.7;
+      const marketUsdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? 5.7;
+      const { rate: usdBrl } = await resolveValuationFxRateForUser(ctx.user.id, marketUsdBrl);
 
       const USD_CLASSES = ['rv_eua', 'cripto', 'uranio', 'india'];
       let totalCurrentValue = 0;
@@ -392,7 +394,8 @@ export const portfolioRouter = router({
 
       const fxRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X?interval=1d&range=1d');
       const fxData = await fxRes.json();
-      const usdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? 5.7;
+      const marketUsdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? 5.7;
+      const { rate: usdBrl } = await resolveValuationFxRateForUser(ctx.user.id, marketUsdBrl);
 
       let totalBrl = 0;
       let totalUsd = 0;

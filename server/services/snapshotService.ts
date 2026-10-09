@@ -9,6 +9,7 @@ import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { getDb, getAssetsByUser } from "../db";
 import { portfolioSnapshots, cashBalance } from "../../drizzle/schema";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
+import { resolveValuationFxRateForUser } from "./valuationFxService";
 
 const USD_CLASSES = ["rv_eua", "cripto", "uranio", "india"];
 
@@ -28,7 +29,7 @@ export async function captureSnapshot(userId: number): Promise<SnapshotResult> {
   if (!db) throw new Error("Database not available");
 
   const assets = await getAssetsByUser(userId);
-  const [usdBrl, quotes] = await Promise.all([
+  const [marketUsdBrl, quotes] = await Promise.all([
     fetchUsdBrl().catch(() => 5.7),
     fetchQuotes(
       assets
@@ -36,6 +37,7 @@ export async function captureSnapshot(userId: number): Promise<SnapshotResult> {
         .map((asset) => ({ ticker: asset.ticker, assetClass: asset.assetClass }))
     ).catch(() => new Map()),
   ]);
+  const { rate: usdBrl } = await resolveValuationFxRateForUser(userId, marketUsdBrl);
 
   const cashRows = await db
     .select()

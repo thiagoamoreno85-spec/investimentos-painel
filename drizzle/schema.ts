@@ -277,6 +277,20 @@ export const cashBalance = mysqlTable("cash_balance", {
 export type CashBalance = typeof cashBalance.$inferSelect;
 export type InsertCashBalance = typeof cashBalance.$inferInsert;
 
+/** Câmbio-base opcional para preservar a marcação aprovada de um consolidado. */
+export const valuationSettings = mysqlTable("valuation_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  usdBrlReference: decimal("usd_brl_reference", { precision: 10, scale: 4 }),
+  referenceDate: timestamp("reference_date"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ValuationSettings = typeof valuationSettings.$inferSelect;
+export type InsertValuationSettings = typeof valuationSettings.$inferInsert;
+
 export const cashMovements = mysqlTable("cash_movements", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),

@@ -62,6 +62,7 @@ export default function Home() {
   });
 
   const usdBrl = usdBrlData?.rate ?? 0;
+  const usesReconciliationFx = usdBrlData?.source === "conciliacao";
   const cashBalance = Number(cashBalanceData?.balance ?? 0);
   const hasDbData = (dbAssets?.length ?? 0) > 0;
   const hasUsdAssets = dbAssets?.some((asset) => (asset.currency || CLASS_CURRENCY[asset.assetClass]) === "USD") ?? false;
@@ -203,6 +204,11 @@ export default function Home() {
             <p className="text-muted-foreground text-sm mt-1.5">
               Inclui caixa no patrimônio · resultado exclui saldo de caixa
             </p>
+            {usesReconciliationFx && (
+              <p className="mt-1 text-xs text-cyan-300/90">
+                Câmbio-base da conciliação: R$ {usdBrl.toFixed(4)}/US$ 1,00
+              </p>
+            )}
             {isCashUnavailable && (
               <p className="mt-1 text-xs text-amber-300">
                 O saldo de caixa está temporariamente indisponível e será atualizado em nova tentativa.

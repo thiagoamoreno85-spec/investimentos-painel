@@ -736,3 +736,14 @@
 - [x] Recalcular o dashboard pela mesma fórmula, com quantidades, preços, câmbio e caixa discriminados
 - [x] Corrigir somente os campos necessários para convergir ao total aprovado, preservando a trilha de auditoria
 - [x] Validar total final, subtotais por classe, dados não alterados e testes técnicos
+
+## Ajuste Final por Câmbio em Tempo Real — 09/10/2026 — Em andamento
+- [x] Identificar que a cotação USD/BRL dinâmica alterou o total após a conciliação inicial
+- [x] Recalcular o caixa residual com USD/BRL a R$ 4,9870
+- [x] Ajustar exclusivamente o caixa residual e revalidar o total exibido
+
+## Estabilização do Câmbio da Conciliação — 09/10/2026 — Em andamento
+- [x] Identificar variação do total causada por USD/BRL em tempo real após a conciliação
+- [x] Criar configuração por usuário para usar o câmbio-base da conciliação no consolidado
+- [x] Aplicar o câmbio-base de R$ 4,9870 ao usuário e expor sua origem na Visão Geral
+- [x] Revalidar o cartão principal, snapshots e testes sem alterar posições financeiras

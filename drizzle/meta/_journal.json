@@ -120,6 +120,13 @@
       "when": 1788552178890,
       "tag": "0016_bouncy_wiccan",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1791571678599,
+      "tag": "0017_talented_power_man",
+      "breakpoints": true
     }
   ]
 }

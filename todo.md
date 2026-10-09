@@ -754,3 +754,12 @@
 - [x] Verificar consistência entre banco, APIs, telas e testes automatizados
 - [x] Identificar simplificações de arquitetura, interface e processo operacional
 - [x] Documentar achados, riscos priorizados e plano de evolução sem alterar dados financeiros
+
+## Estabilização Operacional P0/P1 — 09/10/2026 — Em andamento
+- [x] Confirmar autorização para corrigir Heartbeats e separar posição reconciliada do ledger
+- [x] Adequar autenticação oficial de cron para snapshots e notícias
+- [x] Criar política persistida de posição reconciliada com marco do ledger
+- [x] Preservar quantitativos, custo, preços, caixa, proventos e transações atuais
+- [x] Proteger inclusão/exclusão posterior contra recálculo de histórico pré-conciliação
+- [x] Validar migration, testes e consistência da base reconciliada
+- [ ] Publicar a correção, confirmar execução bem-sucedida do Heartbeat e pausar o agendamento redundante

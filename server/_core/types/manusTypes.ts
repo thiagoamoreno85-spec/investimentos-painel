@@ -66,4 +66,6 @@ export interface GetUserInfoWithJwtResponse {
   email?: string | null;
   platform?: string | null;
   loginMethod?: string | null;
+  /** Identificador do job, preenchido somente para identidade de cron. */
+  taskUid?: string | null;
 }

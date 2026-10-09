@@ -207,9 +207,9 @@ export const portfolioRouter = router({
       };
     }),
 
-  /** Remove uma transação, recalcula o ativo e reverte saldo do caixa */
+  /** Remove uma transação posterior ao marco conciliado e recalcula o ativo. */
   deleteTransaction: protectedProcedure
-    .input(z.object({ transactionId: z.number(), assetId: z.number() }))
+    .input(z.object({ transactionId: z.number(), assetId: z.number().optional() }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       let txToDelete = null;
@@ -218,9 +218,25 @@ export const portfolioRouter = router({
         const txRows = await db.select().from(transactionsTable).where(and(eq(transactionsTable.id, input.transactionId), eq(transactionsTable.userId, ctx.user.id))).limit(1);
         txToDelete = txRows[0];
       }
+      if (!txToDelete) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Transação não encontrada" });
+      }
+      const asset = await getAssetById(txToDelete.assetId, ctx.user.id);
+      if (!asset) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Ativo da transação não encontrado" });
+      }
+      if (
+        asset.positionTrackingMode === "reconciled" &&
+        txToDelete.id <= (asset.ledgerStartTransactionId ?? 0)
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Transação anterior ao marco de conciliação não pode ser removida sem nova reconciliação",
+        });
+      }
       await deleteTransaction(input.transactionId, ctx.user.id);
       // Caixa é meramente informativo — exclusão de transação NÃO reverte saldo do caixa
-      const calc = await recalculateAsset(input.assetId, ctx.user.id);
+      const calc = await recalculateAsset(txToDelete.assetId, ctx.user.id);
       return {
         totalQuantity: calc.totalQuantity,
         averageCost: calc.averageCost,

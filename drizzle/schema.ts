@@ -37,6 +37,20 @@ export const assets = mysqlTable("assets", {
     "caixa",
   ]).notNull(),
   currency: mysqlEnum("currency", ["BRL", "USD"]).default("BRL").notNull(),
+  /** Regime do saldo atual: reconstruído pelo ledger ou fixado por conciliação documentada. */
+  positionTrackingMode: mysqlEnum("positionTrackingMode", ["ledger", "reconciled"])
+    .default("ledger")
+    .notNull(),
+  /** Quantidade confirmada no marco de conciliação; preservada contra histórico anterior incompleto. */
+  reconciliationBaseQuantity: decimal("reconciliationBaseQuantity", { precision: 18, scale: 8 })
+    .default("0")
+    .notNull(),
+  /** Custo total confirmado no marco de conciliação; ajustes posteriores vêm do ledger. */
+  reconciliationBaseCost: decimal("reconciliationBaseCost", { precision: 18, scale: 2 })
+    .default("0")
+    .notNull(),
+  /** Última transação já absorvida no marco de conciliação. */
+  ledgerStartTransactionId: int("ledgerStartTransactionId"),
   /** Quantidade total atual (calculada a partir das transações) */
   totalQuantity: decimal("totalQuantity", { precision: 18, scale: 8 }).default("0").notNull(),
   /** Custo médio ponderado (calculado a partir das transações) */

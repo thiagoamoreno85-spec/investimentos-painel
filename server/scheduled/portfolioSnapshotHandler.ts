@@ -13,16 +13,19 @@ import { ENV } from "../_core/env";
 import { eq } from "drizzle-orm";
 import { captureSnapshot } from "../services/snapshotService";
 import { captureDailyPerformanceSnapshot } from "../services/dailyPerformanceService";
+import { sdk } from "../_core/sdk";
+import { isAuthenticatedCron } from "../_core/cronAuth";
 
 export async function portfolioSnapshotHandler(req: Request, res: Response) {
   const startTime = Date.now();
+  let taskUid: string | undefined;
 
   try {
-    // Verificar que é uma chamada do cron (header x-manus-cron-task-uid)
-    const cronTaskUid = req.headers["x-manus-cron-task-uid"] as string | undefined;
-    if (!cronTaskUid) {
+    const cronUser = await sdk.authenticateRequest(req);
+    if (!isAuthenticatedCron(cronUser)) {
       return res.status(403).json({ error: "cron-only endpoint" });
     }
+    taskUid = cronUser.taskUid;
 
     const db = await getDb();
     if (!db) {
@@ -59,7 +62,7 @@ export async function portfolioSnapshotHandler(req: Request, res: Response) {
 
     return res.json({
       ok: true,
-      taskUid: cronTaskUid,
+      taskUid,
       elapsed,
       ...result,
       dailyPerformance: {
@@ -78,7 +81,7 @@ export async function portfolioSnapshotHandler(req: Request, res: Response) {
       error: message,
       context: {
         url: req.url,
-        taskUid: req.headers["x-manus-cron-task-uid"],
+        taskUid,
       },
       timestamp: new Date().toISOString(),
       elapsed,

@@ -2,6 +2,7 @@ import { eq, and, desc, gt, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction, analysisHistory, InsertAnalysisHistory, newsItems, InsertNewsItem, events, InsertEvent } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import { calculateTrackedPosition } from "../shared/positionReconciliation";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -245,42 +246,33 @@ export async function deleteAnalysisHistory(id: number, userId: number) {
  * Recalcula preço médio e quantidade total de um ativo com base em todas as transações
  */
 export async function recalculateAsset(assetId: number, userId: number) {
+  const asset = await getAssetById(assetId, userId);
+  if (!asset) throw new Error("Asset not found for recalculation");
+
   const txs = await getTransactionsByAsset(assetId, userId);
-  
-  let totalQty = 0;
-  let totalCostAccum = 0;
-
-  const sorted = [...txs].sort((a, b) => 
-    new Date(a.transactionDate).getTime() - new Date(b.transactionDate).getTime()
-  );
-
-  for (const tx of sorted) {
-    const qty = parseFloat(tx.quantity);
-    const price = parseFloat(tx.unitPrice);
-    const fees = parseFloat(tx.fees);
-
-    if (tx.type === "buy") {
-      totalCostAccum += qty * price + fees;
-      totalQty += qty;
-    } else {
-      if (totalQty > 0) {
-        const avgCost = totalCostAccum / totalQty;
-        totalQty -= qty;
-        totalCostAccum = totalQty * avgCost;
-      }
-    }
-  }
-
-  const avgCost = totalQty > 0 ? totalCostAccum / totalQty : 0;
+  const calculated = calculateTrackedPosition({
+    mode: asset.positionTrackingMode,
+    reconciliationBaseQuantity: Number(asset.reconciliationBaseQuantity),
+    reconciliationBaseCost: Number(asset.reconciliationBaseCost),
+    ledgerStartTransactionId: asset.ledgerStartTransactionId ?? null,
+    transactions: txs.map(tx => ({
+      id: tx.id,
+      type: tx.type,
+      quantity: Number(tx.quantity),
+      unitPrice: Number(tx.unitPrice),
+      fees: Number(tx.fees),
+      transactionDate: tx.transactionDate,
+    })),
+  });
 
   await updateAssetCalculations(
     assetId,
-    totalQty.toFixed(8),
-    avgCost.toFixed(8),
-    totalCostAccum.toFixed(2)
+    calculated.totalQuantity.toFixed(8),
+    calculated.averageCost.toFixed(8),
+    calculated.totalCost.toFixed(2)
   );
 
-  return { totalQuantity: totalQty, averageCost: avgCost, totalCost: totalCostAccum };
+  return calculated;
 }
 
 // ========== NEWS ITEMS ==========

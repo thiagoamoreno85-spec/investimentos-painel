@@ -7,14 +7,11 @@
  * Captura o snapshot para o owner do projeto.
  */
 import { Request, Response } from "express";
-import { getDb } from "../db";
-import { users } from "../../drizzle/schema";
-import { ENV } from "../_core/env";
-import { eq } from "drizzle-orm";
 import { captureSnapshot } from "../services/snapshotService";
 import { captureDailyPerformanceSnapshot } from "../services/dailyPerformanceService";
 import { sdk } from "../_core/sdk";
 import { isAuthenticatedCron } from "../_core/cronAuth";
+import { resolveScheduledOwner } from "../services/scheduledOwner";
 
 export async function portfolioSnapshotHandler(req: Request, res: Response) {
   const startTime = Date.now();
@@ -27,33 +24,17 @@ export async function portfolioSnapshotHandler(req: Request, res: Response) {
     }
     taskUid = cronUser.taskUid;
 
-    const db = await getDb();
-    if (!db) {
-      return res.status(500).json({ error: "Database not available" });
-    }
-
-    const ownerOpenId = ENV.ownerOpenId;
-    if (!ownerOpenId) {
-      return res.status(500).json({ error: "Owner not configured" });
-    }
-
-    const ownerRows = await db
-      .select()
-      .from(users)
-      .where(eq(users.openId, ownerOpenId))
-      .limit(1);
-
-    if (ownerRows.length === 0) {
-      // Owner ainda não fez login — pular silenciosamente
+    const owner = await resolveScheduledOwner();
+    if (!owner) {
       return res.json({
         ok: true,
         skipped: "owner-not-found",
-        message: "Owner not registered yet, skipping snapshot.",
+        message: "Nenhum proprietário elegível para o snapshot.",
       });
     }
 
-    const result = await captureSnapshot(ownerRows[0].id);
-    const dailyPerformance = await captureDailyPerformanceSnapshot(ownerRows[0].id);
+    const result = await captureSnapshot(owner.user.id);
+    const dailyPerformance = await captureDailyPerformanceSnapshot(owner.user.id);
 
     const elapsed = Date.now() - startTime;
     console.log(
@@ -63,6 +44,7 @@ export async function portfolioSnapshotHandler(req: Request, res: Response) {
     return res.json({
       ok: true,
       taskUid,
+      ownerSource: owner.source,
       elapsed,
       ...result,
       dailyPerformance: {

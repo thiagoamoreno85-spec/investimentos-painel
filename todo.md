@@ -763,3 +763,8 @@
 - [x] Proteger inclusão/exclusão posterior contra recálculo de histórico pré-conciliação
 - [x] Validar migration, testes e consistência da base reconciliada
 - [ ] Publicar a correção, confirmar execução bem-sucedida do Heartbeat e pausar o agendamento redundante
+
+## Correção do Proprietário dos Heartbeats — 10/10/2026 — Em andamento
+- [x] Validar em produção que o cron autentica corretamente e identificar o erro `OWNER_OPEN_ID` ausente
+- [x] Resolver o proprietário por `OWNER_OPEN_ID` quando disponível, com fallback determinístico ao administrador do projeto
+- [x] Testar, salvar checkpoint e solicitar nova publicação antes de retomar os jobs

@@ -289,7 +289,7 @@ export async function getNewsItemsByUser(userId: number, limit = 50) {
   if (!db) return [];
   return db.select().from(newsItems)
     .where(eq(newsItems.userId, userId))
-    .orderBy(desc(newsItems.createdAt))
+    .orderBy(desc(newsItems.publishedAt), desc(newsItems.createdAt))
     .limit(limit);
 }
 
@@ -322,7 +322,7 @@ export async function deleteOldNewsItems(userId: number, keepLast = 100) {
   if (!db) return;
   const rows = await db.select().from(newsItems)
     .where(eq(newsItems.userId, userId))
-    .orderBy(desc(newsItems.createdAt))
+    .orderBy(desc(newsItems.publishedAt), desc(newsItems.createdAt))
     .limit(keepLast + 50);
   if (rows.length > keepLast) {
     const toDelete = rows.slice(keepLast);

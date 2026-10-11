@@ -41,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { sortNewsByPublicationDate } from "@shared/newsChronologicalOrder";
 
 type Category = "all" | "brasil" | "global" | "cripto" | "tech" | "politica" | "macro";
 type ImpactLevel = "all" | "alto" | "medio" | "baixo";
@@ -204,7 +205,7 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
                 <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0" title="Não lida" />
               )}
               <span className="text-xs text-muted-foreground whitespace-nowrap">
-                {formatRelativeTime(item.createdAt)}
+                {formatRelativeTime(item.publishedAt ?? item.createdAt)}
               </span>
             </div>
           </div>
@@ -318,7 +319,10 @@ export default function Noticias() {
     [newsItems, selectedTicker]
   );
   const majorExposure = useMemo(() => selectMajorExposureNews(newsForSelectedAsset), [newsForSelectedAsset]);
-  const visibleNews = onlyMajorExposure ? majorExposure.items : newsForSelectedAsset;
+  const visibleNews = useMemo(
+    () => sortNewsByPublicationDate(onlyMajorExposure ? majorExposure.items : newsForSelectedAsset),
+    [majorExposure.items, newsForSelectedAsset, onlyMajorExposure]
+  );
 
   useEffect(() => {
     if (selectedTicker !== "all" && assets.length > 0 && !assetTickers.includes(selectedTicker)) {
@@ -419,7 +423,7 @@ export default function Noticias() {
                 )}
               </h2>
               <p className="text-muted-foreground text-sm mt-1">
-                Notícias ordenadas por impacto, exposição e relação direta com sua carteira
+                Mais recentes primeiro, com impacto, exposição e relação direta com sua carteira destacados
               </p>
             </div>
 

@@ -11,6 +11,7 @@ import { runNewsRefresh } from "../services/newsRefreshService";
 import { fetchUsdBrl } from "../quotes";
 import { prioritizeNewsForPortfolio } from "../services/newsPrioritization";
 import { hasIrrecoverableNewsEncoding, sanitizeNewsText } from "../services/newsText";
+import { sortNewsByPublicationDate } from "../../shared/newsChronologicalOrder";
 
 function parseAffectedTickers(value: string | null): string[] {
   if (!value) return [];
@@ -77,7 +78,7 @@ export const newsRouter = router({
         filtered = filtered.filter((r) => r.isRead === 0);
       }
 
-      return filtered;
+      return sortNewsByPublicationDate(filtered);
     }),
 
   /**

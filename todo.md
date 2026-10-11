@@ -768,3 +768,9 @@
 - [x] Validar em produção que o cron autentica corretamente e identificar o erro `OWNER_OPEN_ID` ausente
 - [x] Resolver o proprietário por `OWNER_OPEN_ID` quando disponível, com fallback determinístico ao administrador do projeto
 - [x] Testar, salvar checkpoint e solicitar nova publicação antes de retomar os jobs
+
+## Ordenação Cronológica das Notícias — 11/10/2026 — Em andamento
+- [x] Identificar que a consulta usa data de inclusão e a tela reordena por impacto/exposição
+- [x] Ordenar a listagem padrão pela data de publicação, com desempate pela inclusão
+- [x] Exibir a data da publicação no cartão e preservar filtros, impacto e exposição
+- [x] Cobrir a regra com testes e validar a ordem retornada pelo banco

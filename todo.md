@@ -795,3 +795,10 @@
 - [x] Criar armazenamento histórico, atualização segura e endpoints de leitura/atualização
 - [x] Integrar cards, gráfico de tendência, fontes e atualização manual ao Dashboard de Mercado
 - [x] Registrar Heartbeat diário autenticado após publicação e validar a primeira execução
+
+## Retrocarga de Fluxos B3 e EWZ — desde 01/07/2026 — Em andamento
+- [x] Confirmar a série diária B3 para investidor estrangeiro e nacional agregado
+- [x] Localizar a série diária de cotas do EWZ e obter preços históricos em USD
+- [x] Persistir o histórico verificável no painel sem somar EWZ à B3
+- [x] Estender os gráficos para todo o intervalo, preservando legibilidade mobile
+- [x] Validar dados, metodologia, interface e atualização diária

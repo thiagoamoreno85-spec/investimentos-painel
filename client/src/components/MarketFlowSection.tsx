@@ -40,12 +40,22 @@ export function MarketFlowSection() {
     onSuccess: () => void flowQuery.refetch(),
   });
 
-  const chartRows = useMemo(() => (flowQuery.data?.history ?? []).map((row) => ({
-    label: formatDate(row.snapshotDate),
-    b3Foreign: Number(row.b3ForeignFlowBrl),
-    b3Domestic: Number(row.b3DomesticFlowBrl),
-    ewzProxy: row.ewzFlowProxyUsd === null ? null : Number(row.ewzFlowProxyUsd),
-  })), [flowQuery.data?.history]);
+  const b3ChartRows = useMemo(() => {
+    const byReportedSession = new Map();
+    for (const row of flowQuery.data?.history ?? []) byReportedSession.set(row.b3ReportedThrough, row);
+    return Array.from(byReportedSession.values()).map((row) => ({
+      label: formatDate(row.b3ReportedThrough),
+      b3Foreign: Number(row.b3ForeignFlowBrl),
+      b3Domestic: Number(row.b3DomesticFlowBrl),
+    }));
+  }, [flowQuery.data?.history]);
+
+  const ewzRows = useMemo(() => (flowQuery.data?.history ?? [])
+    .filter((row) => row.ewzFlowProxyUsd !== null)
+    .map((row) => ({
+      label: formatDate(row.snapshotDate),
+      ewzProxy: Number(row.ewzFlowProxyUsd),
+    })), [flowQuery.data?.history]);
 
   const latest = flowQuery.data?.latest;
   const foreignFlow = latest ? Number(latest.b3ForeignFlowBrl) : null;
@@ -53,7 +63,8 @@ export function MarketFlowSection() {
   const ewzProxy = latest?.ewzFlowProxyUsd === null || latest?.ewzFlowProxyUsd === undefined
     ? null
     : Number(latest.ewzFlowProxyUsd);
-  const ewzRows = chartRows.filter((row) => row.ewzProxy !== null);
+  const b3TickInterval = Math.max(0, Math.floor(b3ChartRows.length / 7) - 1);
+  const ewzTickInterval = Math.max(0, Math.floor(ewzRows.length / 7) - 1);
 
   return (
     <Card className="bg-card/50 border-border/50 shadow-sm">
@@ -65,7 +76,7 @@ export function MarketFlowSection() {
               Fluxos B3 & EWZ
             </CardTitle>
             <p className="mt-1 text-xs text-muted-foreground">
-              Saldo dos últimos pregões divulgados pela B3 e indicador offshore do EWZ.
+              Série diária desde 01/07/2026: B3 por perfil de investidor e indicador offshore do EWZ.
             </p>
           </div>
           <Button
@@ -96,19 +107,19 @@ export function MarketFlowSection() {
           <>
             <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
               <div className="rounded-lg border border-cyan-500/25 bg-cyan-500/5 p-3">
-                <p className="text-xs text-muted-foreground">Estrangeiro B3</p>
+                <p className="text-xs text-muted-foreground">Estrangeiro B3 · último pregão</p>
                 <p className="mt-1 text-sm"><FlowValue value={foreignFlow} formatter={brlCompact.format} /></p>
-                <p className="mt-1 text-[11px] text-muted-foreground">{latest.b3Sessions} pregões divulgados</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{latest.b3Sessions} pregão divulgado</p>
               </div>
               <div className="rounded-lg border border-slate-400/20 bg-secondary/30 p-3">
-                <p className="text-xs text-muted-foreground">Nacional B3</p>
+                <p className="text-xs text-muted-foreground">Nacional B3 · último pregão</p>
                 <p className="mt-1 text-sm"><FlowValue value={domesticFlow} formatter={brlCompact.format} /></p>
                 <p className="mt-1 text-[11px] text-muted-foreground">Contrapartida agregada</p>
               </div>
               <div className="rounded-lg border border-violet-500/25 bg-violet-500/5 p-3">
-                <p className="text-xs text-muted-foreground">Proxy EWZ</p>
+                <p className="text-xs text-muted-foreground">EWZ · criação/resgate</p>
                 <p className="mt-1 text-sm"><FlowValue value={ewzProxy} formatter={usdCompact.format} /></p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Δ cotas × NAV</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">Δ cotas × NAV/preço</p>
               </div>
               <div className="rounded-lg border border-border/60 bg-secondary/20 p-3">
                 <p className="text-xs text-muted-foreground">B3 divulgada até</p>
@@ -119,12 +130,13 @@ export function MarketFlowSection() {
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               <div className="min-w-0">
-                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium"><Activity className="h-4 w-4 text-cyan-400" /> B3 — saldo de 5 pregões</p>
-                <div className="h-56 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartRows} margin={{ top: 8, right: 6, left: 0, bottom: 0 }}>
+                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium"><Activity className="h-4 w-4 text-cyan-400" /> B3 — fluxo líquido diário</p>
+                <div className="overflow-x-auto pb-1">
+                  <div className="h-56 min-w-[640px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={b3ChartRows} margin={{ top: 8, right: 6, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.27 0.012 261)" />
-                      <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={11} stroke="oklch(0.6 0.01 255)" />
+                      <XAxis dataKey="label" interval={b3TickInterval} tickLine={false} axisLine={false} fontSize={11} stroke="oklch(0.6 0.01 255)" />
                       <YAxis tickLine={false} axisLine={false} fontSize={11} width={52} tickFormatter={(value) => `${(value / 1e9).toFixed(1)} bi`} stroke="oklch(0.6 0.01 255)" />
                       <Tooltip
                         formatter={(value: number, name: string) => [brlCompact.format(value), name === "b3Foreign" ? "Estrangeiro" : "Nacional"]}
@@ -133,24 +145,27 @@ export function MarketFlowSection() {
                       <Legend formatter={(value) => value === "b3Foreign" ? "Estrangeiro" : "Nacional"} />
                       <Bar dataKey="b3Foreign" fill="#22d3ee" radius={[3, 3, 0, 0]} />
                       <Bar dataKey="b3Domestic" fill="#94a3b8" radius={[3, 3, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
 
               <div className="min-w-0">
-                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium"><Activity className="h-4 w-4 text-violet-400" /> EWZ — proxy de criação/resgate</p>
-                <div className="h-56 w-full">
+                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium"><Activity className="h-4 w-4 text-violet-400" /> EWZ — proxy diário de criação/resgate</p>
+                <div className="h-56 overflow-x-auto pb-1">
                   {ewzRows.length >= 2 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={ewzRows} margin={{ top: 8, right: 6, left: 0, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.27 0.012 261)" />
-                        <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={11} stroke="oklch(0.6 0.01 255)" />
-                        <YAxis tickLine={false} axisLine={false} fontSize={11} width={52} tickFormatter={(value) => `$${(value / 1e6).toFixed(0)}m`} stroke="oklch(0.6 0.01 255)" />
-                        <Tooltip formatter={(value: number) => [usdCompact.format(value), "Proxy EWZ"]} contentStyle={{ backgroundColor: "oklch(0.185 0.014 261)", borderColor: "oklch(0.27 0.012 261)", borderRadius: 8 }} />
-                        <Line type="monotone" dataKey="ewzProxy" stroke="#a78bfa" strokeWidth={2.5} dot={{ r: 3 }} />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    <div className="h-full min-w-[640px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={ewzRows} margin={{ top: 8, right: 6, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.27 0.012 261)" />
+                          <XAxis dataKey="label" interval={ewzTickInterval} tickLine={false} axisLine={false} fontSize={11} stroke="oklch(0.6 0.01 255)" />
+                          <YAxis tickLine={false} axisLine={false} fontSize={11} width={52} tickFormatter={(value) => `$${(value / 1e6).toFixed(0)}m`} stroke="oklch(0.6 0.01 255)" />
+                          <Tooltip formatter={(value: number) => [usdCompact.format(value), "Proxy EWZ"]} contentStyle={{ backgroundColor: "oklch(0.185 0.014 261)", borderColor: "oklch(0.27 0.012 261)", borderRadius: 8 }} />
+                          <Line type="monotone" dataKey="ewzProxy" stroke="#a78bfa" strokeWidth={2.5} dot={false} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
                   ) : (
                     <div className="flex h-full flex-col items-center justify-center rounded-lg border border-dashed border-border px-5 text-center">
                       <TrendingUp className="h-5 w-5 text-violet-400" />
@@ -164,7 +179,7 @@ export function MarketFlowSection() {
 
             <div className="flex gap-2 rounded-lg border border-border/50 bg-secondary/20 p-3 text-xs text-muted-foreground">
               <TrendingDown className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <p><strong className="text-foreground">Metodologia:</strong> B3 é saldo divulgado por investidor, sujeito à defasagem da publicação. EWZ é um proxy independente (variação de cotas em circulação × NAV), em USD; não deve ser somado ao fluxo da B3.</p>
+              <p><strong className="text-foreground">Metodologia:</strong> valores positivos representam aporte/criação e negativos retirada/resgate. B3 é saldo diário divulgado por perfil de investidor, sujeito à defasagem. EWZ é proxy independente (variação de cotas em circulação × NAV/preço), em USD; não deve ser somado ao fluxo da B3.</p>
             </div>
           </>
         )}

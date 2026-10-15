@@ -108,7 +108,7 @@ export async function refreshMarketFlowSnapshot(userId: number) {
   if (!db) throw new Error("Banco de dados indisponível.");
 
   const [b3Html, ewzHtml] = await Promise.all([fetchText(B3_FLOW_URL), fetchText(EWZ_URL)]);
-  const b3Summary = summarizeLatestB3Sessions(parseB3InvestorFlows(b3Html));
+  const b3Summary = summarizeLatestB3Sessions(parseB3InvestorFlows(b3Html), 1);
   if (!b3Summary) throw new Error("Sem pregões válidos na série B3.");
   const ewz = parseEwzFundMetrics(ewzHtml);
   const snapshotDate = formatBrtDate(new Date());
@@ -138,7 +138,7 @@ export async function refreshMarketFlowSnapshot(userId: number) {
     ewzNavUsd: ewz.navUsd.toFixed(4),
     ewzSharesChange: proxy?.sharesChange.toFixed(2) ?? null,
     ewzFlowProxyUsd: proxy?.flowProxyUsd.toFixed(2) ?? null,
-    sourceB3: "B3 via Dados de Mercado — dados divulgados com defasagem",
+    sourceB3: "B3 via Dados de Mercado — último pregão divulgado, sujeito à defasagem",
     sourceEwz: `iShares EWZ — dados de ${ewz.asOf}; proxy = variação de cotas × NAV`,
   };
 
@@ -157,7 +157,7 @@ export async function refreshMarketFlowSnapshot(userId: number) {
   return { ...values, ewzProxyAvailable: proxy !== null, updatedAt: new Date() };
 }
 
-export async function getMarketFlowDashboard(userId: number, limit = 14) {
+export async function getMarketFlowDashboard(userId: number, limit = 160) {
   const db = await getDb();
   if (!db) return { latest: null, history: [] };
   const rows = await db

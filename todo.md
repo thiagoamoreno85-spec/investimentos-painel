@@ -802,3 +802,9 @@
 - [x] Persistir o histórico verificável no painel sem somar EWZ à B3
 - [x] Estender os gráficos para todo o intervalo, preservando legibilidade mobile
 - [x] Validar dados, metodologia, interface e atualização diária
+
+## Filtros de Periodicidade dos Fluxos — Em andamento
+- [x] Definir períodos diário, semanal, mensal, trimestral, semestral e anual sobre a série histórica
+- [x] Agregar B3 por data divulgada e EWZ por data de snapshot, sem duplicar pregões divulgados
+- [x] Integrar seletor responsivo e rótulos de período aos dois gráficos
+- [x] Cobrir a agregação com testes, validar desktop/mobile e salvar checkpoint

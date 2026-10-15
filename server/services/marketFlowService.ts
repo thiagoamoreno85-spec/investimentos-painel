@@ -157,7 +157,7 @@ export async function refreshMarketFlowSnapshot(userId: number) {
   return { ...values, ewzProxyAvailable: proxy !== null, updatedAt: new Date() };
 }
 
-export async function getMarketFlowDashboard(userId: number, limit = 160) {
+export async function getMarketFlowDashboard(userId: number, limit = 800) {
   const db = await getDb();
   if (!db) return { latest: null, history: [] };
   const rows = await db

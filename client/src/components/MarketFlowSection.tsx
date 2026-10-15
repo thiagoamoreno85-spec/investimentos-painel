@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Activity, CalendarClock, Landmark, Loader2, RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { aggregateMarketFlows, MARKET_FLOW_PERIODS, type MarketFlowPeriod } from "@shared/marketFlowPeriod";
 
 const brlCompact = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -36,26 +37,18 @@ function FlowValue({ value, formatter }: { value: number | null; formatter: (val
 
 export function MarketFlowSection() {
   const flowQuery = trpc.marketFlow.dashboard.useQuery(undefined, { refetchInterval: 15 * 60_000, retry: 1 });
+  const [period, setPeriod] = useState<MarketFlowPeriod>("daily");
   const refresh = trpc.marketFlow.refresh.useMutation({
     onSuccess: () => void flowQuery.refetch(),
   });
 
-  const b3ChartRows = useMemo(() => {
-    const byReportedSession = new Map();
-    for (const row of flowQuery.data?.history ?? []) byReportedSession.set(row.b3ReportedThrough, row);
-    return Array.from(byReportedSession.values()).map((row) => ({
-      label: formatDate(row.b3ReportedThrough),
-      b3Foreign: Number(row.b3ForeignFlowBrl),
-      b3Domestic: Number(row.b3DomesticFlowBrl),
-    }));
-  }, [flowQuery.data?.history]);
-
-  const ewzRows = useMemo(() => (flowQuery.data?.history ?? [])
-    .filter((row) => row.ewzFlowProxyUsd !== null)
-    .map((row) => ({
-      label: formatDate(row.snapshotDate),
-      ewzProxy: Number(row.ewzFlowProxyUsd),
-    })), [flowQuery.data?.history]);
+  const chartRows = useMemo(
+    () => aggregateMarketFlows(flowQuery.data?.history ?? [], period),
+    [flowQuery.data?.history, period],
+  );
+  const b3ChartRows = chartRows.filter((row) => row.b3Sessions > 0);
+  const ewzRows = chartRows.filter((row) => row.ewzProxy !== null);
+  const periodLabel = MARKET_FLOW_PERIODS.find((item) => item.value === period)?.label ?? "Diário";
 
   const latest = flowQuery.data?.latest;
   const foreignFlow = latest ? Number(latest.b3ForeignFlowBrl) : null;
@@ -67,7 +60,7 @@ export function MarketFlowSection() {
   const ewzTickInterval = Math.max(0, Math.floor(ewzRows.length / 7) - 1);
 
   return (
-    <Card className="bg-card/50 border-border/50 shadow-sm">
+    <Card id="fluxos-b3-ewz" className="bg-card/50 border-border/50 shadow-sm">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -76,7 +69,7 @@ export function MarketFlowSection() {
               Fluxos B3 & EWZ
             </CardTitle>
             <p className="mt-1 text-xs text-muted-foreground">
-              Série diária desde 01/07/2026: B3 por perfil de investidor e indicador offshore do EWZ.
+              Dados disponíveis desde 01/07/2026: B3 por perfil de investidor e indicador offshore do EWZ.
             </p>
           </div>
           <Button
@@ -89,6 +82,25 @@ export function MarketFlowSection() {
             {refresh.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
             Atualizar
           </Button>
+        </div>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs font-medium text-muted-foreground">Consolidar por período</p>
+          <div className="flex max-w-full gap-1 overflow-x-auto rounded-lg border border-border/60 bg-secondary/20 p-1" role="group" aria-label="Periodicidade dos fluxos">
+            {MARKET_FLOW_PERIODS.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                onClick={() => setPeriod(item.value)}
+                className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                  period === item.value
+                    ? "bg-cyan-500/20 text-cyan-100 shadow-sm"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -130,7 +142,7 @@ export function MarketFlowSection() {
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               <div className="min-w-0">
-                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium"><Activity className="h-4 w-4 text-cyan-400" /> B3 — fluxo líquido diário</p>
+                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium"><Activity className="h-4 w-4 text-cyan-400" /> B3 — fluxo líquido {periodLabel.toLowerCase()}</p>
                 <div className="overflow-x-auto pb-1">
                   <div className="h-56 min-w-[640px]">
                     <ResponsiveContainer width="100%" height="100%">
@@ -152,7 +164,7 @@ export function MarketFlowSection() {
               </div>
 
               <div className="min-w-0">
-                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium"><Activity className="h-4 w-4 text-violet-400" /> EWZ — proxy diário de criação/resgate</p>
+                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium"><Activity className="h-4 w-4 text-violet-400" /> EWZ — proxy {periodLabel.toLowerCase()} de criação/resgate</p>
                 <div className="h-56 overflow-x-auto pb-1">
                   {ewzRows.length >= 2 ? (
                     <div className="h-full min-w-[640px]">
@@ -179,7 +191,7 @@ export function MarketFlowSection() {
 
             <div className="flex gap-2 rounded-lg border border-border/50 bg-secondary/20 p-3 text-xs text-muted-foreground">
               <TrendingDown className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <p><strong className="text-foreground">Metodologia:</strong> valores positivos representam aporte/criação e negativos retirada/resgate. B3 é saldo diário divulgado por perfil de investidor, sujeito à defasagem. EWZ é proxy independente (variação de cotas em circulação × NAV/preço), em USD; não deve ser somado ao fluxo da B3.</p>
+              <p><strong className="text-foreground">Metodologia:</strong> os gráficos somam os fluxos no período selecionado; positivo representa aporte/criação e negativo retirada/resgate. B3 é saldo diário divulgado por perfil de investidor, sujeito à defasagem. EWZ é proxy independente (variação de cotas em circulação × NAV/preço), em USD; não deve ser somado ao fluxo da B3.</p>
             </div>
           </>
         )}

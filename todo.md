@@ -814,3 +814,9 @@
 - [x] Derivar cards de B3, EWZ e cobertura a partir do último bloco do período selecionado
 - [x] Atualizar rótulos, contagem de pregões e observações sem misturar B3 e EWZ
 - [x] Cobrir a regra com testes, validar interface e salvar checkpoint
+
+## Aprimoramento Mobile dos Fluxos B3 e EWZ — Em andamento
+- [x] Identificar pontos de pressão: cabeçalho, seletor, cards e gráficos largos
+- [x] Reorganizar cabeçalho, cards e controles para priorizar leitura em telas estreitas
+- [x] Melhorar a indicação e o espaço de rolagem horizontal dos gráficos
+- [x] Validar layout em mobile, TypeScript, testes e salvar checkpoint

@@ -61,21 +61,21 @@ export function MarketFlowSection() {
 
   return (
     <Card id="fluxos-b3-ewz" className="bg-card/50 border-border/50 shadow-sm">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
-          <div>
+      <CardHeader className="px-3 pb-3 pt-4 sm:px-6 sm:pt-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
             <CardTitle className="flex items-center gap-2">
               <Landmark className="h-5 w-5 text-cyan-400" />
               Fluxos B3 & EWZ
             </CardTitle>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1 max-w-2xl text-xs leading-relaxed text-muted-foreground">
               Dados disponíveis desde 01/07/2026: B3 por perfil de investidor e indicador offshore do EWZ.
             </p>
           </div>
           <Button
             variant="outline"
             size="sm"
-            className="shrink-0 gap-2"
+            className="w-full shrink-0 gap-2 sm:w-auto"
             onClick={() => refresh.mutate()}
             disabled={refresh.isPending}
           >
@@ -85,13 +85,13 @@ export function MarketFlowSection() {
         </div>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs font-medium text-muted-foreground">Consolidar por período</p>
-          <div className="flex max-w-full gap-1 overflow-x-auto rounded-lg border border-border/60 bg-secondary/20 p-1" role="group" aria-label="Periodicidade dos fluxos">
+          <div className="-mx-1 flex max-w-full snap-x gap-1 overflow-x-auto rounded-lg border border-border/60 bg-secondary/20 p-1 sm:mx-0" role="group" aria-label="Periodicidade dos fluxos">
             {MARKET_FLOW_PERIODS.map((item) => (
               <button
                 key={item.value}
                 type="button"
                 onClick={() => setPeriod(item.value)}
-                className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                className={`min-h-9 shrink-0 snap-start rounded-md px-3 py-1.5 text-xs font-medium transition-colors active:scale-[0.97] ${
                   period === item.value
                     ? "bg-cyan-500/20 text-cyan-100 shadow-sm"
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -103,7 +103,7 @@ export function MarketFlowSection() {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-3 pb-4 sm:px-6 sm:pb-6">
         {flowQuery.isLoading ? (
           <div className="flex h-48 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
         ) : flowQuery.isError ? (
@@ -117,7 +117,7 @@ export function MarketFlowSection() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+            <div className="grid grid-cols-1 gap-2 min-[390px]:grid-cols-2 md:grid-cols-4">
               <div className="rounded-lg border border-cyan-500/25 bg-cyan-500/5 p-3">
                 <p className="text-xs text-muted-foreground">Estrangeiro B3 · {periodLabel.toLowerCase()}</p>
                 <p className="mt-1 text-sm"><FlowValue value={foreignFlow} formatter={brlCompact.format} /></p>
@@ -142,9 +142,10 @@ export function MarketFlowSection() {
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               <div className="min-w-0">
-                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium"><Activity className="h-4 w-4 text-cyan-400" /> B3 — fluxo líquido {periodLabel.toLowerCase()}</p>
-                <div className="overflow-x-auto pb-1">
-                  <div className="h-56 min-w-[640px]">
+                <p className="mb-2 flex items-start gap-1.5 text-sm font-medium leading-snug"><Activity className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" /> B3 — fluxo líquido {periodLabel.toLowerCase()}</p>
+                <p className="mb-1 text-[11px] text-muted-foreground sm:hidden">Deslize o gráfico para ver toda a série e os rótulos.</p>
+                <div className="overflow-x-auto rounded-lg border border-border/40 bg-black/10 pb-1">
+                  <div className="h-52 min-w-[520px] sm:h-56 sm:min-w-[640px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={b3ChartRows} margin={{ top: 8, right: 6, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.27 0.012 261)" />
@@ -164,10 +165,11 @@ export function MarketFlowSection() {
               </div>
 
               <div className="min-w-0">
-                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium"><Activity className="h-4 w-4 text-violet-400" /> EWZ — proxy {periodLabel.toLowerCase()} de criação/resgate</p>
-                <div className="h-56 overflow-x-auto pb-1">
+                <p className="mb-2 flex items-start gap-1.5 text-sm font-medium leading-snug"><Activity className="mt-0.5 h-4 w-4 shrink-0 text-violet-400" /> EWZ — proxy {periodLabel.toLowerCase()} de criação/resgate</p>
+                <p className="mb-1 text-[11px] text-muted-foreground sm:hidden">Deslize o gráfico para ver toda a série e os rótulos.</p>
+                <div className="h-52 overflow-x-auto rounded-lg border border-border/40 bg-black/10 pb-1 sm:h-56">
                   {ewzRows.length >= 2 ? (
-                    <div className="h-full min-w-[640px]">
+                    <div className="h-full min-w-[520px] sm:min-w-[640px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={ewzRows} margin={{ top: 8, right: 6, left: 0, bottom: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.27 0.012 261)" />
@@ -189,7 +191,7 @@ export function MarketFlowSection() {
               </div>
             </div>
 
-            <div className="flex gap-2 rounded-lg border border-border/50 bg-secondary/20 p-3 text-xs text-muted-foreground">
+            <div className="flex gap-2 rounded-lg border border-border/50 bg-secondary/20 p-3 text-xs leading-relaxed text-muted-foreground">
               <TrendingDown className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <p><strong className="text-foreground">Metodologia:</strong> os gráficos somam os fluxos no período selecionado; positivo representa aporte/criação e negativo retirada/resgate. B3 é saldo diário divulgado por perfil de investidor, sujeito à defasagem. EWZ é proxy independente (variação de cotas em circulação × NAV/preço), em USD; não deve ser somado ao fluxo da B3.</p>
             </div>

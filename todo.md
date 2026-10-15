@@ -774,3 +774,17 @@
 - [x] Ordenar a listagem padrão pela data de publicação, com desempate pela inclusão
 - [x] Exibir a data da publicação no cartão e preservar filtros, impacto e exposição
 - [x] Cobrir a regra com testes e validar a ordem retornada pelo banco
+
+## Compras de Cripto na Binance — 15/10/2026 — Em andamento
+- [x] Extrair conversão BRL/USDT e três compras executadas das capturas
+- [x] Conferir posições Binance existentes e ausência de transações duplicadas no dia
+- [x] Apurar valores das ordens, saldo residual em USDT e reflexo nas quantidades
+- [ ] Obter confirmação explícita antes de registrar transações e movimento histórico de conversão
+- [ ] Registrar somente os eventos confirmados, validar quantitativos e preservar a conciliação de custos legados
+
+
+## Gráfico de Aportes Estrangeiros — Últimos 12 Meses — Em andamento
+- [x] Obter a série oficial mensal de movimentação estrangeira da B3
+- [x] Gerar gráfico de saldo líquido mensal de nov/2025 a out/2026
+- [x] Sinalizar outubro como mês parcial e distinguir o fluxo do EWZ como indicador não aditivo
+- [x] Validar os valores e entregar gráfico, dados e relatório

@@ -1,0 +1,13 @@
+mes,rotulo,saldo_liquido_r_milhoes,periodo_completo,fonte
+2025-11,Nov/25,2550.1,sim,B3 Relatório Dados de Mercado
+2025-12,Dez/25,-1620.1,sim,B3 Relatório Dados de Mercado
+2026-01,Jan/26,26471.3,sim,B3 Relatório Dados de Mercado
+2026-02,Fev/26,15395.7,sim,B3 Relatório Dados de Mercado
+2026-03,Mar/26,11964.3,sim,B3 Relatório Dados de Mercado
+2026-04,Abr/26,3221.6,sim,B3 Relatório Dados de Mercado
+2026-05,Mai/26,-13274.9,sim,B3 Relatório Dados de Mercado
+2026-06,Jun/26,-7047.3,sim,B3 Relatório Dados de Mercado
+2026-07,Jul/26,4311.5,sim,B3 Relatório Dados de Mercado
+2026-08,Ago/26,-18116.8,sim,B3 Relatório Dados de Mercado
+2026-09,Set/26,9106.8,sim,B3 Relatório Dados de Mercado
+2026-10,Out/26*,17827.1,nao,B3 Relatório Dados de Mercado até 13/10/2026

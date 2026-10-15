@@ -1,4 +1,4 @@
-import { date, int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, bigint } from "drizzle-orm/mysql-core";
+import { date, int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, bigint, uniqueIndex } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -346,6 +346,35 @@ export const portfolioSnapshots = mysqlTable("portfolio_snapshots", {
 
 export type PortfolioSnapshot = typeof portfolioSnapshots.$inferSelect;
 export type InsertPortfolioSnapshot = typeof portfolioSnapshots.$inferInsert;
+
+/**
+ * Série diária capturada para acompanhar os fluxos divulgados da B3 e o
+ * indicador offshore do EWZ. B3 é a métrica principal; EWZ é proxy de
+ * criação/resgate calculado pela variação de cotas em circulação × NAV.
+ */
+export const marketFlowSnapshots = mysqlTable("market_flow_snapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  snapshotDate: varchar("snapshotDate", { length: 10 }).notNull(),
+  b3ReportedThrough: varchar("b3_reported_through", { length: 10 }).notNull(),
+  b3Sessions: int("b3_sessions").notNull(),
+  b3ForeignFlowBrl: decimal("b3_foreign_flow_brl", { precision: 18, scale: 2 }).notNull(),
+  b3DomesticFlowBrl: decimal("b3_domestic_flow_brl", { precision: 18, scale: 2 }).notNull(),
+  ewzSharesOutstanding: decimal("ewz_shares_outstanding", { precision: 20, scale: 2 }),
+  ewzNetAssetsUsd: decimal("ewz_net_assets_usd", { precision: 20, scale: 2 }),
+  ewzNavUsd: decimal("ewz_nav_usd", { precision: 12, scale: 4 }),
+  ewzSharesChange: decimal("ewz_shares_change", { precision: 20, scale: 2 }),
+  ewzFlowProxyUsd: decimal("ewz_flow_proxy_usd", { precision: 20, scale: 2 }),
+  sourceB3: text("source_b3").notNull(),
+  sourceEwz: text("source_ewz").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+  uniqueIndex("market_flow_user_date_unique").on(table.userId, table.snapshotDate),
+]);
+
+export type MarketFlowSnapshot = typeof marketFlowSnapshots.$inferSelect;
+export type InsertMarketFlowSnapshot = typeof marketFlowSnapshots.$inferInsert;
 
 /**
  * Retorno diário da carteira investida, calculado com ajuste de compras, vendas,

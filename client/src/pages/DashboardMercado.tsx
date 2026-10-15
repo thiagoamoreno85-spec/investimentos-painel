@@ -3,6 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PrivacyMask } from "@/components/PrivacyMask";
+import { MarketFlowSection } from "@/components/MarketFlowSection";
 import { trpc } from "@/lib/trpc";
 import { filterMarketAssetsByClass, MARKET_ASSET_TABS, type MarketAssetTabId } from "@shared/marketAssetTabs";
 import { sortMarketQuotesByYield, type MarketQuoteSort } from "@shared/marketQuoteSorting";
@@ -673,13 +674,16 @@ export default function DashboardMercado() {
 
         {/* Conteúdo por aba */}
         {activeTab === "overview" && (
-          <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-3">
-            <div className="col-span-1 lg:col-span-2">
-              <IndicesSection />
+          <div className="space-y-4 md:space-y-6">
+            <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-3">
+              <div className="col-span-1 lg:col-span-2">
+                <IndicesSection />
+              </div>
+              <div>
+                <MacroRatesSection />
+              </div>
             </div>
-            <div>
-              <MacroRatesSection />
-            </div>
+            <MarketFlowSection />
           </div>
         )}
 

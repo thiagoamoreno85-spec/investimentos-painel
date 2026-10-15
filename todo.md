@@ -788,3 +788,10 @@
 - [x] Gerar gráfico de saldo líquido mensal de nov/2025 a out/2026
 - [x] Sinalizar outubro como mês parcial e distinguir o fluxo do EWZ como indicador não aditivo
 - [x] Validar os valores e entregar gráfico, dados e relatório
+
+## Painel Diário de Fluxos B3 e EWZ — Em andamento
+- [x] Definir o fluxo estrangeiro da B3 como métrica principal e o EWZ como série offshore separada
+- [x] Definir fontes, frequência diária e limitações metodológicas para cada série
+- [x] Criar armazenamento histórico, atualização segura e endpoints de leitura/atualização
+- [x] Integrar cards, gráfico de tendência, fontes e atualização manual ao Dashboard de Mercado
+- [ ] Registrar Heartbeat diário autenticado após publicação e validar a primeira execução

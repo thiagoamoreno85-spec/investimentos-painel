@@ -10,6 +10,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { newsRefreshHandler } from "../scheduled/newsRefreshHandler";
 import { portfolioSnapshotHandler } from "../scheduled/portfolioSnapshotHandler";
+import { marketFlowRefreshHandler } from "../scheduled/marketFlowRefreshHandler";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -49,6 +50,7 @@ async function startServer() {
   // Scheduled Heartbeat endpoints (must be before Vite/static fallthrough)
   app.post("/api/scheduled/news-refresh", newsRefreshHandler);
   app.post("/api/scheduled/portfolio-snapshot", portfolioSnapshotHandler);
+  app.post("/api/scheduled/market-flow-refresh", marketFlowRefreshHandler);
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {

@@ -1,0 +1,1 @@
+ALTER TABLE `market_flow_snapshots` ADD CONSTRAINT `market_flow_user_date_unique` UNIQUE(`userId`,`snapshotDate`);

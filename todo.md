@@ -779,8 +779,8 @@
 - [x] Extrair conversão BRL/USDT e três compras executadas das capturas
 - [x] Conferir posições Binance existentes e ausência de transações duplicadas no dia
 - [x] Apurar valores das ordens, saldo residual em USDT e reflexo nas quantidades
-- [ ] Obter confirmação explícita antes de registrar transações e movimento histórico de conversão
-- [ ] Registrar somente os eventos confirmados, validar quantitativos e preservar a conciliação de custos legados
+- [x] Obter confirmação explícita antes de registrar transações e movimento histórico de conversão
+- [x] Registrar somente os eventos confirmados, validar quantitativos e preservar a conciliação de custos legados
 
 
 ## Gráfico de Aportes Estrangeiros — Últimos 12 Meses — Em andamento

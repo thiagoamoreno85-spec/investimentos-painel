@@ -762,7 +762,7 @@
 - [x] Preservar quantitativos, custo, preços, caixa, proventos e transações atuais
 - [x] Proteger inclusão/exclusão posterior contra recálculo de histórico pré-conciliação
 - [x] Validar migration, testes e consistência da base reconciliada
-- [ ] Publicar a correção, confirmar execução bem-sucedida do Heartbeat e pausar o agendamento redundante
+- [x] Publicar a correção, confirmar execução bem-sucedida do Heartbeat e pausar o agendamento redundante
 
 ## Correção do Proprietário dos Heartbeats — 10/10/2026 — Em andamento
 - [x] Validar em produção que o cron autentica corretamente e identificar o erro `OWNER_OPEN_ID` ausente
@@ -794,4 +794,4 @@
 - [x] Definir fontes, frequência diária e limitações metodológicas para cada série
 - [x] Criar armazenamento histórico, atualização segura e endpoints de leitura/atualização
 - [x] Integrar cards, gráfico de tendência, fontes e atualização manual ao Dashboard de Mercado
-- [ ] Registrar Heartbeat diário autenticado após publicação e validar a primeira execução
+- [x] Registrar Heartbeat diário autenticado após publicação e validar a primeira execução

@@ -808,3 +808,9 @@
 - [x] Agregar B3 por data divulgada e EWZ por data de snapshot, sem duplicar pregões divulgados
 - [x] Integrar seletor responsivo e rótulos de período aos dois gráficos
 - [x] Cobrir a agregação com testes, validar desktop/mobile e salvar checkpoint
+
+## Sincronização dos Cards de Fluxo — Em andamento
+- [x] Identificar que os gráficos usam a agregação selecionada, mas os cards ainda exibem a última leitura diária
+- [x] Derivar cards de B3, EWZ e cobertura a partir do último bloco do período selecionado
+- [x] Atualizar rótulos, contagem de pregões e observações sem misturar B3 e EWZ
+- [x] Cobrir a regra com testes, validar interface e salvar checkpoint

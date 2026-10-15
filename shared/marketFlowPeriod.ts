@@ -141,6 +141,19 @@ export function aggregateMarketFlows(
     .map(({ ewzTotal: _ewzTotal, ...bucket }) => bucket);
 }
 
+/** Retorna a leitura mais recente de cada indicador já consolidada no período ativo. */
+export function summarizeLatestMarketFlowPeriod(points: AggregatedMarketFlowPoint[]) {
+  let b3: AggregatedMarketFlowPoint | null = null;
+  let ewz: AggregatedMarketFlowPoint | null = null;
+
+  for (const point of points) {
+    if (point.b3Sessions > 0) b3 = point;
+    if (point.ewzProxy !== null) ewz = point;
+  }
+
+  return { b3, ewz };
+}
+
 export const MARKET_FLOW_PERIODS: Array<{ value: MarketFlowPeriod; label: string }> = [
   { value: "daily", label: "Diário" },
   { value: "weekly", label: "Semanal" },

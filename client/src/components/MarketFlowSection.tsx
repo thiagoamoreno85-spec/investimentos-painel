@@ -4,7 +4,7 @@ import { Activity, CalendarClock, Landmark, Loader2, RefreshCw, TrendingDown, Tr
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { aggregateMarketFlows, MARKET_FLOW_PERIODS, type MarketFlowPeriod } from "@shared/marketFlowPeriod";
+import { aggregateMarketFlows, MARKET_FLOW_PERIODS, summarizeLatestMarketFlowPeriod, type MarketFlowPeriod } from "@shared/marketFlowPeriod";
 
 const brlCompact = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -49,13 +49,13 @@ export function MarketFlowSection() {
   const b3ChartRows = chartRows.filter((row) => row.b3Sessions > 0);
   const ewzRows = chartRows.filter((row) => row.ewzProxy !== null);
   const periodLabel = MARKET_FLOW_PERIODS.find((item) => item.value === period)?.label ?? "Diário";
+  const periodSummary = useMemo(() => summarizeLatestMarketFlowPeriod(chartRows), [chartRows]);
 
-  const latest = flowQuery.data?.latest;
-  const foreignFlow = latest ? Number(latest.b3ForeignFlowBrl) : null;
-  const domesticFlow = latest ? Number(latest.b3DomesticFlowBrl) : null;
-  const ewzProxy = latest?.ewzFlowProxyUsd === null || latest?.ewzFlowProxyUsd === undefined
-    ? null
-    : Number(latest.ewzFlowProxyUsd);
+  const latestB3 = periodSummary.b3;
+  const latestEwz = periodSummary.ewz;
+  const foreignFlow = latestB3?.b3Foreign ?? null;
+  const domesticFlow = latestB3?.b3Domestic ?? null;
+  const ewzProxy = latestEwz?.ewzProxy ?? null;
   const b3TickInterval = Math.max(0, Math.floor(b3ChartRows.length / 7) - 1);
   const ewzTickInterval = Math.max(0, Math.floor(ewzRows.length / 7) - 1);
 
@@ -110,7 +110,7 @@ export function MarketFlowSection() {
           <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-200">
             Não foi possível carregar os fluxos agora. Use “Atualizar” para tentar novamente.
           </div>
-        ) : !latest ? (
+        ) : chartRows.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border p-5 text-center">
             <p className="font-medium">Ainda não há coleta de fluxos.</p>
             <p className="mt-1 text-sm text-muted-foreground">Clique em “Atualizar” para registrar a primeira leitura da B3 e do EWZ.</p>
@@ -119,24 +119,24 @@ export function MarketFlowSection() {
           <>
             <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
               <div className="rounded-lg border border-cyan-500/25 bg-cyan-500/5 p-3">
-                <p className="text-xs text-muted-foreground">Estrangeiro B3 · último pregão</p>
+                <p className="text-xs text-muted-foreground">Estrangeiro B3 · {periodLabel.toLowerCase()}</p>
                 <p className="mt-1 text-sm"><FlowValue value={foreignFlow} formatter={brlCompact.format} /></p>
-                <p className="mt-1 text-[11px] text-muted-foreground">{latest.b3Sessions} pregão divulgado</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{latestB3?.b3Sessions ?? 0} {latestB3?.b3Sessions === 1 ? "pregão divulgado" : "pregões divulgados"}</p>
               </div>
               <div className="rounded-lg border border-slate-400/20 bg-secondary/30 p-3">
-                <p className="text-xs text-muted-foreground">Nacional B3 · último pregão</p>
+                <p className="text-xs text-muted-foreground">Nacional B3 · {periodLabel.toLowerCase()}</p>
                 <p className="mt-1 text-sm"><FlowValue value={domesticFlow} formatter={brlCompact.format} /></p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Contrapartida agregada</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">Contrapartida agregada do período</p>
               </div>
               <div className="rounded-lg border border-violet-500/25 bg-violet-500/5 p-3">
-                <p className="text-xs text-muted-foreground">EWZ · criação/resgate</p>
+                <p className="text-xs text-muted-foreground">EWZ · criação/resgate {periodLabel.toLowerCase()}</p>
                 <p className="mt-1 text-sm"><FlowValue value={ewzProxy} formatter={usdCompact.format} /></p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Δ cotas × NAV/preço</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{latestEwz?.ewzObservations ?? 0} observação(ões) · Δ cotas × NAV/preço</p>
               </div>
               <div className="rounded-lg border border-border/60 bg-secondary/20 p-3">
-                <p className="text-xs text-muted-foreground">B3 divulgada até</p>
-                <p className="mt-1 flex items-center gap-1 text-sm font-mono font-semibold"><CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />{formatDate(latest.b3ReportedThrough)}</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Coleta {formatDate(latest.snapshotDate)}</p>
+                <p className="text-xs text-muted-foreground">Último bloco B3</p>
+                <p className="mt-1 flex items-center gap-1 text-sm font-mono font-semibold"><CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />{latestB3?.label ?? "—"}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">EWZ: {latestEwz?.label ?? "sem dados"}</p>
               </div>
             </div>
 

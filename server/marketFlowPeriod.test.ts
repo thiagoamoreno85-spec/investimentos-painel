@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aggregateMarketFlows } from "../shared/marketFlowPeriod";
+import { aggregateMarketFlows, summarizeLatestMarketFlowPeriod } from "../shared/marketFlowPeriod";
 
 const history = [
   {
@@ -88,5 +88,15 @@ describe("aggregateMarketFlows", () => {
     expect(aggregateMarketFlows(history, "annual")).toEqual([
       expect.objectContaining({ key: "2026", b3Foreign: 560, ewzProxy: 28 }),
     ]);
+  });
+
+  it("alimenta os cards a partir do último bloco da periodicidade ativa", () => {
+    const daily = summarizeLatestMarketFlowPeriod(aggregateMarketFlows(history, "daily"));
+    const semiannual = summarizeLatestMarketFlowPeriod(aggregateMarketFlows(history, "semiannual"));
+
+    expect(daily.b3).toMatchObject({ key: "2026-10-01", b3Foreign: 300, b3Sessions: 1 });
+    expect(daily.ewz).toMatchObject({ key: "2026-10-01", ewzProxy: 15, ewzObservations: 1 });
+    expect(semiannual.b3).toMatchObject({ key: "2026-07-01", b3Foreign: 560, b3Sessions: 4 });
+    expect(semiannual.ewz).toMatchObject({ key: "2026-07-01", ewzProxy: 28, ewzObservations: 4 });
   });
 });

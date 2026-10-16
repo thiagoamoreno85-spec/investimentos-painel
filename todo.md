@@ -820,3 +820,10 @@
 - [x] Reorganizar cabeçalho, cards e controles para priorizar leitura em telas estreitas
 - [x] Melhorar a indicação e o espaço de rolagem horizontal dos gráficos
 - [x] Validar layout em mobile, TypeScript, testes e salvar checkpoint
+
+## Compras Internacionais — 16/10/2026 — Em andamento
+- [x] Extrair a conversão BRL/USD e as ordens executadas de URNM e INDA
+- [x] Conferir posições, custo, datas e duplicidades antes de qualquer gravação
+- [x] Calcular valores efetivos e posições pós-compra, preservando a conciliação existente
+- [x] Apresentar prévia auditável para confirmação explícita
+- [x] Registrar somente os eventos confirmados e validar o resultado

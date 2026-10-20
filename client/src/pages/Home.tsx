@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,10 +37,17 @@ import { ConsolidatedNetWorthCard } from "@/components/ConsolidatedNetWorthCard"
 
 import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
 import { buildHomePortfolioSummary } from "@shared/homePortfolioSummary";
+import {
+  AUTO_QUOTE_REFRESH_INTERVAL_MS,
+  shouldAutoRefreshQuotes,
+} from "@shared/autoQuoteRefreshPolicy";
 
 export default function Home() {
   const utils = trpc.useUtils();
   const { showBalances, toggleShowBalances } = useBalanceVisibility();
+  const priceRefreshInFlightRef = useRef(false);
+  const automaticRefreshRef = useRef(false);
+  const lastAutoRefreshAttemptAtRef = useRef<number | null>(null);
   const assetsQuery = trpc.portfolio.getAssets.useQuery();
   const usdBrlQuery = trpc.portfolio.getUsdBrl.useQuery();
   const cashBalanceQuery = trpc.cash.getBalance.useQuery();
@@ -53,12 +60,20 @@ export default function Home() {
   const refreshPrices = trpc.portfolio.refreshPrices.useMutation({
     onSuccess: (result) => {
       setLastUpdated(new Date());
-      toast.success(
-        `${result.updated} cotações atualizadas (${result.cached} em cache). USD/BRL: R$ ${result.usdBrl.toFixed(2)}`
-      );
+      if (!automaticRefreshRef.current) {
+        toast.success(
+          `${result.updated} cotações atualizadas (${result.cached} em cache). USD/BRL: R$ ${result.usdBrl.toFixed(2)}`
+        );
+      }
       utils.portfolio.getAssets.invalidate();
     },
-    onError: (err) => toast.error(`Erro: ${err.message}`),
+    onError: (err) => {
+      if (!automaticRefreshRef.current) toast.error(`Erro: ${err.message}`);
+    },
+    onSettled: () => {
+      priceRefreshInFlightRef.current = false;
+      automaticRefreshRef.current = false;
+    },
   });
 
   const usdBrl = usdBrlData?.rate ?? 0;
@@ -71,6 +86,59 @@ export default function Home() {
   const isFxPending = hasUsdAssets && usdBrlQuery.isLoading;
   const needsFxRate = hasUsdAssets && (!usdBrlData || !Number.isFinite(usdBrlData.rate) || usdBrlData.rate <= 0);
   const isCashUnavailable = cashBalanceQuery.isError;
+
+  const refreshPricesManually = () => {
+    priceRefreshInFlightRef.current = true;
+    automaticRefreshRef.current = false;
+    refreshPrices.mutate();
+  };
+
+  useEffect(() => {
+    if (!hasDbData) return;
+
+    let disposed = false;
+    let timeoutId: number | undefined;
+
+    const runAutomaticRefresh = () => {
+      if (disposed) return;
+
+      const nowMs = Date.now();
+      const canRefresh = shouldAutoRefreshQuotes({
+        hasAssets: hasDbData,
+        isRefreshPending: priceRefreshInFlightRef.current,
+        isPageVisible: document.visibilityState === "visible",
+        lastAttemptAtMs: lastAutoRefreshAttemptAtRef.current,
+        nowMs,
+      });
+
+      if (!canRefresh) return;
+
+      lastAutoRefreshAttemptAtRef.current = nowMs;
+      priceRefreshInFlightRef.current = true;
+      automaticRefreshRef.current = true;
+      refreshPrices.mutate();
+    };
+
+    const scheduleNextRefresh = () => {
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
+        runAutomaticRefresh();
+        scheduleNextRefresh();
+      }, AUTO_QUOTE_REFRESH_INTERVAL_MS);
+    };
+
+    const handleVisibilityChange = () => runAutomaticRefresh();
+
+    runAutomaticRefresh();
+    scheduleNextRefresh();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      disposed = true;
+      window.clearTimeout(timeoutId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [hasDbData, refreshPrices]);
 
   const overview = useMemo(() => {
     if (!hasDbData || !dbAssets || needsFxRate) return null;
@@ -209,6 +277,9 @@ export default function Home() {
                 Câmbio-base da conciliação: R$ {usdBrl.toFixed(4)}/US$ 1,00
               </p>
             )}
+            <p className="mt-1 text-xs text-muted-foreground">
+              Cotações verificadas automaticamente ao abrir e a cada 15 min com esta aba ativa.
+            </p>
             {isCashUnavailable && (
               <p className="mt-1 text-xs text-amber-300">
                 O saldo de caixa está temporariamente indisponível e será atualizado em nova tentativa.
@@ -231,7 +302,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => refreshPrices.mutate()}
+                onClick={refreshPricesManually}
                 disabled={refreshPrices.isPending}
                 className="gap-2"
               >
@@ -240,11 +311,11 @@ export default function Home() {
                 ) : (
                   <RefreshCw className="w-4 h-4" />
                 )}
-                Atualizar Cotações
+                Atualizar agora
               </Button>
               {lastUpdated && (
                 <span className="text-xs text-muted-foreground">
-                  Atualizado {formatDistanceToNow(lastUpdated, { addSuffix: true, locale: ptBR })}
+                  Cotações verificadas {formatDistanceToNow(lastUpdated, { addSuffix: true, locale: ptBR })}
                 </span>
               )}
             </div>

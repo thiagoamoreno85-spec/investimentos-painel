@@ -827,3 +827,9 @@
 - [x] Calcular valores efetivos e posições pós-compra, preservando a conciliação existente
 - [x] Apresentar prévia auditável para confirmação explícita
 - [x] Registrar somente os eventos confirmados e validar o resultado
+
+## Atualização Automática da Visão Geral — Em andamento
+- [x] Verificar que o patrimônio depende de cotações gravadas, atualizadas hoje apenas pelo botão manual
+- [x] Atualizar preços automaticamente ao abrir a Visão Geral e a cada 15 minutos enquanto ela permanecer em primeiro plano
+- [x] Preservar cotações manuais de fundos e renda fixa, o câmbio-base conciliado e todos os registros financeiros
+- [x] Evitar notificações repetitivas e validar a regra com testes, TypeScript e suíte completa

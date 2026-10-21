@@ -8,20 +8,20 @@ type PrivacyMaskProps = {
   as?: "div" | "span";
 };
 
-/** Oculta visualmente blocos que exibem dados financeiros pessoais sem impedir a navegação da tela. */
+/**
+ * Exibe valores financeiros somente quando a preferência de visibilidade está ativa.
+ * O conteúdo sensível não é inserido no DOM enquanto estiver oculto.
+ */
 export function PrivacyMask({ children, className, as: Tag = "div" }: PrivacyMaskProps) {
   const { showBalances } = useBalanceVisibility();
 
-  return (
-    <Tag
-      className={cn(
-        "transition-[filter,opacity] duration-200",
-        !showBalances && "blur-sm select-none",
-        className
-      )}
-      aria-label={showBalances ? undefined : "Valores financeiros ocultos"}
-    >
-      {children}
-    </Tag>
-  );
+  if (!showBalances) {
+    return (
+      <Tag className={cn("select-none", className)} aria-label="Conteúdo financeiro oculto">
+        ••••
+      </Tag>
+    );
+  }
+
+  return <Tag className={className}>{children}</Tag>;
 }

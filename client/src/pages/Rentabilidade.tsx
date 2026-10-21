@@ -27,6 +27,8 @@ import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClass
 import { BenchmarkChart } from "@/components/BenchmarkChart";
 import { buildHomePortfolioSummary } from "@shared/homePortfolioSummary";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
+import { PrivacyMask } from "@/components/PrivacyMask";
+import { AccessibleChartAlternative, type AccessibleChartColumn } from "@/components/AccessibleChartAlternative";
 
 export default function Rentabilidade() {
   const { showBalances } = useBalanceVisibility();
@@ -111,6 +113,23 @@ export default function Rentabilidade() {
 
   const bestAsset = winners[0];
   const worstAsset = losers[0];
+  const profitByClassColumns: AccessibleChartColumn<(typeof profitByClass)[number]>[] = [
+    { id: "class", label: "Classe", render: (entry) => entry.name },
+    { id: "result", label: "Resultado", render: (entry) => formatCurrency(entry.profit) },
+  ];
+
+  if (!showBalances) {
+    return (
+      <DashboardLayout>
+        <Card className="border-border/50 bg-card/50">
+          <CardContent className="flex min-h-56 flex-col items-center justify-center p-6 text-center">
+            <p className="font-medium">Privacidade ativa</p>
+            <p className="mt-1 text-sm text-muted-foreground">Informações financeiras ocultas.</p>
+          </CardContent>
+        </Card>
+      </DashboardLayout>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -180,8 +199,8 @@ export default function Rentabilidade() {
               </div>
               <p className={`mt-1.5 text-base md:text-xl font-bold font-mono tracking-tight truncate ${
                 totalProfit >= 0 ? "text-emerald-500" : "text-red-400"
-              } ${!showBalances ? "blur-sm select-none" : ""}`}>
-                {totalProfit >= 0 ? "+" : ""}{formatCurrency(totalProfit)}
+              }`}>
+                <PrivacyMask as="span">{totalProfit >= 0 ? "+" : ""}{formatCurrency(totalProfit)}</PrivacyMask>
               </p>
             </CardContent>
           </Card>
@@ -193,11 +212,11 @@ export default function Rentabilidade() {
                 <p className="text-xs font-medium">Melhor Ativo</p>
               </div>
               <p className="mt-1.5 text-base md:text-xl font-bold font-mono tracking-tight truncate">
-                {bestAsset?.name ?? "—"}
+                <PrivacyMask as="span">{bestAsset?.name ?? "—"}</PrivacyMask>
               </p>
               {bestAsset && (
-                <p className={`text-xs text-emerald-500/80 font-mono ${!showBalances ? "blur-sm select-none" : ""}`}>
-                  +{formatCurrency(bestAsset.profit)}
+                <p className="text-xs text-emerald-500/80 font-mono">
+                  <PrivacyMask as="span">+{formatCurrency(bestAsset.profit)}</PrivacyMask>
                 </p>
               )}
             </CardContent>
@@ -210,11 +229,11 @@ export default function Rentabilidade() {
                 <p className="text-xs font-medium">Pior Ativo</p>
               </div>
               <p className="mt-1.5 text-base md:text-xl font-bold font-mono tracking-tight truncate">
-                {worstAsset?.name ?? "—"}
+                <PrivacyMask as="span">{worstAsset?.name ?? "—"}</PrivacyMask>
               </p>
               {worstAsset && (
-                <p className={`text-xs text-red-400/80 font-mono ${!showBalances ? "blur-sm select-none" : ""}`}>
-                  {formatCurrency(worstAsset.profit)}
+                <p className="text-xs text-red-400/80 font-mono">
+                  <PrivacyMask as="span">{formatCurrency(worstAsset.profit)}</PrivacyMask>
                 </p>
               )}
             </CardContent>
@@ -227,10 +246,10 @@ export default function Rentabilidade() {
                 <p className="text-xs font-medium">Ativos em Carteira</p>
               </div>
               <p className="mt-1.5 text-base md:text-xl font-bold font-mono tracking-tight">
-                {assetCount}
+                <PrivacyMask as="span">{assetCount}</PrivacyMask>
               </p>
               <p className="text-xs text-muted-foreground">
-                em {profitByClass.length} classes
+                em <PrivacyMask as="span">{profitByClass.length}</PrivacyMask> classes
               </p>
             </CardContent>
           </Card>
@@ -243,12 +262,14 @@ export default function Rentabilidade() {
               <CardTitle>Lucro/Prejuízo por Classe</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`h-[220px] md:h-[350px] w-full mt-4 transition-all duration-200 ${!showBalances ? "blur-md select-none" : ""}`}>
+              <div className="h-[220px] md:h-[350px] w-full mt-4 transition-all duration-200" aria-hidden="true">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={profitByClass}
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     barCategoryGap="28%"
+                    accessibilityLayer={false}
+                    aria-hidden="true"
                   >
                     <CartesianGrid
                       strokeDasharray="3 3"
@@ -292,6 +313,12 @@ export default function Rentabilidade() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              <AccessibleChartAlternative
+                title="Alternativa textual — resultado por classe"
+                summary="A tabela apresenta o resultado consolidado de cada classe de ativo exibida no gráfico."
+                columns={profitByClassColumns}
+                rows={profitByClass}
+              />
             </CardContent>
           </Card>
 
@@ -316,7 +343,7 @@ export default function Rentabilidade() {
                         />
                         <div className="space-y-0.5 min-w-0">
                           <p className="text-sm font-medium leading-none font-mono truncate">
-                            {asset.name}
+                            <PrivacyMask as="span">{asset.name}</PrivacyMask>
                           </p>
                           <p className="text-xs text-muted-foreground truncate">
                             {asset.class}
@@ -324,11 +351,11 @@ export default function Rentabilidade() {
                         </div>
                       </div>
                       <div className="text-right space-y-0.5 flex-shrink-0">
-                        <p className={`text-sm font-medium font-mono text-emerald-500 ${!showBalances ? "blur-sm select-none" : ""}`}>
-                          +{formatCurrency(asset.profit)}
+                        <p className="text-sm font-medium font-mono text-emerald-500">
+                          <PrivacyMask as="span">+{formatCurrency(asset.profit)}</PrivacyMask>
                         </p>
-                        <p className={`text-xs text-emerald-500/80 font-mono ${!showBalances ? "blur-sm select-none" : ""}`}>
-                          +{asset.profitPercentage.toFixed(1)}%
+                        <p className="text-xs text-emerald-500/80 font-mono">
+                          <PrivacyMask as="span">+{asset.profitPercentage.toFixed(1)}%</PrivacyMask>
                         </p>
                       </div>
                     </div>
@@ -356,7 +383,7 @@ export default function Rentabilidade() {
                         />
                         <div className="space-y-0.5 min-w-0">
                           <p className="text-sm font-medium leading-none font-mono truncate">
-                            {asset.name}
+                            <PrivacyMask as="span">{asset.name}</PrivacyMask>
                           </p>
                           <p className="text-xs text-muted-foreground truncate">
                             {asset.class}
@@ -364,11 +391,11 @@ export default function Rentabilidade() {
                         </div>
                       </div>
                       <div className="text-right space-y-0.5 flex-shrink-0">
-                        <p className={`text-sm font-medium font-mono text-red-400 ${!showBalances ? "blur-sm select-none" : ""}`}>
-                          {formatCurrency(asset.profit)}
+                        <p className="text-sm font-medium font-mono text-red-400">
+                          <PrivacyMask as="span">{formatCurrency(asset.profit)}</PrivacyMask>
                         </p>
-                        <p className={`text-xs text-red-400/80 font-mono ${!showBalances ? "blur-sm select-none" : ""}`}>
-                          {asset.profitPercentage.toFixed(1)}%
+                        <p className="text-xs text-red-400/80 font-mono">
+                          <PrivacyMask as="span">{asset.profitPercentage.toFixed(1)}%</PrivacyMask>
                         </p>
                       </div>
                     </div>

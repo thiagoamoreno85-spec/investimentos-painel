@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/IconButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,6 +14,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { ChevronLeft, ChevronRight, Plus, Calendar, TrendingUp, DollarSign } from "lucide-react";
 import { toast } from "sonner";
+import { SensitiveContent } from "@/components/SensitiveContent";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -139,6 +141,10 @@ export function EventCalendar() {
   };
 
   return (
+    <SensitiveContent
+      className="block"
+      fallback={<Card className="bg-card/50 backdrop-blur-sm border-border/50"><CardContent className="py-12 text-center"><p className="font-medium">Calendário de eventos ocultado</p><p className="mt-1 text-sm text-muted-foreground">Desative o modo privado para acessar eventos da carteira.</p></CardContent></Card>}
+    >
     <div className="space-y-4">
       {/* Header com navegação */}
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
@@ -254,12 +260,22 @@ export function EventCalendar() {
               {format(currentDate, "MMMM yyyy", { locale: ptBR })}
             </h3>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handlePrevMonth}>
+              <IconButton
+                variant="outline"
+                size="sm"
+                aria-label="Mês anterior"
+                onClick={handlePrevMonth}
+              >
                 <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleNextMonth}>
+              </IconButton>
+              <IconButton
+                variant="outline"
+                size="sm"
+                aria-label="Próximo mês"
+                onClick={handleNextMonth}
+              >
                 <ChevronRight className="w-4 h-4" />
-              </Button>
+              </IconButton>
             </div>
           </div>
         </CardHeader>
@@ -361,5 +377,6 @@ export function EventCalendar() {
         </Card>
       )}
     </div>
+    </SensitiveContent>
   );
 }

@@ -29,6 +29,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import {
   Tooltip,
   TooltipContent,
@@ -116,6 +117,7 @@ const ALERT_TYPES = [
 ] as const;
 
 export default function Alertas() {
+  const { showBalances } = useBalanceVisibility();
   const utils = trpc.useUtils();
 
   const [assetId, setAssetId] = useState<string>("");
@@ -171,7 +173,9 @@ export default function Alertas() {
 
   const checkAlerts = trpc.alerts.checkAlerts.useMutation({
     onSuccess: (result) => {
-      if (result.triggered.length === 0) {
+      if (!showBalances) {
+        toast.success("Verificação concluída.");
+      } else if (result.triggered.length === 0) {
         toast.success("Verificação concluída — nenhum alerta disparado.");
       } else {
         result.triggered.forEach((t) => {
@@ -181,11 +185,15 @@ export default function Alertas() {
       utils.alerts.getAlerts.invalidate();
       utils.alerts.getAlertCounts.invalidate();
     },
-    onError: (err) => toast.error(`Erro: ${err.message}`),
+    onError: (err) => toast.error(showBalances ? `Erro: ${err.message}` : "Não foi possível concluir a ação."),
   });
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!showBalances) {
+      toast.info("Ação indisponível no modo privado.");
+      return;
+    }
     if (!assetId) {
       toast.error("Selecione um ativo.");
       return;
@@ -216,6 +224,21 @@ export default function Alertas() {
   }
 
   const selectedTypeInfo = ALERT_TYPES.find((t) => t.value === alertType);
+
+  if (!showBalances) {
+    return (
+      <DashboardLayout>
+        <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+          <CardContent className="py-16 text-center">
+            <p className="font-medium">Alertas de investimento ocultados</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Desative o modo privado para gerenciar alertas pessoais.
+            </p>
+          </CardContent>
+        </Card>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

@@ -14,6 +14,7 @@ import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { useLocation } from "wouter";
+import { PrivacyMask } from "@/components/PrivacyMask";
 
 const ASSET_CLASS_LABELS: Record<string, string> = {
   rv_nacional: "RV Nacional",
@@ -72,6 +73,10 @@ function ClassBreakdown({
 }) {
   if (!data || Object.keys(data).length === 0) return null;
 
+  if (!showBalances) {
+    return <p className="mt-2 text-xs text-muted-foreground">Detalhamento por classe oculto pela privacidade.</p>;
+  }
+
   return (
     <div className="mt-2">
       <button
@@ -90,9 +95,7 @@ function ClassBreakdown({
                 <span className="text-muted-foreground">
                   {ASSET_CLASS_LABELS[cls] || cls}
                 </span>
-                <span className={`${ret.valueDiff >= 0 ? "text-emerald-500" : "text-red-400"} ${
-                  !showBalances ? "blur-sm" : ""
-                }`}>
+                <span className={ret.valueDiff >= 0 ? "text-emerald-500" : "text-red-400"}>
                   {ret.valueDiff >= 0 ? "+" : ""}{ret.percentDiff.toFixed(2)}%
                   <span className="text-muted-foreground ml-1">
                     ({ret.valueDiff >= 0 ? "+" : ""}{formatCurrency(ret.valueDiff)})
@@ -122,6 +125,17 @@ export function PerformanceCards() {
     }
   );
   const [monthlyExpanded, setMonthlyExpanded] = useState(false);
+
+  if (!showBalances) {
+    return (
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+        <CardContent className="p-6">
+          <p className="text-sm font-medium text-muted-foreground">Privacidade ativa</p>
+          <p className="mt-1 text-xs text-muted-foreground">Informações financeiras ocultas.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -180,44 +194,39 @@ export function PerformanceCards() {
         {performance.monthly.total || declaredBaseline ? (
           <>
             {declaredBaseline && (
-              <div className={`mb-3 rounded-md border border-violet-500/30 bg-violet-500/8 px-2.5 py-2 text-[11px] leading-snug text-violet-100 ${
-                !showBalances ? "blur-sm" : ""
-              }`}>
+              <div className="mb-3 rounded-md border border-violet-500/30 bg-violet-500/8 px-2.5 py-2 text-xs leading-snug text-violet-100">
                 <p className="font-medium">Base acumulada declarada pelo investidor</p>
-                <p className="mt-1 font-mono text-base font-semibold text-violet-200">
+                <PrivacyMask as="div" className="mt-1 font-mono text-base font-semibold text-violet-200">
                   {formatCurrency(declaredBaseline.totalReturnBRL)}
-                </p>
+                </PrivacyMask>
                 <p className="mt-1 text-violet-100/75">
-                  Base de {formatCurrency(declaredBaseline.declaredReturnBRL)} em {declaredBaseline.effectiveDate}
+                  <PrivacyMask as="span">Base de {formatCurrency(declaredBaseline.declaredReturnBRL)} em {declaredBaseline.effectiveDate}
                   {declaredBaseline.officialCloseCountSince > 0
                     ? ` · fechamentos oficiais posteriores: ${declaredBaseline.officialReturnSinceBRL >= 0 ? "+" : ""}${formatCurrency(declaredBaseline.officialReturnSinceBRL)}`
-                    : " · aguardando o primeiro fechamento oficial posterior"}
+                    : " · aguardando o primeiro fechamento oficial posterior"}</PrivacyMask>
                 </p>
-                <p className="mt-1 text-[10px] text-violet-100/60">
+                <p className="mt-1 text-xs text-violet-100/60">
                   Referência manual: não substitui a série histórica auditada.
                 </p>
               </div>
             )}
             {performance.monthly.total ? (
               <>
-                <p className="mb-1 text-[11px] font-medium text-muted-foreground">Retorno oficial do mês — fechamentos persistidos</p>
-                <div
-              className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
-                performance.monthly.total.valueDiff >= 0 ? "text-emerald-500" : "text-red-400"
-              } ${
-                !showBalances ? "blur-sm" : ""
-              }`}
-            >
+                <p className="mb-1 text-xs font-medium text-muted-foreground">Retorno oficial do mês — fechamentos persistidos</p>
+                <PrivacyMask
+                  as="div"
+                  className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
+                    performance.monthly.total.valueDiff >= 0 ? "text-emerald-500" : "text-red-400"
+                  }`}
+                >
               {performance.monthly.total.valueDiff >= 0 ? "+" : ""}
               {performance.monthly.total.percentDiff.toFixed(2)}%
-            </div>
+                </PrivacyMask>
             <p className={`text-xs mt-0.5 ${
               performance.monthly.total.valueDiff >= 0 ? "text-emerald-500/70" : "text-red-400/70"
-            } ${
-              !showBalances ? "blur-sm" : ""
             }`}>
-              {performance.monthly.total.valueDiff >= 0 ? "+" : ""}
-              {formatCurrency(performance.monthly.total.valueDiff)}
+              <PrivacyMask as="span">{performance.monthly.total.valueDiff >= 0 ? "+" : ""}
+              {formatCurrency(performance.monthly.total.valueDiff)}</PrivacyMask>
             </p>
             {performance.monthly.chainedReturn !== null && (
               <>
@@ -228,24 +237,24 @@ export function PerformanceCards() {
                     : `${performance.monthly.snapshotCount ?? 0} fechamentos`}
                   {performance.monthly.lastClosedDate ? ` · até ${performance.monthly.lastClosedDate}` : ""}
                 </p>
-                <p className="text-[10px] text-muted-foreground/70 mt-1">
+                <p className="text-xs text-muted-foreground/70 mt-1">
                   A estimativa de hoje é exibida separadamente no card “Hoje · intradiário” e será substituída pelo próximo fechamento oficial.
                 </p>
               </>
             )}
-            <div className={`mt-2 rounded-md border border-sky-500/25 bg-sky-500/8 px-2 py-1.5 text-[11px] leading-snug text-sky-100 ${
-              !showBalances ? "blur-sm" : ""
-            }`}>
+            <div className="mt-2 rounded-md border border-sky-500/25 bg-sky-500/8 px-2 py-1.5 text-xs leading-snug text-sky-100">
               <p className="font-medium">Fluxos externos — fora do retorno de mercado</p>
               <p className="text-sky-100/75">
+                <PrivacyMask as="span">
                 Aportes: {formatCurrency(monthlyContributions)} · Retiradas: {formatCurrency(monthlyWithdrawals)}
                 {` · Líquido: ${monthlyContributions - monthlyWithdrawals >= 0 ? "+" : ""}${formatCurrency(monthlyContributions - monthlyWithdrawals)}`}
+                </PrivacyMask>
               </p>
             </div>
             {performance.monthly.hasClosedGaps && (
               <div
                 role="status"
-                className="mt-2 flex gap-1.5 rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1.5 text-[11px] leading-snug text-amber-200"
+                className="mt-2 flex gap-1.5 rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1.5 text-xs leading-snug text-amber-200"
               >
                 <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <p>

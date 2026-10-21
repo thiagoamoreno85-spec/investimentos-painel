@@ -911,3 +911,12 @@
 - [x] Unificar o pipeline de Notícias e Alertas com identidade persistente, deduplicação na coleta e por ativo na listagem, vínculo à notícia de origem e ações acessíveis
 - [x] Implementar confirmação contextual antes de exclusões de transações, proventos, patrimônio e movimentos de caixa; a confirmação substitui o desfazer por prevenção explícita
 - [x] Criar testes, validar desktop/mobile e salvar checkpoint
+
+
+## Fase 4 — Acabamento e Confiabilidade Visual — Em andamento
+- [x] Autorização recebida para privacidade real, acessibilidade, alternativas textuais e consolidação de componentes
+- [x] Auditar privacidade, ações por ícone, foco, tamanhos de texto e gráficos sem alterar dados financeiros
+- [x] Implementar máscara real de valores sensíveis sem conteúdo exposto no DOM ou na árvore de acessibilidade
+- [x] Padronizar componentes reutilizáveis de privacidade, botões por ícone e tabelas textuais de gráficos
+- [x] Adicionar equivalentes textuais navegáveis aos gráficos e acessibilidade por teclado/cor
+- [x] Validar TypeScript, build e testes; validação visual autenticada depende de sessão OAuth Manus disponível no navegador

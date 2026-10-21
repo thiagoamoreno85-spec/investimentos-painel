@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Activity, CalendarClock, Landmark, Loader2, RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { aggregateMarketFlows, MARKET_FLOW_PERIODS, summarizeLatestMarketFlowPeriod, type MarketFlowPeriod } from "@shared/marketFlowPeriod";
+import { AccessibleChartAlternative, type AccessibleChartColumn } from "@/components/AccessibleChartAlternative";
+import { aggregateMarketFlows, MARKET_FLOW_PERIODS, summarizeLatestMarketFlowPeriod, type AggregatedMarketFlowPoint, type MarketFlowPeriod } from "@shared/marketFlowPeriod";
 
 const brlCompact = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -24,6 +25,30 @@ function formatDate(value: string | null | undefined) {
   const [year, month, day] = value.split("-");
   return year && month && day ? `${day}/${month}` : value;
 }
+
+function formatSignedFlow(value: number | null, formatter: (value: number) => string) {
+  if (value === null || !Number.isFinite(value)) return "—";
+  return `${value >= 0 ? "+" : "−"}${formatter(Math.abs(value))}`;
+}
+
+function describeFlow(value: number | null, formatter: (value: number) => string, currencyName: string) {
+  if (value === null || !Number.isFinite(value)) return `sem dado disponível em ${currencyName}`;
+  const direction = value > 0 ? "entrada" : value < 0 ? "retirada" : "sem entrada ou retirada";
+  return `${direction} (${formatSignedFlow(value, formatter)}; ${currencyName})`;
+}
+
+const b3TableColumns: AccessibleChartColumn<AggregatedMarketFlowPoint>[] = [
+  { id: "period", label: "Período", render: (row) => row.label },
+  { id: "foreign", label: "Estrangeiro (BRL)", render: (row) => formatSignedFlow(row.b3Foreign, brlCompact.format) },
+  { id: "domestic", label: "Nacional (BRL)", render: (row) => formatSignedFlow(row.b3Domestic, brlCompact.format) },
+  { id: "sessions", label: "Pregões divulgados", render: (row) => row.b3Sessions },
+];
+
+const ewzTableColumns: AccessibleChartColumn<AggregatedMarketFlowPoint>[] = [
+  { id: "period", label: "Período", render: (row) => row.label },
+  { id: "proxy", label: "Proxy de criação/resgate (USD)", render: (row) => formatSignedFlow(row.ewzProxy, usdCompact.format) },
+  { id: "observations", label: "Observações", render: (row) => row.ewzObservations },
+];
 
 function FlowValue({ value, formatter }: { value: number | null; formatter: (value: number) => string }) {
   if (value === null || !Number.isFinite(value)) return <span className="text-muted-foreground">—</span>;
@@ -58,6 +83,25 @@ export function MarketFlowSection() {
   const ewzProxy = latestEwz?.ewzProxy ?? null;
   const b3TickInterval = Math.max(0, Math.floor(b3ChartRows.length / 7) - 1);
   const ewzTickInterval = Math.max(0, Math.floor(ewzRows.length / 7) - 1);
+  const b3ChartContainerRef = useRef<HTMLDivElement>(null);
+  const ewzChartContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observers = [b3ChartContainerRef.current, ewzChartContainerRef.current]
+      .filter((container): container is HTMLDivElement => container !== null)
+      .map((container) => {
+        const hideChartSvg = () => {
+          container.querySelectorAll("svg").forEach((svg) => svg.setAttribute("aria-hidden", "true"));
+        };
+        const observer = new MutationObserver(hideChartSvg);
+
+        hideChartSvg();
+        observer.observe(container, { childList: true, subtree: true });
+        return observer;
+      });
+
+    return () => observers.forEach((observer) => observer.disconnect());
+  }, []);
 
   return (
     <Card id="fluxos-b3-ewz" className="bg-card/50 border-border/50 shadow-sm">
@@ -121,33 +165,33 @@ export function MarketFlowSection() {
               <div className="rounded-lg border border-cyan-500/25 bg-cyan-500/5 p-3">
                 <p className="text-xs text-muted-foreground">Estrangeiro B3 · {periodLabel.toLowerCase()}</p>
                 <p className="mt-1 text-sm"><FlowValue value={foreignFlow} formatter={brlCompact.format} /></p>
-                <p className="mt-1 text-[11px] text-muted-foreground">{latestB3?.b3Sessions ?? 0} {latestB3?.b3Sessions === 1 ? "pregão divulgado" : "pregões divulgados"}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{latestB3?.b3Sessions ?? 0} {latestB3?.b3Sessions === 1 ? "pregão divulgado" : "pregões divulgados"}</p>
               </div>
               <div className="rounded-lg border border-slate-400/20 bg-secondary/30 p-3">
                 <p className="text-xs text-muted-foreground">Nacional B3 · {periodLabel.toLowerCase()}</p>
                 <p className="mt-1 text-sm"><FlowValue value={domesticFlow} formatter={brlCompact.format} /></p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Contrapartida agregada do período</p>
+                <p className="mt-1 text-xs text-muted-foreground">Contrapartida agregada do período</p>
               </div>
               <div className="rounded-lg border border-violet-500/25 bg-violet-500/5 p-3">
                 <p className="text-xs text-muted-foreground">EWZ · criação/resgate {periodLabel.toLowerCase()}</p>
                 <p className="mt-1 text-sm"><FlowValue value={ewzProxy} formatter={usdCompact.format} /></p>
-                <p className="mt-1 text-[11px] text-muted-foreground">{latestEwz?.ewzObservations ?? 0} observação(ões) · Δ cotas × NAV/preço</p>
+                <p className="mt-1 text-xs text-muted-foreground">{latestEwz?.ewzObservations ?? 0} observação(ões) · Δ cotas × NAV/preço</p>
               </div>
               <div className="rounded-lg border border-border/60 bg-secondary/20 p-3">
                 <p className="text-xs text-muted-foreground">Último bloco B3</p>
                 <p className="mt-1 flex items-center gap-1 text-sm font-mono font-semibold"><CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />{latestB3?.label ?? "—"}</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">EWZ: {latestEwz?.label ?? "sem dados"}</p>
+                <p className="mt-1 text-xs text-muted-foreground">EWZ: {latestEwz?.label ?? "sem dados"}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               <div className="min-w-0">
                 <p className="mb-2 flex items-start gap-1.5 text-sm font-medium leading-snug"><Activity className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" /> B3 — fluxo líquido {periodLabel.toLowerCase()}</p>
-                <p className="mb-1 text-[11px] text-muted-foreground sm:hidden">Deslize o gráfico para ver toda a série e os rótulos.</p>
-                <div className="overflow-x-auto rounded-lg border border-border/40 bg-black/10 pb-1">
+                <p className="mb-1 text-xs text-muted-foreground sm:hidden">Deslize o gráfico para ver toda a série e os rótulos.</p>
+                <div ref={b3ChartContainerRef} className="overflow-x-auto rounded-lg border border-border/40 bg-black/10 pb-1" aria-hidden="true">
                   <div className="h-52 min-w-[520px] sm:h-56 sm:min-w-[640px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={b3ChartRows} margin={{ top: 8, right: 6, left: 0, bottom: 0 }}>
+                      <BarChart data={b3ChartRows} margin={{ top: 8, right: 6, left: 0, bottom: 0 }} accessibilityLayer={false} aria-hidden="true">
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.27 0.012 261)" />
                       <XAxis dataKey="label" interval={b3TickInterval} tickLine={false} axisLine={false} fontSize={11} stroke="oklch(0.6 0.01 255)" />
                       <YAxis tickLine={false} axisLine={false} fontSize={11} width={52} tickFormatter={(value) => `${(value / 1e9).toFixed(1)} bi`} stroke="oklch(0.6 0.01 255)" />
@@ -162,16 +206,24 @@ export function MarketFlowSection() {
                     </ResponsiveContainer>
                   </div>
                 </div>
+                <AccessibleChartAlternative
+                  title="Alternativa textual — fluxo líquido B3"
+                  summary={latestB3
+                    ? `No último bloco (${latestB3.label}), o fluxo estrangeiro indica ${describeFlow(latestB3.b3Foreign, brlCompact.format, "reais brasileiros (BRL)")}; o fluxo nacional indica ${describeFlow(latestB3.b3Domestic, brlCompact.format, "reais brasileiros (BRL)")}.`
+                    : "Não há fluxo B3 divulgado para o período selecionado. Valores desta série são expressos em reais brasileiros (BRL)."}
+                  columns={b3TableColumns}
+                  rows={b3ChartRows}
+                />
               </div>
 
               <div className="min-w-0">
                 <p className="mb-2 flex items-start gap-1.5 text-sm font-medium leading-snug"><Activity className="mt-0.5 h-4 w-4 shrink-0 text-violet-400" /> EWZ — proxy {periodLabel.toLowerCase()} de criação/resgate</p>
-                <p className="mb-1 text-[11px] text-muted-foreground sm:hidden">Deslize o gráfico para ver toda a série e os rótulos.</p>
-                <div className="h-52 overflow-x-auto rounded-lg border border-border/40 bg-black/10 pb-1 sm:h-56">
+                <p className="mb-1 text-xs text-muted-foreground sm:hidden">Deslize o gráfico para ver toda a série e os rótulos.</p>
+                <div ref={ewzChartContainerRef} className="h-52 overflow-x-auto rounded-lg border border-border/40 bg-black/10 pb-1 sm:h-56" aria-hidden="true">
                   {ewzRows.length >= 2 ? (
                     <div className="h-full min-w-[520px] sm:min-w-[640px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={ewzRows} margin={{ top: 8, right: 6, left: 0, bottom: 0 }}>
+                        <LineChart data={ewzRows} margin={{ top: 8, right: 6, left: 0, bottom: 0 }} accessibilityLayer={false} aria-hidden="true">
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.27 0.012 261)" />
                           <XAxis dataKey="label" interval={ewzTickInterval} tickLine={false} axisLine={false} fontSize={11} stroke="oklch(0.6 0.01 255)" />
                           <YAxis tickLine={false} axisLine={false} fontSize={11} width={52} tickFormatter={(value) => `$${(value / 1e6).toFixed(0)}m`} stroke="oklch(0.6 0.01 255)" />
@@ -188,6 +240,14 @@ export function MarketFlowSection() {
                     </div>
                   )}
                 </div>
+                <AccessibleChartAlternative
+                  title="Alternativa textual — proxy EWZ de criação/resgate"
+                  summary={latestEwz
+                    ? `Na última observação consolidada (${latestEwz.label}), o proxy EWZ indica ${describeFlow(latestEwz.ewzProxy, usdCompact.format, "dólares dos Estados Unidos (USD)")}.`
+                    : "Não há observação EWZ para o período selecionado. Valores desta série são expressos em dólares dos Estados Unidos (USD)."}
+                  columns={ewzTableColumns}
+                  rows={ewzRows}
+                />
               </div>
             </div>
 

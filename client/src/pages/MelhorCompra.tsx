@@ -102,10 +102,10 @@ export default function MelhorCompra() {
     onSuccess: (data) => {
       setResult(data);
       utils.buyAdvisor.getHistory.invalidate();
-      toast.success("Análise concluída e salva no histórico!");
+      toast.success(showBalances ? "Análise concluída e salva no histórico!" : "Ação concluída.");
     },
     onError: (err) => {
-      toast.error(`Erro ao analisar: ${err.message}`);
+      toast.error(showBalances ? `Erro ao analisar: ${err.message}` : "Não foi possível concluir a ação.");
     },
   });
 
@@ -119,6 +119,10 @@ export default function MelhorCompra() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!showBalances) {
+      toast.info("Ação indisponível no modo privado.");
+      return;
+    }
     if (cooldown) return;
 
     const parsed = parseFloat(amount.replace(",", "."));
@@ -145,6 +149,21 @@ export default function MelhorCompra() {
   }
 
   const totalAssets = assets?.length ?? 0;
+
+  if (!showBalances) {
+    return (
+      <DashboardLayout>
+        <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+          <CardContent className="py-16 text-center">
+            <p className="font-medium">Triagem de compra ocultada</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Desative o modo privado para acessar análises e histórico pessoais.
+            </p>
+          </CardContent>
+        </Card>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -316,7 +335,7 @@ export default function MelhorCompra() {
                                 </span>
                               </div>
                             </div>
-                            <p className="text-[11px] text-muted-foreground">
+                            <p className="text-xs text-muted-foreground">
                               {q.source ?? "Fonte não registrada"} · {q.state ?? "estado não informado"} · {q.asOf ? new Date(q.asOf).toLocaleString("pt-BR") : "sem data-base"}
                             </p>
                           </div>

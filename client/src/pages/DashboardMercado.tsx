@@ -9,7 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { PrivacyMask } from "@/components/PrivacyMask";
+import { SensitiveContent } from "@/components/SensitiveContent";
 import { MarketFlowSection } from "@/components/MarketFlowSection";
 import { trpc } from "@/lib/trpc";
 import { filterMarketAssetsByClass, MARKET_ASSET_TABS, type MarketAssetTabId } from "@shared/marketAssetTabs";
@@ -246,7 +248,7 @@ function MacroRatesSection() {
   );
 }
 
-function PortfolioQuotesSection() {
+function PortfolioQuotesContent() {
   const [expandedTicker, setExpandedTicker] = useState<string | null>(null);
   const [activeClass, setActiveClass] = useState<MarketAssetTabId>("rv_nacional");
   const [quoteSort, setQuoteSort] = useState<MarketQuoteSort>("portfolio");
@@ -329,7 +331,7 @@ function PortfolioQuotesSection() {
                   <button
                     type="button"
                     onClick={() => setQuoteSort("yield_desc")}
-                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "yield_desc" ? "bg-emerald-500/15 text-emerald-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-xs font-medium transition-colors ${quoteSort === "yield_desc" ? "bg-emerald-500/15 text-emerald-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                     aria-pressed={quoteSort === "yield_desc"}
                     title="Ordenar rendimento (L/P) do maior para o menor"
                   >
@@ -338,7 +340,7 @@ function PortfolioQuotesSection() {
                   <button
                     type="button"
                     onClick={() => setQuoteSort("yield_asc")}
-                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "yield_asc" ? "bg-red-500/15 text-red-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-xs font-medium transition-colors ${quoteSort === "yield_asc" ? "bg-red-500/15 text-red-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                     aria-pressed={quoteSort === "yield_asc"}
                     title="Ordenar rendimento (L/P) do menor para o maior"
                   >
@@ -349,7 +351,7 @@ function PortfolioQuotesSection() {
                   <button
                     type="button"
                     onClick={() => setQuoteSort("monthly_desc")}
-                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "monthly_desc" ? "bg-emerald-500/15 text-emerald-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-xs font-medium transition-colors ${quoteSort === "monthly_desc" ? "bg-emerald-500/15 text-emerald-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                     aria-pressed={quoteSort === "monthly_desc"}
                     title="Ordenar variação mensal da maior alta para a menor"
                   >
@@ -358,7 +360,7 @@ function PortfolioQuotesSection() {
                   <button
                     type="button"
                     onClick={() => setQuoteSort("monthly_asc")}
-                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "monthly_asc" ? "bg-red-500/15 text-red-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-xs font-medium transition-colors ${quoteSort === "monthly_asc" ? "bg-red-500/15 text-red-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                     aria-pressed={quoteSort === "monthly_asc"}
                     title="Ordenar variação mensal da maior baixa para a menor"
                   >
@@ -369,7 +371,7 @@ function PortfolioQuotesSection() {
                   <button
                     type="button"
                     onClick={() => setQuoteSort("daily_desc")}
-                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "daily_desc" ? "bg-emerald-500/15 text-emerald-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-xs font-medium transition-colors ${quoteSort === "daily_desc" ? "bg-emerald-500/15 text-emerald-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                     aria-pressed={quoteSort === "daily_desc"}
                     title="Ordenar variação diária da maior alta para a menor"
                   >
@@ -378,7 +380,7 @@ function PortfolioQuotesSection() {
                   <button
                     type="button"
                     onClick={() => setQuoteSort("daily_asc")}
-                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors ${quoteSort === "daily_asc" ? "bg-red-500/15 text-red-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                    className={`flex min-h-7 items-center gap-1 rounded-md px-2 text-xs font-medium transition-colors ${quoteSort === "daily_asc" ? "bg-red-500/15 text-red-300" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                     aria-pressed={quoteSort === "daily_asc"}
                     title="Ordenar variação diária da maior baixa para a menor"
                   >
@@ -419,7 +421,7 @@ function PortfolioQuotesSection() {
                               <div className="flex flex-wrap items-center gap-1.5">
                                 <span className="break-all font-mono text-base font-bold leading-tight text-foreground">{q.ticker}</span>
                                 {monthlyHighlightLabel && (
-                                  <span className={`rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
+                                  <span className={`rounded px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${
                                     isStrongMonthlyGain ? "bg-emerald-400/20 text-emerald-200" : "bg-red-400/20 text-red-200"
                                   }`}>
                                     {monthlyHighlightLabel}
@@ -429,22 +431,22 @@ function PortfolioQuotesSection() {
                               <p className="mt-1 line-clamp-1 text-xs leading-snug text-muted-foreground">{q.name}</p>
                             </div>
                             <div className="min-w-0 shrink-0 text-right">
-                              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Preço</p>
+                              <p className="text-xs uppercase tracking-wide text-muted-foreground">Preço</p>
                               <PrivacyMask as="span" className="mt-0.5 block font-mono text-xs font-semibold">{formatPrice(q.price, q.currency)}</PrivacyMask>
                             </div>
                             <ChevronDown className={`mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                           </div>
                           <div className="grid grid-cols-3 gap-2 border-t border-border/35 pt-2">
                             <div>
-                              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Dia</p>
+                              <p className="text-xs uppercase tracking-wide text-muted-foreground">Dia</p>
                               <div className="mt-0.5"><ChangeChip value={q.changePercent} /></div>
                             </div>
                             <div>
-                              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Mês</p>
+                              <p className="text-xs uppercase tracking-wide text-muted-foreground">Mês</p>
                               <div className="mt-0.5"><MonthlyChangeChip value={monthly?.changePercent} isLoading={monthlyQuery.isLoading} /></div>
                             </div>
                             <div className="min-w-0 text-right">
-                              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Posição</p>
+                              <p className="text-xs uppercase tracking-wide text-muted-foreground">Posição</p>
                               <PrivacyMask as="span" className="mt-0.5 block truncate font-mono text-xs font-semibold">{formatPrice(q.totalValue, q.currency)}</PrivacyMask>
                             </div>
                           </div>
@@ -454,7 +456,7 @@ function PortfolioQuotesSection() {
                             <div className="flex min-w-0 items-center gap-1.5">
                               <span className="truncate font-mono text-sm font-bold text-foreground">{q.ticker}</span>
                               {monthlyHighlightLabel && (
-                                <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
+                                <span className={`shrink-0 rounded px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${
                                   isStrongMonthlyGain ? "bg-emerald-400/20 text-emerald-200" : "bg-red-400/20 text-red-200"
                                 }`}>
                                   {monthlyHighlightLabel}
@@ -463,22 +465,22 @@ function PortfolioQuotesSection() {
                             </div>
                             <p className="mt-0.5 truncate text-xs text-muted-foreground">{q.name}</p>
                           </div>
-                          <div className="min-w-0"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Preço</p><PrivacyMask as="span" className="mt-0.5 block truncate font-mono text-xs font-semibold">{formatPrice(q.price, q.currency)}</PrivacyMask></div>
-                          <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Dia</p><div className="mt-0.5"><ChangeChip value={q.changePercent} /></div></div>
-                          <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Mês</p><div className="mt-0.5"><MonthlyChangeChip value={monthly?.changePercent} isLoading={monthlyQuery.isLoading} /></div></div>
-                          <div className="min-w-0 text-right"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">Posição</p><PrivacyMask as="span" className="mt-0.5 block truncate font-mono text-xs font-semibold">{formatPrice(q.totalValue, q.currency)}</PrivacyMask></div>
+                          <div className="min-w-0"><p className="text-xs uppercase tracking-wide text-muted-foreground">Preço</p><PrivacyMask as="span" className="mt-0.5 block truncate font-mono text-xs font-semibold">{formatPrice(q.price, q.currency)}</PrivacyMask></div>
+                          <div><p className="text-xs uppercase tracking-wide text-muted-foreground">Dia</p><div className="mt-0.5"><ChangeChip value={q.changePercent} /></div></div>
+                          <div><p className="text-xs uppercase tracking-wide text-muted-foreground">Mês</p><div className="mt-0.5"><MonthlyChangeChip value={monthly?.changePercent} isLoading={monthlyQuery.isLoading} /></div></div>
+                          <div className="min-w-0 text-right"><p className="text-xs uppercase tracking-wide text-muted-foreground">Posição</p><PrivacyMask as="span" className="mt-0.5 block truncate font-mono text-xs font-semibold">{formatPrice(q.totalValue, q.currency)}</PrivacyMask></div>
                           <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                         </div>
                       </button>
                       {isExpanded && (
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border/50 bg-secondary/15 px-3 py-3 text-xs sm:grid-cols-3">
-                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Quantidade</p><PrivacyMask as="span" className="mt-1 block font-mono">{q.qty.toLocaleString("pt-BR", { maximumFractionDigits: 4 })}</PrivacyMask></div>
-                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Preço médio</p><PrivacyMask as="span" className="mt-1 block font-mono">{q.avgCost > 0 ? formatPrice(q.avgCost, q.currency) : "—"}</PrivacyMask></div>
-                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">L/P</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${q.profitPct > 0 ? "text-emerald-400" : q.profitPct < 0 ? "text-red-400" : "text-muted-foreground"}`}>{q.profitPct === 0 ? "—" : `${q.profitPct >= 0 ? "+" : ""}${q.profitPct.toFixed(2)}%`}</PrivacyMask></div>
-                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">L/P em valor</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${profitValue > 0 ? "text-emerald-400" : profitValue < 0 ? "text-red-400" : "text-muted-foreground"}`}>{formatPrice(profitValue, q.currency)}</PrivacyMask></div>
-                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Base do mês</p><PrivacyMask as="span" className="mt-1 block font-mono">{monthly?.referencePrice ? formatPrice(monthly.referencePrice, q.currency) : "—"}</PrivacyMask></div>
-                          <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Data-base</p><p className="mt-1 flex items-center gap-1 text-muted-foreground"><CalendarDays className="h-3 w-3" />{formatShortDate(monthly?.referenceDate)}</p></div>
-                          <div className="col-span-2 sm:col-span-3"><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Referência do preço</p><p className="mt-1 text-[11px] text-muted-foreground">{getPriceMetadataLabel({ currency: q.currency, source: q.priceSource, state: q.priceState, asOf: q.priceAsOf })}</p></div>
+                          <div><p className="uppercase tracking-wide text-xs text-muted-foreground">Quantidade</p><PrivacyMask as="span" className="mt-1 block font-mono">{q.qty.toLocaleString("pt-BR", { maximumFractionDigits: 4 })}</PrivacyMask></div>
+                          <div><p className="uppercase tracking-wide text-xs text-muted-foreground">Preço médio</p><PrivacyMask as="span" className="mt-1 block font-mono">{q.avgCost > 0 ? formatPrice(q.avgCost, q.currency) : "—"}</PrivacyMask></div>
+                          <div><p className="uppercase tracking-wide text-xs text-muted-foreground">L/P</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${q.profitPct > 0 ? "text-emerald-400" : q.profitPct < 0 ? "text-red-400" : "text-muted-foreground"}`}>{q.profitPct === 0 ? "—" : `${q.profitPct >= 0 ? "+" : ""}${q.profitPct.toFixed(2)}%`}</PrivacyMask></div>
+                          <div><p className="uppercase tracking-wide text-xs text-muted-foreground">L/P em valor</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${profitValue > 0 ? "text-emerald-400" : profitValue < 0 ? "text-red-400" : "text-muted-foreground"}`}>{formatPrice(profitValue, q.currency)}</PrivacyMask></div>
+                          <div><p className="uppercase tracking-wide text-xs text-muted-foreground">Base do mês</p><PrivacyMask as="span" className="mt-1 block font-mono">{monthly?.referencePrice ? formatPrice(monthly.referencePrice, q.currency) : "—"}</PrivacyMask></div>
+                          <div><p className="uppercase tracking-wide text-xs text-muted-foreground">Data-base</p><p className="mt-1 flex items-center gap-1 text-muted-foreground"><CalendarDays className="h-3 w-3" />{formatShortDate(monthly?.referenceDate)}</p></div>
+                          <div className="col-span-2 sm:col-span-3"><p className="uppercase tracking-wide text-xs text-muted-foreground">Referência do preço</p><p className="mt-1 text-xs text-muted-foreground">{getPriceMetadataLabel({ currency: q.currency, source: q.priceSource, state: q.priceState, asOf: q.priceAsOf })}</p></div>
                           <div className={`col-span-2 flex items-center justify-between gap-3 rounded-md border px-2.5 py-2 sm:col-span-3 ${
                             isStrongMonthlyGain
                               ? "border-emerald-400/35 bg-emerald-500/10"
@@ -490,7 +492,7 @@ function PortfolioQuotesSection() {
                               <Layers3 className="h-3.5 w-3.5" />
                               {monthlyHighlightLabel ?? "Variação mensal de preço"}
                             </span>
-                            <span className="text-right text-[10px] text-muted-foreground">Preço atual versus último fechamento antes do mês; não inclui proventos.</span>
+                            <span className="text-right text-xs text-muted-foreground">Preço atual versus último fechamento antes do mês; não inclui proventos.</span>
                           </div>
                         </div>
                       )}
@@ -506,7 +508,25 @@ function PortfolioQuotesSection() {
   );
 }
 
-function NewsSection() {
+function PortfolioQuotesSection() {
+  const { showBalances } = useBalanceVisibility();
+
+  return (
+    <SensitiveContent
+      fallback={
+        <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+          <CardContent className="flex min-h-40 items-center justify-center p-6 text-center text-sm text-muted-foreground">
+            Dados pessoais de investimento estão ocultos.
+          </CardContent>
+        </Card>
+      }
+    >
+      {showBalances && <PortfolioQuotesContent />}
+    </SensitiveContent>
+  );
+}
+
+function PortfolioNewsContent() {
   const [expanded, setExpanded] = useState<number | null>(null);
   const { data, isLoading, isError, refetch, isFetching } = trpc.market.getPortfolioNews.useQuery(
     { limit: 20 },
@@ -612,6 +632,24 @@ function NewsSection() {
   );
 }
 
+function NewsSection() {
+  const { showBalances } = useBalanceVisibility();
+
+  return (
+    <SensitiveContent
+      fallback={
+        <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+          <CardContent className="flex min-h-40 items-center justify-center p-6 text-center text-sm text-muted-foreground">
+            Notícias personalizadas estão ocultas.
+          </CardContent>
+        </Card>
+      }
+    >
+      {showBalances && <PortfolioNewsContent />}
+    </SensitiveContent>
+  );
+}
+
 // ─── Componente de resumo do dia ──────────────────────────────────────────────
 
 function DaySummaryBar() {
@@ -661,6 +699,7 @@ function DaySummaryBar() {
 
 export default function DashboardMercado() {
   const [activeTab, setActiveTab] = useState<"overview" | "portfolio" | "news">("overview");
+  const { showBalances } = useBalanceVisibility();
 
   return (
     <DashboardLayout>
@@ -672,7 +711,9 @@ export default function DashboardMercado() {
             Dashboard de Mercado
           </h2>
           <p className="text-muted-foreground mt-1">
-            Índices globais, taxas macro, cotações da carteira e notícias em tempo real.
+            {showBalances
+              ? "Índices globais, taxas macro, cotações da carteira e notícias em tempo real."
+              : "Índices globais, taxas macro, fluxos de mercado e notícias públicas em tempo real."}
           </p>
         </div>
 
@@ -683,7 +724,7 @@ export default function DashboardMercado() {
         <div className="flex gap-1 p-1 bg-secondary/50 rounded-lg w-full sm:w-fit border border-border/50 overflow-x-auto">
           {[
             { id: "overview", label: "Índices & Macro", icon: Globe },
-            { id: "portfolio", label: "Minha Carteira", icon: BarChart3 },
+            { id: "portfolio", label: showBalances ? "Minha Carteira" : "Conteúdo privado", icon: BarChart3 },
             { id: "news", label: "Notícias", icon: Newspaper },
           ].map(({ id, label, icon: Icon }) => (
             <button

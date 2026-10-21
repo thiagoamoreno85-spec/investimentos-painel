@@ -15,6 +15,8 @@ import {
 import DashboardLayout from "@/components/DashboardLayout";
 import { ImportCSVModal } from "@/components/ImportCSVModal";
 import { PrivacyMask } from "@/components/PrivacyMask";
+import { SensitiveContent } from "@/components/SensitiveContent";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { FinancialDeleteConfirmDialog } from "@/components/FinancialDeleteConfirmDialog";
 import { trpc } from "@/lib/trpc";
 import {
@@ -53,6 +55,7 @@ const CLASS_CURRENCY: Record<string, "BRL" | "USD"> = {
 };
 
 export default function Transacoes() {
+  const { showBalances } = useBalanceVisibility();
   const [ticker, setTicker] = useState("");
   const [name, setName] = useState("");
   const [assetClass, setAssetClass] = useState<string>("rv_nacional");
@@ -226,6 +229,7 @@ export default function Transacoes() {
 
   return (
     <DashboardLayout>
+      <SensitiveContent fallback={<Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm"><CardContent className="py-16 text-center"><p className="font-medium">Transações ocultadas</p><p className="mt-1 text-sm text-muted-foreground">Desative o modo privado para consultar ou registrar dados financeiros.</p></CardContent></Card>}>
       <div className="space-y-6">
         {/* Cabeçalho fixo */}
         <div className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4">
@@ -736,7 +740,7 @@ export default function Transacoes() {
           if (!open && !deleteTx.isPending) setTransactionPendingDeletion(null);
         }}
         title="Excluir transação"
-        itemLabel={transactionPendingDeletion ? `${transactionPendingDeletion.type === "buy" ? "compra" : "venda"} de ${transactionPendingDeletion.ticker} — ${formatCurrency(Number(transactionPendingDeletion.totalValue), transactionPendingDeletion.currency)}` : "esta transação"}
+        itemLabel={showBalances && transactionPendingDeletion ? `${transactionPendingDeletion.type === "buy" ? "compra" : "venda"} de ${transactionPendingDeletion.ticker} — ${formatCurrency(Number(transactionPendingDeletion.totalValue), transactionPendingDeletion.currency)}` : "esta transação"}
         consequence="A posição e o preço médio do ativo serão recalculados a partir do histórico remanescente."
         onConfirm={() => {
           if (!transactionPendingDeletion) return;
@@ -747,6 +751,7 @@ export default function Transacoes() {
         }}
         isPending={deleteTx.isPending}
       />
+      </SensitiveContent>
     </DashboardLayout>
   );
 }

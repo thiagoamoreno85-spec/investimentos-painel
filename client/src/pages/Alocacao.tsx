@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
+import { SensitiveContent } from "@/components/SensitiveContent";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
@@ -382,6 +383,7 @@ export default function Alocacao() {
 
   return (
     <DashboardLayout>
+      <SensitiveContent fallback={<Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm"><CardContent className="py-16 text-center"><p className="font-medium">Alocação ocultada</p><p className="mt-1 text-sm text-muted-foreground">Desative o modo privado para consultar sua carteira.</p></CardContent></Card>}>
       {/* Tela fixa: flex-col ocupando 100% da altura disponível */}
       <div className="flex flex-col h-[calc(100vh-4rem)] gap-3 overflow-hidden">
 
@@ -634,8 +636,8 @@ export default function Alocacao() {
                               />
                             </div>
                             <div className="flex items-center justify-between gap-3">
-                              <span className="text-[11px] text-muted-foreground">{mobileVisibleAssets.length} {mobileVisibleAssets.length === 1 ? "ativo" : "ativos"}</span>
-                              <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                              <span className="text-xs text-muted-foreground">{mobileVisibleAssets.length} {mobileVisibleAssets.length === 1 ? "ativo" : "ativos"}</span>
+                              <label className="flex items-center gap-2 text-xs text-muted-foreground">
                                 Ordenar
                                 <select
                                   aria-label="Ordenar ativos"
@@ -658,7 +660,7 @@ export default function Alocacao() {
                                     setSelectedCategory(quickCategory.id);
                                     setExpandedMobileAssetId(null);
                                   }}
-                                  className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors ${category.id === quickCategory.id ? "border-primary/50 bg-primary/15 text-primary" : "border-border/60 bg-secondary/30 text-muted-foreground hover:text-foreground"}`}
+                                  className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${category.id === quickCategory.id ? "border-primary/50 bg-primary/15 text-primary" : "border-border/60 bg-secondary/30 text-muted-foreground hover:text-foreground"}`}
                                 >
                                   {quickCategory.name}
                                 </button>
@@ -670,7 +672,7 @@ export default function Alocacao() {
                                   setExpandedMobileAssetId(null);
                                 }}
                                 aria-pressed={mobileShowLossesOnly}
-                                className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors ${mobileShowLossesOnly ? "border-red-400/60 bg-red-500/15 text-red-300" : "border-border/60 bg-secondary/30 text-muted-foreground hover:text-foreground"}`}
+                                className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${mobileShowLossesOnly ? "border-red-400/60 bg-red-500/15 text-red-300" : "border-border/60 bg-secondary/30 text-muted-foreground hover:text-foreground"}`}
                               >
                                 Apenas perdas
                               </button>
@@ -679,7 +681,7 @@ export default function Alocacao() {
 
                           {/* ── Tabela móvel: cabeçalho fixo e rolagem exclusiva dos ativos ── */}
                           <div className="md:hidden flex h-[min(52vh,500px)] min-h-[270px] flex-col overflow-hidden rounded-b-lg border-x border-b border-border/60 bg-card/40">
-                            <div className="grid shrink-0 grid-cols-[minmax(0,1fr)_42px_76px_62px] gap-1 border-b border-border/60 bg-secondary/80 px-3 py-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                            <div className="grid shrink-0 grid-cols-[minmax(0,1fr)_42px_76px_62px] gap-1 border-b border-border/60 bg-secondary/80 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                               <span>Ativo</span>
                               <span className="text-right">Qtd</span>
                               <span className="text-right">Total</span>
@@ -725,7 +727,7 @@ export default function Alocacao() {
                                             {isFixedIncome && needsPriceUpdate && <AlertTriangle className="h-3 w-3 shrink-0 text-amber-400" aria-label="Preço manual desatualizado" />}
                                           </span>
                                           {isFixedIncome && (
-                                            <span className="ml-4 block truncate text-[10px] text-muted-foreground">
+                                            <span className="ml-4 block truncate text-xs text-muted-foreground">
                                               {asset.issuer || "Emissor não informado"}{asset.maturityLabel ? ` · ${asset.maturityLabel}` : ""}
                                             </span>
                                           )}
@@ -738,13 +740,13 @@ export default function Alocacao() {
                                         </span>
                                       </div>
                                       {isExpanded && (
-                                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border/40 bg-secondary/10 px-7 py-3 text-[11px]">
+                                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border/40 bg-secondary/10 px-7 py-3 text-xs">
                                           <div>
-                                            <p className="uppercase tracking-wide text-[9px] text-muted-foreground">Custo médio</p>
+                                            <p className="uppercase tracking-wide text-xs text-muted-foreground">Custo médio</p>
                                             <p className={`mt-0.5 font-mono transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>{formatCurrency(asset.cost, asset.currency)}</p>
                                           </div>
                                           <div className="text-right">
-                                            <p className="uppercase tracking-wide text-[9px] text-muted-foreground">Preço atual</p>
+                                            <p className="uppercase tracking-wide text-xs text-muted-foreground">Preço atual</p>
                                             <div className={`mt-0.5 flex items-center justify-end gap-1 font-mono transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                               <span>{formatCurrency(asset.price, asset.currency)}</span>
                                               {MANUAL_CLASSES.includes(asset.assetClass) && (
@@ -761,18 +763,18 @@ export default function Alocacao() {
                                             </div>
                                           </div>
                                           <div>
-                                            <p className="uppercase tracking-wide text-[9px] text-muted-foreground">Classe</p>
+                                            <p className="uppercase tracking-wide text-xs text-muted-foreground">Classe</p>
                                             <p className="mt-0.5 text-muted-foreground">{ASSET_CLASS_LABELS[asset.assetClass] || asset.assetClass}</p>
                                           </div>
                                           <div className="text-right">
-                                            <p className="uppercase tracking-wide text-[9px] text-muted-foreground">L/P em reais</p>
+                                            <p className="uppercase tracking-wide text-xs text-muted-foreground">L/P em reais</p>
                                             <p className={`mt-0.5 font-mono ${asset.profit >= 0 ? "text-emerald-400" : "text-red-400"} transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>{formatBRLCompact(asset.profit)}</p>
                                           </div>
                                           <div className="col-span-2 rounded-md border border-emerald-500/20 bg-emerald-500/[0.045] px-3 py-2.5">
                                             <div className="flex items-start justify-between gap-3">
                                               <div>
-                                                <p className="text-[10px] font-medium uppercase tracking-wide text-emerald-300">Proventos recebidos</p>
-                                                <p className="mt-0.5 text-[10px] text-muted-foreground">
+                                                <p className="text-xs font-medium uppercase tracking-wide text-emerald-300">Proventos recebidos</p>
+                                                <p className="mt-0.5 text-xs text-muted-foreground">
                                                   Dividendos, JCP, rendimentos, amortizações e aluguéis já registrados.
                                                 </p>
                                               </div>
@@ -788,8 +790,8 @@ export default function Alocacao() {
                                             </div>
                                             <div className="mt-2 flex items-end justify-between gap-3 border-t border-emerald-500/15 pt-2">
                                               <div>
-                                                <p className="text-[10px] font-medium uppercase tracking-wide text-emerald-300">Yield sobre custo</p>
-                                                <p className="mt-0.5 text-[10px] text-muted-foreground">Proventos de caixa acumulados ÷ custo atual da posição.</p>
+                                                <p className="text-xs font-medium uppercase tracking-wide text-emerald-300">Yield sobre custo</p>
+                                                <p className="mt-0.5 text-xs text-muted-foreground">Proventos de caixa acumulados ÷ custo atual da posição.</p>
                                               </div>
                                               <p className={`font-mono text-base font-bold text-emerald-300 transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                                 {dividendSummaryQuery.isLoading || dividendSummaryQuery.isError ? "—" : hasDividendHistory ? formatPct(dividendSummary!.yieldOnCost) : "0,00%"}
@@ -800,10 +802,10 @@ export default function Alocacao() {
                                             <div className="col-span-2 rounded-md border border-border/60 bg-card/40 px-3 py-3">
                                               <div className="mb-2 flex items-start justify-between gap-3">
                                                 <div>
-                                                  <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Evolução anual dos proventos</p>
-                                                  <p className="mt-0.5 text-[10px] text-muted-foreground">Por ano de pagamento; usa a data-ex quando o pagamento não foi informado.</p>
+                                                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Evolução anual dos proventos</p>
+                                                  <p className="mt-0.5 text-xs text-muted-foreground">Por ano de pagamento; usa a data-ex quando o pagamento não foi informado.</p>
                                                 </div>
-                                                <span className="text-[10px] text-muted-foreground">Histórico registrado</span>
+                                                <span className="text-xs text-muted-foreground">Histórico registrado</span>
                                               </div>
                                               <div className={`h-36 w-full transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}>
                                                 <ResponsiveContainer width="100%" height="100%">
@@ -1009,8 +1011,8 @@ export default function Alocacao() {
                                               {needsPriceUpdate ? <AlertTriangle className="h-3 w-3 shrink-0" /> : <CalendarClock className="h-3 w-3 shrink-0" />}
                                               <span>{formatReferenceDate(asset.priceReferenceDate)}</span>
                                             </div>
-                                            {needsPriceUpdate && <span className="block mt-0.5 text-[10px] font-medium text-amber-400">Atualizar preço</span>}
-                                            {!needsPriceUpdate && priceFreshness.status === "atencao" && <span className="block mt-0.5 text-[10px] text-amber-300">Revisar em breve</span>}
+                                            {needsPriceUpdate && <span className="block mt-0.5 text-xs font-medium text-amber-400">Atualizar preço</span>}
+                                            {!needsPriceUpdate && priceFreshness.status === "atencao" && <span className="block mt-0.5 text-xs text-amber-300">Revisar em breve</span>}
                                           </td>
                                         )}
                                         {/* Total */}
@@ -1026,7 +1028,7 @@ export default function Alocacao() {
                                             {isFixedIncome ? (
                                               <span className="flex flex-col items-end leading-tight">
                                                 <span>{formatBRLCompact(asset.profit)}</span>
-                                                <span className="text-[10px] opacity-90">{formatPct(asset.profitPercentage)}</span>
+                                                <span className="text-xs opacity-90">{formatPct(asset.profitPercentage)}</span>
                                               </span>
                                             ) : (
                                               <span>{asset.profitPercentage >= 0 ? "+" : ""}{asset.profitPercentage.toFixed(1)}%</span>
@@ -1161,12 +1163,12 @@ export default function Alocacao() {
                                             <div
                                               className={`flex flex-col items-end gap-0 font-mono transition-all duration-200 ${!showBalances ? "blur-sm select-none" : ""}`}
                                             >
-                                              <span className={`font-semibold text-[11px] ${isUp ? "text-emerald-400" : "text-red-400"}`}>
+                                              <span className={`font-semibold text-xs ${isUp ? "text-emerald-400" : "text-red-400"}`}>
                                                 {formatPct(daily.changePct)}
                                               </span>
                                             </div>
                                           ) : (
-                                            <span className="text-muted-foreground text-[10px]">—</span>
+                                            <span className="text-muted-foreground text-xs">—</span>
                                           )}
                                         </td>
                                       </tr>
@@ -1242,7 +1244,7 @@ export default function Alocacao() {
                 className="font-mono"
                 autoFocus
               />
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Informe o valor unitário da cota/título. Use vírgula ou ponto como decimal.
               </p>
             </div>
@@ -1254,7 +1256,7 @@ export default function Alocacao() {
                 value={priceReferenceDateInput}
                 onChange={(e) => setPriceReferenceDateInput(e.target.value)}
               />
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Esta data define o alerta de atualização da marcação manual.
               </p>
             </div>
@@ -1275,6 +1277,7 @@ export default function Alocacao() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </SensitiveContent>
     </DashboardLayout>
   );
 }

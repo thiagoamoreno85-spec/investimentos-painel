@@ -2,10 +2,12 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/IconButton";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { FinancialDeleteConfirmDialog } from "@/components/FinancialDeleteConfirmDialog";
+import { PrivacyMask } from "@/components/PrivacyMask";
 import {
   Dialog,
   DialogContent,
@@ -69,7 +71,7 @@ export default function CaixaCard() {
     onSuccess: (data) => {
       utils.cash.getBalance.invalidate();
       utils.cash.listMovements.invalidate();
-      toast.success(`Movimentação registrada — Novo saldo: ${formatCurrency(data.newBalance)}`);
+      toast.success(showBalances ? `Movimentação registrada — Novo saldo: ${formatCurrency(data.newBalance)}` : "Movimentação registrada");
       setOpen(false);
       setAmount("");
       setDescription("");
@@ -105,6 +107,23 @@ export default function CaixaCard() {
 
   const currentBalance = balance?.balance ?? 0;
 
+  if (!showBalances) {
+    return (
+      <Card className="bg-card/50 border-border/50 shadow-sm card-interactive">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">Caixa disponível</CardTitle>
+          <Wallet className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+        </CardHeader>
+        <CardContent>
+          <PrivacyMask className="text-base font-bold font-mono text-muted-foreground">
+            Conteúdo financeiro oculto
+          </PrivacyMask>
+          <p className="mt-1 text-xs text-muted-foreground">Mostre os valores para consultar ou registrar movimentações.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -115,9 +134,13 @@ export default function CaixaCard() {
           <Wallet className="h-4 w-4 text-muted-foreground" />
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-6 w-6">
+              <IconButton
+                variant="ghost"
+                aria-label="Registrar movimentação de caixa"
+                className="h-6 w-6"
+              >
                 <Plus className="h-3 w-3" />
-              </Button>
+              </IconButton>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
@@ -200,9 +223,7 @@ export default function CaixaCard() {
 
       <CardContent>
         {/* Saldo */}
-        <div className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
-          !showBalances ? "blur-sm" : ""
-        }`}>
+        <div className="text-sm font-bold font-mono leading-tight sm:text-base md:text-xl">
           {loadingBalance ? (
             <span className="text-muted-foreground text-lg">Carregando...</span>
           ) : (
@@ -250,17 +271,15 @@ export default function CaixaCard() {
                         mov.type === "entrada"
                           ? "text-emerald-400"
                           : "text-destructive"
-                      } ${
-                        !showBalances ? "blur-sm" : ""
                       }`}
                     >
                       {mov.type === "entrada" ? "+" : "-"}
                       {formatCurrency(Number(mov.amount))}
                     </span>
-                    <Button
+                    <IconButton
                       variant="ghost"
-                      size="icon"
-                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label={`Excluir movimentação: ${CATEGORY_LABELS[mov.category] ?? mov.category}`}
+                      className="h-5 w-5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100"
                       onClick={() => setMovementPendingDeletion({
                         id: mov.id,
                         category: mov.category,
@@ -269,7 +288,7 @@ export default function CaixaCard() {
                       })}
                     >
                       <Trash2 className="h-3 w-3 text-muted-foreground" />
-                    </Button>
+                    </IconButton>
                   </div>
                 </div>
                 {/* Linha 2: descrição (sem truncamento) */}

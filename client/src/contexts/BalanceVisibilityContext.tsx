@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { parseBalanceVisibilityPreference } from "@shared/balanceVisibility";
 
 interface BalanceVisibilityContextType {
@@ -8,23 +8,32 @@ interface BalanceVisibilityContextType {
 
 const BalanceVisibilityContext = createContext<BalanceVisibilityContextType | undefined>(undefined);
 
+/**
+ * Lê a preferência antes da primeira renderização no navegador. No servidor e
+ * quando o armazenamento não está disponível, adota privacidade por padrão.
+ */
+function getInitialBalanceVisibility(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return parseBalanceVisibilityPreference(window.localStorage.getItem("showBalances"));
+  } catch {
+    return false;
+  }
+}
+
 export function BalanceVisibilityProvider({ children }: { children: ReactNode }) {
-  const [showBalances, setShowBalances] = useState(true);
-  const [mounted, setMounted] = useState(false);
+  const [showBalances, setShowBalances] = useState(getInitialBalanceVisibility);
 
-  // Carregar estado do localStorage ao montar
   useEffect(() => {
-    const saved = localStorage.getItem("showBalances");
-    setShowBalances(parseBalanceVisibilityPreference(saved));
-    setMounted(true);
-  }, []);
-
-  // Salvar estado no localStorage quando mudar
-  useEffect(() => {
-    if (mounted) {
-      localStorage.setItem("showBalances", JSON.stringify(showBalances));
+    try {
+      window.localStorage.setItem("showBalances", JSON.stringify(showBalances));
+    } catch {
+      // Armazenamento pode estar indisponível (modo privado, políticas do navegador etc.).
     }
-  }, [showBalances, mounted]);
+  }, [showBalances]);
 
   const toggleShowBalances = () => {
     setShowBalances((prev) => !prev);

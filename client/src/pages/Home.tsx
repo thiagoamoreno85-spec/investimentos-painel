@@ -23,7 +23,6 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
 } from "recharts";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -34,6 +33,9 @@ import { CurrencyBreakdownChart } from "@/components/CurrencyBreakdownChart";
 import { EventCalendar } from "@/components/EventCalendar";
 import { PatrimonyEvolutionChart } from "@/components/PatrimonyEvolutionChart";
 import { ConsolidatedNetWorthCard } from "@/components/ConsolidatedNetWorthCard";
+import { PrivacyMask } from "@/components/PrivacyMask";
+import { SensitiveContent } from "@/components/SensitiveContent";
+import { AccessibleChartAlternative, type AccessibleChartColumn } from "@/components/AccessibleChartAlternative";
 
 import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
 import { buildHomePortfolioSummary } from "@shared/homePortfolioSummary";
@@ -45,6 +47,7 @@ import {
 export default function Home() {
   const utils = trpc.useUtils();
   const { showBalances, toggleShowBalances } = useBalanceVisibility();
+  const showBalancesRef = useRef(showBalances);
   const priceRefreshInFlightRef = useRef(false);
   const automaticRefreshRef = useRef(false);
   const lastAutoRefreshAttemptAtRef = useRef<number | null>(null);
@@ -57,18 +60,26 @@ export default function Home() {
   const { data: patrimonialSummary } = trpc.patrimonial.getSummary.useQuery();
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
+  useEffect(() => {
+    showBalancesRef.current = showBalances;
+  }, [showBalances]);
+
   const refreshPrices = trpc.portfolio.refreshPrices.useMutation({
     onSuccess: (result) => {
       setLastUpdated(new Date());
       if (!automaticRefreshRef.current) {
         toast.success(
-          `${result.updated} cotações atualizadas (${result.cached} em cache). USD/BRL: R$ ${result.usdBrl.toFixed(2)}`
+          showBalancesRef.current
+            ? `${result.updated} cotações atualizadas (${result.cached} em cache). USD/BRL: R$ ${result.usdBrl.toFixed(2)}`
+            : "Cotações atualizadas."
         );
       }
       utils.portfolio.getAssets.invalidate();
     },
     onError: (err) => {
-      if (!automaticRefreshRef.current) toast.error(`Erro: ${err.message}`);
+      if (!automaticRefreshRef.current) {
+        toast.error(showBalancesRef.current ? `Erro: ${err.message}` : "Não foi possível atualizar as cotações.");
+      }
     },
     onSettled: () => {
       priceRefreshInFlightRef.current = false;
@@ -244,35 +255,43 @@ export default function Home() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
                 Patrimônio Financeiro Total
               </p>
-              <span className="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2 py-0.5">
+              <span className="flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2 py-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 dados reais
               </span>
             </div>
             <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-              <h2 className={`text-3xl md:text-5xl font-bold tracking-tight font-mono text-gradient-hero transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
-                {isLoading ? "—" : formatCurrency(totalPatrimony)}
-              </h2>
-              {!isLoading && (
-                <span
-                  className={`flex items-center gap-1 text-sm font-semibold font-mono transition-all duration-200 ${
-                    totalProfit >= 0 ? "text-emerald-400" : "text-red-400"
-                  } ${!showBalances ? 'blur-md select-none' : ''}`}
-                >
-                  {totalProfit >= 0 ? (
-                    <ArrowUpRight className="h-4 w-4" />
-                  ) : (
-                    <ArrowDownRight className="h-4 w-4" />
+              {showBalances ? (
+                <>
+                  <h2 className="text-3xl md:text-5xl font-bold tracking-tight font-mono text-gradient-hero">
+                    {isLoading ? "—" : formatCurrency(totalPatrimony)}
+                  </h2>
+                  {!isLoading && (
+                    <span
+                      className={`flex items-center gap-1 text-sm font-semibold font-mono ${
+                        totalProfit >= 0 ? "text-emerald-400" : "text-red-400"
+                      }`}
+                    >
+                      {totalProfit >= 0 ? (
+                        <ArrowUpRight className="h-4 w-4" />
+                      ) : (
+                        <ArrowDownRight className="h-4 w-4" />
+                      )}
+                      {totalProfit >= 0 ? "+" : ""}
+                      {formatCurrency(totalProfit)} ({Math.abs(profitPct).toFixed(1)}%)
+                    </span>
                   )}
-                  {totalProfit >= 0 ? "+" : ""}
-                  {formatCurrency(totalProfit)} ({Math.abs(profitPct).toFixed(1)}%)
-                </span>
+                </>
+              ) : (
+                <h2 className="text-3xl md:text-5xl font-bold tracking-tight font-mono text-muted-foreground">
+                  <PrivacyMask>Conteúdo financeiro oculto</PrivacyMask>
+                </h2>
               )}
             </div>
             <p className="text-muted-foreground text-sm mt-1.5">
               Inclui caixa no patrimônio · resultado exclui saldo de caixa
             </p>
-            {usesReconciliationFx && (
+            {showBalances && usesReconciliationFx && (
               <p className="mt-1 text-xs text-cyan-300/90">
                 Câmbio-base da conciliação: R$ {usdBrl.toFixed(4)}/US$ 1,00
               </p>
@@ -335,35 +354,20 @@ export default function Home() {
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
                 Resultado de Investimentos
               </CardTitle>
-              <TrendingUp
-                className={`h-4 w-4 ${
-                  totalProfit >= 0 ? "text-emerald-500" : "text-red-400"
-                }`}
-              />
+              {showBalances && <TrendingUp className={`h-4 w-4 ${totalProfit >= 0 ? "text-emerald-500" : "text-red-400"}`} />}
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div
-                className={`text-base md:text-2xl font-bold font-mono tracking-tighter truncate transition-all duration-200 ${
-                  totalProfit >= 0 ? "text-emerald-500" : "text-red-400"
-                } ${!showBalances ? 'blur-md select-none' : ''}`}
-              >
-                {totalProfit >= 0 ? "+" : ""}
-                {formatCurrency(totalProfit)}
-              </div>
-              <p
-                className={`text-xs mt-1 flex items-center gap-1 ${
-                  totalProfit >= 0
-                    ? "text-emerald-500/80"
-                    : "text-red-400/80"
-                }`}
-              >
-                {totalProfit >= 0 ? (
-                  <ArrowUpRight className="h-3 w-3" />
-                ) : (
-                  <ArrowDownRight className="h-3 w-3" />
-                )}
-                {Math.abs(profitPct).toFixed(1)}% sobre o custo médio
-              </p>
+              {showBalances ? (
+                <>
+                  <div className={`text-base md:text-2xl font-bold font-mono tracking-tighter truncate ${totalProfit >= 0 ? "text-emerald-500" : "text-red-400"}`}>
+                    {totalProfit >= 0 ? "+" : ""}{formatCurrency(totalProfit)}
+                  </div>
+                  <p className={`text-xs mt-1 flex items-center gap-1 ${totalProfit >= 0 ? "text-emerald-500/80" : "text-red-400/80"}`}>
+                    {totalProfit >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                    {Math.abs(profitPct).toFixed(1)}% sobre o custo médio
+                  </p>
+                </>
+              ) : <div className="text-base md:text-2xl font-bold font-mono text-muted-foreground"><PrivacyMask>Conteúdo financeiro oculto</PrivacyMask></div>}
             </CardContent>
           </Card>
 
@@ -376,18 +380,18 @@ export default function Home() {
               <PieChart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-              <div className={`text-base md:text-2xl font-bold tracking-tighter truncate transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
-                {topAssetTicker}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1 truncate">
-                {topAssetPct.toFixed(1)}% · {topAssetClass}
-              </p>
+              {showBalances ? (
+                <>
+                  <div className="text-base md:text-2xl font-bold tracking-tighter truncate">{topAssetTicker}</div>
+                  <p className="text-xs text-muted-foreground mt-1 truncate">{topAssetPct.toFixed(1)}% · {topAssetClass}</p>
+                </>
+              ) : <div className="text-base md:text-2xl font-bold font-mono text-muted-foreground"><PrivacyMask>Conteúdo financeiro oculto</PrivacyMask></div>}
             </CardContent>
           </Card>
 
           {/* Rent. Hoje — ocupa 2 colunas no mobile, 1 no desktop */}
           <div className="col-span-2 lg:col-span-1">
-            <PerformanceCard />
+            {showBalances ? <PerformanceCard /> : <Card className="h-full bg-card/50 border-border/50"><CardContent className="flex h-full items-center p-3"><PrivacyMask className="text-muted-foreground">Conteúdo financeiro oculto</PrivacyMask></CardContent></Card>}
           </div>
         </div>
 
@@ -395,6 +399,20 @@ export default function Home() {
         <div className="grid grid-cols-2 gap-2 md:gap-4 sm:grid-cols-3">
           {/* Alavancagem — Ativos Totais (financeiros + imobilizados) vs Passivos */}
           {(() => {
+            if (!showBalances) {
+              return (
+                <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm card-interactive h-full">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3 md:pb-2 md:px-6 md:pt-6">
+                    <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Alavancagem</CardTitle>
+                    <Zap className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+                    <PrivacyMask className="text-sm font-mono text-muted-foreground">Conteúdo financeiro oculto</PrivacyMask>
+                  </CardContent>
+                </Card>
+              );
+            }
+
             // Base de ativos = financeiros (carteira) + imobilizados (patrimônio)
             const totalAtivos = totalPatrimony + (patrimonialSummary?.totalAssets ?? 0);
             const totalPassivos = patrimonialSummary?.totalLiabilities ?? 0;
@@ -413,23 +431,23 @@ export default function Home() {
                   <div className="space-y-2 md:space-y-3">
                     {/* Razão Ativos Totais / Passivos */}
                     <div>
-                      <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5">Ativos / Passivos</p>
-                      <div className={`text-sm md:text-2xl font-bold font-mono tracking-tighter transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
+                      <p className="text-xs md:text-xs text-muted-foreground mb-0.5">Ativos / Passivos</p>
+                      <div className="text-sm md:text-2xl font-bold font-mono tracking-tighter">
                         {ratio !== null ? ratio.toFixed(2) : "∞"}x
                       </div>
                     </div>
                     {/* % Passivo sobre Ativos Totais */}
                     <div className="pt-1.5 md:pt-2 border-t border-border/30">
-                      <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5">% Passivo</p>
+                      <p className="text-xs md:text-xs text-muted-foreground mb-0.5">% Passivo</p>
                       <div className={`text-xs md:text-lg font-bold font-mono tracking-tighter ${
                         totalAtivos > 0
                           ? isHighLeverage ? "text-amber-500" : "text-emerald-500"
                           : "text-muted-foreground"
-                      } transition-all duration-200 ${!showBalances ? 'blur-md select-none' : ''}`}>
+                      }`}>
                         {pctPassivo.toFixed(1)}%
                       </div>
-                      <p className="text-[9px] md:text-[10px] text-muted-foreground mt-0.5 leading-tight">
-                        {!showBalances ? "••••" : formatCurrency(totalAtivos)}
+                      <p className="text-xs md:text-xs text-muted-foreground mt-0.5 leading-tight">
+                        {formatCurrency(totalAtivos)}
                       </p>
                     </div>
                   </div>
@@ -439,11 +457,11 @@ export default function Home() {
           })()}
 
           {/* Rent. Mês */}
-          <PerformanceCards />
+          {showBalances ? <PerformanceCards /> : <Card className="bg-card/50 border-border/50"><CardContent className="p-3"><PrivacyMask className="text-muted-foreground">Conteúdo financeiro oculto</PrivacyMask></CardContent></Card>}
 
           {/* Caixa Disponível — ocupa 2 colunas no mobile, 1 no sm+ */}
           <div className="col-span-2 sm:col-span-1">
-            <CaixaCard />
+            {showBalances ? <CaixaCard /> : <Card className="h-full bg-card/50 border-border/50"><CardContent className="flex h-full items-center p-3"><PrivacyMask className="text-muted-foreground">Conteúdo financeiro oculto</PrivacyMask></CardContent></Card>}
           </div>
         </div>
 
@@ -455,65 +473,37 @@ export default function Home() {
               <CardTitle>Alocação por Classe</CardTitle>
             </CardHeader>
             <CardContent className="px-3 pb-4">
-              {/* Donut + legenda lado a lado em mobile, empilhado em desktop */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                {/* Donut */}
-                <div className="h-[180px] sm:h-[220px] w-full sm:w-[220px] flex-shrink-0">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RechartsPieChart margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
-                      <Pie
-                        data={pieData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius="40%"
-                        outerRadius="68%"
-                        paddingAngle={2}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {pieData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={classColor(entry.classId)}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        formatter={(value: number) => formatCurrency(value)}
-                        contentStyle={{
-                          backgroundColor: "oklch(0.20 0.01 250)",
-                          borderColor: "oklch(0.30 0.01 250)",
-                          borderRadius: "8px",
-                          color: "oklch(0.90 0 0)",
-                          fontSize: "12px",
-                          padding: "6px 10px",
-                        }}
-                        itemStyle={{ color: "oklch(0.90 0 0)" }}
-                        labelStyle={{ color: "oklch(0.70 0 0)" }}
-                      />
-                    </RechartsPieChart>
-                  </ResponsiveContainer>
+              <SensitiveContent fallback={<div className="flex h-[180px] items-center justify-center text-sm text-muted-foreground">Conteúdo financeiro oculto</div>}>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="h-[180px] sm:h-[220px] w-full sm:w-[220px] flex-shrink-0" aria-hidden="true">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart margin={{ top: 4, right: 4, bottom: 4, left: 4 }} accessibilityLayer={false} aria-hidden="true">
+                        <Pie data={pieData} cx="50%" cy="50%" innerRadius="40%" outerRadius="68%" paddingAngle={2} dataKey="value" stroke="none">
+                          {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={classColor(entry.classId)} />)}
+                        </Pie>
+                        <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-1 gap-x-2 gap-y-2 flex-1 min-w-0">
+                    {pieData.map((entry) => {
+                      const total = pieData.reduce((sum, item) => sum + item.value, 0);
+                      const pct = total > 0 ? ((entry.value / total) * 100).toFixed(1) : "0.0";
+                      return <div key={entry.name} className="flex items-center gap-1.5 min-w-0"><span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: classColor(entry.classId) }} /><div className="min-w-0"><p className="text-xs sm:text-xs text-muted-foreground truncate leading-tight">{entry.name}</p><p className="text-xs sm:text-xs font-medium leading-tight">{pct}%</p></div></div>;
+                    })}
+                  </div>
                 </div>
-                {/* Legenda compacta — 3 colunas em mobile, lista em desktop */}
-                <div className="grid grid-cols-3 sm:grid-cols-1 gap-x-2 gap-y-2 flex-1 min-w-0">
-                  {pieData.map((entry) => {
-                    const total = pieData.reduce((s, e) => s + e.value, 0);
-                    const pct = total > 0 ? ((entry.value / total) * 100).toFixed(1) : "0.0";
-                    return (
-                      <div key={entry.name} className="flex items-center gap-1.5 min-w-0">
-                        <span
-                          className="w-2 h-2 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: classColor(entry.name) }}
-                        />
-                        <div className="min-w-0">
-                          <p className="text-[10px] sm:text-xs text-muted-foreground truncate leading-tight">{entry.name}</p>
-                          <p className="text-[10px] sm:text-xs font-medium leading-tight">{pct}%</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+                <AccessibleChartAlternative
+                  title="Alternativa textual — alocação por classe"
+                  summary="Distribuição da carteira entre as classes de ativos cadastradas."
+                  columns={[
+                    { id: "class", label: "Classe", render: (row) => row.name },
+                    { id: "value", label: "Valor", render: (row) => formatCurrency(row.value) },
+                    { id: "share", label: "Participação", render: (row) => `${(totalPatrimony > 0 ? (row.value / totalPatrimony) * 100 : 0).toFixed(1)}%` },
+                  ] satisfies AccessibleChartColumn<(typeof pieData)[number]>[]}
+                  rows={pieData}
+                />
+              </SensitiveContent>
             </CardContent>
           </Card>
 
@@ -523,39 +513,16 @@ export default function Home() {
               <CardTitle>Top 5 Posições</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {topAssets.map((asset, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {asset.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {asset.class}
-                      </p>
+              <SensitiveContent fallback={<div className="flex min-h-40 items-center justify-center text-sm text-muted-foreground">Conteúdo financeiro oculto</div>}>
+                <div className="space-y-6">
+                  {topAssets.map((asset, i) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <div className="space-y-1"><p className="text-sm font-medium leading-none">{asset.name}</p><p className="text-xs text-muted-foreground">{asset.class}</p></div>
+                      <div className="text-right space-y-1"><p className="text-sm font-medium font-mono">{formatCurrency(asset.value)}</p><p className={`text-xs flex items-center justify-end gap-1 ${asset.profit >= 0 ? "text-emerald-500" : "text-red-400"}`}>{asset.profit >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}{Math.abs(asset.profit).toFixed(1)}%</p></div>
                     </div>
-                    <div className="text-right space-y-1">
-                      <p className={`text-sm font-medium font-mono transition-all duration-200 ${!showBalances ? 'blur-sm select-none' : ''}`}>
-                        {formatCurrency(asset.value)}
-                      </p>
-                      <p
-                        className={`text-xs flex items-center justify-end gap-1 ${
-                          asset.profit >= 0
-                            ? "text-emerald-500"
-                            : "text-red-400"
-                        }`}
-                      >
-                        {asset.profit >= 0 ? (
-                          <ArrowUpRight className="h-3 w-3" />
-                        ) : (
-                          <ArrowDownRight className="h-3 w-3" />
-                        )}
-                        {Math.abs(asset.profit).toFixed(1)}%
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </SensitiveContent>
             </CardContent>
           </Card>
         </div>

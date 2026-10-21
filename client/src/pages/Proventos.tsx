@@ -29,6 +29,8 @@ import {
 } from "lucide-react";
 import { ImportStatementModal } from "@/components/ImportStatementModal";
 import { PrivacyMask } from "@/components/PrivacyMask";
+import { SensitiveContent } from "@/components/SensitiveContent";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { FinancialDeleteConfirmDialog } from "@/components/FinancialDeleteConfirmDialog";
 import { toast } from "sonner";
 import {
@@ -51,6 +53,7 @@ const DIVIDEND_TYPES = [
 ] as const;
 
 export default function Proventos() {
+  const { showBalances } = useBalanceVisibility();
   const utils = trpc.useUtils();
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -186,6 +189,7 @@ export default function Proventos() {
 
   return (
     <DashboardLayout>
+      <SensitiveContent fallback={<Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm"><CardContent className="py-16 text-center"><p className="font-medium">Proventos ocultados</p><p className="mt-1 text-sm text-muted-foreground">Desative o modo privado para consultar ou registrar dados financeiros.</p></CardContent></Card>}>
       <div className="space-y-6">
         {/* Cabeçalho fixo */}
         <div className="flex-shrink-0 pb-3 flex items-start justify-between gap-4">
@@ -697,7 +701,7 @@ export default function Proventos() {
           if (!open && !deleteDividend.isPending) setDividendPendingDeletion(null);
         }}
         title="Excluir provento"
-        itemLabel={dividendPendingDeletion ? `${dividendPendingDeletion.ticker} — ${formatCurrency(Number(dividendPendingDeletion.totalValue), dividendPendingDeletion.currency)} em ${formatDate(dividendPendingDeletion.paymentDate)}` : "este provento"}
+        itemLabel={showBalances && dividendPendingDeletion ? `${dividendPendingDeletion.ticker} — ${formatCurrency(Number(dividendPendingDeletion.totalValue), dividendPendingDeletion.currency)} em ${formatDate(dividendPendingDeletion.paymentDate)}` : "este provento"}
         consequence="O recebimento deixará de compor os totais de proventos, Yield sobre Custo e o histórico do ativo."
         onConfirm={() => {
           if (!dividendPendingDeletion) return;
@@ -705,6 +709,7 @@ export default function Proventos() {
         }}
         isPending={deleteDividend.isPending}
       />
+      </SensitiveContent>
     </DashboardLayout>
   );
 }

@@ -12,7 +12,10 @@ import {
 } from "recharts";
 import { LineChart as LineChartIcon, Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useEffect, useRef } from "react";
 import { PrivacyMask } from "@/components/PrivacyMask";
+import { SensitiveContent } from "@/components/SensitiveContent";
+import { AccessibleChartAlternative, type AccessibleChartColumn } from "@/components/AccessibleChartAlternative";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 
 const formatBRL = (value: number) =>
@@ -52,21 +55,33 @@ const computeYDomain = (data: { totalValue: number }[]): [number, number] => {
   return [round(lower), round(upper)];
 };
 
+type SnapshotPoint = { date: string; totalValue: number };
+
+const snapshotColumns: AccessibleChartColumn<SnapshotPoint>[] = [
+  { id: "date", label: "Data", render: (row) => formatDate(row.date) },
+  { id: "value", label: "Patrimônio", render: (row) => formatBRL(row.totalValue) },
+];
+
 export function PatrimonyEvolutionChart() {
   const utils = trpc.useUtils();
   const { showBalances } = useBalanceVisibility();
+  const showBalancesRef = useRef(showBalances);
   const { data, isLoading } = trpc.portfolio.getSnapshotHistory.useQuery({ days: 365 });
+
+  useEffect(() => {
+    showBalancesRef.current = showBalances;
+  }, [showBalances]);
 
   const capture = trpc.portfolio.captureSnapshot.useMutation({
     onSuccess: (result) => {
       toast.success(
-        showBalances
+        showBalancesRef.current
           ? `Snapshot ${result.updated ? "atualizado" : "capturado"}: ${formatBRL(result.totalValue)}`
           : `Snapshot ${result.updated ? "atualizado" : "capturado"}.`
       );
       utils.portfolio.getSnapshotHistory.invalidate();
     },
-    onError: (err) => toast.error(`Erro ao capturar snapshot: ${err.message}`),
+    onError: (err) => toast.error(showBalancesRef.current ? `Erro ao capturar snapshot: ${err.message}` : "Não foi possível capturar o snapshot."),
   });
 
   const history = data?.history ?? [];
@@ -101,6 +116,10 @@ export function PatrimonyEvolutionChart() {
           <div className="flex items-center justify-center h-[220px]">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
+        ) : !showBalances ? (
+          <PrivacyMask className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
+            Conteúdo financeiro oculto
+          </PrivacyMask>
         ) : history.length < 2 ? (
           <div className="flex flex-col items-center justify-center h-[220px] text-center px-6">
             <p className="text-sm text-muted-foreground mb-1">
@@ -128,63 +147,26 @@ export function PatrimonyEvolutionChart() {
             </Button>
           </div>
         ) : (
-          <PrivacyMask className="h-[220px] md:h-[280px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={history} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="patrimonyFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="oklch(0.72 0.14 250)" stopOpacity={0.25} />
-                    <stop offset="100%" stopColor="oklch(0.72 0.14 250)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="oklch(0.27 0.012 261)"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="date"
-                  stroke="oklch(0.55 0.01 255)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={formatDate}
-                  minTickGap={40}
-                />
-                <YAxis
-                  stroke="oklch(0.55 0.01 255)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={formatCompact}
-                  domain={computeYDomain(history)}
-                  tickCount={5}
-                  width={72}
-                />
-                <Tooltip
-                  formatter={(value: number) => [formatBRL(value), "Patrimônio"]}
-                  labelFormatter={(label: string) => formatDate(label)}
-                  contentStyle={{
-                    backgroundColor: "oklch(0.185 0.014 261)",
-                    borderColor: "oklch(0.27 0.012 261)",
-                    borderRadius: "8px",
-                    color: "oklch(0.93 0.006 255)",
-                  }}
-                  itemStyle={{ color: "oklch(0.93 0.006 255)" }}
-                  labelStyle={{ color: "oklch(0.66 0.012 255)" }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="totalValue"
-                  stroke="oklch(0.72 0.14 250)"
-                  strokeWidth={2}
-                  fill="url(#patrimonyFill)"
-                  dot={false}
-                  activeDot={{ r: 4, strokeWidth: 2, stroke: "oklch(0.185 0.014 261)" }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </PrivacyMask>
+          <SensitiveContent>
+            <div className="h-[220px] md:h-[280px] w-full" aria-hidden="true">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={history} margin={{ top: 8, right: 8, left: 8, bottom: 0 }} accessibilityLayer={false} aria-hidden="true">
+                  <defs><linearGradient id="patrimonyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="oklch(0.72 0.14 250)" stopOpacity={0.25} /><stop offset="100%" stopColor="oklch(0.72 0.14 250)" stopOpacity={0} /></linearGradient></defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.27 0.012 261)" vertical={false} />
+                  <XAxis dataKey="date" stroke="oklch(0.55 0.01 255)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={formatDate} minTickGap={40} />
+                  <YAxis stroke="oklch(0.55 0.01 255)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={formatCompact} domain={computeYDomain(history)} tickCount={5} width={72} />
+                  <Tooltip formatter={(value: number) => [formatBRL(value), "Patrimônio"]} labelFormatter={(label: string) => formatDate(label)} />
+                  <Area type="monotone" dataKey="totalValue" stroke="oklch(0.72 0.14 250)" strokeWidth={2} fill="url(#patrimonyFill)" dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: "oklch(0.185 0.014 261)" }} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            <AccessibleChartAlternative
+              title="Alternativa textual — evolução do patrimônio"
+              summary={`Histórico de ${history.length} snapshots do patrimônio financeiro.`}
+              columns={snapshotColumns}
+              rows={history}
+            />
+          </SensitiveContent>
         )}
       </CardContent>
     </Card>

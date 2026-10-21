@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
 import { TrendingUp, TrendingDown, ChevronDown, ChevronUp } from "lucide-react";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
+import { PrivacyMask } from "@/components/PrivacyMask";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
@@ -14,6 +15,19 @@ export default function PerformanceCard() {
   const { data, isLoading, isError } = trpc.portfolio.getDailyPerformance.useQuery(undefined, {
     refetchInterval: 60_000,
   });
+
+  if (!showBalances) {
+    return (
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">Privacidade ativa</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">Informações financeiras ocultas.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -61,22 +75,18 @@ export default function PerformanceCard() {
         <TrendIcon className={`h-4 w-4 ${color}`} />
       </CardHeader>
       <CardContent>
-        <div className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${color} ${
-          !showBalances ? "blur-sm" : ""
-        }`}>
+        <PrivacyMask as="div" className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${color}`}>
           {isPositive ? "+" : ""}{data.totalPct.toFixed(2)}%
-        </div>
-        <p className={`text-xs mt-1 ${color} ${
-          !showBalances ? "blur-sm" : ""
-        }`}>
-          {isPositive ? "+" : ""}{formatCurrency(data.totalBRL)}
+        </PrivacyMask>
+        <p className={`text-xs mt-1 ${color}`}>
+          <PrivacyMask as="span">{isPositive ? "+" : ""}{formatCurrency(data.totalBRL)}</PrivacyMask>
         </p>
-        <p className="mt-1 text-[10px] text-muted-foreground">Estimativa antes do fechamento; não se soma ao retorno oficial acumulado. Caixa conciliado excluído.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Estimativa antes do fechamento; não se soma ao retorno oficial acumulado. Caixa conciliado excluído.</p>
         {hasDailyExternalFlow && (
-          <p className={`mt-1 text-[10px] text-sky-300/80 ${!showBalances ? "blur-sm" : ""}`}>
-            Fluxo externo fora do retorno: {dailyContributions > 0 ? `+${formatCurrency(dailyContributions)} de aporte` : ""}
+          <p className="mt-1 text-xs text-sky-300/80">
+            <PrivacyMask as="span">Fluxo externo fora do retorno: {dailyContributions > 0 ? `+${formatCurrency(dailyContributions)} de aporte` : ""}
             {dailyContributions > 0 && dailyWithdrawals > 0 ? " · " : ""}
-            {dailyWithdrawals > 0 ? `-${formatCurrency(dailyWithdrawals)} de retirada` : ""}
+            {dailyWithdrawals > 0 ? `-${formatCurrency(dailyWithdrawals)} de retirada` : ""}</PrivacyMask>
           </p>
         )}
 
@@ -101,11 +111,9 @@ export default function PerformanceCard() {
               return (
                 <div key={cls.classKey} className="text-xs">
                   <div className="text-muted-foreground mb-0.5">{cls.className}</div>
-                  <div className={`font-mono font-medium ${clsColor} flex items-center gap-1 ${
-                    !showBalances ? "blur-sm" : ""
-                  }`}>
-                    <span>{clsPositive ? "+" : ""}{cls.changePct.toFixed(2)}%</span>
-                    <span className="text-[10px] opacity-80">({clsPositive ? "+" : ""}{formatCurrency(cls.changeBRL)})</span>
+                  <div className={`font-mono font-medium ${clsColor} flex items-center gap-1`}>
+                    <PrivacyMask as="span">{clsPositive ? "+" : ""}{cls.changePct.toFixed(2)}%</PrivacyMask>
+                    <PrivacyMask as="span" className="text-xs opacity-80">({clsPositive ? "+" : ""}{formatCurrency(cls.changeBRL)})</PrivacyMask>
                   </div>
                 </div>
               );

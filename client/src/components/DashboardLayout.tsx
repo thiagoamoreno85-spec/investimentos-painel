@@ -132,7 +132,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         />
         <span className="flex-1 text-sm">{item.label}</span>
         {item.badge > 0 && (
-          <span className="ml-auto px-1.5 py-0.5 text-[10px] rounded-full bg-warning text-black font-bold min-w-[20px] text-center">
+          <span className="ml-auto px-1.5 py-0.5 text-xs rounded-full bg-warning text-black font-bold min-w-[20px] text-center">
             {item.badge > 99 ? "99+" : item.badge}
           </span>
         )}
@@ -144,7 +144,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
       {navGroups.map((group) => (
         <div key={group.label}>
-          <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 select-none">
+          <p className="px-3 mb-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 select-none">
             {group.label}
           </p>
           <div className="space-y-0.5">
@@ -197,7 +197,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           Manus<span className="text-primary">Invest</span>
         </h1>
         {!compact && (
-          <p className="text-[11px] text-muted-foreground mt-0.5">Dr. Thiago Moreno</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Dr. Thiago Moreno</p>
         )}
       </div>
     </div>
@@ -279,7 +279,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {(alertCounts?.triggered ?? 0) > 0 && (
               <Link href="/alertas" className="relative p-1.5" aria-label="Alertas">
                 <Bell className="w-5 h-5 text-muted-foreground" />
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[10px] rounded-full bg-warning text-black font-bold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-xs rounded-full bg-warning text-black font-bold flex items-center justify-center">
                   {(alertCounts?.triggered ?? 0) > 9 ? "9+" : alertCounts?.triggered}
                 </span>
               </Link>
@@ -287,7 +287,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {(unreadNewsCount ?? 0) > 0 && (
               <Link href="/noticias" className="relative p-1.5" aria-label="Notícias">
                 <Newspaper className="w-5 h-5 text-muted-foreground" />
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[10px] rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-xs rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center">
                   {(unreadNewsCount ?? 0) > 9 ? "9+" : unreadNewsCount}
                 </span>
               </Link>
@@ -314,7 +314,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Icon className="h-3.5 w-3.5" />
                 {item.label}
                 {item.badge > 0 && (
-                  <span className="rounded-full bg-warning px-1.5 py-0.5 text-[10px] font-bold leading-none text-black">
+                  <span className="rounded-full bg-warning px-1.5 py-0.5 text-xs font-bold leading-none text-black">
                     {item.badge > 99 ? "99+" : item.badge}
                   </span>
                 )}

@@ -46,6 +46,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
+import { SensitiveContent } from "@/components/SensitiveContent";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
 import { FinancialDeleteConfirmDialog } from "@/components/FinancialDeleteConfirmDialog";
@@ -206,6 +207,7 @@ export default function Patrimonio() {
 
   return (
     <DashboardLayout>
+      <SensitiveContent fallback={<Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm"><CardContent className="py-16 text-center"><p className="font-medium">Patrimônio ocultado</p><p className="mt-1 text-sm text-muted-foreground">Desative o modo privado para consultar ou gerenciar dados patrimoniais.</p></CardContent></Card>}>
       <div className="space-y-6">
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
@@ -265,13 +267,13 @@ export default function Patrimonio() {
             <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
               <CardContent className="p-2.5 sm:p-4">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide leading-tight">Ativos</p>
+                  <p className="text-xs sm:text-xs font-medium text-muted-foreground uppercase tracking-wide leading-tight">Ativos</p>
                   <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-500 shrink-0" />
                 </div>
                 <div className={`text-sm sm:text-xl font-bold font-mono tracking-tight text-emerald-400 ${blurClass}`}>
                   {formatCurrency(summary.totalAssets)}
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5 hidden sm:block">
+                <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
                   {summary.assetCount} ativo{summary.assetCount !== 1 ? "s" : ""}
                 </p>
               </CardContent>
@@ -281,13 +283,13 @@ export default function Patrimonio() {
             <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
               <CardContent className="p-2.5 sm:p-4">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide leading-tight">Passivos</p>
+                  <p className="text-xs sm:text-xs font-medium text-muted-foreground uppercase tracking-wide leading-tight">Passivos</p>
                   <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-400 shrink-0" />
                 </div>
                 <div className={`text-sm sm:text-xl font-bold font-mono tracking-tight text-red-400 ${blurClass}`}>
                   {formatCurrency(summary.totalLiabilities)}
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5 hidden sm:block">
+                <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
                   {summary.liabilityCount} passivo{summary.liabilityCount !== 1 ? "s" : ""}
                 </p>
               </CardContent>
@@ -297,13 +299,13 @@ export default function Patrimonio() {
             <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
               <CardContent className="p-2.5 sm:p-4">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide leading-tight">Líquido</p>
+                  <p className="text-xs sm:text-xs font-medium text-muted-foreground uppercase tracking-wide leading-tight">Líquido</p>
                   <TrendingUp className={`h-3 w-3 sm:h-4 sm:w-4 shrink-0 ${summary.netWorth >= 0 ? "text-cyan-400" : "text-red-400"}`} />
                 </div>
                 <div className={`text-sm sm:text-xl font-bold font-mono tracking-tight ${summary.netWorth >= 0 ? "text-cyan-400" : "text-red-400"} ${blurClass}`}>
                   {formatCurrency(summary.netWorth)}
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5 hidden sm:block">Ativos − Passivos</p>
+                <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">Ativos − Passivos</p>
               </CardContent>
             </Card>
           </div>
@@ -332,15 +334,15 @@ export default function Patrimonio() {
                       <div className={`text-sm font-bold font-mono ${color} ${blurClass}`}>
                         {formatCurrency(net)}
                       </div>
-                      <div className={`text-[10px] font-mono text-muted-foreground ${blurClass}`}>
+                      <div className={`text-xs font-mono text-muted-foreground ${blurClass}`}>
                         Bruto: {formatCurrency(totalValue)}
                       </div>
                       {totalDebt > 0 && (
-                        <div className={`text-[10px] font-mono text-red-400/70 ${blurClass}`}>
+                        <div className={`text-xs font-mono text-red-400/70 ${blurClass}`}>
                           Dívida: −{formatCurrency(totalDebt)}
                         </div>
                       )}
-                      <div className="text-[10px] text-muted-foreground/60 mt-1">
+                      <div className="text-xs text-muted-foreground/60 mt-1">
                         {count} ativo{count !== 1 ? "s" : ""}
                       </div>
                     </CardContent>
@@ -383,7 +385,7 @@ export default function Patrimonio() {
                   >
                     <span className={color}>{icon}</span>
                     {label}
-                    <span className="ml-1 text-[10px] text-muted-foreground">({count})</span>
+                    <span className="ml-1 text-xs text-muted-foreground">({count})</span>
                   </TabsTrigger>
                 );
               })}
@@ -539,7 +541,7 @@ export default function Patrimonio() {
           }
         }}
         title={patrimonialPendingDeletion?.kind === "asset" ? "Remover ativo patrimonial" : "Remover passivo patrimonial"}
-        itemLabel={patrimonialPendingDeletion?.name ?? "este item"}
+        itemLabel={showBalances ? patrimonialPendingDeletion?.name ?? "este item" : "este item"}
         consequence={patrimonialPendingDeletion?.kind === "asset"
           ? "O item deixará de compor o patrimônio consolidado. Os passivos vinculados continuam registrados até que sejam removidos separadamente."
           : "O passivo deixará de compor o patrimônio líquido e o saldo devedor não será mais considerado no consolidado."}
@@ -553,6 +555,7 @@ export default function Patrimonio() {
         }}
         isPending={deleteAsset.isPending || deleteLiability.isPending}
       />
+      </SensitiveContent>
     </DashboardLayout>
   );
 }
@@ -611,14 +614,14 @@ function AssetCard({
                 <h3 className="font-semibold text-sm truncate">{asset.name}</h3>
                 <Badge
                   variant="outline"
-                  className={`text-[10px] px-1.5 py-0 border-border/50 ${typeColor}`}
+                  className={`text-xs px-1.5 py-0 border-border/50 ${typeColor}`}
                 >
                   {typeLabel}
                 </Badge>
                 {linkedLiabilities.length > 0 && (
                   <Badge
                     variant="outline"
-                    className="text-[10px] px-1.5 py-0 border-red-500/30 text-red-400"
+                    className="text-xs px-1.5 py-0 border-red-500/30 text-red-400"
                   >
                     {linkedLiabilities.length} passivo
                     {linkedLiabilities.length > 1 ? "s" : ""}
@@ -770,7 +773,7 @@ function LiabilityRow({
             {isQuitado ? (
               <Badge
                 variant="outline"
-                className="text-[10px] px-1.5 py-0 border-emerald-500/30 text-emerald-400"
+                className="text-xs px-1.5 py-0 border-emerald-500/30 text-emerald-400"
               >
                 <CheckCircle2 className="h-2.5 w-2.5 mr-1" />
                 Quitado
@@ -778,7 +781,7 @@ function LiabilityRow({
             ) : (
               <Badge
                 variant="outline"
-                className="text-[10px] px-1.5 py-0 border-red-500/30 text-red-400"
+                className="text-xs px-1.5 py-0 border-red-500/30 text-red-400"
               >
                 Em aberto
               </Badge>
@@ -792,7 +795,7 @@ function LiabilityRow({
 
           {/* Barra de progresso */}
           <div className="mt-2 space-y-1">
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>
                 {liability.paidInstallments ?? 0}
                 {liability.totalInstallments
@@ -810,11 +813,11 @@ function LiabilityRow({
           <div className={`font-mono font-semibold text-red-400 ${blurClass}`}>
             {formatCurrency(liability.remainingBalance)}
           </div>
-          <div className={`text-[10px] font-mono text-muted-foreground ${blurClass}`}>
+          <div className={`text-xs font-mono text-muted-foreground ${blurClass}`}>
             de {formatCurrency(liability.originalAmount)}
           </div>
           {liability.installmentValue && (
-            <div className={`text-[10px] font-mono text-muted-foreground ${blurClass}`}>
+            <div className={`text-xs font-mono text-muted-foreground ${blurClass}`}>
               Parcela: {formatCurrency(liability.installmentValue)}
             </div>
           )}
@@ -827,7 +830,7 @@ function LiabilityRow({
           <Button
             variant="outline"
             size="sm"
-            className="h-6 px-2 text-[10px] gap-1 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+            className="h-6 px-2 text-xs gap-1 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
             onClick={() =>
               onRegisterPayment(
                 liability.id,
@@ -842,7 +845,7 @@ function LiabilityRow({
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 px-2 text-[10px] text-destructive/70 hover:text-destructive"
+            className="h-6 px-2 text-xs text-destructive/70 hover:text-destructive"
             onClick={onDelete}
           >
             <Trash2 className="h-3 w-3" />

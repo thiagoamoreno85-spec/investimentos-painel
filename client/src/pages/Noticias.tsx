@@ -135,12 +135,38 @@ function formatRelativeTime(date: Date | null): string {
 
 function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: number) => void }) {
   const { showBalances } = useBalanceVisibility();
+  const category = CATEGORY_CONFIG[item.category ?? "global"] ?? CATEGORY_CONFIG.global;
+  const CategoryIcon = category.icon;
+
+  if (!showBalances) {
+    return (
+      <Card className="border border-border/50 bg-card/40" onClick={() => onMarkRead(item.id)}>
+        <CardContent className="p-4">
+          <div className="flex flex-col gap-3">
+            <span className={`inline-flex items-center gap-1 text-xs ${category.color}`}>
+              <CategoryIcon className="h-3 w-3" />
+              {category.label}
+            </span>
+            <h3 className="text-sm font-semibold leading-snug">{item.title}</h3>
+            {item.summary && <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{item.summary}</p>}
+            <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+              <span>{formatRelativeTime(item.publishedAt ?? item.createdAt)}</span>
+              {item.sourceUrl ? (
+                <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()} className="inline-flex items-center gap-1 hover:text-primary">
+                  <ExternalLink className="h-3 w-3" />{item.source ?? "Fonte"}
+                </a>
+              ) : <span>{item.source ?? ""}</span>}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const impact = IMPACT_CONFIG[item.impactLevel ?? "baixo"] ?? IMPACT_CONFIG.baixo;
   const sentiment = SENTIMENT_CONFIG[item.sentiment ?? "neutro"] ?? SENTIMENT_CONFIG.neutro;
-  const category = CATEGORY_CONFIG[item.category ?? "global"] ?? CATEGORY_CONFIG.global;
   const relevance = RELEVANCE_CONFIG[item.portfolioRelevance ?? "contexto"];
   const SentimentIcon = sentiment.icon;
-  const CategoryIcon = category.icon;
 
   return (
     <Card
@@ -287,6 +313,7 @@ function NewsCard({ item, onMarkRead }: { item: NewsItem; onMarkRead: (id: numbe
 }
 
 export default function Noticias() {
+  const { showBalances } = useBalanceVisibility();
   const [savedPreferences] = useState(() => {
     if (typeof window === "undefined") return DEFAULT_NEWS_FILTER_PREFERENCES;
     return parseNewsFilterPreferences(window.localStorage.getItem(NEWS_FILTER_PREFERENCES_KEY));
@@ -301,9 +328,9 @@ export default function Noticias() {
   const { data: assets = [] } = trpc.portfolio.getAssets.useQuery();
 
   const { data: news = [], isLoading } = trpc.news.list.useQuery({
-    category: activeCategory,
-    impactLevel: activeImpact,
-    onlyUnread,
+    category: showBalances ? activeCategory : "all",
+    impactLevel: showBalances ? activeImpact : "all",
+    onlyUnread: showBalances ? onlyUnread : false,
     limit: 100,
   });
 
@@ -320,8 +347,8 @@ export default function Noticias() {
   );
   const majorExposure = useMemo(() => selectMajorExposureNews(newsForSelectedAsset), [newsForSelectedAsset]);
   const visibleNews = useMemo(
-    () => sortNewsByPublicationDate(onlyMajorExposure ? majorExposure.items : newsForSelectedAsset),
-    [majorExposure.items, newsForSelectedAsset, onlyMajorExposure]
+    () => sortNewsByPublicationDate(showBalances ? (onlyMajorExposure ? majorExposure.items : newsForSelectedAsset) : newsItems),
+    [majorExposure.items, newsForSelectedAsset, onlyMajorExposure, newsItems, showBalances]
   );
 
   useEffect(() => {
@@ -416,7 +443,7 @@ export default function Noticias() {
               <h2 className="text-lg md:text-2xl font-bold tracking-tight flex items-center gap-2">
                 <Newspaper className="w-6 h-6 text-primary" />
                 Notícias & Análise de Impacto
-                {unreadCount > 0 && (
+                {showBalances && unreadCount > 0 && (
                   <span className="px-2 py-0.5 text-xs rounded-full bg-primary text-primary-foreground font-bold">
                     {unreadCount} novas
                   </span>
@@ -454,7 +481,7 @@ export default function Noticias() {
           </div>
 
           {/* Stats row */}
-          {news.length > 0 && (
+          {showBalances && news.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <Card className="bg-red-500/5 border-red-500/20">
                 <CardContent className="p-3 flex items-center gap-2">
@@ -495,8 +522,8 @@ export default function Noticias() {
             </div>
           )}
 
-          {/* Filtros — scroll horizontal em mobile */}
-          <div className="rounded-lg border border-border/60 bg-card/40 p-2.5 sm:flex sm:items-center sm:justify-between sm:gap-3">
+          {/* Filtros específicos da carteira */}
+          {showBalances && <div className="rounded-lg border border-border/60 bg-card/40 p-2.5 sm:flex sm:items-center sm:justify-between sm:gap-3">
             <div>
               <p className="text-xs font-medium text-foreground">Buscar por ativo</p>
               <p className="mt-0.5 text-xs text-muted-foreground">Mostra apenas notícias que citam um ativo da carteira.</p>
@@ -512,9 +539,9 @@ export default function Noticias() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </div>}
 
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none xl:flex-wrap xl:overflow-visible">
+          {showBalances && <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none xl:flex-wrap xl:overflow-visible">
             <div className="flex gap-1.5 flex-shrink-0">
               {categories.map(({ value, label, icon: Icon }) => (
                 <button
@@ -594,7 +621,7 @@ export default function Noticias() {
               <Target className="w-3 h-3" />
               Maior exposição {majorExposure.items.length > 0 && `(${majorExposure.items.length})`}
             </button>
-          </div>
+          </div>}
         </div>
 
         {/* ── ÁREA DE NOTÍCIAS ── */}
@@ -621,7 +648,9 @@ export default function Noticias() {
                     <Newspaper className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">Nenhuma notícia encontrada</h3>
                     <p className="text-muted-foreground text-sm mb-4">
-                      {selectedTicker !== "all"
+                      {!showBalances
+                        ? "Clique em \"Atualizar Notícias\" para buscar as últimas notícias do mercado."
+                        : selectedTicker !== "all"
                         ? `Não há notícias com vínculo direto ao ativo ${selectedTicker} dentro dos demais filtros selecionados.`
                         : onlyMajorExposure
                         ? "Não há notícias no quartil superior de exposição para a combinação de filtros selecionada."
@@ -629,7 +658,7 @@ export default function Noticias() {
                         ? "Todas as notícias já foram lidas."
                         : "Clique em \"Atualizar Notícias\" para buscar e analisar as últimas notícias do mercado."}
                     </p>
-                    {!onlyUnread && !onlyMajorExposure && (
+                    {(!showBalances || (!onlyUnread && !onlyMajorExposure)) && (
                       <Button
                         onClick={() => refreshMutation.mutate()}
                         disabled={refreshMutation.isPending}
@@ -655,7 +684,7 @@ export default function Noticias() {
           </div>
 
           {/* Painel lateral — desktop: coluna lateral; mobile: abaixo da lista (oculto por padrão, visível em lg) */}
-          {news.length > 0 && (
+          {showBalances && news.length > 0 && (
             <div className="hidden lg:flex lg:w-64 flex-col gap-4 flex-shrink-0">
               {/* Top tickers */}
               <Card>

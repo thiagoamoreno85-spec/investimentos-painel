@@ -5,6 +5,8 @@ import { buildPerformanceCsv } from "@/lib/performanceCsv";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PrivacyMask } from "@/components/PrivacyMask";
+import { SensitiveContent } from "@/components/SensitiveContent";
 import {
   Table,
   TableBody,
@@ -42,12 +44,12 @@ function formatDate(date: string) {
     .replace(".", "");
 }
 
-function ReturnText({ value, percent, blur }: { value: number; percent: number; blur: boolean }) {
+function ReturnText({ value, percent }: { value: number; percent: number }) {
   const positive = value >= 0;
   return (
-    <div className={`flex flex-col items-end ${positive ? "text-emerald-500" : "text-red-400"} ${blur ? "blur-sm" : ""}`}>
-      <span className="font-mono text-sm font-semibold">{positive ? "+" : ""}{formatCurrency(value)}</span>
-      <span className="font-mono text-xs">{positive ? "+" : ""}{percent.toFixed(2)}%</span>
+    <div className={`flex flex-col items-end ${positive ? "text-emerald-500" : "text-red-400"}`}>
+      <PrivacyMask as="span" className="font-mono text-sm font-semibold">{positive ? "+" : ""}{formatCurrency(value)}</PrivacyMask>
+      <PrivacyMask as="span" className="font-mono text-xs">{positive ? "+" : ""}{percent.toFixed(2)}%</PrivacyMask>
     </div>
   );
 }
@@ -85,7 +87,7 @@ export default function RentabilidadeDetalhada() {
   }, [selectedDay]);
 
   function exportCsv() {
-    if (!selectedDay || visibleAssets.length === 0) return;
+    if (!showBalances || !selectedDay || visibleAssets.length === 0) return;
     const csv = buildPerformanceCsv(selectedDay.date, SOURCE_LABELS[selectedDay.source ?? "ledger"], visibleAssets.map((asset) => ({
       ...asset,
       classLabel: CLASS_LABELS[asset.classKey] ?? asset.classKey,
@@ -127,67 +129,81 @@ export default function RentabilidadeDetalhada() {
             <Skeleton className="h-28" /><Skeleton className="h-28" /><Skeleton className="h-28" />
           </div>
         ) : !data || !selectedDay ? (
-          <Card className="border-dashed"><CardContent className="p-8 text-center text-sm text-muted-foreground">Ainda não há dados de rentabilidade disponíveis para o mês.</CardContent></Card>
+          <Card className="border-dashed"><CardContent className="p-8 text-center text-sm text-muted-foreground">{showBalances ? "Ainda não há dados de rentabilidade disponíveis para o mês." : "Informações financeiras ocultas pela privacidade."}</CardContent></Card>
         ) : (
           <>
-            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
-              <Card className="bg-card/50"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Resultado do dia</p><ReturnText value={selectedDay.returnValue} percent={selectedDay.returnPct} blur={!showBalances} /></CardContent></Card>
-              <Card className="bg-card/50"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Mercado</p><ReturnText value={dayMarketPnl} percent={selectedDay.returnPct} blur={!showBalances} /></CardContent></Card>
-              <Card className="bg-card/50"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Proventos recebidos</p><ReturnText value={dayIncomePnl} percent={0} blur={!showBalances} /></CardContent></Card>
-              <Card className="border-sky-500/20 bg-sky-500/5"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Aportes externos</p><p className={`mt-1 font-mono text-sm font-semibold text-sky-300 ${!showBalances ? "blur-sm" : ""}`}>{formatCurrency(dayContributions)}</p><p className="mt-1 text-[10px] text-muted-foreground">Fora do retorno</p></CardContent></Card>
-              <Card className="border-violet-500/20 bg-violet-500/5"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Retiradas externas</p><p className={`mt-1 font-mono text-sm font-semibold text-violet-300 ${!showBalances ? "blur-sm" : ""}`}>{formatCurrency(dayWithdrawals)}</p><p className="mt-1 text-[10px] text-muted-foreground">Fora do retorno</p></CardContent></Card>
-            </div>
+            <SensitiveContent fallback={<Card className="bg-card/50"><CardContent className="p-4 text-sm text-muted-foreground">Resumo financeiro oculto pela privacidade.</CardContent></Card>}>
+              <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
+                <Card className="bg-card/50"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Resultado do dia</p><ReturnText value={selectedDay.returnValue} percent={selectedDay.returnPct} /></CardContent></Card>
+                <Card className="bg-card/50"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Mercado</p><ReturnText value={dayMarketPnl} percent={selectedDay.returnPct} /></CardContent></Card>
+                <Card className="bg-card/50"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Proventos recebidos</p><ReturnText value={dayIncomePnl} percent={0} /></CardContent></Card>
+                <Card className="border-sky-500/20 bg-sky-500/5"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Aportes externos</p><PrivacyMask as="div" className="mt-1 font-mono text-sm font-semibold text-sky-300">{formatCurrency(dayContributions)}</PrivacyMask><p className="mt-1 text-xs text-muted-foreground">Fora do retorno</p></CardContent></Card>
+                <Card className="border-violet-500/20 bg-violet-500/5"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Retiradas externas</p><PrivacyMask as="div" className="mt-1 font-mono text-sm font-semibold text-violet-300">{formatCurrency(dayWithdrawals)}</PrivacyMask><p className="mt-1 text-xs text-muted-foreground">Fora do retorno</p></CardContent></Card>
+              </div>
+            </SensitiveContent>
 
-            <Card className="bg-card/50">
-              <CardHeader className="pb-3"><CardTitle className="text-sm">Dias do mês</CardTitle></CardHeader>
-              <CardContent className="flex gap-2 overflow-x-auto pb-4">
-                {data.days.map((day) => {
-                  const active = selectedDay.date === day.date;
-                  const positive = day.returnValue >= 0;
-                  return <button key={day.date} onClick={() => setSelectedDate(day.date)} className={`min-w-[108px] rounded-lg border p-3 text-left transition-colors ${active ? "border-emerald-500/60 bg-emerald-500/10" : "border-border hover:bg-muted/50"}`}>
-                    <p className="text-xs font-medium capitalize text-muted-foreground">{formatDate(day.date)}</p>
-                    <p className={`mt-1 font-mono text-sm font-semibold ${positive ? "text-emerald-500" : "text-red-400"} ${!showBalances ? "blur-sm" : ""}`}>{positive ? "+" : ""}{day.returnPct.toFixed(2)}%</p>
-                    <p className="mt-1 text-[10px] text-muted-foreground">{SOURCE_LABELS[day.source ?? "ledger"]}</p>
-                  </button>;
-                })}
-              </CardContent>
-            </Card>
+            <SensitiveContent fallback={<Card className="bg-card/50"><CardContent className="p-4 text-sm text-muted-foreground">Dias de rentabilidade ocultos pela privacidade.</CardContent></Card>}>
+              <Card className="bg-card/50">
+                <CardHeader className="pb-3"><CardTitle className="text-sm">Dias do mês</CardTitle></CardHeader>
+                <CardContent className="flex gap-2 overflow-x-auto pb-4">
+                  {data.days.map((day) => {
+                    const active = selectedDay.date === day.date;
+                    const positive = day.returnValue >= 0;
+                    return <button key={day.date} onClick={() => setSelectedDate(day.date)} className={`min-w-[108px] rounded-lg border p-3 text-left transition-colors ${active ? "border-emerald-500/60 bg-emerald-500/10" : "border-border hover:bg-muted/50"}`}>
+                      <p className="text-xs font-medium capitalize text-muted-foreground">{formatDate(day.date)}</p>
+                      <p className={`mt-1 font-mono text-sm font-semibold ${positive ? "text-emerald-500" : "text-red-400"}`}>{positive ? "+" : ""}{day.returnPct.toFixed(2)}%</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{SOURCE_LABELS[day.source ?? "ledger"]}</p>
+                    </button>;
+                  })}
+                </CardContent>
+              </Card>
+            </SensitiveContent>
 
             <Card className="bg-card/50">
               <CardHeader className="gap-3 pb-3 sm:flex-row sm:items-center sm:justify-between">
-                <div><CardTitle className="text-base">Ativos em {formatDate(selectedDay.date)}</CardTitle><p className="mt-1 text-xs text-muted-foreground">{visibleAssets.length} ativos exibidos · {SOURCE_LABELS[selectedDay.source ?? "ledger"]}</p></div>
+                <div>
+                  <CardTitle className="text-base">Ativos</CardTitle>
+                  {showBalances ? (
+                    <p className="mt-1 text-xs text-muted-foreground">{visibleAssets.length} ativos exibidos · {SOURCE_LABELS[selectedDay.source ?? "ledger"]}</p>
+                  ) : (
+                    <p className="mt-1 text-xs text-muted-foreground">Dados da tabela ocultos pela privacidade.</p>
+                  )}
+                </div>
                 <div className="flex flex-wrap gap-2">
                   <label className="flex h-9 items-center gap-2 rounded-md border border-input bg-background px-2 text-sm"><Search className="h-3.5 w-3.5 text-muted-foreground" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar ativo" className="w-28 bg-transparent text-xs outline-none" /></label>
                   <label className="flex h-9 items-center rounded-md border border-input bg-background px-2 text-sm text-muted-foreground">
                     <span className="sr-only">Filtrar por classe de ativo</span>
                     <select value={selectedClass} onChange={(event) => setSelectedClass(event.target.value)} className="max-w-[135px] bg-transparent text-xs outline-none">
                       <option value="all">Todas as classes</option>
-                      {availableClasses.map((classKey) => <option key={classKey} value={classKey}>{CLASS_LABELS[classKey] ?? classKey}</option>)}
+                      {showBalances && availableClasses.map((classKey) => <option key={classKey} value={classKey}>{CLASS_LABELS[classKey] ?? classKey}</option>)}
                     </select>
                   </label>
                   <Button variant={onlyMovements ? "secondary" : "outline"} size="sm" className="gap-2" onClick={() => setOnlyMovements(!onlyMovements)}><Filter className="h-3.5 w-3.5" />Movimentos</Button>
-                  <Button variant="outline" size="sm" className="gap-2" onClick={exportCsv} disabled={visibleAssets.length === 0}><Download className="h-3.5 w-3.5" />Exportar CSV</Button>
+                  <Button variant="outline" size="sm" className="gap-2" onClick={exportCsv} disabled={!showBalances || visibleAssets.length === 0}><Download className="h-3.5 w-3.5" />Exportar CSV</Button>
                 </div>
               </CardHeader>
               <CardContent className="p-0 md:p-2">
-                <Table className="min-w-[850px]">
-                  <TableHeader><TableRow><TableHead>Ativo</TableHead><TableHead>Classe</TableHead><TableHead className="text-right">Mercado</TableHead><TableHead className="text-right">Proventos</TableHead><TableHead className="text-right">Resultado</TableHead><TableHead className="text-right">Rent. Dia</TableHead></TableRow></TableHeader>
-                  <TableBody>
-                    {visibleAssets.map((asset) => {
-                      const positive = asset.changeBRL >= 0;
-                      return <TableRow key={asset.assetId}>
-                        <TableCell><div className="font-medium">{asset.ticker}</div><div className="max-w-[200px] truncate text-xs text-muted-foreground">{asset.name}</div></TableCell>
-                        <TableCell><span className="rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground">{CLASS_LABELS[asset.classKey] ?? asset.classKey}</span></TableCell>
-                        <TableCell className={`text-right font-mono text-xs ${asset.marketPnlBRL >= 0 ? "text-emerald-500" : "text-red-400"} ${!showBalances ? "blur-sm" : ""}`}>{asset.marketPnlBRL >= 0 ? "+" : ""}{formatCurrency(asset.marketPnlBRL)}</TableCell>
-                        <TableCell className={`text-right font-mono text-xs ${asset.incomePnlBRL >= 0 ? "text-emerald-500" : "text-red-400"} ${!showBalances ? "blur-sm" : ""}`}>{asset.incomePnlBRL >= 0 ? "+" : ""}{formatCurrency(asset.incomePnlBRL)}</TableCell>
-                        <TableCell className={`text-right font-mono text-sm font-semibold ${positive ? "text-emerald-500" : "text-red-400"} ${!showBalances ? "blur-sm" : ""}`}>{positive ? "+" : ""}{formatCurrency(asset.changeBRL)}</TableCell>
-                        <TableCell className={`text-right font-mono text-xs ${positive ? "text-emerald-500" : "text-red-400"}`}>{positive ? <ArrowUpRight className="mr-1 inline h-3.5 w-3.5" /> : <ArrowDownRight className="mr-1 inline h-3.5 w-3.5" />}{positive ? "+" : ""}{asset.changePct.toFixed(2)}%</TableCell>
-                      </TableRow>;
-                    })}
-                    {visibleAssets.length === 0 && <TableRow><TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">Nenhum ativo corresponde aos filtros.</TableCell></TableRow>}
-                  </TableBody>
-                </Table>
+                <SensitiveContent fallback={<p className="px-4 py-8 text-center text-sm text-muted-foreground">Tabela financeira ocultada pela privacidade.</p>}>
+                  <Table className="min-w-[850px]">
+                    <TableHeader><TableRow><TableHead>Ativo</TableHead><TableHead>Classe</TableHead><TableHead className="text-right">Mercado</TableHead><TableHead className="text-right">Proventos</TableHead><TableHead className="text-right">Resultado</TableHead><TableHead className="text-right">Rent. Dia</TableHead></TableRow></TableHeader>
+                    <TableBody>
+                      {visibleAssets.map((asset) => {
+                        const positive = asset.changeBRL >= 0;
+                        return <TableRow key={asset.assetId}>
+                          <TableCell><div className="font-medium">{asset.ticker}</div><div className="max-w-[200px] truncate text-xs text-muted-foreground">{asset.name}</div></TableCell>
+                          <TableCell><span className="rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground">{CLASS_LABELS[asset.classKey] ?? asset.classKey}</span></TableCell>
+                          <TableCell className={`text-right font-mono text-xs ${asset.marketPnlBRL >= 0 ? "text-emerald-500" : "text-red-400"}`}>{asset.marketPnlBRL >= 0 ? "+" : ""}{formatCurrency(asset.marketPnlBRL)}</TableCell>
+                          <TableCell className={`text-right font-mono text-xs ${asset.incomePnlBRL >= 0 ? "text-emerald-500" : "text-red-400"}`}>{asset.incomePnlBRL >= 0 ? "+" : ""}{formatCurrency(asset.incomePnlBRL)}</TableCell>
+                          <TableCell className={`text-right font-mono text-sm font-semibold ${positive ? "text-emerald-500" : "text-red-400"}`}>{positive ? "+" : ""}{formatCurrency(asset.changeBRL)}</TableCell>
+                          <TableCell className={`text-right font-mono text-xs ${positive ? "text-emerald-500" : "text-red-400"}`}>{positive ? <ArrowUpRight className="mr-1 inline h-3.5 w-3.5" /> : <ArrowDownRight className="mr-1 inline h-3.5 w-3.5" />}{positive ? "+" : ""}{asset.changePct.toFixed(2)}%</TableCell>
+                        </TableRow>;
+                      })}
+                      {visibleAssets.length === 0 && <TableRow><TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">Nenhum ativo corresponde aos filtros.</TableCell></TableRow>}
+                    </TableBody>
+                  </Table>
+                </SensitiveContent>
               </CardContent>
+              {!showBalances && <p role="status" className="px-4 pb-4 text-xs text-muted-foreground">Exportação bloqueada pela privacidade.</p>}
             </Card>
             <p className="flex items-center gap-2 text-xs text-muted-foreground"><Landmark className="h-3.5 w-3.5" />Fechamento persistido usa o ledger diário ajustado por operações; “Intradiário” é uma estimativa e será substituído pelo próximo fechamento automático.</p>
           </>

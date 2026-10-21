@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, TrendingUp, AlertCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
+import { PrivacyMask } from "@/components/PrivacyMask";
 
 interface ConsolidatedNetWorthCardProps {
   financialAssets: number; // Total de ativos financeiros (portfolio)
@@ -50,78 +51,53 @@ export function ConsolidatedNetWorthCard({
     );
   }
 
-  // Calcular Net Worth total: Ativos Financeiros + Patrimônio Líquido
-  const totalNetWorth = financialAssets + patrimonialData.patrimonialNetWorth;
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
-  };
-
-  const blurClass = !showBalances ? "blur-sm select-none" : "";
-
   return (
     <Card className="h-full bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           Net Worth Consolidado
         </CardTitle>
-        <TrendingUp className="h-4 w-4 text-emerald-500" />
+        {showBalances && <TrendingUp className="h-4 w-4 text-emerald-500" />}
       </CardHeader>
       <CardContent className="space-y-3">
-        {/* Total Net Worth */}
-        <div>
-          <div className={`text-2xl font-bold font-mono tracking-tight text-emerald-500 ${blurClass}`}>
-            {formatCurrency(totalNetWorth)}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Ativos Financeiros + Patrimônio Líquido
-          </p>
-        </div>
-
-        {/* Breakdown */}
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/30">
-          {/* Ativos Financeiros */}
-          <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">Ativos Financeiros</p>
-            <p className={`text-sm font-mono font-semibold text-cyan-400 ${blurClass}`}>
-              {formatCurrency(financialAssets)}
-            </p>
-          </div>
-
-          {/* Patrimônio Líquido */}
-          <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">Patrimônio Líquido</p>
-            <p
-              className={`text-sm font-mono font-semibold ${
-                patrimonialData.patrimonialNetWorth >= 0
-                  ? "text-emerald-400"
-                  : "text-destructive"
-              } ${blurClass}`}
-            >
-              {formatCurrency(patrimonialData.patrimonialNetWorth)}
-            </p>
-          </div>
-
-          {/* Ativos Imobilizados */}
-          <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">Ativos Imobilizados</p>
-            <p className={`text-xs font-mono text-muted-foreground ${blurClass}`}>
-              {formatCurrency(patrimonialData.patrimonialAssets)}
-            </p>
-          </div>
-
-          {/* Passivos */}
-          <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">Passivos</p>
-            <p className={`text-xs font-mono text-destructive/70 ${blurClass}`}>
-              -{formatCurrency(patrimonialData.patrimonialLiabilities)}
-            </p>
-          </div>
-        </div>
+        {showBalances ? (
+          <VisibleNetWorth financialAssets={financialAssets} patrimonialData={patrimonialData} />
+        ) : (
+          <PrivacyMask className="text-2xl font-bold font-mono tracking-tight text-muted-foreground">
+            Conteúdo financeiro oculto
+          </PrivacyMask>
+        )}
       </CardContent>
     </Card>
+  );
+}
+
+function VisibleNetWorth({
+  financialAssets,
+  patrimonialData,
+}: {
+  financialAssets: number;
+  patrimonialData: {
+    patrimonialNetWorth: number;
+    patrimonialAssets: number;
+    patrimonialLiabilities: number;
+  };
+}) {
+  const totalNetWorth = financialAssets + patrimonialData.patrimonialNetWorth;
+  const formatCurrency = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+
+  return (
+    <>
+      <div>
+        <div className="text-2xl font-bold font-mono tracking-tight text-emerald-500">{formatCurrency(totalNetWorth)}</div>
+        <p className="text-xs text-muted-foreground mt-1">Ativos Financeiros + Patrimônio Líquido</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/30">
+        <div className="space-y-1"><p className="text-xs text-muted-foreground">Ativos Financeiros</p><p className="text-sm font-mono font-semibold text-cyan-400">{formatCurrency(financialAssets)}</p></div>
+        <div className="space-y-1"><p className="text-xs text-muted-foreground">Patrimônio Líquido</p><p className={`text-sm font-mono font-semibold ${patrimonialData.patrimonialNetWorth >= 0 ? "text-emerald-400" : "text-destructive"}`}>{formatCurrency(patrimonialData.patrimonialNetWorth)}</p></div>
+        <div className="space-y-1"><p className="text-xs text-muted-foreground">Ativos Imobilizados</p><p className="text-xs font-mono text-muted-foreground">{formatCurrency(patrimonialData.patrimonialAssets)}</p></div>
+        <div className="space-y-1"><p className="text-xs text-muted-foreground">Passivos</p><p className="text-xs font-mono text-destructive/70">-{formatCurrency(patrimonialData.patrimonialLiabilities)}</p></div>
+      </div>
+    </>
   );
 }

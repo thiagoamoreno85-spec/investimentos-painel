@@ -125,6 +125,18 @@ describe("calculateMonthlyReturn", () => {
     expect(result?.isPartial).toBe(true);
     expect(result?.baseDate).toBe("2026-09-02");
     expect(result?.includesLiveDay).toBe(true);
+    expect(result?.missingClosedDates).toEqual(["2026-09-01"]);
+  });
+
+  it("identifica dias úteis sem fechamento e ignora o fim de semana", () => {
+    const result = calculateMonthlyReturn([
+      { date: "2026-09-04", returnPct: 0.2, returnValue: 20, byClass: [], source: "ledger" },
+      { date: "2026-09-08", returnPct: -0.1, returnValue: -10, byClass: [], source: "ledger" },
+    ], "2026-09-04", false);
+
+    expect(result?.closedSnapshotCount).toBe(2);
+    expect(result?.missingClosedDates).toEqual(["2026-09-07"]);
+    expect(result?.hasClosedGaps).toBe(true);
   });
 
   it("inclui todos os dias úteis anteriores do mês ao identificar lacunas no ledger", () => {

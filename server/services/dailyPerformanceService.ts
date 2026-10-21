@@ -55,10 +55,13 @@ export type MonthlyPerformanceResult = {
   total: { valueDiff: number; percentDiff: number };
   byClass: Record<string, { valueDiff: number; percentDiff: number }>;
   snapshotCount: number;
+  closedSnapshotCount: number;
   baseDate: string;
   includesLiveDay: boolean;
   isPartial: boolean;
   lastClosedDate: string;
+  missingClosedDates: string[];
+  hasClosedGaps: boolean;
 };
 
 const CLASS_CURRENCY: Record<string, "BRL" | "USD"> = {
@@ -182,6 +185,12 @@ export function calculateMonthlyReturn(
   includesLiveDay: boolean
 ): MonthlyPerformanceResult | null {
   if (points.length === 0) return null;
+  const closedPoints = points.filter((point) => point.source !== "live");
+  const lastClosedDate = closedPoints.at(-1)?.date ?? points.at(-1)?.date ?? points[0].date;
+  const closedDates = new Set(closedPoints.map((point) => point.date));
+  const missingClosedDates = closedPoints.length > 0
+    ? calendarDates(monthStart, lastClosedDate).filter((date) => !closedDates.has(date))
+    : [];
   let compounded = 1;
   let valueDiff = 0;
   const classes = new Map<string, { compounded: number; valueDiff: number }>();
@@ -203,10 +212,13 @@ export function calculateMonthlyReturn(
     total: { valueDiff, percentDiff: (compounded - 1) * 100 },
     byClass,
     snapshotCount: points.length,
+    closedSnapshotCount: closedPoints.length,
     baseDate: points[0].date,
     includesLiveDay,
     isPartial: points[0].date !== monthStart,
-    lastClosedDate: points.at(-1)?.date ?? points[0].date,
+    lastClosedDate,
+    missingClosedDates,
+    hasClosedGaps: missingClosedDates.length > 0,
   };
 }
 

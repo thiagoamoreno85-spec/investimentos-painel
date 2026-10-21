@@ -8,6 +8,7 @@ import {
   Camera,
   ChevronDown,
   ChevronUp,
+  AlertTriangle,
   Minus,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -145,6 +146,8 @@ export function PerformanceCards() {
   }
 
   if (!performance) return null;
+  const missingClosedDates = performance.monthly.missingClosedDates ?? [];
+  const missingDatesPreview = missingClosedDates.slice(0, 3).join(", ");
 
   // Se não tem snapshots, mostrar card de ativação (ocupa 1 coluna)
   if (!performance.hasSnapshots) {
@@ -220,6 +223,19 @@ export function PerformanceCards() {
                   : `${performance.monthly.snapshotCount ?? 0} fechamentos`}
                 {performance.monthly.lastClosedDate ? ` · até ${performance.monthly.lastClosedDate}` : ""}
               </p>
+            )}
+            {performance.monthly.hasClosedGaps && (
+              <div
+                role="status"
+                className="mt-2 flex gap-1.5 rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1.5 text-[11px] leading-snug text-amber-200"
+              >
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <p>
+                  <span className="font-medium">Cobertura parcial: </span>
+                  {missingClosedDates.length} dia{missingClosedDates.length === 1 ? " útil sem" : "s úteis sem"} fechamento persistido
+                  {missingDatesPreview ? ` (${missingDatesPreview}${missingClosedDates.length > 3 ? "…" : ""})` : ""}. O retorno permanece auditável no intervalo coberto.
+                </p>
+              </div>
             )}
             <ClassBreakdown
               data={performance.monthly.byClass}

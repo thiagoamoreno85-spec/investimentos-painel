@@ -854,3 +854,9 @@
 - [x] Remover histórico reconstruído do retorno oficial e corrigir tratamento de taxas de compra
 - [x] Atualizar contratos e rótulos de rentabilidade com cobertura explícita
 - [x] Testar, validar e registrar checkpoint sem backfill nem alteração financeira retroativa
+
+## Alerta de Cobertura de Fechamentos — Em andamento
+- [x] Definir lacuna como dia útil civil sem snapshot persistido no intervalo mensal
+- [x] Calcular cobertura e datas ausentes no contrato de rentabilidade
+- [x] Exibir alerta acessível no card mensal, distinguindo lacuna de fechamento intradiário
+- [x] Cobrir cenários de lacuna e fim de semana com testes, validar e salvar checkpoint

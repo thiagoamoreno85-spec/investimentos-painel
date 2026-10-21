@@ -559,10 +559,13 @@ export const portfolioRouter = router({
         snapshotDate: monthly?.baseDate ?? null,
         chainedReturn: monthly?.total.percentDiff ?? null,
         snapshotCount: monthly?.snapshotCount ?? null,
+        closedSnapshotCount: monthly?.closedSnapshotCount ?? 0,
         baseDate: monthly?.baseDate ?? null,
         lastClosedDate: monthly?.lastClosedDate ?? null,
         includesLiveDay: monthly?.includesLiveDay ?? false,
         isPartial: monthly?.isPartial ?? false,
+        missingClosedDates: monthly?.missingClosedDates ?? [],
+        hasClosedGaps: monthly?.hasClosedGaps ?? false,
       },
       hasSnapshots: !!monthly,
     };

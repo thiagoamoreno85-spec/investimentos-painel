@@ -1,4 +1,4 @@
-import { eq, and, desc, gt, sql } from "drizzle-orm";
+import { eq, and, desc, gt, isNull, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction, analysisHistory, InsertAnalysisHistory, newsItems, InsertNewsItem, events, InsertEvent } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -95,7 +95,10 @@ export async function getUserByOpenId(openId: string) {
 export async function getAssetsByUser(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(assets).where(and(eq(assets.userId, userId), gt(assets.totalQuantity, "0")));
+  return db
+    .select()
+    .from(assets)
+    .where(and(eq(assets.userId, userId), isNull(assets.archivedAt), gt(assets.totalQuantity, "0")));
 }
 
 export async function getAssetById(assetId: number, userId: number) {
@@ -156,8 +159,10 @@ export async function updateAssetPricesBulk(updates: { id: number; lastPrice: st
 export async function deleteAsset(assetId: number, userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(transactions).where(eq(transactions.assetId, assetId));
-  await db.delete(assets).where(and(eq(assets.id, assetId), eq(assets.userId, userId)));
+  await db
+    .update(assets)
+    .set({ archivedAt: new Date() })
+    .where(and(eq(assets.id, assetId), eq(assets.userId, userId)));
 }
 
 // ========== TRANSACTIONS ==========

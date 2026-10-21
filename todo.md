@@ -838,3 +838,11 @@
 - [x] Revisar arquitetura visual, responsividade e navegação das telas principais
 - [x] Revisar fluxos operacionais, integridade de dados e consistência de funcionalidades
 - [x] Consolidar melhorias priorizadas e gerar prompt de implementação por fases
+
+## Fase 1 — Integridade e Autorização Financeira — Em andamento
+- [x] Revisar pagamentos patrimoniais, exclusão de ativos, operações e importação CSV
+- [x] Definir arquitetura transacional e testes de regressão com revisões independentes
+- [x] Executar preflight somente leitura de duplicidades e vínculos antes de criar índices
+- [x] Implementar mutações atômicas, validação de propriedade e arquivamento seguro
+- [x] Implementar importação CSV pré-validada e idempotente
+- [x] Aplicar migração segura, testar e validar sem alterar dados financeiros

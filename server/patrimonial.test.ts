@@ -74,7 +74,16 @@ describe("patrimonial router — contrato sem escrita", () => {
     await expect(caller.patrimonial.registerPayment({ liabilityId: 1, amount: 0, paymentDate: new Date() })).rejects.toThrow();
   });
 
+  it("rejeita identificador inválido e valor com mais de duas casas", async () => {
+    await expect(caller.patrimonial.registerPayment({ liabilityId: 0, amount: 1, paymentDate: new Date() })).rejects.toThrow();
+    await expect(caller.patrimonial.registerPayment({ liabilityId: 1, amount: 10.001, paymentDate: new Date() })).rejects.toThrow();
+  });
+
   it("rejeita número de parcela não inteiro antes de acessar o banco", async () => {
     await expect(caller.patrimonial.registerPayment({ liabilityId: 1, amount: 1, paymentDate: new Date(), installmentNumber: 1.5 })).rejects.toThrow();
+  });
+
+  it("rejeita número de parcela não positivo antes de acessar o banco", async () => {
+    await expect(caller.patrimonial.registerPayment({ liabilityId: 1, amount: 1, paymentDate: new Date(), installmentNumber: 0 })).rejects.toThrow();
   });
 });

@@ -9,6 +9,16 @@ import {
 } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 
+const monetaryAmount = z
+  .number()
+  .finite()
+  .positive()
+  .refine((value) => Math.abs(value * 100 - Math.round(value * 100)) < 1e-8, "Valor monetário deve ter no máximo duas casas decimais");
+
+function toCents(value: number) {
+  return Math.round(value * 100);
+}
+
 /**
  * Patrimônio — Controle de ativos imobilizados, créditos e passivos
  */
@@ -249,55 +259,75 @@ export const patrimonialRouter = router({
   registerPayment: protectedProcedure
     .input(
       z.object({
-        liabilityId: z.number(),
-        amount: z.number().positive(),
+        liabilityId: z.number().int().positive(),
+        amount: monetaryAmount,
         paymentDate: z.date(),
-        installmentNumber: z.number().int().optional(),
+        installmentNumber: z.number().int().positive().optional(),
         notes: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      // Registrar pagamento
-      await db.insert(patrimonialLiabilityPayments).values({
-        userId: ctx.user.id,
-        liabilityId: input.liabilityId,
-        paymentDate: input.paymentDate,
-        amount: input.amount.toString(),
-        installmentNumber: input.installmentNumber || undefined,
-        notes: input.notes || null,
-      });
-
-      // Atualizar saldo do passivo
-      const liability = await db
-        .select()
-        .from(patrimonialLiabilities)
-        .where(eq(patrimonialLiabilities.id, input.liabilityId))
-        .then((res: any[]) => res[0]);
-
-      if (!liability) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Passivo não encontrado",
-        });
+      if (!Number.isSafeInteger(ctx.user.id) || ctx.user.id <= 0) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Usuário inválido" });
       }
 
-      const newBalance = Math.max(
-        0,
-        parseFloat(liability.remainingBalance.toString()) - input.amount
-      );
+      try {
+        return await db.transaction(async (tx) => {
+          const liabilities = await tx
+            .select()
+            .from(patrimonialLiabilities)
+            .where(and(
+              eq(patrimonialLiabilities.id, input.liabilityId),
+              eq(patrimonialLiabilities.userId, ctx.user.id),
+              eq(patrimonialLiabilities.isActive, 1),
+            ))
+            .for("update")
+            .limit(1);
+          const liability = liabilities[0];
+          if (!liability) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Passivo não encontrado" });
+          }
 
-      await db
-        .update(patrimonialLiabilities)
-        .set({
-          remainingBalance: newBalance.toString(),
-          paidInstallments: ((liability.paidInstallments as number) || 0) + 1,
-          isActive: newBalance > 0 ? 1 : 0,
-        })
-        .where(eq(patrimonialLiabilities.id, input.liabilityId));
+          const paymentCents = toCents(input.amount);
+          const balanceCents = toCents(Number(liability.remainingBalance));
+          if (paymentCents > balanceCents) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Valor do pagamento excede o saldo remanescente",
+            });
+          }
+          const newBalanceCents = balanceCents - paymentCents;
 
-      return { success: true, newBalance: parseFloat(newBalance.toString()) };
+          await tx.insert(patrimonialLiabilityPayments).values({
+            userId: ctx.user.id,
+            liabilityId: liability.id,
+            paymentDate: input.paymentDate,
+            amount: (paymentCents / 100).toFixed(2),
+            installmentNumber: input.installmentNumber ?? null,
+            notes: input.notes?.trim() || null,
+          });
+
+          await tx
+            .update(patrimonialLiabilities)
+            .set({
+              remainingBalance: (newBalanceCents / 100).toFixed(2),
+              paidInstallments: (liability.paidInstallments || 0) + 1,
+              isActive: newBalanceCents > 0 ? 1 : 0,
+            })
+            .where(and(
+              eq(patrimonialLiabilities.id, liability.id),
+              eq(patrimonialLiabilities.userId, ctx.user.id),
+            ));
+
+          return { success: true, newBalance: newBalanceCents / 100 };
+        });
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("[patrimonial.registerPayment] Falha transacional:", error);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Não foi possível registrar o pagamento" });
+      }
     }),
 
   listPayments: protectedProcedure

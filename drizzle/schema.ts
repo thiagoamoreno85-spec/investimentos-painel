@@ -1,4 +1,4 @@
-import { date, int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, bigint, uniqueIndex } from "drizzle-orm/mysql-core";
+import { date, int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, bigint, uniqueIndex, index } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -69,9 +69,13 @@ export const assets = mysqlTable("assets", {
   maturityLabel: varchar("maturityLabel", { length: 32 }),
   /** Data-base informada para a marcação manual do preço */
   priceReferenceDate: timestamp("priceReferenceDate"),
+  /** Arquivamento lógico: preserva o histórico financeiro sem manter o ativo na posição aberta. */
+  archivedAt: timestamp("archivedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => [
+  uniqueIndex("assets_user_ticker_unique").on(table.userId, table.ticker),
+]);
 
 export type Asset = typeof assets.$inferSelect;
 export type InsertAsset = typeof assets.$inferInsert;
@@ -94,9 +98,14 @@ export const transactions = mysqlTable("transactions", {
   fees: decimal("fees", { precision: 18, scale: 2 }).default("0").notNull(),
   /** Data da transação */
   transactionDate: timestamp("transactionDate").notNull(),
+  /** Chave idempotente para linhas importadas; lançamentos manuais permanecem nulos. */
+  importFingerprint: varchar("importFingerprint", { length: 64 }),
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => [
+  uniqueIndex("transactions_user_import_fingerprint_unique").on(table.userId, table.importFingerprint),
+  index("transactions_asset_date_id_idx").on(table.assetId, table.transactionDate, table.id),
+]);
 
 export type Transaction = typeof transactions.$inferSelect;
 export type InsertTransaction = typeof transactions.$inferInsert;

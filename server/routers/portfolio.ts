@@ -5,7 +5,6 @@ import {
   getSnapshotHistory as getSnapshotHistoryService,
   getSnapshotByDate,
   getLastSnapshotOfPreviousMonth,
-  getMonthlyChainedReturn,
 } from "../services/snapshotService";
 import {
   getAssetsByUser,
@@ -34,7 +33,7 @@ import {
 } from "../services/dailyPerformanceService";
 import { resolveValuationFxRateForUser } from "../services/valuationFxService";
 import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
-import { assets, transactions as transactionsTable, dividends, cashBalance, portfolioSnapshots } from "../../drizzle/schema";
+import { assets, transactions as transactionsTable, dividends, cashBalance, portfolioSnapshots, dailyPerformanceSnapshots } from "../../drizzle/schema";
 import { eq, asc, and, desc, gte } from "drizzle-orm";
 import { getDb } from "../db";
 import { parseCSV } from "../lib/csvParser";
@@ -45,6 +44,7 @@ import {
   importTransactionsAtomically,
 } from "../services/portfolioMutationService";
 import { TRPCError } from "@trpc/server";
+import { buildClosedPerformanceHistory } from "../../shared/closedPerformanceHistory";
 
 export const portfolioRouter = router({
   // ========== ASSETS ==========
@@ -270,77 +270,27 @@ export const portfolioRouter = router({
     return resolveValuationFxRateForUser(ctx.user.id, marketRate);
   }),
 
-  /** Calcula histórico de rentabilidade da carteira mês a mês */
+  /**
+   * Série acumulada oficial para comparação com benchmarks. Só usa fechamentos
+   * persistidos; não interpola meses nem inventa histórico anterior ao ledger.
+   */
   getReturnHistory: protectedProcedure.query(async ({ ctx }) => {
     try {
-      const assetsData = await getAssetsByUser(ctx.user.id);
-      if (assetsData.length === 0) return { history: [], fromDate: null };
-
-      const fxRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X?interval=1d&range=1d');
-      const fxData = await fxRes.json();
-      const marketUsdBrl = fxData.chart.result[0].meta.regularMarketPrice ?? 5.7;
-      const { rate: usdBrl } = await resolveValuationFxRateForUser(ctx.user.id, marketUsdBrl);
-
-      const USD_CLASSES = ['rv_eua', 'cripto', 'uranio', 'india'];
-      let totalCurrentValue = 0;
-      let totalCost = 0;
-
-      for (const asset of assetsData) {
-        const price = parseFloat(asset.lastPrice || asset.averageCost || "0");
-        const qty = parseFloat(asset.totalQuantity || "0");
-        const avgCost = parseFloat(asset.averageCost || "0");
-        const isUsd = USD_CLASSES.includes(asset.assetClass);
-        const fx = isUsd ? usdBrl : 1;
-        totalCurrentValue += price * qty * fx;
-        totalCost += avgCost * qty * fx;
-      }
-
-      const totalReturnPrice = totalCost > 0 ? ((totalCurrentValue / totalCost) - 1) * 100 : 0;
-
       const db = await getDb();
-      const dividendRows = await db?.select().from(dividends).where(eq(dividends.userId, ctx.user.id));
-      const totalProventosBRL = dividendRows?.reduce((sum, d) => sum + Number(d.totalValue), 0) ?? 0;
+      if (!db) return { history: [], fromDate: null, lastClosedDate: null, snapshotCount: 0, isOfficial: true };
+      const rows = await db.select({
+        snapshotDate: dailyPerformanceSnapshots.snapshotDate,
+        returnPct: dailyPerformanceSnapshots.returnPct,
+      }).from(dailyPerformanceSnapshots).where(eq(dailyPerformanceSnapshots.userId, ctx.user.id))
+        .orderBy(asc(dailyPerformanceSnapshots.snapshotDate));
 
-      // Rentabilidade total = (ganho_capital + proventos) / custo_total
-      const ganhoCapital = totalCurrentValue - totalCost;
-      const totalReturn = totalCost > 0 
-        ? ((ganhoCapital + totalProventosBRL) / totalCost) * 100 
-        : 0;
-      const totalProventosYield = totalCost > 0 ? (totalProventosBRL / totalCost) * 100 : 0;
-
-      const transactions = await db?.select().from(transactionsTable).where(eq(transactionsTable.userId, ctx.user.id)).orderBy(asc(transactionsTable.transactionDate)).limit(1);
-      const fromDate = transactions?.[0]?.transactionDate?.toISOString?.()?.slice(0, 10) ?? new Date().toISOString().slice(0, 10);
-
-      const start = new Date(fromDate);
-      const end = new Date();
-      const months: { date: string; value: number }[] = [];
-      let current = new Date(start.getFullYear(), start.getMonth(), 1);
-      const totalMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-
-      let idx = 0;
-      while (current <= end) {
-        const date = current.toISOString().slice(0, 7);
-        const value = totalMonths > 0 ? (totalReturn * idx) / totalMonths : 0;
-        months.push({ date, value: parseFloat(value.toFixed(2)) });
-        current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
-        idx++;
-      }
-
-      if (months.length > 0) {
-        months[months.length - 1].value = parseFloat(totalReturn.toFixed(2));
-      }
-
-      return { 
-        history: months, 
-        fromDate,
-        totalReturn,
-        totalReturnPrice,
-        totalProventos: totalProventosBRL,
-        totalProventosYield
-      };
+      return { ...buildClosedPerformanceHistory(rows.map((row) => ({
+        date: row.snapshotDate,
+        returnPct: Number(row.returnPct),
+      }))), isOfficial: true };
     } catch (err) {
       console.error("[getReturnHistory] Error:", err);
-      return { history: [], fromDate: null };
+      return { history: [], fromDate: null, lastClosedDate: null, snapshotCount: 0, isOfficial: true };
     }
   }),
 
@@ -610,6 +560,7 @@ export const portfolioRouter = router({
         chainedReturn: monthly?.total.percentDiff ?? null,
         snapshotCount: monthly?.snapshotCount ?? null,
         baseDate: monthly?.baseDate ?? null,
+        lastClosedDate: monthly?.lastClosedDate ?? null,
         includesLiveDay: monthly?.includesLiveDay ?? false,
         isPartial: monthly?.isPartial ?? false,
       },

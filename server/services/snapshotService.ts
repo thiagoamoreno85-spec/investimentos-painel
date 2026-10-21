@@ -2,16 +2,14 @@
  * Serviço de snapshot diário do patrimônio — compartilhado entre a mutation
  * tRPC (captura manual) e o endpoint Heartbeat (/api/scheduled/portfolio-snapshot).
  *
- * Um snapshot por usuário por dia: se já existir para a data, é atualizado
- * (última captura do dia vence).
+ * Um snapshot por usuário por dia: a chave única no banco mantém a captura
+ * idempotente em caso de retry do Heartbeat ou atualização manual.
  */
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { getDb, getAssetsByUser } from "../db";
 import { portfolioSnapshots, cashBalance } from "../../drizzle/schema";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
 import { resolveValuationFxRateForUser } from "./valuationFxService";
-
-const USD_CLASSES = ["rv_eua", "cripto", "uranio", "india"];
 
 export interface SnapshotResult {
   snapshotDate: string;
@@ -47,6 +45,7 @@ export async function captureSnapshot(userId: number): Promise<SnapshotResult> {
   const cash = cashRows.length > 0 ? Number(cashRows[0].balance) : 0;
 
   const classBreakdown: Record<string, number> = {};
+  let hasPartialValuation = false;
   let totalValue = cash;
   let totalCost = 0;
 
@@ -59,8 +58,11 @@ export async function captureSnapshot(userId: number): Promise<SnapshotResult> {
     const price = marketPrice && marketPrice > 0
       ? marketPrice
       : parseFloat(asset.lastPrice || asset.averageCost || "0");
+    if (asset.assetClass !== "renda_fixa" && (!marketPrice || marketPrice <= 0)) {
+      hasPartialValuation = true;
+    }
     const avgCost = parseFloat(asset.averageCost || "0");
-    const fx = USD_CLASSES.includes(asset.assetClass) ? usdBrl : 1;
+    const fx = asset.currency === "USD" ? usdBrl : 1;
 
     const valueBRL = qty * price * fx;
     totalValue += valueBRL;
@@ -92,22 +94,18 @@ export async function captureSnapshot(userId: number): Promise<SnapshotResult> {
     cashBalance: cash.toFixed(2),
     usdBrl: usdBrl.toFixed(4),
     classBreakdown: JSON.stringify(classBreakdown),
+    capturedAt: new Date(),
+    valuationAsOf: new Date(),
+    valuationQuality: hasPartialValuation ? "partial" as const : "complete" as const,
   };
 
-  let updated = false;
-  if (existing.length > 0) {
-    await db
-      .update(portfolioSnapshots)
-      .set(values)
-      .where(eq(portfolioSnapshots.id, existing[0].id));
-    updated = true;
-  } else {
-    await db.insert(portfolioSnapshots).values({
-      userId,
-      snapshotDate,
-      ...values,
-    });
-  }
+  await db.insert(portfolioSnapshots).values({
+    userId,
+    snapshotDate,
+    ...values,
+  }).onDuplicateKeyUpdate({ set: values });
+
+  const updated = existing.length > 0;
 
   return {
     snapshotDate,

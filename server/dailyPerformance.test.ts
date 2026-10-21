@@ -109,6 +109,7 @@ describe("calculateMonthlyReturn", () => {
     expect(result?.total.valueDiff).toBe(302);
     expect(result?.byClass.rv_nacional.percentDiff).toBeCloseTo(3.02, 8);
     expect(result?.isPartial).toBe(false);
+    expect(result?.lastClosedDate).toBe("2026-09-02");
   });
 
   it("sinaliza cobertura parcial quando o mês não possui seu primeiro dia registrado", () => {

@@ -155,6 +155,13 @@
       "when": 1792596656547,
       "tag": "0021_optimal_logan",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1792597847094,
+      "tag": "0022_chunky_jack_flag",
+      "breakpoints": true
     }
   ]
 }

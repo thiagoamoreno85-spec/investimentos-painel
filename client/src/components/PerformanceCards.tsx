@@ -153,9 +153,9 @@ export function PerformanceCards() {
         <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
           <Camera className="h-6 w-6 text-muted-foreground" />
           <div>
-            <p className="text-xs font-medium">Rent. Mês</p>
+            <p className="text-xs font-medium">Retorno do mês</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Capture o primeiro snapshot para acompanhar a evolução mensal.
+              Aguardando o primeiro fechamento para calcular o retorno ajustado.
             </p>
           </div>
           <Button
@@ -174,11 +174,11 @@ export function PerformanceCards() {
   }
 
   return (
-    /* Rentabilidade MENSAL — único card renderizado aqui */
+    /* Retorno mensal fechado, ajustado por operações */
     <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
         <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-          Rent. Mês
+          Retorno mês
         </CardTitle>
         <Button
           variant="ghost"
@@ -212,13 +212,13 @@ export function PerformanceCards() {
               {performance.monthly.total.valueDiff >= 0 ? "+" : ""}
               {formatCurrency(performance.monthly.total.valueDiff)}
             </p>
-            {/* Indicador do método encadeado e ajustado por fluxos */}
-            {(performance.monthly as any).chainedReturn !== null && (
+            {performance.monthly.chainedReturn !== null && (
               <p className="text-xs text-muted-foreground/50 mt-1" title="Retorno da carteira investida, encadeado por dia e ajustado por compras, vendas, corretagens e proventos. O caixa conciliado não é tratado como retorno de mercado.">
-                {(performance.monthly as any).isPartial ? "Parcial desde " : "Ajustada por fluxos · "}
-                {(performance.monthly as any).isPartial
-                  ? (performance.monthly as any).baseDate
-                  : `${(performance.monthly as any).snapshotCount ?? 0} dias`}
+                {performance.monthly.isPartial ? "Parcial desde " : "Ajustado por fluxos · "}
+                {performance.monthly.isPartial
+                  ? performance.monthly.baseDate
+                  : `${performance.monthly.snapshotCount ?? 0} fechamentos`}
+                {performance.monthly.lastClosedDate ? ` · até ${performance.monthly.lastClosedDate}` : ""}
               </p>
             )}
             <ClassBreakdown

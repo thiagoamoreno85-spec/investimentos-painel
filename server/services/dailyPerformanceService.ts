@@ -2,11 +2,10 @@ import { and, eq, gte, lt } from "drizzle-orm";
 import { dailyPerformanceSnapshots, dividends, transactions } from "../../drizzle/schema";
 import { getAssetsByUser, getDb } from "../db";
 import {
-  fetchHistoricalCloses,
-  fetchHistoricalUsdBrlCloses,
   fetchQuotes,
   fetchUsdBrlQuote,
 } from "../quotes";
+import { resolveValuationFxRateForUser } from "./valuationFxService";
 
 const BRT_TIME_ZONE = "America/Sao_Paulo";
 
@@ -48,6 +47,8 @@ export type DailyPerformanceResult = {
   byTicker: Record<string, { changeBRL: number; changePct: number }>;
   updatedAt: Date;
   excludesCash: true;
+  fxRate: number;
+  fxSource: "conciliacao" | "mercado";
 };
 
 export type MonthlyPerformanceResult = {
@@ -57,6 +58,7 @@ export type MonthlyPerformanceResult = {
   baseDate: string;
   includesLiveDay: boolean;
   isPartial: boolean;
+  lastClosedDate: string;
 };
 
 const CLASS_CURRENCY: Record<string, "BRL" | "USD"> = {
@@ -171,7 +173,7 @@ type MonthlyPoint = {
   returnValue: number;
   byClass: DailyClassResult[];
   byAsset?: DailyAssetResult[];
-  source?: "ledger" | "reconstructed" | "live";
+  source?: "ledger" | "live";
 };
 
 export function calculateMonthlyReturn(
@@ -204,6 +206,7 @@ export function calculateMonthlyReturn(
     baseDate: points[0].date,
     includesLiveDay,
     isPartial: points[0].date !== monthStart,
+    lastClosedDate: points.at(-1)?.date ?? points[0].date,
   };
 }
 
@@ -220,7 +223,7 @@ export async function getLiveDailyPerformance(
   if (!db) throw new Error("Banco de dados indisponível.");
 
   const { start, next } = dayBounds(referenceDate);
-  const [userAssets, dayTransactions, paidDividends, fxQuote] = await Promise.all([
+  const [userAssets, dayTransactions, paidDividends, marketFxQuote] = await Promise.all([
     getAssetsByUser(userId),
     db.select().from(transactions).where(and(
       eq(transactions.userId, userId),
@@ -234,6 +237,9 @@ export async function getLiveDailyPerformance(
     )),
     fetchUsdBrlQuote(),
   ]);
+  const fxResolution = await resolveValuationFxRateForUser(userId, marketFxQuote.price);
+  const currentFx = fxResolution.rate;
+  const previousFx = fxResolution.source === "conciliacao" ? currentFx : marketFxQuote.previousClose;
 
   const investedAssets = userAssets.filter((asset) => asset.assetClass !== "caixa");
   const quotes = await fetchQuotes(
@@ -273,7 +279,7 @@ export async function getLiveDailyPerformance(
       .reduce((sum, transaction) => sum + numberOrZero(transaction.quantity), 0);
     const buyCost = assetTransactions
       .filter((transaction) => transaction.type === "buy")
-      .reduce((sum, transaction) => sum + numberOrZero(transaction.totalValue), 0);
+      .reduce((sum, transaction) => sum + numberOrZero(transaction.totalValue) + numberOrZero(transaction.fees), 0);
     const sellProceeds = assetTransactions
       .filter((transaction) => transaction.type === "sell")
       .reduce((sum, transaction) => sum + Math.max(0, numberOrZero(transaction.totalValue) - numberOrZero(transaction.fees)), 0);
@@ -281,7 +287,7 @@ export async function getLiveDailyPerformance(
       .reduce((sum, dividend) => sum + toBrl(
         numberOrZero(dividend.totalValue),
         dividend.currency,
-        fxQuote.price
+        currentFx
       ), 0);
 
     const result = calculateAssetDayReturn({
@@ -294,8 +300,8 @@ export async function getLiveDailyPerformance(
       sellProceeds,
       income,
       currency,
-      currentFx: fxQuote.price,
-      previousFx: fxQuote.previousClose,
+      currentFx,
+      previousFx,
     });
     byTicker[asset.ticker] = {
       changeBRL: result.changeBRL,
@@ -352,129 +358,9 @@ export async function getLiveDailyPerformance(
     byTicker,
     updatedAt: new Date(),
     excludesCash: true,
+    fxRate: currentFx,
+    fxSource: fxResolution.source,
   };
-}
-
-/**
- * Reconstrói retornos de dias úteis ainda sem fechamento persistido. Isso cobre os
- * primeiros dias de um mês após a implantação do ledger, sem criar ativos ou
- * transações; os fechamentos automáticos passam a substituir esse fallback.
- */
-async function reconstructHistoricalDailyPoints(
-  userId: number,
-  dates: string[],
-  monthStart: string
-): Promise<MonthlyPoint[]> {
-  if (dates.length === 0) return [];
-  const db = await getDb();
-  if (!db) throw new Error("Banco de dados indisponível.");
-  const { start: monthStartAt } = dayBounds(monthStart);
-  const [userAssets, monthTransactions, monthDividends] = await Promise.all([
-    getAssetsByUser(userId),
-    db.select().from(transactions).where(and(eq(transactions.userId, userId), gte(transactions.transactionDate, monthStartAt))),
-    db.select().from(dividends).where(and(eq(dividends.userId, userId), gte(dividends.paymentDate, monthStartAt))),
-  ]);
-  const investedAssets = userAssets.filter((asset) => asset.assetClass !== "caixa");
-  const [historicalQuotes, historicalFx] = await Promise.all([
-    fetchHistoricalCloses(
-      investedAssets
-        .filter((asset) => asset.assetClass !== "renda_fixa")
-        .map((asset) => ({ ticker: asset.ticker, assetClass: asset.assetClass }))
-    ),
-    fetchHistoricalUsdBrlCloses(),
-  ]);
-
-  return dates.map((date) => {
-    const { start, next } = dayBounds(date);
-    const classes = new Map<string, Omit<DailyClassResult, "classKey" | "className" | "changePct">>();
-    const byAsset: DailyAssetResult[] = [];
-
-    for (const asset of investedAssets) {
-      const currency = asset.currency || CLASS_CURRENCY[asset.assetClass] || "BRL";
-      const assetTransactions = monthTransactions.filter((transaction) => transaction.assetId === asset.id);
-      const dayTransactions = assetTransactions.filter((transaction) => transaction.transactionDate >= start && transaction.transactionDate < next);
-      const futureTransactions = assetTransactions.filter((transaction) => transaction.transactionDate >= next);
-      const futureBuys = futureTransactions
-        .filter((transaction) => transaction.type === "buy")
-        .reduce((sum, transaction) => sum + numberOrZero(transaction.quantity), 0);
-      const futureSells = futureTransactions
-        .filter((transaction) => transaction.type === "sell")
-        .reduce((sum, transaction) => sum + numberOrZero(transaction.quantity), 0);
-      const endQty = Math.max(0, numberOrZero(asset.totalQuantity) - futureBuys + futureSells);
-      const buyQty = dayTransactions
-        .filter((transaction) => transaction.type === "buy")
-        .reduce((sum, transaction) => sum + numberOrZero(transaction.quantity), 0);
-      const sellQty = dayTransactions
-        .filter((transaction) => transaction.type === "sell")
-        .reduce((sum, transaction) => sum + numberOrZero(transaction.quantity), 0);
-      const buyCost = dayTransactions
-        .filter((transaction) => transaction.type === "buy")
-        .reduce((sum, transaction) => sum + numberOrZero(transaction.totalValue), 0);
-      const sellProceeds = dayTransactions
-        .filter((transaction) => transaction.type === "sell")
-        .reduce((sum, transaction) => sum + Math.max(0, numberOrZero(transaction.totalValue) - numberOrZero(transaction.fees)), 0);
-      const income = monthDividends
-        .filter((dividend) => dividend.assetId === asset.id && dividend.paymentDate && dividend.paymentDate >= start && dividend.paymentDate < next)
-        .reduce((sum, dividend) => sum + toBrl(numberOrZero(dividend.totalValue), dividend.currency, historicalCloseAt(historicalFx.closesByDate, date, 1)), 0);
-      const fallbackPrice = numberOrZero(asset.lastPrice);
-      const priceSeries = historicalQuotes.get(asset.ticker)?.closesByDate;
-      const currentPrice = historicalCloseAt(priceSeries, date, fallbackPrice);
-      const previousPrice = historicalCloseAt(priceSeries, previousCalendarDate(date), currentPrice);
-      const currentFx = historicalCloseAt(historicalFx.closesByDate, date, 5.5);
-      const previousFx = historicalCloseAt(historicalFx.closesByDate, previousCalendarDate(date), currentFx);
-      const result = calculateAssetDayReturn({
-        currentQty: endQty,
-        buyQty,
-        sellQty,
-        currentPrice,
-        previousPrice,
-        buyCost,
-        sellProceeds,
-        income,
-        currency,
-        currentFx,
-        previousFx,
-      });
-      byAsset.push({
-        assetId: asset.id,
-        ticker: asset.ticker,
-        name: asset.name,
-        classKey: asset.assetClass,
-        currency,
-        ...result,
-        changePct: result.startValueBRL > 0 ? (result.changeBRL / result.startValueBRL) * 100 : 0,
-      });
-      const current = classes.get(asset.assetClass) ?? {
-        startValueBRL: 0,
-        valueBRL: 0,
-        marketPnlBRL: 0,
-        incomePnlBRL: 0,
-        changeBRL: 0,
-      };
-      current.startValueBRL += result.startValueBRL;
-      current.valueBRL += result.valueBRL;
-      current.marketPnlBRL += result.marketPnlBRL;
-      current.incomePnlBRL += result.incomePnlBRL;
-      current.changeBRL += result.changeBRL;
-      classes.set(asset.assetClass, current);
-    }
-
-    const byClass = Array.from(classes.entries()).map(([classKey, result]) => ({
-      classKey,
-      className: ASSET_CLASS_LABELS[classKey] || classKey,
-      ...result,
-      changePct: result.startValueBRL > 0 ? (result.changeBRL / result.startValueBRL) * 100 : 0,
-    }));
-    const startValue = byClass.reduce((sum, item) => sum + item.startValueBRL, 0);
-    const returnValue = byClass.reduce((sum, item) => sum + item.changeBRL, 0);
-    return {
-      date,
-      returnPct: startValue > 0 ? (returnValue / startValue) * 100 : 0,
-      returnValue,
-      byClass,
-      byAsset,
-    };
-  });
 }
 
 /** Persiste ou atualiza o retorno de uma data, mantendo a operação idempotente. */
@@ -492,17 +378,19 @@ export async function captureDailyPerformanceSnapshot(userId: number) {
     returnPct: performance.totalPct.toFixed(8),
     classBreakdown: JSON.stringify(performance.byClass),
     assetBreakdown: JSON.stringify(performance.byAsset),
+    capturedAt: new Date(),
+    valuationAsOf: performance.updatedAt,
+    status: "final" as const,
+    fxRate: performance.fxRate.toFixed(4),
+    fxSource: performance.fxSource,
   };
   const existing = await db.select().from(dailyPerformanceSnapshots).where(and(
     eq(dailyPerformanceSnapshots.userId, userId),
     eq(dailyPerformanceSnapshots.snapshotDate, performance.date),
   )).limit(1);
 
-  if (existing.length > 0) {
-    await db.update(dailyPerformanceSnapshots).set(values).where(eq(dailyPerformanceSnapshots.id, existing[0].id));
-  } else {
-    await db.insert(dailyPerformanceSnapshots).values({ userId, snapshotDate: performance.date, ...values });
-  }
+  await db.insert(dailyPerformanceSnapshots).values({ userId, snapshotDate: performance.date, ...values })
+    .onDuplicateKeyUpdate({ set: values });
   return { ...performance, updated: existing.length > 0 };
 }
 
@@ -525,13 +413,6 @@ async function getMonthlyPerformancePoints(userId: number) {
     byAsset: row.assetBreakdown ? JSON.parse(row.assetBreakdown) as DailyAssetResult[] : [],
     source: "ledger",
   }));
-  const storedDates = new Set(points.map((point) => point.date));
-  const previousBusinessDates = calendarDates(monthStart, previousCalendarDate(today));
-  const missingDates = previousBusinessDates.filter((date) => !storedDates.has(date));
-  const reconstructed = (await reconstructHistoricalDailyPoints(userId, missingDates, monthStart))
-    .map((point) => ({ ...point, source: "reconstructed" as const }));
-  points.push(...reconstructed);
-  points.sort((left, right) => left.date.localeCompare(right.date));
 
   let includesLiveDay = false;
   if (!points.some((point) => point.date === today)) {
@@ -553,28 +434,20 @@ async function getMonthlyPerformancePoints(userId: number) {
 /** Encadeia retornos fechados do mês e inclui o retorno intradiário até o próximo fechamento. */
 export async function getMonthlyPerformance(userId: number): Promise<MonthlyPerformanceResult | null> {
   const { monthStart, includesLiveDay, points } = await getMonthlyPerformancePoints(userId);
-  return calculateMonthlyReturn(points, monthStart, includesLiveDay);
+  const result = calculateMonthlyReturn(points, monthStart, includesLiveDay);
+  if (!result) return null;
+  return { ...result, lastClosedDate: points.filter((point) => point.source === "ledger").at(-1)?.date ?? result.baseDate };
 }
 
 /** Retorna a auditoria mensal por dia e por ativo sem modificar a carteira. */
 export async function getMonthlyPerformanceDetails(userId: number) {
   const { monthStart, today, includesLiveDay, points } = await getMonthlyPerformancePoints(userId);
-  const missingAssetDetails = points
-    .filter((point) => point.date !== today && (!point.byAsset || point.byAsset.length === 0))
-    .map((point) => point.date);
-  const reconstructed = await reconstructHistoricalDailyPoints(userId, missingAssetDetails, monthStart);
-  const reconstructedByDate = new Map(reconstructed.map((point) => [point.date, point.byAsset ?? []]));
-  const days = points.map((point) => ({
-    ...point,
-    byAsset: point.byAsset?.length
-      ? point.byAsset
-      : reconstructedByDate.get(point.date) ?? [],
-  }));
+  const days = points.map((point) => ({ ...point, byAsset: point.byAsset ?? [] }));
   return {
     monthStart,
     today,
     includesLiveDay,
-    summary: calculateMonthlyReturn(points, monthStart, includesLiveDay),
+    summary: await getMonthlyPerformance(userId),
     days,
   };
 }

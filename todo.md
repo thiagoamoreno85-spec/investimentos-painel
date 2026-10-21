@@ -846,3 +846,11 @@
 - [x] Implementar mutações atômicas, validação de propriedade e arquivamento seguro
 - [x] Implementar importação CSV pré-validada e idempotente
 - [x] Aplicar migração segura, testar e validar sem alterar dados financeiros
+
+## Fase 2 — Snapshots Confiáveis e Retorno Ajustado — Em andamento
+- [x] Auditar cobertura, duplicidades e qualidade da série existente sem alterar dados
+- [x] Delimitar retorno oficial fechado, intradiário e P/L contábil como métricas distintas
+- [x] Criar unicidade e metadados de fechamento para novos snapshots, preservando o histórico atual
+- [x] Remover histórico reconstruído do retorno oficial e corrigir tratamento de taxas de compra
+- [x] Atualizar contratos e rótulos de rentabilidade com cobertura explícita
+- [x] Testar, validar e registrar checkpoint sem backfill nem alteração financeira retroativa

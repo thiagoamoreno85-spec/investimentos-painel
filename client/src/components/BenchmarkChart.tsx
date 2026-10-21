@@ -51,7 +51,7 @@ export function BenchmarkChart() {
     return (
       <Card className="rounded-xl border bg-card p-6">
         <h3 className="text-lg font-semibold mb-1">Rentabilidade vs Benchmarks</h3>
-        <p className="text-sm text-muted-foreground">Nenhum dado disponível. Importe suas transações para ver o comparativo.</p>
+        <p className="text-sm text-muted-foreground">Aguardando fechamentos diários suficientes para construir uma série oficial da carteira.</p>
       </Card>
     );
   }
@@ -59,7 +59,9 @@ export function BenchmarkChart() {
   return (
     <Card className="rounded-xl border bg-card p-6">
       <h3 className="text-lg font-semibold mb-1">Rentabilidade vs Benchmarks</h3>
-      <p className="text-sm text-muted-foreground mb-4">Retorno acumulado desde a primeira transação</p>
+      <p className="text-sm text-muted-foreground mb-4">
+        Retorno acumulado ajustado por operações, com fechamentos persistidos de {returnHistory?.fromDate ?? "—"} até {returnHistory?.lastClosedDate ?? "—"}.
+      </p>
       {benchmarkError && (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-xs text-amber-200">
           <span>Os benchmarks estão indisponíveis; a série da carteira permanece visível.</span>

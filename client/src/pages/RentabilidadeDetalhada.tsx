@@ -28,8 +28,7 @@ const CLASS_LABELS: Record<string, string> = {
 };
 
 const SOURCE_LABELS: Record<string, string> = {
-  ledger: "Fechamento",
-  reconstructed: "Reconstruído",
+  ledger: "Fechamento persistido",
   live: "Intradiário",
 };
 
@@ -87,7 +86,7 @@ export default function RentabilidadeDetalhada() {
 
   function exportCsv() {
     if (!selectedDay || visibleAssets.length === 0) return;
-    const csv = buildPerformanceCsv(selectedDay.date, SOURCE_LABELS[selectedDay.source ?? "reconstructed"], visibleAssets.map((asset) => ({
+    const csv = buildPerformanceCsv(selectedDay.date, SOURCE_LABELS[selectedDay.source ?? "ledger"], visibleAssets.map((asset) => ({
       ...asset,
       classLabel: CLASS_LABELS[asset.classKey] ?? asset.classKey,
     })));
@@ -144,7 +143,7 @@ export default function RentabilidadeDetalhada() {
                   return <button key={day.date} onClick={() => setSelectedDate(day.date)} className={`min-w-[108px] rounded-lg border p-3 text-left transition-colors ${active ? "border-emerald-500/60 bg-emerald-500/10" : "border-border hover:bg-muted/50"}`}>
                     <p className="text-xs font-medium capitalize text-muted-foreground">{formatDate(day.date)}</p>
                     <p className={`mt-1 font-mono text-sm font-semibold ${positive ? "text-emerald-500" : "text-red-400"} ${!showBalances ? "blur-sm" : ""}`}>{positive ? "+" : ""}{day.returnPct.toFixed(2)}%</p>
-                    <p className="mt-1 text-[10px] text-muted-foreground">{SOURCE_LABELS[day.source ?? "reconstructed"]}</p>
+                    <p className="mt-1 text-[10px] text-muted-foreground">{SOURCE_LABELS[day.source ?? "ledger"]}</p>
                   </button>;
                 })}
               </CardContent>
@@ -152,7 +151,7 @@ export default function RentabilidadeDetalhada() {
 
             <Card className="bg-card/50">
               <CardHeader className="gap-3 pb-3 sm:flex-row sm:items-center sm:justify-between">
-                <div><CardTitle className="text-base">Ativos em {formatDate(selectedDay.date)}</CardTitle><p className="mt-1 text-xs text-muted-foreground">{visibleAssets.length} ativos exibidos · {SOURCE_LABELS[selectedDay.source ?? "reconstructed"]}</p></div>
+                <div><CardTitle className="text-base">Ativos em {formatDate(selectedDay.date)}</CardTitle><p className="mt-1 text-xs text-muted-foreground">{visibleAssets.length} ativos exibidos · {SOURCE_LABELS[selectedDay.source ?? "ledger"]}</p></div>
                 <div className="flex flex-wrap gap-2">
                   <label className="flex h-9 items-center gap-2 rounded-md border border-input bg-background px-2 text-sm"><Search className="h-3.5 w-3.5 text-muted-foreground" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar ativo" className="w-28 bg-transparent text-xs outline-none" /></label>
                   <label className="flex h-9 items-center rounded-md border border-input bg-background px-2 text-sm text-muted-foreground">
@@ -186,7 +185,7 @@ export default function RentabilidadeDetalhada() {
                 </Table>
               </CardContent>
             </Card>
-            <p className="flex items-center gap-2 text-xs text-muted-foreground"><Landmark className="h-3.5 w-3.5" />Fechamento usa o ledger diário; “Reconstruído” usa preços históricos e movimentos já registrados; “Intradiário” será substituído pelo fechamento automático.</p>
+            <p className="flex items-center gap-2 text-xs text-muted-foreground"><Landmark className="h-3.5 w-3.5" />Fechamento persistido usa o ledger diário ajustado por operações; “Intradiário” é uma estimativa e será substituído pelo próximo fechamento automático.</p>
           </>
         )}
       </div>

@@ -19,7 +19,7 @@ export default function PerformanceCard() {
     return (
       <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Rent. Hoje</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Hoje · intradiário</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -34,7 +34,7 @@ export default function PerformanceCard() {
     return (
       <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Rent. Hoje</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Hoje · intradiário</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -53,7 +53,7 @@ export default function PerformanceCard() {
     <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
-          Rent. Hoje
+          Hoje · intradiário
         </CardTitle>
         <TrendIcon className={`h-4 w-4 ${color}`} />
       </CardHeader>
@@ -68,6 +68,7 @@ export default function PerformanceCard() {
         }`}>
           {isPositive ? "+" : ""}{formatCurrency(data.totalBRL)}
         </p>
+        <p className="mt-1 text-[10px] text-muted-foreground">Estimativa antes do fechamento; caixa conciliado excluído.</p>
 
         {/* Toggle para mostrar/esconder breakdown por classe */}
         <button

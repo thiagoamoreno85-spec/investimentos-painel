@@ -350,8 +350,13 @@ export const portfolioSnapshots = mysqlTable("portfolio_snapshots", {
   cashBalance: decimal("cashBalance", { precision: 14, scale: 2 }).default("0").notNull(),
   usdBrl: decimal("usdBrl", { precision: 10, scale: 4 }).notNull(),
   classBreakdown: text("classBreakdown"),
+  capturedAt: timestamp("capturedAt").defaultNow().notNull(),
+  valuationAsOf: timestamp("valuationAsOf"),
+  valuationQuality: mysqlEnum("valuationQuality", ["complete", "partial"]).default("complete").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => [
+  uniqueIndex("portfolio_snapshot_user_date_unique").on(table.userId, table.snapshotDate),
+]);
 
 export type PortfolioSnapshot = typeof portfolioSnapshots.$inferSelect;
 export type InsertPortfolioSnapshot = typeof portfolioSnapshots.$inferInsert;
@@ -402,8 +407,15 @@ export const dailyPerformanceSnapshots = mysqlTable("daily_performance_snapshots
   returnPct: decimal("returnPct", { precision: 18, scale: 8 }).notNull(),
   classBreakdown: text("classBreakdown"),
   assetBreakdown: text("assetBreakdown"),
+  capturedAt: timestamp("capturedAt").defaultNow().notNull(),
+  valuationAsOf: timestamp("valuationAsOf"),
+  status: mysqlEnum("status", ["final"]).default("final").notNull(),
+  fxRate: decimal("fxRate", { precision: 10, scale: 4 }),
+  fxSource: mysqlEnum("fxSource", ["conciliacao", "mercado"]),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => [
+  uniqueIndex("daily_performance_user_date_unique").on(table.userId, table.snapshotDate),
+]);
 
 export type DailyPerformanceSnapshot = typeof dailyPerformanceSnapshots.$inferSelect;
 export type InsertDailyPerformanceSnapshot = typeof dailyPerformanceSnapshots.$inferInsert;

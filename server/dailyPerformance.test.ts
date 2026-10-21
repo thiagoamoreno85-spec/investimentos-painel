@@ -137,13 +137,23 @@ describe("calculateMonthlyReturn", () => {
 
   it("identifica dias úteis sem fechamento e ignora o fim de semana", () => {
     const result = calculateMonthlyReturn([
-      { date: "2026-09-04", returnPct: 0.2, returnValue: 20, byClass: [], source: "ledger" },
-      { date: "2026-09-08", returnPct: -0.1, returnValue: -10, byClass: [], source: "ledger" },
-    ], "2026-09-04", false);
+      { date: "2026-09-08", returnPct: 0.2, returnValue: 20, byClass: [], source: "ledger" },
+      { date: "2026-09-10", returnPct: -0.1, returnValue: -10, byClass: [], source: "ledger" },
+    ], "2026-09-08", false);
 
     expect(result?.closedSnapshotCount).toBe(2);
-    expect(result?.missingClosedDates).toEqual(["2026-09-07"]);
+    expect(result?.missingClosedDates).toEqual(["2026-09-09"]);
     expect(result?.hasClosedGaps).toBe(true);
+  });
+
+  it("não classifica feriado oficial da B3 como lacuna de fechamento", () => {
+    const result = calculateMonthlyReturn([
+      { date: "2026-10-09", returnPct: 0.2, returnValue: 20, byClass: [], source: "ledger" },
+      { date: "2026-10-13", returnPct: -0.1, returnValue: -10, byClass: [], source: "ledger" },
+    ], "2026-10-09", false);
+
+    expect(result?.missingClosedDates).toEqual([]);
+    expect(result?.hasClosedGaps).toBe(false);
   });
 
   it("inclui todos os dias úteis anteriores do mês ao identificar lacunas no ledger", () => {

@@ -107,8 +107,8 @@ function ClassBreakdown({
 }
 
 /**
- * PerformanceCards — renderiza APENAS o card de Rentabilidade Mensal.
- * O card de Rentabilidade Diária é renderizado separadamente pelo PerformanceCard (singular).
+ * PerformanceCards — renderiza apenas o retorno mensal por fechamentos oficiais.
+ * A estimativa intradiária permanece no PerformanceCard, em card separado.
  */
 export function PerformanceCards() {
   const [, setLocation] = useLocation();
@@ -147,9 +147,9 @@ export function PerformanceCards() {
         <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
           <Calendar className="h-6 w-6 text-muted-foreground" />
           <div>
-            <p className="text-xs font-medium">Retorno mensal oficial indisponível</p>
+            <p className="text-xs font-medium">Retorno oficial acumulado indisponível</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Aguardando o primeiro fechamento automático válido. Capturas manuais são intradiárias e não entram no retorno oficial.
+              Aguardando o primeiro fechamento automático válido. A estimativa de hoje continua no card intradiário e não compõe este retorno oficial.
             </p>
           </div>
         </CardContent>
@@ -162,7 +162,7 @@ export function PerformanceCards() {
     <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
         <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-          Retorno mês
+          Retorno oficial acumulado
         </CardTitle>
         <Button
           variant="ghost"
@@ -197,13 +197,18 @@ export function PerformanceCards() {
               {formatCurrency(performance.monthly.total.valueDiff)}
             </p>
             {performance.monthly.chainedReturn !== null && (
-              <p className="text-xs text-muted-foreground/50 mt-1" title="Retorno da carteira investida, encadeado por dia e ajustado por compras, vendas, corretagens e proventos. O caixa conciliado não é tratado como retorno de mercado.">
-                {performance.monthly.isPartial ? "Parcial desde " : "Ajustado por fluxos · "}
-                {performance.monthly.isPartial
-                  ? performance.monthly.baseDate
-                  : `${performance.monthly.snapshotCount ?? 0} fechamentos`}
-                {performance.monthly.lastClosedDate ? ` · até ${performance.monthly.lastClosedDate}` : ""}
-              </p>
+              <>
+                <p className="text-xs text-muted-foreground/50 mt-1" title="Retorno da carteira investida, encadeado exclusivamente por fechamentos oficiais e ajustado por compras, vendas, corretagens e proventos. O caixa conciliado não é tratado como retorno de mercado.">
+                  {performance.monthly.isPartial ? "Parcial desde " : "Ajustado por fluxos · "}
+                  {performance.monthly.isPartial
+                    ? performance.monthly.baseDate
+                    : `${performance.monthly.snapshotCount ?? 0} fechamentos`}
+                  {performance.monthly.lastClosedDate ? ` · até ${performance.monthly.lastClosedDate}` : ""}
+                </p>
+                <p className="text-[10px] text-muted-foreground/70 mt-1">
+                  A estimativa de hoje é exibida separadamente no card “Hoje · intradiário” e será substituída pelo próximo fechamento oficial.
+                </p>
+              </>
             )}
             <div className={`mt-2 rounded-md border border-sky-500/25 bg-sky-500/8 px-2 py-1.5 text-[11px] leading-snug text-sky-100 ${
               !showBalances ? "blur-sm" : ""

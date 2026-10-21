@@ -19,7 +19,7 @@ export default function PerformanceCard() {
     return (
       <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Hoje · intradiário</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Hoje · estimativa intradiária</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -34,7 +34,7 @@ export default function PerformanceCard() {
     return (
       <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Hoje · intradiário</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Hoje · estimativa intradiária</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -56,7 +56,7 @@ export default function PerformanceCard() {
     <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
-          Hoje · intradiário
+          Hoje · estimativa intradiária
         </CardTitle>
         <TrendIcon className={`h-4 w-4 ${color}`} />
       </CardHeader>
@@ -71,7 +71,7 @@ export default function PerformanceCard() {
         }`}>
           {isPositive ? "+" : ""}{formatCurrency(data.totalBRL)}
         </p>
-        <p className="mt-1 text-[10px] text-muted-foreground">Estimativa antes do fechamento; caixa conciliado excluído.</p>
+        <p className="mt-1 text-[10px] text-muted-foreground">Estimativa antes do fechamento; não se soma ao retorno oficial acumulado. Caixa conciliado excluído.</p>
         {hasDailyExternalFlow && (
           <p className={`mt-1 text-[10px] text-sky-300/80 ${!showBalances ? "blur-sm" : ""}`}>
             Fluxo externo fora do retorno: {dailyContributions > 0 ? `+${formatCurrency(dailyContributions)} de aporte` : ""}

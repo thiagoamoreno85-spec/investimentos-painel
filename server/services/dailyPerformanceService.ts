@@ -8,6 +8,7 @@ import {
 import { resolveValuationFxRateForUser } from "./valuationFxService";
 import { summarizeExternalCapitalFlows } from "../../shared/externalCapitalFlow";
 import { isOfficialPerformanceClose } from "../../shared/closedPerformanceSnapshot";
+import { getB3ListedTradingDates } from "../../shared/b3TradingCalendar";
 
 const BRT_TIME_ZONE = "America/Sao_Paulo";
 
@@ -110,16 +111,7 @@ function dayBounds(date: string) {
 }
 
 function calendarDates(startDate: string, endDate: string): string[] {
-  const dates: string[] = [];
-  for (
-    let current = new Date(`${startDate}T12:00:00-03:00`), end = new Date(`${endDate}T12:00:00-03:00`);
-    current <= end;
-    current = new Date(current.getTime() + 24 * 60 * 60 * 1000)
-  ) {
-    const weekday = current.getDay();
-    if (weekday !== 0 && weekday !== 6) dates.push(current.toISOString().slice(0, 10));
-  }
-  return dates;
+  return getB3ListedTradingDates(startDate, endDate);
 }
 
 function previousCalendarDate(date: string): string {

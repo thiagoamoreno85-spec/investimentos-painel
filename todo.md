@@ -874,3 +874,11 @@
 - [x] Aceitar somente fechamentos com carimbo de valoração/captura compatível com a data do snapshot
 - [x] Tratar captura manual como intradiária e impedir seu uso como retorno mensal fechado
 - [x] Atualizar interface e testes sem alterar dados financeiros
+
+## Série Auditável, Calendário B3 e Retorno Dual — Em andamento
+- [x] Receber autorização para estruturar base auditável, calendário B3 e visualização separada
+- [x] Mapear fontes verificáveis para preços históricos, posições de referência e calendário oficial B3
+- [x] Preparar prévia de importação da série histórica sem gravar valores financeiros
+- [x] Implementar calendário de pregões e reclassificar lacunas de fechamento sem feriados
+- [x] Exibir lado a lado retorno oficial fechado e estimativa intradiária, com cobertura e origem
+- [ ] Validar cálculos e solicitar confirmação antes de gravar qualquer série financeira retroativa

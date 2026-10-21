@@ -156,6 +156,8 @@ export const alerts = mysqlTable("alerts", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   assetId: int("assetId").notNull(),
+  /** Notícia que originou o alerta automático; nula nos alertas configurados manualmente. */
+  sourceNewsId: int("sourceNewsId"),
   /** Tipo de alerta */
   type: mysqlEnum("type", [
     "price_drop",        // Queda percentual > threshold
@@ -179,7 +181,9 @@ export const alerts = mysqlTable("alerts", {
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => [
+  uniqueIndex("alerts_user_news_asset_type_unique").on(table.userId, table.sourceNewsId, table.assetId, table.type),
+]);
 
 export type Alert = typeof alerts.$inferSelect;
 export type InsertAlert = typeof alerts.$inferInsert;
@@ -234,6 +238,8 @@ export const newsItems = mysqlTable("newsItems", {
   source: varchar("source", { length: 100 }),
   /** URL da fonte original */
   sourceUrl: text("sourceUrl"),
+  /** Hash da URL ou de título + fonte para impedir a reanálise do mesmo conteúdo. */
+  contentFingerprint: varchar("contentFingerprint", { length: 64 }),
   /** Categoria da notícia */
   category: mysqlEnum("category", ["brasil", "global", "cripto", "tech", "politica", "macro"]).default("global"),
   /** Nível de impacto nos ativos da carteira */
@@ -257,7 +263,10 @@ export const newsItems = mysqlTable("newsItems", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   /** Se o usuário já leu */
   isRead: int("isRead").default(0).notNull(),
-});
+}, (table) => [
+  uniqueIndex("news_items_user_fingerprint_unique").on(table.userId, table.contentFingerprint),
+  index("news_items_user_published_idx").on(table.userId, table.publishedAt),
+]);
 
 export type NewsItem = typeof newsItems.$inferSelect;
 export type InsertNewsItem = typeof newsItems.$inferInsert;

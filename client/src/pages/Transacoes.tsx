@@ -15,6 +15,7 @@ import {
 import DashboardLayout from "@/components/DashboardLayout";
 import { ImportCSVModal } from "@/components/ImportCSVModal";
 import { PrivacyMask } from "@/components/PrivacyMask";
+import { FinancialDeleteConfirmDialog } from "@/components/FinancialDeleteConfirmDialog";
 import { trpc } from "@/lib/trpc";
 import {
   ArrowUpRight,
@@ -64,6 +65,14 @@ export default function Transacoes() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterClass, setFilterClass] = useState<string>("all");
   const [importOpen, setImportOpen] = useState(false);
+  const [transactionPendingDeletion, setTransactionPendingDeletion] = useState<{
+    id: number;
+    assetId: number;
+    ticker: string;
+    type: "buy" | "sell";
+    totalValue: string;
+    currency: "BRL" | "USD";
+  } | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -104,6 +113,7 @@ export default function Transacoes() {
       toast.success("Transação removida e preço médio recalculado.");
       utils.portfolio.getAssets.invalidate();
       utils.portfolio.getTransactions.invalidate();
+      setTransactionPendingDeletion(null);
     },
     onError: (err) => {
       toast.error(`Erro: ${err.message}`);
@@ -168,8 +178,13 @@ export default function Transacoes() {
         );
       });
     }
+    if (filterClass !== "all") {
+      filtered = filtered.filter((tx) =>
+        assets?.some((asset) => asset.id === tx.assetId && asset.assetClass === filterClass),
+      );
+    }
     return filtered;
-  }, [transactions, searchTerm, assets]);
+  }, [transactions, searchTerm, filterClass, assets]);
 
   function formatCurrency(value: number, currency: string = "BRL") {
     if (currency === "USD") {
@@ -492,8 +507,8 @@ export default function Transacoes() {
                             <th className="text-left py-2 px-2">Ticker</th>
                             <th className="text-left py-2 px-2 hidden sm:table-cell">Classe</th>
                             <th className="text-right py-2 px-2">Qtd</th>
-                            <th className="text-right py-2 px-2">PM</th>
-                            <th className="text-right py-2 px-2">Último</th>
+                            <th className="text-right py-2 px-2 hidden sm:table-cell">PM</th>
+                            <th className="text-right py-2 px-2 hidden sm:table-cell">Último</th>
                             <th className="text-right py-2 px-2">Valor</th>
                             <th className="text-right py-2 px-2">Lucro</th>
                           </tr>
@@ -535,10 +550,10 @@ export default function Transacoes() {
                               <td className="py-2 px-2 text-right font-mono text-xs">
                                 {qty < 1 ? qty.toFixed(6) : qty.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
                               </td>
-                              <td className="py-2 px-2 text-right font-mono text-xs">
+                              <td className="hidden sm:table-cell py-2 px-2 text-right font-mono text-xs">
                                 {formatCurrency(avgCost, currency)}
                               </td>
-                              <td className="py-2 px-2 text-right font-mono text-xs">
+                              <td className="hidden sm:table-cell py-2 px-2 text-right font-mono text-xs">
                                 {lastPrice > 0
                                   ? formatCurrency(lastPrice, currency)
                                   : "—"}
@@ -572,14 +587,29 @@ export default function Transacoes() {
               <CardHeader>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <CardTitle>Histórico de Transações</CardTitle>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Buscar ticker..."
-                      className="pl-9 bg-secondary/50 border-border w-full sm:w-48"
-                    />
+                  <div className="grid grid-cols-1 gap-2 sm:flex sm:items-center">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Buscar ticker..."
+                        className="pl-9 bg-secondary/50 border-border w-full sm:w-48"
+                      />
+                    </div>
+                    <Select value={filterClass} onValueChange={setFilterClass}>
+                      <SelectTrigger className="w-full bg-secondary/50 border-border sm:w-40" aria-label="Filtrar transações por classe">
+                        <SelectValue placeholder="Classe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todas as classes</SelectItem>
+                        {ASSET_CLASSES.map((assetClass) => (
+                          <SelectItem key={assetClass.value} value={assetClass.value}>
+                            {assetClass.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </CardHeader>
@@ -598,14 +628,14 @@ export default function Transacoes() {
                   </div>
                 ) : (
                   <PrivacyMask className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full min-w-[360px] text-sm md:min-w-0">
                       <thead>
                         <tr className="border-b border-border/50 text-muted-foreground">
                           <th className="text-left py-2 px-2">Data</th>
                           <th className="text-left py-2 px-2">Ticker</th>
                           <th className="text-center py-2 px-2">Tipo</th>
-                          <th className="text-right py-2 px-2">Qtd</th>
-                          <th className="text-right py-2 px-2">Preço</th>
+                          <th className="hidden sm:table-cell text-right py-2 px-2">Qtd</th>
+                          <th className="hidden sm:table-cell text-right py-2 px-2">Preço</th>
                           <th className="text-right py-2 px-2">Total</th>
                           <th className="text-center py-2 px-2">Ações</th>
                         </tr>
@@ -643,10 +673,10 @@ export default function Transacoes() {
                                   )}
                                 </span>
                               </td>
-                              <td className="py-2 px-2 text-right font-mono text-xs">
+                              <td className="hidden sm:table-cell py-2 px-2 text-right font-mono text-xs">
                                 {parseFloat(tx.quantity).toLocaleString("pt-BR", { maximumFractionDigits: 4 })}
                               </td>
-                              <td className="py-2 px-2 text-right font-mono text-xs">
+                              <td className="hidden sm:table-cell py-2 px-2 text-right font-mono text-xs">
                                 {formatCurrency(parseFloat(tx.unitPrice), currency)}
                               </td>
                               <td className="py-2 px-2 text-right font-mono text-xs">
@@ -658,9 +688,13 @@ export default function Transacoes() {
                                   size="sm"
                                   className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
                                   onClick={() =>
-                                    deleteTx.mutate({
-                                      transactionId: tx.id,
+                                    setTransactionPendingDeletion({
+                                      id: tx.id,
                                       assetId: tx.assetId,
+                                      ticker: getAssetTicker(tx.assetId),
+                                      type: tx.type,
+                                      totalValue: tx.totalValue,
+                                      currency,
                                     })
                                   }
                                   disabled={deleteTx.isPending}
@@ -696,6 +730,23 @@ export default function Transacoes() {
         </div>
       </div>
       <ImportCSVModal open={importOpen} onClose={() => setImportOpen(false)} />
+      <FinancialDeleteConfirmDialog
+        open={transactionPendingDeletion !== null}
+        onOpenChange={(open) => {
+          if (!open && !deleteTx.isPending) setTransactionPendingDeletion(null);
+        }}
+        title="Excluir transação"
+        itemLabel={transactionPendingDeletion ? `${transactionPendingDeletion.type === "buy" ? "compra" : "venda"} de ${transactionPendingDeletion.ticker} — ${formatCurrency(Number(transactionPendingDeletion.totalValue), transactionPendingDeletion.currency)}` : "esta transação"}
+        consequence="A posição e o preço médio do ativo serão recalculados a partir do histórico remanescente."
+        onConfirm={() => {
+          if (!transactionPendingDeletion) return;
+          deleteTx.mutate({
+            transactionId: transactionPendingDeletion.id,
+            assetId: transactionPendingDeletion.assetId,
+          });
+        }}
+        isPending={deleteTx.isPending}
+      />
     </DashboardLayout>
   );
 }

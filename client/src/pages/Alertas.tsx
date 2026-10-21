@@ -26,6 +26,7 @@ import {
   TrendingUp,
   Target,
   ShoppingCart,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -482,6 +483,11 @@ export default function Alertas() {
                                     {alert.triggeredMessage}
                                   </p>
                                 )}
+                                {alert.sourceNewsTitle && (
+                                  <p className="mt-2 text-xs font-medium text-cyan-200">
+                                    Origem: {alert.sourceNewsTitle}
+                                  </p>
+                                )}
                                 {/* Badge de direção de preço para alertas de notícia */}
                                 {alert.type === "news_alert" && alert.notes && (() => {
                                   const dirMatch = alert.notes.match(/Direção de preço: ([\w_]+)/);
@@ -525,10 +531,22 @@ export default function Alertas() {
                                     {alert.notes}
                                   </p>
                                 )}
+                                {alert.sourceNewsUrl && (
+                                  <a
+                                    href={alert.sourceNewsUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="mt-2 inline-flex min-h-8 items-center gap-1.5 rounded-md border border-cyan-500/30 px-2.5 text-xs font-medium text-cyan-300 hover:bg-cyan-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                                    aria-label={`Abrir notícia de origem do alerta de ${getAssetTicker(alert.assetId)}`}
+                                  >
+                                    <ExternalLink className="h-3.5 w-3.5" />
+                                    Abrir notícia de origem
+                                  </a>
+                                )}
                               </div>
                             </div>
                             <div className="flex gap-1 shrink-0">
-                              {alert.status === "triggered" && (
+                              {alert.status === "triggered" && alert.type !== "news_alert" && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -536,18 +554,20 @@ export default function Alertas() {
                                   onClick={() => reactivateAlert.mutate({ alertId: alert.id })}
                                   disabled={reactivateAlert.isPending}
                                   title="Reativar alerta"
+                                  aria-label={`Reativar alerta de ${getAssetTicker(alert.assetId)}`}
                                 >
                                   <RefreshCw className="w-3.5 h-3.5" />
                                 </Button>
                               )}
-                              {alert.status === "active" && (
+                              {(alert.status === "active" || (alert.status === "triggered" && alert.type === "news_alert")) && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   className="h-7 px-2 text-xs text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10"
                                   onClick={() => dismissAlert.mutate({ alertId: alert.id })}
                                   disabled={dismissAlert.isPending}
-                                  title="Dispensar alerta"
+                                  title={alert.type === "news_alert" ? "Dispensar alerta de notícia" : "Dispensar alerta"}
+                                  aria-label={`Dispensar alerta de ${getAssetTicker(alert.assetId)}`}
                                 >
                                   <BellOff className="w-3.5 h-3.5" />
                                 </Button>
@@ -557,8 +577,9 @@ export default function Alertas() {
                                 size="sm"
                                 className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                                 onClick={() => deleteAlert.mutate({ alertId: alert.id })}
-                                disabled={deleteAlert.isPending}
-                                title="Excluir alerta"
+                                  disabled={deleteAlert.isPending}
+                                  title="Excluir alerta"
+                                  aria-label={`Excluir alerta de ${getAssetTicker(alert.assetId)}`}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </Button>

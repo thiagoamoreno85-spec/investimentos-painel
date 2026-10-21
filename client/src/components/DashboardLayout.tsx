@@ -98,6 +98,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     },
   ];
 
+  const mobileQuickNav = [
+    { href: "/", icon: LayoutDashboard, label: "Início", badge: 0 },
+    { href: "/alocacao", icon: PieChart, label: "Carteira", badge: 0 },
+    { href: "/mercado", icon: Globe, label: "Mercado", badge: 0 },
+    { href: "/noticias", icon: Newspaper, label: "Notícias", badge: unreadNewsCount ?? 0 },
+    { href: "/alertas", icon: Bell, label: "Alertas", badge: alertCounts?.triggered ?? 0 },
+  ];
+
   const NavLink = ({ item, onClick }: { item: NavItem; onClick?: () => void }) => {
     const isActive = location === item.href;
     return (
@@ -286,6 +294,34 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             )}
           </div>
         </header>
+
+        {/* Atalhos para reduzir o uso do menu completo em telas pequenas. */}
+        <nav className="flex md:hidden flex-shrink-0 gap-1.5 overflow-x-auto border-b border-border bg-background/95 px-3 py-2 scrollbar-none" aria-label="Atalhos principais">
+          {mobileQuickNav.map((item) => {
+            const isActive = location === item.href;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className={`relative inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-xs font-medium transition-colors ${
+                  isActive
+                    ? "border-primary/50 bg-primary/15 text-primary"
+                    : "border-border bg-card text-muted-foreground hover:bg-secondary hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {item.label}
+                {item.badge > 0 && (
+                  <span className="rounded-full bg-warning px-1.5 py-0.5 text-[10px] font-bold leading-none text-black">
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
 
         {/* Page content — scrollable */}
         <div className="flex-1 overflow-y-auto p-3 md:p-8">

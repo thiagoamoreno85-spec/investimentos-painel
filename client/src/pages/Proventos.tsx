@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { ImportStatementModal } from "@/components/ImportStatementModal";
 import { PrivacyMask } from "@/components/PrivacyMask";
+import { FinancialDeleteConfirmDialog } from "@/components/FinancialDeleteConfirmDialog";
 import { toast } from "sonner";
 import {
   ResponsiveContainer,
@@ -56,6 +57,13 @@ export default function Proventos() {
   const [statementMonth, setStatementMonth] = useState<string>(new Date().toISOString().slice(0, 7));
   const [activeTab, setActiveTab] = useState<string>("dividendos");
   const [chartCurrency, setChartCurrency] = useState<"BRL" | "USD">("BRL");
+  const [dividendPendingDeletion, setDividendPendingDeletion] = useState<{
+    id: number;
+    ticker: string;
+    totalValue: string;
+    currency: "BRL" | "USD";
+    paymentDate: Date | string | null;
+  } | null>(null);
 
   // Form state
   const [assetId, setAssetId] = useState<string>("");
@@ -105,6 +113,7 @@ export default function Proventos() {
       utils.dividends.getDividends.invalidate();
       utils.dividends.getDividendsByMonth.invalidate();
       utils.dividends.getTotalDividends.invalidate();
+      setDividendPendingDeletion(null);
     },
     onError: (err) => toast.error(`Erro: ${err.message}`),
   });
@@ -522,9 +531,9 @@ export default function Proventos() {
                             <th className="text-left py-2 px-2">Ativo</th>
                             <th className="text-right py-2 px-2">Total Recebido</th>
                             <th className="text-right py-2 px-2">YoC Total</th>
-                            <th className="text-right py-2 px-2">YoC 12m</th>
-                            <th className="text-right py-2 px-2">Yield Atual</th>
-                            <th className="text-right py-2 px-2">Qtd</th>
+                            <th className="hidden md:table-cell text-right py-2 px-2">YoC 12m</th>
+                            <th className="hidden md:table-cell text-right py-2 px-2">Yield Atual</th>
+                            <th className="hidden md:table-cell text-right py-2 px-2">Qtd</th>
                           </tr>
                         </thead>
                       </table>
@@ -552,15 +561,15 @@ export default function Proventos() {
                                   </span>
                                 )}
                               </td>
-                              <td className="py-2 px-2 text-right font-mono w-[15%]">
+                              <td className="hidden md:table-cell py-2 px-2 text-right font-mono w-[15%]">
                                 <span className={s.yieldOnCostAnnualized > 0 ? "text-emerald-500" : "text-muted-foreground"}>
                                   {s.yieldOnCostAnnualized.toFixed(2)}%
                                 </span>
                               </td>
-                              <td className="py-2 px-2 text-right font-mono text-xs w-[13%]">
+                              <td className="hidden md:table-cell py-2 px-2 text-right font-mono text-xs w-[13%]">
                                 {s.currentYield > 0 ? `${s.currentYield.toFixed(2)}%` : "—"}
                               </td>
-                              <td className="py-2 px-2 text-right font-mono text-xs text-muted-foreground w-[10%]">
+                              <td className="hidden md:table-cell py-2 px-2 text-right font-mono text-xs text-muted-foreground w-[10%]">
                                 {s.dividendCount}
                               </td>
                             </tr>
@@ -591,15 +600,15 @@ export default function Proventos() {
                   </div>
                 ) : (
                   <PrivacyMask className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full min-w-[320px] text-sm md:min-w-0">
                       <thead>
                         <tr className="border-b border-border/50 text-muted-foreground">
                           <th className="text-left py-2 px-2">Pagamento</th>
-                          <th className="text-left py-2 px-2">Data COM</th>
+                          <th className="hidden sm:table-cell text-left py-2 px-2">Data COM</th>
                           <th className="text-left py-2 px-2">Ativo</th>
                           <th className="text-left py-2 px-2">Tipo</th>
-                          <th className="text-right py-2 px-2">Val/Cota</th>
-                          <th className="text-right py-2 px-2">Qtd</th>
+                          <th className="hidden sm:table-cell text-right py-2 px-2">Val/Cota</th>
+                          <th className="hidden sm:table-cell text-right py-2 px-2">Qtd</th>
                           <th className="text-right py-2 px-2">Total</th>
                           <th className="text-center py-2 px-2">Ação</th>
                         </tr>
@@ -616,7 +625,7 @@ export default function Proventos() {
                               <td className="py-2 px-2 text-xs text-muted-foreground">
                                 {formatDate(div.paymentDate)}
                               </td>
-                              <td className="py-2 px-2 text-xs text-muted-foreground">
+                              <td className="hidden sm:table-cell py-2 px-2 text-xs text-muted-foreground">
                                 {formatDate(div.exDate)}
                               </td>
                               <td className="py-2 px-2 font-medium text-xs">
@@ -627,10 +636,10 @@ export default function Proventos() {
                                   {typeLabel}
                                 </span>
                               </td>
-                              <td className="py-2 px-2 text-right font-mono text-xs">
+                              <td className="hidden sm:table-cell py-2 px-2 text-right font-mono text-xs">
                                 {formatCurrency(parseFloat(div.valuePerShare), curr)}
                               </td>
-                              <td className="py-2 px-2 text-right font-mono text-xs text-muted-foreground">
+                              <td className="hidden sm:table-cell py-2 px-2 text-right font-mono text-xs text-muted-foreground">
                                 {parseFloat(div.quantity).toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
                               </td>
                               <td className="py-2 px-2 text-right font-mono text-xs text-emerald-500">
@@ -641,7 +650,15 @@ export default function Proventos() {
                                   variant="ghost"
                                   size="sm"
                                   className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                                  onClick={() => deleteDividend.mutate({ dividendId: div.id })}
+                                  onClick={() =>
+                                    setDividendPendingDeletion({
+                                      id: div.id,
+                                      ticker: getAssetTicker(div.assetId),
+                                      totalValue: div.totalValue,
+                                      currency: curr,
+                                      paymentDate: div.paymentDate,
+                                    })
+                                  }
                                   disabled={deleteDividend.isPending}
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -674,6 +691,20 @@ export default function Proventos() {
           </div>
         </div>
       </div>
+      <FinancialDeleteConfirmDialog
+        open={dividendPendingDeletion !== null}
+        onOpenChange={(open) => {
+          if (!open && !deleteDividend.isPending) setDividendPendingDeletion(null);
+        }}
+        title="Excluir provento"
+        itemLabel={dividendPendingDeletion ? `${dividendPendingDeletion.ticker} — ${formatCurrency(Number(dividendPendingDeletion.totalValue), dividendPendingDeletion.currency)} em ${formatDate(dividendPendingDeletion.paymentDate)}` : "este provento"}
+        consequence="O recebimento deixará de compor os totais de proventos, Yield sobre Custo e o histórico do ativo."
+        onConfirm={() => {
+          if (!dividendPendingDeletion) return;
+          deleteDividend.mutate({ dividendId: dividendPendingDeletion.id });
+        }}
+        isPending={deleteDividend.isPending}
+      />
     </DashboardLayout>
   );
 }

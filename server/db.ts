@@ -1,4 +1,4 @@
-import { eq, and, desc, gt, isNull, sql } from "drizzle-orm";
+import { eq, and, desc, gt, isNull, sql, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction, analysisHistory, InsertAnalysisHistory, newsItems, InsertNewsItem, events, InsertEvent } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -309,6 +309,22 @@ export async function createNewsItem(data: InsertNewsItem) {
   if (!db) throw new Error("Database not available");
   const result = await db.insert(newsItems).values(data);
   return result[0].insertId;
+}
+
+/**
+ * Devolve somente fingerprints presentes entre os candidatos à atualização.
+ * Assim, a coleta permanece idempotente sem fazer uma varredura da tabela toda.
+ */
+export async function getKnownNewsFingerprints(userId: number, fingerprints: string[]) {
+  const db = await getDb();
+  if (!db || fingerprints.length === 0) return new Set<string>();
+
+  const rows = await db
+    .select({ contentFingerprint: newsItems.contentFingerprint })
+    .from(newsItems)
+    .where(and(eq(newsItems.userId, userId), inArray(newsItems.contentFingerprint, fingerprints)));
+
+  return new Set(rows.flatMap((row) => (row.contentFingerprint ? [row.contentFingerprint] : [])));
 }
 
 export async function getNewsItemsByUser(userId: number, limit = 50) {

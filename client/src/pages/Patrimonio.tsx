@@ -48,6 +48,7 @@ import {
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
+import { FinancialDeleteConfirmDialog } from "@/components/FinancialDeleteConfirmDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -111,6 +112,11 @@ export default function Patrimonio() {
     liabilityName: string;
     remainingBalance: number;
   }>({ open: false, liabilityId: 0, liabilityName: "", remainingBalance: 0 });
+  const [patrimonialPendingDeletion, setPatrimonialPendingDeletion] = useState<{
+    kind: "asset" | "liability";
+    id: number;
+    name: string;
+  } | null>(null);
 
   // Queries
   const { data: summary, isLoading: summaryLoading } =
@@ -127,6 +133,7 @@ export default function Patrimonio() {
       utils.patrimonial.getSummary.invalidate();
       utils.patrimonial.getConsolidatedNetWorth.invalidate();
       toast.success("Ativo removido");
+      setPatrimonialPendingDeletion(null);
     },
   });
 
@@ -136,6 +143,7 @@ export default function Patrimonio() {
       utils.patrimonial.getSummary.invalidate();
       utils.patrimonial.getConsolidatedNetWorth.invalidate();
       toast.success("Passivo removido");
+      setPatrimonialPendingDeletion(null);
     },
   });
 
@@ -399,8 +407,11 @@ export default function Patrimonio() {
                         netValue={netValue}
                         showBalances={showBalances}
                         onEdit={() => setEditAssetDialog({ open: true, asset })}
-                        onDelete={() => deleteAsset.mutate({ id: asset.id })}
-                        onDeleteLiability={(id) => deleteLiability.mutate({ id })}
+                        onDelete={() => setPatrimonialPendingDeletion({ kind: "asset", id: asset.id, name: asset.name })}
+                        onDeleteLiability={(id) => {
+                          const liability = liabilities?.find((item) => item.id === id);
+                          setPatrimonialPendingDeletion({ kind: "liability", id, name: liability?.name ?? "passivo" });
+                        }}
                         onRegisterPayment={(liabilityId, name, balance) =>
                           setPaymentDialog({ open: true, liabilityId, liabilityName: name, remainingBalance: balance })
                         }
@@ -427,7 +438,7 @@ export default function Patrimonio() {
                   key={liability.id}
                   liability={liability}
                   showBalances={showBalances}
-                  onDelete={() => deleteLiability.mutate({ id: liability.id })}
+                  onDelete={() => setPatrimonialPendingDeletion({ kind: "liability", id: liability.id, name: liability.name })}
                   onRegisterPayment={(id, name, balance) =>
                     setPaymentDialog({
                       open: true,
@@ -519,6 +530,29 @@ export default function Patrimonio() {
           />
         </DialogContent>
       </Dialog>
+
+      <FinancialDeleteConfirmDialog
+        open={patrimonialPendingDeletion !== null}
+        onOpenChange={(open) => {
+          if (!open && !deleteAsset.isPending && !deleteLiability.isPending) {
+            setPatrimonialPendingDeletion(null);
+          }
+        }}
+        title={patrimonialPendingDeletion?.kind === "asset" ? "Remover ativo patrimonial" : "Remover passivo patrimonial"}
+        itemLabel={patrimonialPendingDeletion?.name ?? "este item"}
+        consequence={patrimonialPendingDeletion?.kind === "asset"
+          ? "O item deixará de compor o patrimônio consolidado. Os passivos vinculados continuam registrados até que sejam removidos separadamente."
+          : "O passivo deixará de compor o patrimônio líquido e o saldo devedor não será mais considerado no consolidado."}
+        onConfirm={() => {
+          if (!patrimonialPendingDeletion) return;
+          if (patrimonialPendingDeletion.kind === "asset") {
+            deleteAsset.mutate({ id: patrimonialPendingDeletion.id });
+          } else {
+            deleteLiability.mutate({ id: patrimonialPendingDeletion.id });
+          }
+        }}
+        isPending={deleteAsset.isPending || deleteLiability.isPending}
+      />
     </DashboardLayout>
   );
 }

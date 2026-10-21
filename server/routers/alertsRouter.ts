@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { alerts, assets, type Alert } from "../../drizzle/schema";
+import { alerts, assets, newsItems, type Alert } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
+import { selectDistinctAlertFeed } from "../../shared/newsAlertFeed";
 
 export const alertsRouter = router({
   /**
@@ -20,14 +21,21 @@ export const alertsRouter = router({
       const userId = ctx.user.id;
 
       const rows = await db
-        .select()
+        .select({
+          alert: alerts,
+          sourceNewsTitle: newsItems.title,
+          sourceNewsUrl: newsItems.sourceUrl,
+          sourceNewsPublishedAt: newsItems.publishedAt,
+        })
         .from(alerts)
+        .leftJoin(newsItems, and(eq(newsItems.id, alerts.sourceNewsId), eq(newsItems.userId, alerts.userId)))
         .where(eq(alerts.userId, userId))
         .orderBy(desc(alerts.createdAt));
 
       const status = input?.status ?? "all";
-      if (status === "all") return rows;
-      return rows.filter((r: Alert) => r.status === status);
+      const normalizedRows = selectDistinctAlertFeed(rows.map(({ alert, ...source }) => ({ ...alert, ...source })));
+      if (status === "all") return normalizedRows;
+      return normalizedRows.filter((row) => row.status === status);
     }),
 
   /**
@@ -43,8 +51,9 @@ export const alertsRouter = router({
       .from(alerts)
       .where(eq(alerts.userId, userId));
 
-    const active = rows.filter((r: Alert) => r.status === "active").length;
-    const triggered = rows.filter((r: Alert) => r.status === "triggered").length;
+    const distinctRows = selectDistinctAlertFeed(rows);
+    const active = distinctRows.filter((r: Alert) => r.status === "active").length;
+    const triggered = distinctRows.filter((r: Alert) => r.status === "triggered").length;
 
     return { active, triggered };
   }),

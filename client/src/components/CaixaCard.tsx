@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
+import { FinancialDeleteConfirmDialog } from "@/components/FinancialDeleteConfirmDialog";
 import {
   Dialog,
   DialogContent,
@@ -54,6 +55,12 @@ export default function CaixaCard() {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [movementPendingDeletion, setMovementPendingDeletion] = useState<{
+    id: number;
+    category: string;
+    amount: number;
+    type: "entrada" | "saida";
+  } | null>(null);
 
   const { data: balance, isLoading: loadingBalance } = trpc.cash.getBalance.useQuery();
   const { data: movements, isLoading: loadingMovements } = trpc.cash.listMovements.useQuery({ limit: 10 });
@@ -77,6 +84,7 @@ export default function CaixaCard() {
       utils.cash.getBalance.invalidate();
       utils.cash.listMovements.invalidate();
       toast.success("Movimentação removida");
+      setMovementPendingDeletion(null);
     },
   });
 
@@ -253,7 +261,12 @@ export default function CaixaCard() {
                       variant="ghost"
                       size="icon"
                       className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => deleteMovement.mutate({ id: mov.id })}
+                      onClick={() => setMovementPendingDeletion({
+                        id: mov.id,
+                        category: mov.category,
+                        amount: Number(mov.amount),
+                        type: mov.type,
+                      })}
                     >
                       <Trash2 className="h-3 w-3 text-muted-foreground" />
                     </Button>
@@ -270,6 +283,22 @@ export default function CaixaCard() {
           </div>
         )}
       </CardContent>
+      <FinancialDeleteConfirmDialog
+        open={movementPendingDeletion !== null}
+        onOpenChange={(open) => {
+          if (!open && !deleteMovement.isPending) setMovementPendingDeletion(null);
+        }}
+        title="Excluir movimentação de caixa"
+        itemLabel={movementPendingDeletion
+          ? `${movementPendingDeletion.type === "entrada" ? "entrada" : "saída"} de ${formatCurrency(movementPendingDeletion.amount)} — ${CATEGORY_LABELS[movementPendingDeletion.category] ?? movementPendingDeletion.category}`
+          : "esta movimentação"}
+        consequence="O saldo de caixa será recalculado sem esta movimentação."
+        onConfirm={() => {
+          if (!movementPendingDeletion) return;
+          deleteMovement.mutate({ id: movementPendingDeletion.id });
+        }}
+        isPending={deleteMovement.isPending}
+      />
     </Card>
   );
 }

@@ -2,10 +2,12 @@
  * Serviço de atualização de notícias — busca notícias REAIS via RSS
  * e usa LLM apenas para análise de impacto na carteira.
  */
-import { getDb, getAssetsByUser, createNewsItem, deleteOldNewsItems } from "../db";
+import { createHash } from "node:crypto";
+import { getDb, getAssetsByUser, createNewsItem, deleteOldNewsItems, getKnownNewsFingerprints } from "../db";
 import { alerts } from "../../drizzle/schema";
 import { invokeLLM } from "../_core/llm";
 import { readNewsFeedText, sanitizeNewsText } from "./newsText";
+import { createNewsIdentityKey, selectNovelNews } from "../../shared/newsIngestionPolicy";
 
 // ─── Busca de notícias reais via RSS ─────────────────────────────────────────
 
@@ -15,6 +17,12 @@ interface RawNewsItem {
   source: string;
   publishedAt: string;
   summary: string;
+}
+
+function createNewsFingerprint(item: RawNewsItem) {
+  return createHash("sha256")
+    .update(createNewsIdentityKey({ url: item.url, title: item.title, source: item.source }))
+    .digest("hex");
 }
 
 const RSS_FEEDS = [
@@ -104,13 +112,7 @@ async function fetchAllRealNews(): Promise<RawNewsItem[]> {
 
   const allNews = results.flat();
 
-  const seen = new Set<string>();
-  const unique = allNews.filter((n) => {
-    const key = n.title.toLowerCase().substring(0, 60);
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  const unique = selectNovelNews(allNews, new Set<string>(), createNewsFingerprint);
 
   return unique
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
@@ -262,20 +264,45 @@ export async function runNewsRefresh(userId: number): Promise<{
     };
   }
 
-  // 2) Analisar impacto via LLM
-  const tickers = userAssets.map((a) => a.ticker);
-  const analyses = await analyzeNewsWithLLM(realNews, tickers);
+  // 2) Não reanalisa conteúdo já persistido: URL é preferida, título + fonte é o fallback.
+  const candidateFingerprints = realNews.map(createNewsFingerprint);
+  const knownFingerprints = await getKnownNewsFingerprints(userId, candidateFingerprints);
+  const newsToAnalyze = selectNovelNews(realNews, knownFingerprints, createNewsFingerprint);
+  if (newsToAnalyze.length === 0) {
+    return {
+      count: 0,
+      alertsCreated: 0,
+      message: "As notícias mais recentes já foram analisadas; nenhuma duplicidade foi criada.",
+    };
+  }
 
-  // 3) Salvar no banco combinando dados reais + análise IA
+  // 3) Analisar impacto via LLM somente para conteúdo novo.
+  const tickers = userAssets.map((a) => a.ticker);
+  const analyses = await analyzeNewsWithLLM(newsToAnalyze, tickers);
+
+  // 4) Salvar no banco combinando dados reais + análise IA.
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
   const savedIds: number[] = [];
   const alertsCreated: number[] = [];
+  const analysesByOriginalIndex = new Map(
+    analyses
+      .filter((analysis) => Number.isInteger(analysis.originalIndex) && analysis.originalIndex >= 0 && analysis.originalIndex < newsToAnalyze.length)
+      .map((analysis) => [analysis.originalIndex, analysis]),
+  );
 
-  for (const analysis of analyses) {
-    const original = realNews[analysis.originalIndex];
-    if (!original) continue;
+  for (let originalIndex = 0; originalIndex < newsToAnalyze.length; originalIndex += 1) {
+    const original = newsToAnalyze[originalIndex];
+    const analysis = analysesByOriginalIndex.get(originalIndex) ?? {
+      originalIndex,
+      category: "macro",
+      impactLevel: "baixo",
+      sentiment: "neutro",
+      priceDirection: "neutro",
+      impactAnalysis: "Sem impacto direto identificado nos ativos monitorados.",
+      affectedTickers: [],
+    };
 
     const id = await createNewsItem({
       userId,
@@ -284,6 +311,7 @@ export async function runNewsRefresh(userId: number): Promise<{
       impactAnalysis: analysis.impactAnalysis,
       source: original.source,
       sourceUrl: original.url,
+      contentFingerprint: createNewsFingerprint(original),
       category: analysis.category as any,
       impactLevel: analysis.impactLevel as any,
       sentiment: analysis.sentiment as any,
@@ -294,30 +322,28 @@ export async function runNewsRefresh(userId: number): Promise<{
     });
     savedIds.push(id);
 
-    // Se impacto alto, criar alerta automático
+    // Se impacto alto, criar um alerta por ativo afetado e associar cada alerta à notícia.
     if (analysis.impactLevel === "alto") {
-      const firstTicker = analysis.affectedTickers[0];
-      if (firstTicker) {
-        const affectedAsset = userAssets.find(
-          (a) => a.ticker.toUpperCase() === firstTicker.toUpperCase()
-        );
-        if (affectedAsset) {
-          try {
-            const directionLabel = getPriceDirectionLabel(analysis.priceDirection);
-            await db.insert(alerts).values({
-              userId,
-              assetId: affectedAsset.id,
-              type: "news_alert",
-              threshold: "0",
-              status: "triggered",
-              triggeredMessage: `🔴 NOTÍCIA DE ALTO IMPACTO: ${original.title}\n\n📊 Direção esperada: ${directionLabel}\n\n${analysis.impactAnalysis}\n\nFonte: ${original.source}`,
-              triggeredAt: new Date(),
-              notes: `Direção de preço: ${analysis.priceDirection} | Ativos afetados: ${analysis.affectedTickers.join(", ")}`,
-            });
-            alertsCreated.push(id);
-          } catch (e) {
-            console.error("[NewsRefreshService] Failed to create alert:", e);
-          }
+      const affectedTickers = new Set(analysis.affectedTickers.map((ticker) => ticker.toUpperCase()));
+      const affectedAssets = userAssets.filter((asset) => affectedTickers.has(asset.ticker.toUpperCase()));
+
+      for (const affectedAsset of affectedAssets) {
+        try {
+          const directionLabel = getPriceDirectionLabel(analysis.priceDirection);
+          await db.insert(alerts).values({
+            userId,
+            assetId: affectedAsset.id,
+            sourceNewsId: id,
+            type: "news_alert",
+            threshold: "0",
+            status: "triggered",
+            triggeredMessage: `🔴 NOTÍCIA DE ALTO IMPACTO: ${original.title}\n\n📊 Direção esperada: ${directionLabel}\n\n${analysis.impactAnalysis}\n\nFonte: ${original.source}`,
+            triggeredAt: new Date(),
+            notes: `Direção de preço: ${analysis.priceDirection} | Ativos afetados: ${analysis.affectedTickers.join(", ")}`,
+          });
+          alertsCreated.push(id);
+        } catch (e) {
+          console.error("[NewsRefreshService] Failed to create alert:", e);
         }
       }
     }
@@ -329,7 +355,7 @@ export async function runNewsRefresh(userId: number): Promise<{
   return {
     count: savedIds.length,
     alertsCreated: alertsCreated.length,
-    message: `${savedIds.length} notícias reais analisadas com impacto na carteira. ${alertsCreated.length} alertas de alto impacto criados.`,
+    message: `${savedIds.length} notícias novas analisadas. ${alertsCreated.length} alertas de alto impacto vinculados às respectivas notícias.`,
   };
 }
 

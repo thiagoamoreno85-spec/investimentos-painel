@@ -2,6 +2,13 @@ import { useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PrivacyMask } from "@/components/PrivacyMask";
 import { MarketFlowSection } from "@/components/MarketFlowSection";
 import { trpc } from "@/lib/trpc";
@@ -93,6 +100,16 @@ const CATEGORY_LABELS: Record<string, string> = {
   crypto: "₿ Cripto",
   fx: "💱 Câmbio",
 };
+
+const MARKET_SORT_OPTIONS: Array<{ value: MarketQuoteSort; label: string }> = [
+  { value: "portfolio", label: "Ordem da carteira" },
+  { value: "yield_desc", label: "Melhor L/P" },
+  { value: "yield_asc", label: "Pior L/P" },
+  { value: "monthly_desc", label: "Maiores altas no mês" },
+  { value: "monthly_asc", label: "Maiores baixas no mês" },
+  { value: "daily_desc", label: "Maiores altas no dia" },
+  { value: "daily_asc", label: "Maiores baixas no dia" },
+];
 
 // ─── Componentes de seção ─────────────────────────────────────────────────────
 
@@ -297,7 +314,17 @@ function PortfolioQuotesSection() {
                 <p className="text-xs text-muted-foreground">{MARKET_ASSET_TABS.find((assetTab) => assetTab.id === activeClass)?.label}</p>
                 <span className="font-mono text-xs text-muted-foreground">{quotesInActiveClass.length} ativo{quotesInActiveClass.length === 1 ? "" : "s"}</span>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5" aria-label="Ordenar ativos da carteira">
+              <Select value={quoteSort} onValueChange={(value) => setQuoteSort(value as MarketQuoteSort)}>
+                <SelectTrigger className="flex h-9 w-full bg-secondary/25 text-xs sm:hidden" aria-label="Ordenar ativos da carteira">
+                  <SelectValue placeholder="Ordenar ativos" />
+                </SelectTrigger>
+                <SelectContent>
+                  {MARKET_SORT_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="hidden flex-wrap items-center gap-1.5 sm:flex" aria-label="Ordenar ativos da carteira">
                 <div className="flex items-center gap-1 rounded-lg border border-border/50 bg-secondary/25 p-1" aria-label="Ordenar por rendimento acumulado">
                   <button
                     type="button"

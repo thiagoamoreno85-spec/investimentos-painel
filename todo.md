@@ -900,3 +900,14 @@
 - [x] Corrigir a triagem quantitativa para tratar BRL/USD por câmbio identificado, invalidar preço não confiável e incluir contexto na chave de cache
 - [x] Renomear e rotular a triagem como assistida por IA, sem caracterizá-la como análise fundamentalista
 - [x] Criar testes, validar desktop/mobile, confirmar preservação de dados reais e salvar checkpoint
+
+
+## Fase 3 — UX Operacional, Mobile e Segurança de Interações — Em andamento
+- [x] Autorização recebida para simplificar navegação, tabelas e filtros em desktop/mobile
+- [x] Autorização recebida para unificar pipeline de Notícias e Alertas, com deduplicação e ações acessíveis
+- [x] Autorização recebida para adicionar confirmação contextual ou desfazer em exclusões financeiras e patrimoniais
+- [x] Auditar telas e fluxos existentes sem alterar dados financeiros
+- [x] Padronizar a navegação móvel com atalhos horizontais e simplificar filtros/tabelas de Transações, Proventos e Minha Carteira
+- [x] Unificar o pipeline de Notícias e Alertas com identidade persistente, deduplicação na coleta e por ativo na listagem, vínculo à notícia de origem e ações acessíveis
+- [x] Implementar confirmação contextual antes de exclusões de transações, proventos, patrimônio e movimentos de caixa; a confirmação substitui o desfazer por prevenção explícita
+- [x] Criar testes, validar desktop/mobile e salvar checkpoint

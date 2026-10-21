@@ -64,8 +64,11 @@ export default function CaixaCard() {
     type: "entrada" | "saida";
   } | null>(null);
 
-  const { data: balance, isLoading: loadingBalance } = trpc.cash.getBalance.useQuery();
-  const { data: movements, isLoading: loadingMovements } = trpc.cash.listMovements.useQuery({ limit: 10 });
+  const { data: balance, isLoading: loadingBalance } = trpc.cash.getBalance.useQuery(undefined, { enabled: showBalances });
+  const { data: movements, isLoading: loadingMovements } = trpc.cash.listMovements.useQuery(
+    { limit: 10 },
+    { enabled: showBalances }
+  );
 
   const addMovement = trpc.cash.addMovement.useMutation({
     onSuccess: (data) => {

@@ -9,14 +9,16 @@ import { trpc } from "@/lib/trpc";
 import { CLASS_CURRENCY } from "@/lib/assetClasses";
 import { buildHomePortfolioSummary } from "@shared/homePortfolioSummary";
 import { SensitiveContent } from "@/components/SensitiveContent";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { AccessibleChartAlternative } from "@/components/AccessibleChartAlternative";
 
 export default function Aportes() {
+  const { showBalances } = useBalanceVisibility();
   const [aporteMensal, setAporteMensal] = useState(10_000);
   const [anos, setAnos] = useState(10);
   const [taxaAnual, setTaxaAnual] = useState(12);
-  const assetsQuery = trpc.portfolio.getAssets.useQuery();
-  const cashBalanceQuery = trpc.cash.getBalance.useQuery();
+  const assetsQuery = trpc.portfolio.getAssets.useQuery(undefined, { enabled: showBalances });
+  const cashBalanceQuery = trpc.cash.getBalance.useQuery(undefined, { enabled: showBalances });
   const usdBrlQuery = trpc.portfolio.getUsdBrl.useQuery();
 
   const patrimonioAtual = useMemo(() => {

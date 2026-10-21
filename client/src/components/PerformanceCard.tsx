@@ -14,6 +14,7 @@ export default function PerformanceCard() {
   const { showBalances } = useBalanceVisibility();
   const { data, isLoading, isError } = trpc.portfolio.getDailyPerformance.useQuery(undefined, {
     refetchInterval: 60_000,
+    enabled: showBalances,
   });
 
   if (!showBalances) {

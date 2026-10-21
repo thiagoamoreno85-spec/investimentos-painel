@@ -72,15 +72,15 @@ interface ClassGroup {
 
 export default function Alocacao() {
   const { showBalances, toggleShowBalances } = useBalanceVisibility();
-  const assetsQuery = trpc.portfolio.getAssets.useQuery();
+  const assetsQuery = trpc.portfolio.getAssets.useQuery(undefined, { enabled: showBalances });
   const usdBrlQuery = trpc.portfolio.getUsdBrl.useQuery();
-  const cashQuery = trpc.cash.getBalance.useQuery();
+  const cashQuery = trpc.cash.getBalance.useQuery(undefined, { enabled: showBalances });
   const { data: dbAssets } = assetsQuery;
   const { data: usdBrlData } = usdBrlQuery;
   const { data: cashData } = cashQuery;
-  const { data: cashMovements } = trpc.cash.listMovements.useQuery({ limit: 8 });
-  const { data: dailyChangeData } = trpc.portfolio.getAssetsDailyChange.useQuery();
-  const dividendSummaryQuery = trpc.dividends.getDividendSummary.useQuery();
+  const { data: cashMovements } = trpc.cash.listMovements.useQuery({ limit: 8 }, { enabled: showBalances });
+  const { data: dailyChangeData } = trpc.portfolio.getAssetsDailyChange.useQuery(undefined, { enabled: showBalances });
+  const dividendSummaryQuery = trpc.dividends.getDividendSummary.useQuery(undefined, { enabled: showBalances });
   const usdBrl = usdBrlData?.rate ?? 0;
   const hasDbData = dbAssets && dbAssets.length > 0;
   const hasUsdAssets = dbAssets?.some((asset) => (asset.currency || CLASS_CURRENCY[asset.assetClass]) === "USD") ?? false;

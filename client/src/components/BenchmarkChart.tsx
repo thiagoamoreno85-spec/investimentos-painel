@@ -24,7 +24,10 @@ const benchmarkColumns: AccessibleChartColumn<BenchmarkPoint>[] = [
 
 export function BenchmarkChart() {
   const { showBalances } = useBalanceVisibility();
-  const { data: returnHistory, isLoading: returnLoading, isError: returnError, refetch: refetchReturn } = trpc.portfolio.getReturnHistory.useQuery();
+  const { data: returnHistory, isLoading: returnLoading, isError: returnError, refetch: refetchReturn } = trpc.portfolio.getReturnHistory.useQuery(
+    undefined,
+    { enabled: showBalances }
+  );
   const { data: benchmarks, isLoading: benchmarkLoading, isError: benchmarkError, refetch: refetchBenchmarks } = trpc.market.getBenchmarkHistory.useQuery(
     { fromDate: returnHistory?.fromDate ?? '' },
     { enabled: !!returnHistory?.fromDate }

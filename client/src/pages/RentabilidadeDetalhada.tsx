@@ -60,6 +60,7 @@ export default function RentabilidadeDetalhada() {
   const { data, isLoading } = trpc.portfolio.getMonthlyPerformanceDetails.useQuery(undefined, {
     refetchInterval: 60_000,
     refetchIntervalInBackground: false,
+    enabled: showBalances,
   });
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [search, setSearch] = useState("");

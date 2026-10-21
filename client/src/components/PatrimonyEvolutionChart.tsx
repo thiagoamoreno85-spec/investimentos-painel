@@ -66,7 +66,10 @@ export function PatrimonyEvolutionChart() {
   const utils = trpc.useUtils();
   const { showBalances } = useBalanceVisibility();
   const showBalancesRef = useRef(showBalances);
-  const { data, isLoading } = trpc.portfolio.getSnapshotHistory.useQuery({ days: 365 });
+  const { data, isLoading } = trpc.portfolio.getSnapshotHistory.useQuery(
+    { days: 365 },
+    { enabled: showBalances }
+  );
 
   useEffect(() => {
     showBalancesRef.current = showBalances;
@@ -112,14 +115,14 @@ export function PatrimonyEvolutionChart() {
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <div className="flex items-center justify-center h-[220px]">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
-        ) : !showBalances ? (
+        {!showBalances ? (
           <PrivacyMask className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
             Conteúdo financeiro oculto
           </PrivacyMask>
+        ) : isLoading ? (
+          <div className="flex items-center justify-center h-[220px]">
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
         ) : history.length < 2 ? (
           <div className="flex flex-col items-center justify-center h-[220px] text-center px-6">
             <p className="text-sm text-muted-foreground mb-1">

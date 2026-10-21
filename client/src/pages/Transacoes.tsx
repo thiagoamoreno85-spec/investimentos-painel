@@ -80,11 +80,11 @@ export default function Transacoes() {
   const utils = trpc.useUtils();
 
   const { data: assets, isLoading: assetsLoading } =
-    trpc.portfolio.getAssets.useQuery();
+    trpc.portfolio.getAssets.useQuery(undefined, { enabled: showBalances });
   const [page, setPage] = useState(1);
   const LIMIT = 20;
   const { data: allTransactions, isLoading: txLoading } =
-    trpc.portfolio.getTransactions.useQuery();
+    trpc.portfolio.getTransactions.useQuery(undefined, { enabled: showBalances });
   const transactions = (allTransactions ?? []).slice((page - 1) * LIMIT, page * LIMIT);
   const totalPages = Math.max(1, Math.ceil((allTransactions?.length ?? 0) / LIMIT));
 

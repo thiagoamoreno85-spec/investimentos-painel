@@ -122,6 +122,7 @@ export function PerformanceCards() {
       // Atualiza automaticamente a cada 60 segundos para refletir variações do dia
       refetchInterval: 60_000,
       refetchIntervalInBackground: false,
+      enabled: showBalances,
     }
   );
   const [monthlyExpanded, setMonthlyExpanded] = useState(false);

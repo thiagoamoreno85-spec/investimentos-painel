@@ -1,27 +1,60 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
+import { lazy, Suspense, type ComponentType } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { BalanceVisibilityProvider } from "./contexts/BalanceVisibilityContext";
-import Home from "./pages/Home";
-import Alocacao from "./pages/Alocacao";
-import Rentabilidade from "./pages/Rentabilidade";
-import RentabilidadeDetalhada from "./pages/RentabilidadeDetalhada";
-import Aportes from "./pages/Aportes";
-import Patrimonio from "./pages/Patrimonio";
-import Transacoes from "./pages/Transacoes";
-import Proventos from "./pages/Proventos";
-import Alertas from "./pages/Alertas";
-import MelhorCompra from "./pages/MelhorCompra";
-import DashboardMercado from "./pages/DashboardMercado";
-import Noticias from "./pages/Noticias";
-import Calendario from "./pages/Calendario";
-import Configuracoes from "./pages/Configuracoes";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
-function protectedPage(Component: React.ComponentType) {
+function PageLoadingFallback() {
+  return (
+    <main
+      className="flex min-h-screen items-center justify-center bg-background p-6 text-foreground"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+        <span
+          className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"
+          aria-hidden="true"
+        />
+        <span>Carregando página...</span>
+      </div>
+    </main>
+  );
+}
+
+function lazyPage(loader: () => Promise<{ default: ComponentType }>) {
+  const Page = lazy(loader);
+
+  return function LazyPage() {
+    return (
+      <Suspense fallback={<PageLoadingFallback />}>
+        <Page />
+      </Suspense>
+    );
+  };
+}
+
+const Home = lazyPage(() => import("./pages/Home"));
+const Alocacao = lazyPage(() => import("./pages/Alocacao"));
+const Rentabilidade = lazyPage(() => import("./pages/Rentabilidade"));
+const RentabilidadeDetalhada = lazyPage(() => import("./pages/RentabilidadeDetalhada"));
+const Aportes = lazyPage(() => import("./pages/Aportes"));
+const Patrimonio = lazyPage(() => import("./pages/Patrimonio"));
+const Transacoes = lazyPage(() => import("./pages/Transacoes"));
+const Proventos = lazyPage(() => import("./pages/Proventos"));
+const Alertas = lazyPage(() => import("./pages/Alertas"));
+const MelhorCompra = lazyPage(() => import("./pages/MelhorCompra"));
+const DashboardMercado = lazyPage(() => import("./pages/DashboardMercado"));
+const Noticias = lazyPage(() => import("./pages/Noticias"));
+const Calendario = lazyPage(() => import("./pages/Calendario"));
+const Configuracoes = lazyPage(() => import("./pages/Configuracoes"));
+const NotFound = lazyPage(() => import("./pages/NotFound"));
+
+function protectedPage(Component: ComponentType) {
   return function AuthenticatedPage() {
     return <ProtectedRoute component={Component} />;
   };

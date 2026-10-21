@@ -91,11 +91,11 @@ export default function MelhorCompra() {
   } | null>(null);
 
   const utils = trpc.useUtils();
-  const { data: assets } = trpc.portfolio.getAssets.useQuery();
-  const { data: history, isLoading: historyLoading } = trpc.buyAdvisor.getHistory.useQuery({ limit: 50 });
+  const { data: assets } = trpc.portfolio.getAssets.useQuery(undefined, { enabled: showBalances });
+  const { data: history, isLoading: historyLoading } = trpc.buyAdvisor.getHistory.useQuery({ limit: 50 }, { enabled: showBalances });
   const { data: selectedRecord } = trpc.buyAdvisor.getHistoryById.useQuery(
     { id: selectedHistoryId! },
-    { enabled: selectedHistoryId !== null }
+    { enabled: showBalances && selectedHistoryId !== null }
   );
 
   const analyze = trpc.buyAdvisor.analyze.useMutation({

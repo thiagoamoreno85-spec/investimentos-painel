@@ -32,7 +32,7 @@ import { AccessibleChartAlternative, type AccessibleChartColumn } from "@/compon
 
 export default function Rentabilidade() {
   const { showBalances } = useBalanceVisibility();
-  const assetsQuery = trpc.portfolio.getAssets.useQuery();
+  const assetsQuery = trpc.portfolio.getAssets.useQuery(undefined, { enabled: showBalances });
   const usdBrlQuery = trpc.portfolio.getUsdBrl.useQuery();
   const { data: dbAssets } = assetsQuery;
   const { data: usdBrlData } = usdBrlQuery;

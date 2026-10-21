@@ -920,3 +920,9 @@
 - [x] Padronizar componentes reutilizáveis de privacidade, botões por ícone e tabelas textuais de gráficos
 - [x] Adicionar equivalentes textuais navegáveis aos gráficos e acessibilidade por teclado/cor
 - [x] Validar TypeScript, build e testes; validação visual autenticada depende de sessão OAuth Manus disponível no navegador
+
+## Fase 5 — Desempenho e Privacidade em Profundidade — Em andamento
+- [x] Medir o bundle atual e mapear consultas pessoais, sem alterar dados financeiros
+- [x] Carregar rotas sob demanda para reduzir o JavaScript inicial, preservando autenticação e navegação
+- [x] Impedir novas consultas tRPC de dados financeiros pessoais enquanto a privacidade estiver ativa
+- [x] Validar tipagem, build, testes e privacidade; salvar checkpoint sem alterar dados financeiros

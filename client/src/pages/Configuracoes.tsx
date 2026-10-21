@@ -13,12 +13,15 @@ import {
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
+import { PrivacyMask } from "@/components/PrivacyMask";
 import { toast } from "sonner";
 import { ASSET_CLASS_LABELS, classColor } from "@/lib/assetClasses";
 
 export default function Configuracoes() {
   const { user, logout } = useAuth();
-  const { data: dbAssets } = trpc.portfolio.getAssets.useQuery();
+  const { showBalances } = useBalanceVisibility();
+  const { data: dbAssets } = trpc.portfolio.getAssets.useQuery(undefined, { enabled: showBalances });
   const { data: usdBrlData } = trpc.portfolio.getUsdBrl.useQuery();
 
   const stats = useMemo(() => {
@@ -28,6 +31,11 @@ export default function Configuracoes() {
   }, [dbAssets]);
 
   function exportCSV() {
+    if (!showBalances) {
+      toast.error("Mostre os valores para exportar a carteira.");
+      return;
+    }
+
     if (!dbAssets || dbAssets.length === 0) {
       toast.error("Nenhum ativo para exportar.");
       return;
@@ -106,56 +114,57 @@ export default function Configuracoes() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-lg bg-secondary/40 border border-border/50">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Layers className="w-3.5 h-3.5" />
-                  <p className="text-xs">Ativos cadastrados</p>
+            {showBalances ? (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 rounded-lg bg-secondary/40 border border-border/50">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Layers className="w-3.5 h-3.5" />
+                      <p className="text-xs">Ativos cadastrados</p>
+                    </div>
+                    <p className="text-xl font-bold font-mono mt-1">{stats.count}</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-secondary/40 border border-border/50">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <DollarSign className="w-3.5 h-3.5" />
+                      <p className="text-xs">USD/BRL atual</p>
+                    </div>
+                    <p className="text-xl font-bold font-mono mt-1">
+                      {usdBrlData?.rate ? `R$ ${usdBrlData.rate.toFixed(2)}` : "—"}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xl font-bold font-mono mt-1">{stats.count}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-secondary/40 border border-border/50">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <DollarSign className="w-3.5 h-3.5" />
-                  <p className="text-xs">USD/BRL atual</p>
-                </div>
-                <p className="text-xl font-bold font-mono mt-1">
-                  {usdBrlData?.rate ? `R$ ${usdBrlData.rate.toFixed(2)}` : "—"}
-                </p>
-              </div>
-            </div>
 
-            {stats.classes.length > 0 && (
-              <div>
-                <p className="text-xs text-muted-foreground mb-2">Classes na carteira</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {stats.classes.map((cls) => (
-                    <span
-                      key={cls}
-                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs bg-secondary/60 border border-border/50"
-                    >
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: classColor(cls) }}
-                        aria-hidden="true"
-                      />
-                      {ASSET_CLASS_LABELS[cls] ?? cls}
-                    </span>
-                  ))}
+                {stats.classes.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">Classes na carteira</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {stats.classes.map((cls) => (
+                        <span key={cls} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs bg-secondary/60 border border-border/50">
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: classColor(cls) }} aria-hidden="true" />
+                          {ASSET_CLASS_LABELS[cls] ?? cls}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-1">
+                  <Button onClick={exportCSV} variant="outline" size="sm" className="gap-2">
+                    <Download className="w-4 h-4" />
+                    Exportar carteira (CSV)
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Exporta ticker, nome, classe, moeda, quantidade, custo médio e último preço — compatível com Excel e Google Sheets.
+                  </p>
                 </div>
+              </>
+            ) : (
+              <div className="flex min-h-36 flex-col items-center justify-center gap-2 text-center">
+                <PrivacyMask className="text-xl font-bold font-mono text-muted-foreground">Conteúdo financeiro oculto</PrivacyMask>
+                <p className="text-sm text-muted-foreground">Mostre os valores para consultar ou exportar dados da carteira.</p>
               </div>
             )}
-
-            <div className="pt-1">
-              <Button onClick={exportCSV} variant="outline" size="sm" className="gap-2">
-                <Download className="w-4 h-4" />
-                Exportar carteira (CSV)
-              </Button>
-              <p className="text-xs text-muted-foreground mt-2">
-                Exporta ticker, nome, classe, moeda, quantidade, custo médio e último preço —
-                compatível com Excel e Google Sheets.
-              </p>
-            </div>
           </CardContent>
         </Card>
 

@@ -16,8 +16,20 @@ function formatCurrency(value: number) {
 }
 
 export function CurrencyBreakdownChart() {
-  const { data, isLoading, isError, refetch } = trpc.portfolio.getCurrencyBreakdown.useQuery();
   const { showBalances } = useBalanceVisibility();
+  const { data, isLoading, isError, refetch } = trpc.portfolio.getCurrencyBreakdown.useQuery(
+    undefined,
+    { enabled: showBalances }
+  );
+
+  if (!showBalances) {
+    return (
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+        <CardHeader><CardTitle>Exposição Cambial</CardTitle></CardHeader>
+        <CardContent><PrivacyMask className="flex h-56 items-center justify-center text-sm text-muted-foreground">Conteúdo financeiro oculto</PrivacyMask></CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -42,15 +54,6 @@ export function CurrencyBreakdownChart() {
             <RefreshCw className="h-4 w-4" /> Tentar novamente
           </Button>
         </CardContent>
-      </Card>
-    );
-  }
-
-  if (!showBalances) {
-    return (
-      <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
-        <CardHeader><CardTitle>Exposição Cambial</CardTitle></CardHeader>
-        <CardContent><PrivacyMask className="flex h-56 items-center justify-center text-sm text-muted-foreground">Conteúdo financeiro oculto</PrivacyMask></CardContent>
       </Card>
     );
   }

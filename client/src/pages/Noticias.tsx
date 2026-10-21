@@ -325,7 +325,7 @@ export default function Noticias() {
   const [selectedTicker, setSelectedTicker] = useState(savedPreferences.selectedTicker);
 
   const utils = trpc.useUtils();
-  const { data: assets = [] } = trpc.portfolio.getAssets.useQuery();
+  const { data: assets = [] } = trpc.portfolio.getAssets.useQuery(undefined, { enabled: showBalances });
 
   const { data: news = [], isLoading } = trpc.news.list.useQuery({
     category: showBalances ? activeCategory : "all",

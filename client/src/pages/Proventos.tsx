@@ -79,17 +79,17 @@ export default function Proventos() {
   const [notes, setNotes] = useState("");
 
   // Queries
-  const { data: assets, isLoading: assetsLoading } = trpc.portfolio.getAssets.useQuery();
-  const { data: summary, isLoading: summaryLoading } = trpc.dividends.getDividendSummary.useQuery();
+  const { data: assets, isLoading: assetsLoading } = trpc.portfolio.getAssets.useQuery(undefined, { enabled: showBalances });
+  const { data: summary, isLoading: summaryLoading } = trpc.dividends.getDividendSummary.useQuery(undefined, { enabled: showBalances });
   const [divPage, setDivPage] = useState(1);
   const DIV_LIMIT = 20;
-  const { data: dividendsData, isLoading: divsLoading } = trpc.dividends.getDividends.useQuery({ page: divPage, limit: DIV_LIMIT });
+  const { data: dividendsData, isLoading: divsLoading } = trpc.dividends.getDividends.useQuery({ page: divPage, limit: DIV_LIMIT }, { enabled: showBalances });
   const dividends = dividendsData?.data ?? [];
   const divTotalPages = dividendsData?.totalPages ?? 1;
-  const { data: byMonth } = trpc.dividends.getDividendsByMonth.useQuery();
-  const { data: totals } = trpc.dividends.getTotalDividends.useQuery();
-  const { data: deposits, isLoading: depositsLoading, refetch: refetchDeposits } = trpc.cash.listDeposits.useQuery();
-  const { data: incomes, isLoading: incomesLoading, refetch: refetchIncomes } = trpc.cash.listIncomes.useQuery();
+  const { data: byMonth } = trpc.dividends.getDividendsByMonth.useQuery(undefined, { enabled: showBalances });
+  const { data: totals } = trpc.dividends.getTotalDividends.useQuery(undefined, { enabled: showBalances });
+  const { data: deposits, isLoading: depositsLoading, refetch: refetchDeposits } = trpc.cash.listDeposits.useQuery(undefined, { enabled: showBalances });
+  const { data: incomes, isLoading: incomesLoading, refetch: refetchIncomes } = trpc.cash.listIncomes.useQuery(undefined, { enabled: showBalances });
   const uploadMutation = trpc.cash.uploadStatement.useMutation();
 
   const addDividend = trpc.dividends.addDividend.useMutation({

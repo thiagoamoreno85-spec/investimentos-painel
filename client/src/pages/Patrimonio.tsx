@@ -121,11 +121,11 @@ export default function Patrimonio() {
 
   // Queries
   const { data: summary, isLoading: summaryLoading } =
-    trpc.patrimonial.getSummary.useQuery();
+    trpc.patrimonial.getSummary.useQuery(undefined, { enabled: showBalances });
   const { data: assets, isLoading: assetsLoading } =
-    trpc.patrimonial.listAssets.useQuery();
+    trpc.patrimonial.listAssets.useQuery(undefined, { enabled: showBalances });
   const { data: liabilities, isLoading: liabilitiesLoading } =
-    trpc.patrimonial.listLiabilities.useQuery();
+    trpc.patrimonial.listLiabilities.useQuery(undefined, { enabled: showBalances });
 
   // Mutations
   const deleteAsset = trpc.patrimonial.deleteAsset.useMutation({

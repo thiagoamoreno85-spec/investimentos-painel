@@ -51,13 +51,13 @@ export default function Home() {
   const priceRefreshInFlightRef = useRef(false);
   const automaticRefreshRef = useRef(false);
   const lastAutoRefreshAttemptAtRef = useRef<number | null>(null);
-  const assetsQuery = trpc.portfolio.getAssets.useQuery();
+  const assetsQuery = trpc.portfolio.getAssets.useQuery(undefined, { enabled: showBalances });
   const usdBrlQuery = trpc.portfolio.getUsdBrl.useQuery();
-  const cashBalanceQuery = trpc.cash.getBalance.useQuery();
+  const cashBalanceQuery = trpc.cash.getBalance.useQuery(undefined, { enabled: showBalances });
   const { data: dbAssets } = assetsQuery;
   const { data: usdBrlData } = usdBrlQuery;
   const { data: cashBalanceData } = cashBalanceQuery;
-  const { data: patrimonialSummary } = trpc.patrimonial.getSummary.useQuery();
+  const { data: patrimonialSummary } = trpc.patrimonial.getSummary.useQuery(undefined, { enabled: showBalances });
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {

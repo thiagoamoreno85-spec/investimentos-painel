@@ -15,9 +15,26 @@ export function ConsolidatedNetWorthCard({
 }: ConsolidatedNetWorthCardProps) {
   const { showBalances } = useBalanceVisibility();
   const { data: patrimonialData, isLoading: isLoadingPatrimonial } =
-    trpc.patrimonial.getConsolidatedNetWorth.useQuery();
+    trpc.patrimonial.getConsolidatedNetWorth.useQuery(undefined, { enabled: showBalances });
 
   const isLoading = isLoadingFinancial || isLoadingPatrimonial;
+
+  if (!showBalances) {
+    return (
+      <Card className="h-full bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            Net Worth Consolidado
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <PrivacyMask className="text-2xl font-bold font-mono tracking-tight text-muted-foreground">
+            Conteúdo financeiro oculto
+          </PrivacyMask>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (

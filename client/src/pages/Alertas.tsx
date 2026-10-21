@@ -127,9 +127,9 @@ export default function Alertas() {
   const [notes, setNotes] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "triggered" | "dismissed">("all");
 
-  const { data: assets } = trpc.portfolio.getAssets.useQuery();
-  const { data: alertsList, isLoading } = trpc.alerts.getAlerts.useQuery({ status: filterStatus });
-  const { data: counts, refetch: refetchCounts } = trpc.alerts.getAlertCounts.useQuery();
+  const { data: assets } = trpc.portfolio.getAssets.useQuery(undefined, { enabled: showBalances });
+  const { data: alertsList, isLoading } = trpc.alerts.getAlerts.useQuery({ status: filterStatus }, { enabled: showBalances });
+  const { data: counts, refetch: refetchCounts } = trpc.alerts.getAlertCounts.useQuery(undefined, { enabled: showBalances });
 
   const createAlert = trpc.alerts.createAlert.useMutation({
     onSuccess: () => {

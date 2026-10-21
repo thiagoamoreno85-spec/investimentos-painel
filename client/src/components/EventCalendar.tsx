@@ -15,6 +15,7 @@ import { trpc } from "@/lib/trpc";
 import { ChevronLeft, ChevronRight, Plus, Calendar, TrendingUp, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { SensitiveContent } from "@/components/SensitiveContent";
+import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -38,8 +39,9 @@ export function EventCalendar() {
   const [expectedValue, setExpectedValue] = useState("");
 
   const utils = trpc.useUtils();
-  const { data: assets } = trpc.portfolio.getAssets.useQuery();
-  const { data: events = [] } = trpc.portfolio.getEvents.useQuery();
+  const { showBalances } = useBalanceVisibility();
+  const { data: assets } = trpc.portfolio.getAssets.useQuery(undefined, { enabled: showBalances });
+  const { data: events = [] } = trpc.portfolio.getEvents.useQuery(undefined, { enabled: showBalances });
   const createEventMutation = trpc.portfolio.createEvent.useMutation({
     onSuccess: () => {
       toast.success("Evento criado com sucesso!");

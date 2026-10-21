@@ -31,6 +31,7 @@ import {
   getMonthlyPerformance,
   getMonthlyPerformanceDetails,
 } from "../services/dailyPerformanceService";
+import { getDeclaredReturnBaselineSummary } from "../services/declaredReturnBaselineService";
 import { resolveValuationFxRateForUser } from "../services/valuationFxService";
 import { DEFAULT_USD_BRL_RATE } from "../../shared/constants";
 import { assets, transactions as transactionsTable, dividends, cashBalance, portfolioSnapshots, dailyPerformanceSnapshots } from "../../drizzle/schema";
@@ -537,11 +538,12 @@ export const portfolioRouter = router({
   getPerformance: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
     if (!db) return null;
-    const [daily, monthly, cashRows, usdBrl] = await Promise.all([
+    const [daily, monthly, cashRows, usdBrl, declaredReturnBaseline] = await Promise.all([
       getLiveDailyPerformance(ctx.user.id),
       getMonthlyPerformance(ctx.user.id),
       db.select().from(cashBalance).where(eq(cashBalance.userId, ctx.user.id)).limit(1),
       fetchUsdBrl().catch(() => DEFAULT_USD_BRL_RATE),
+      getDeclaredReturnBaselineSummary(ctx.user.id),
     ]);
     const cash = Number(cashRows[0]?.balance ?? 0);
     const currentClassValues = Object.fromEntries(daily.byClass.map((item) => [item.classKey, item.valueBRL]));
@@ -578,6 +580,7 @@ export const portfolioRouter = router({
         missingClosedDates: monthly?.missingClosedDates ?? [],
         hasClosedGaps: monthly?.hasClosedGaps ?? false,
       },
+      declaredReturnBaseline,
       hasSnapshots: !!monthly,
     };
   }),

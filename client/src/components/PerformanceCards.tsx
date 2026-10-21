@@ -139,6 +139,7 @@ export function PerformanceCards() {
   const missingDatesPreview = missingClosedDates.slice(0, 3).join(", ");
   const monthlyContributions = performance.monthly.externalContributionsBRL ?? 0;
   const monthlyWithdrawals = performance.monthly.externalWithdrawalsBRL ?? 0;
+  const declaredBaseline = performance.declaredReturnBaseline;
 
   // Se não tem snapshots, mostrar card de ativação (ocupa 1 coluna)
   if (!performance.hasSnapshots) {
@@ -162,7 +163,7 @@ export function PerformanceCards() {
     <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 px-3 md:px-6 pt-3 md:pt-6">
         <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-          Retorno oficial acumulado
+          Retorno acumulado
         </CardTitle>
         <Button
           variant="ghost"
@@ -176,9 +177,31 @@ export function PerformanceCards() {
         </Button>
       </CardHeader>
       <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
-        {performance.monthly.total ? (
+        {performance.monthly.total || declaredBaseline ? (
           <>
-            <div
+            {declaredBaseline && (
+              <div className={`mb-3 rounded-md border border-violet-500/30 bg-violet-500/8 px-2.5 py-2 text-[11px] leading-snug text-violet-100 ${
+                !showBalances ? "blur-sm" : ""
+              }`}>
+                <p className="font-medium">Base acumulada declarada pelo investidor</p>
+                <p className="mt-1 font-mono text-base font-semibold text-violet-200">
+                  {formatCurrency(declaredBaseline.totalReturnBRL)}
+                </p>
+                <p className="mt-1 text-violet-100/75">
+                  Base de {formatCurrency(declaredBaseline.declaredReturnBRL)} em {declaredBaseline.effectiveDate}
+                  {declaredBaseline.officialCloseCountSince > 0
+                    ? ` · fechamentos oficiais posteriores: ${declaredBaseline.officialReturnSinceBRL >= 0 ? "+" : ""}${formatCurrency(declaredBaseline.officialReturnSinceBRL)}`
+                    : " · aguardando o primeiro fechamento oficial posterior"}
+                </p>
+                <p className="mt-1 text-[10px] text-violet-100/60">
+                  Referência manual: não substitui a série histórica auditada.
+                </p>
+              </div>
+            )}
+            {performance.monthly.total ? (
+              <>
+                <p className="mb-1 text-[11px] font-medium text-muted-foreground">Retorno oficial do mês — fechamentos persistidos</p>
+                <div
               className={`text-sm sm:text-base md:text-xl font-bold font-mono leading-tight ${
                 performance.monthly.total.valueDiff >= 0 ? "text-emerald-500" : "text-red-400"
               } ${
@@ -232,12 +255,16 @@ export function PerformanceCards() {
                 </p>
               </div>
             )}
-            <ClassBreakdown
-              data={performance.monthly.byClass}
-              expanded={monthlyExpanded}
-              onToggle={() => setMonthlyExpanded(!monthlyExpanded)}
-              showBalances={showBalances}
-            />
+                <ClassBreakdown
+                  data={performance.monthly.byClass}
+                  expanded={monthlyExpanded}
+                  onToggle={() => setMonthlyExpanded(!monthlyExpanded)}
+                  showBalances={showBalances}
+                />
+              </>
+            ) : (
+              <p className="text-xs text-muted-foreground">Aguardando o primeiro fechamento oficial do mês para apurar o retorno mensal.</p>
+            )}
           </>
         ) : (
           <p className="text-xs text-muted-foreground">

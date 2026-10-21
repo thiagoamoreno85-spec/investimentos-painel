@@ -426,6 +426,26 @@ export const dailyPerformanceSnapshots = mysqlTable("daily_performance_snapshots
 export type DailyPerformanceSnapshot = typeof dailyPerformanceSnapshots.$inferSelect;
 export type InsertDailyPerformanceSnapshot = typeof dailyPerformanceSnapshots.$inferInsert;
 
+/**
+ * Base monetária declarada pelo investidor quando não há série histórica de
+ * fechamentos suficiente para reconstruir o retorno acumulado com segurança.
+ * Não substitui snapshots nem é tratada como retorno histórico auditado.
+ */
+export const declaredReturnBaselines = mysqlTable("declared_return_baselines", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  effectiveDate: varchar("effective_date", { length: 10 }).notNull(),
+  returnValue: decimal("return_value", { precision: 18, scale: 2 }).notNull(),
+  notes: text("notes"),
+  declaredAt: timestamp("declared_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex("declared_return_baseline_user_date_unique").on(table.userId, table.effectiveDate),
+]);
+
+export type DeclaredReturnBaseline = typeof declaredReturnBaselines.$inferSelect;
+export type InsertDeclaredReturnBaseline = typeof declaredReturnBaselines.$inferInsert;
+
 // Patrimônio — Ativos imobilizados, créditos, participações
 export const patrimonialAssets = mysqlTable("patrimonial_assets", {
   id: int("id").autoincrement().primaryKey(),

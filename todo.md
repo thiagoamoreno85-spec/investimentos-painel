@@ -882,3 +882,10 @@
 - [x] Implementar calendário de pregões e reclassificar lacunas de fechamento sem feriados
 - [x] Exibir lado a lado retorno oficial fechado e estimativa intradiária, com cobertura e origem
 - [ ] Validar cálculos e solicitar confirmação antes de gravar qualquer série financeira retroativa
+
+## Base Manual de Retorno em Outubro — Em andamento
+- [x] Receber autorização explícita para usar R$ 62.720,96 como retorno acumulado até 21/10/2026
+- [x] Persistir a base declarada com data, origem e observação auditável
+- [x] Somar apenas fechamentos oficiais posteriores à data-base, sem reescrever o histórico
+- [x] Exibir a origem manual de modo distinto de retorno oficial totalmente auditado
+- [x] Testar, validar e salvar checkpoint sem alterar ativos, transações ou caixa

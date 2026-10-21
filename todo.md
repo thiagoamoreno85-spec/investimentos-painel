@@ -926,3 +926,8 @@
 - [x] Carregar rotas sob demanda para reduzir o JavaScript inicial, preservando autenticação e navegação
 - [x] Impedir novas consultas tRPC de dados financeiros pessoais enquanto a privacidade estiver ativa
 - [x] Validar tipagem, build, testes e privacidade; salvar checkpoint sem alterar dados financeiros
+
+## Correção de paridade da Alocação desktop — 21/10/2026
+- [x] Identificar que a tabela desktop não oferecia os detalhes expansíveis disponíveis no mobile
+- [x] Tornar cada ativo desktop clicável por botão semântico, com detalhes equivalentes e foco/ARIA
+- [x] Preservar filtros, ordenação, preço manual, privacidade, dados e fluxo mobile; validar TypeScript, build e 250 testes

@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { Fragment, useMemo, useState, useCallback, useEffect } from "react";
 import { AlertTriangle, ArrowUpDown, CalendarClock, ChevronUp, ChevronDown, ChevronRight, Pencil, RefreshCw } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,6 +89,7 @@ export default function Alocacao() {
   const cashBalance = Number(cashData?.balance ?? 0);
   const [search, setSearch] = useState("");
   const [expandedMobileAssetId, setExpandedMobileAssetId] = useState<number | null>(null);
+  const [expandedDesktopAssetId, setExpandedDesktopAssetId] = useState<number | null>(null);
   const [mobileShowLossesOnly, setMobileShowLossesOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -173,6 +174,7 @@ export default function Alocacao() {
   }, []);
 
   const handleSort = useCallback((key: SortKey) => {
+    setExpandedDesktopAssetId(null);
     setSortKey((prev) => {
       if (prev === key) {
         setSortDir((d) => (d === "desc" ? "asc" : "desc"));
@@ -185,6 +187,7 @@ export default function Alocacao() {
 
   const handleMobileSortChange = useCallback((value: string) => {
     const parsed = parseAllocationMobileSort(value);
+    setExpandedDesktopAssetId(null);
     setSortKey(parsed.key);
     setSortDir(parsed.direction);
     window.localStorage.setItem(ALLOCATION_MOBILE_SORT_PREFERENCE_KEY, value);
@@ -334,6 +337,145 @@ export default function Alocacao() {
     return d;
   }
 
+  function DesktopAssetDetails({
+    asset,
+    detailId,
+    colSpan,
+    daily,
+    needsPriceUpdate,
+    priceFreshness,
+  }: {
+    asset: ClassGroup["assets"][number];
+    detailId: string;
+    colSpan: number;
+    daily: { changeBRL: number; changePct: number } | null;
+    needsPriceUpdate: boolean;
+    priceFreshness: ReturnType<typeof getManualPriceFreshness>;
+  }) {
+    const isManualAsset = MANUAL_CLASSES.includes(asset.assetClass);
+    const dividendSummary = dividendSummaryByAsset.get(asset.dbId);
+    const hasDividendHistory = Boolean(dividendSummary && dividendSummary.dividendCount > 0);
+    const formattedPosition = asset.position === 0
+      ? "—"
+      : asset.position < 1
+        ? asset.position.toFixed(4)
+        : asset.position % 1 === 0
+          ? asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
+          : asset.position.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+
+    return (
+      <tr id={detailId} className="bg-secondary/10">
+        <td colSpan={colSpan} className="px-3 py-3 md:px-4">
+          <div className="grid grid-cols-2 gap-x-5 gap-y-3 text-xs xl:grid-cols-4">
+            <div>
+              <p className="uppercase tracking-wide text-muted-foreground">Quantidade</p>
+              <p className="mt-1 font-mono text-foreground">{formattedPosition}</p>
+            </div>
+            <div>
+              <p className="uppercase tracking-wide text-muted-foreground">Custo médio</p>
+              <p className="mt-1 font-mono text-foreground">{formatCurrency(asset.cost, asset.currency)}</p>
+            </div>
+            <div>
+              <p className="uppercase tracking-wide text-muted-foreground">Preço atual</p>
+              <p className="mt-1 font-mono text-foreground">{formatCurrency(asset.price, asset.currency)}</p>
+            </div>
+            <div>
+              <p className="uppercase tracking-wide text-muted-foreground">Valor total</p>
+              <p className="mt-1 font-mono font-medium text-foreground">{formatBRLCompact(asset.totalValue)}</p>
+            </div>
+            <div>
+              <p className="uppercase tracking-wide text-muted-foreground">L/P</p>
+              <p className={`mt-1 font-mono ${asset.profit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                {formatBRLCompact(asset.profit)} · {formatPct(asset.profitPercentage)}
+              </p>
+            </div>
+            {daily && (
+              <div>
+                <p className="uppercase tracking-wide text-muted-foreground">Variação hoje</p>
+                <p className={`mt-1 font-mono ${daily.changePct >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                  {formatBRLCompact(daily.changeBRL)} · {formatPct(daily.changePct)}
+                </p>
+              </div>
+            )}
+            <div>
+              <p className="uppercase tracking-wide text-muted-foreground">Classe</p>
+              <p className="mt-1 text-muted-foreground">{ASSET_CLASS_LABELS[asset.assetClass] || asset.assetClass}</p>
+            </div>
+            <div className="min-w-0">
+              <p className="uppercase tracking-wide text-muted-foreground">Referência do preço</p>
+              <p className="mt-1 text-muted-foreground">
+                {getPriceMetadataLabel({
+                  currency: asset.currency,
+                  source: asset.priceSource,
+                  state: asset.priceState,
+                  asOf: asset.priceAsOf,
+                  referenceDate: asset.priceReferenceDate,
+                })}
+              </p>
+            </div>
+            {isManualAsset && (
+              <>
+                <div>
+                  <p className="uppercase tracking-wide text-muted-foreground">Emissor</p>
+                  <p className="mt-1 text-muted-foreground">{asset.issuer || "Não informado"}</p>
+                </div>
+                <div>
+                  <p className="uppercase tracking-wide text-muted-foreground">Vencimento</p>
+                  <p className="mt-1 font-mono text-muted-foreground">{asset.maturityLabel || "Não informado"}</p>
+                </div>
+                <div>
+                  <p className="uppercase tracking-wide text-muted-foreground">Base do preço</p>
+                  <p className={`mt-1 flex items-center gap-1 ${needsPriceUpdate ? "font-medium text-amber-400" : priceFreshness.status === "atencao" ? "text-amber-300" : "text-muted-foreground"}`}>
+                    {needsPriceUpdate ? <AlertTriangle className="h-3 w-3 shrink-0" /> : <CalendarClock className="h-3 w-3 shrink-0" />}
+                    {formatReferenceDate(asset.priceReferenceDate)}
+                  </p>
+                </div>
+                {needsPriceUpdate && (
+                  <div className="flex items-center gap-1.5 rounded-md border border-amber-400/25 bg-amber-400/5 px-2 py-1.5 text-amber-300">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    <span>Preço manual requer atualização.</span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="mt-3 grid gap-3 border-t border-border/40 pt-3 text-xs lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="rounded-md border border-emerald-500/20 bg-emerald-500/[0.045] px-3 py-2.5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-medium uppercase tracking-wide text-emerald-300">Proventos recebidos</p>
+                  <p className="mt-0.5 text-muted-foreground">Dividendos, JCP, rendimentos, amortizações e aluguéis registrados.</p>
+                </div>
+                <p className="shrink-0 text-right font-mono font-semibold text-foreground">
+                  {dividendSummaryQuery.isLoading
+                    ? "Calculando…"
+                    : dividendSummaryQuery.isError
+                      ? "Indisponível"
+                      : hasDividendHistory
+                        ? formatCurrency(dividendSummary!.totalDividends, asset.currency)
+                        : "Sem histórico"}
+                </p>
+              </div>
+            </div>
+            <div className="rounded-md border border-emerald-500/20 bg-emerald-500/[0.045] px-3 py-2.5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-medium uppercase tracking-wide text-emerald-300">Yield sobre custo</p>
+                  <p className="mt-0.5 text-muted-foreground">Proventos de caixa acumulados ÷ custo atual da posição.</p>
+                </div>
+                <p className="shrink-0 font-mono font-semibold text-emerald-300">
+                  {dividendSummaryQuery.isLoading || dividendSummaryQuery.isError ? "—" : hasDividendHistory ? formatPct(dividendSummary!.yieldOnCost) : "0,00%"}
+                </p>
+              </div>
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">A evolução anual dos proventos está disponível no detalhe móvel.</p>
+        </td>
+      </tr>
+    );
+  }
+
   // Total diário por classe (soma dos changeBRL dos ativos da classe)
   function getClassDailyTotal(assets: ClassGroup["assets"]): number {
     return assets.reduce((sum, a) => {
@@ -411,7 +553,10 @@ export default function Alocacao() {
               <Input
                 placeholder="Buscar ativo…"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setExpandedDesktopAssetId(null);
+                }}
                 className="pl-9 h-9 bg-card/50"
               />
             </div>
@@ -433,6 +578,7 @@ export default function Alocacao() {
             onValueChange={(value) => {
               setSelectedCategory(value);
               setExpandedMobileAssetId(null);
+              setExpandedDesktopAssetId(null);
             }}
             className="flex flex-col flex-1 min-h-0"
           >
@@ -631,7 +777,10 @@ export default function Alocacao() {
                               <Input
                                 placeholder="Buscar ativo…"
                                 value={search}
-                                onChange={(event) => setSearch(event.target.value)}
+                                onChange={(event) => {
+                                  setSearch(event.target.value);
+                                  setExpandedDesktopAssetId(null);
+                                }}
                                 className="h-9 bg-secondary/40 pl-9 text-sm"
                               />
                             </div>
@@ -659,6 +808,7 @@ export default function Alocacao() {
                                   onClick={() => {
                                     setSelectedCategory(quickCategory.id);
                                     setExpandedMobileAssetId(null);
+                                    setExpandedDesktopAssetId(null);
                                   }}
                                   className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${category.id === quickCategory.id ? "border-primary/50 bg-primary/15 text-primary" : "border-border/60 bg-secondary/30 text-muted-foreground hover:text-foreground"}`}
                                 >
@@ -957,11 +1107,24 @@ export default function Alocacao() {
                                     {filteredAssets.map((asset) => {
                                       const priceFreshness = getManualPriceFreshness(asset.priceReferenceDate);
                                       const needsPriceUpdate = priceFreshness.status === "desatualizado" || priceFreshness.status === "sem_data";
+                                      const detailId = `desktop-asset-details-${asset.dbId}`;
+                                      const isExpanded = expandedDesktopAssetId === asset.dbId;
                                       return (
-                                      <tr key={asset.id} className="hover:bg-secondary/20 transition-colors">
+                                      <Fragment key={asset.id}>
+                                      <tr className="hover:bg-secondary/20 transition-colors">
                                         {/* Ativo */}
                                         <td className="px-2 py-2.5 font-medium text-xs">
-                                          <span className="font-mono">{asset.id}</span>
+                                          <button
+                                            type="button"
+                                            onClick={() => setExpandedDesktopAssetId((current) => current === asset.dbId ? null : asset.dbId)}
+                                            aria-expanded={isExpanded}
+                                            aria-controls={detailId}
+                                            className="flex min-w-0 items-center gap-1 rounded-sm text-left font-mono hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                            aria-label={`${isExpanded ? "Ocultar" : "Ver"} detalhes de ${asset.name}`}
+                                          >
+                                            <ChevronRight className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`} aria-hidden="true" />
+                                            <span className="truncate">{asset.id}</span>
+                                          </button>
                                         </td>
                                         {isFixedIncome && (
                                           <td className="px-1 py-2.5 text-xs text-muted-foreground whitespace-nowrap">
@@ -994,9 +1157,11 @@ export default function Alocacao() {
                                             {formatCurrency(asset.price, asset.currency)}
                                             {asset.dbId > 0 && (
                                               <button
+                                                type="button"
                                                 onClick={() => openEditDialog(asset)}
-                                                className="ml-0.5 p-0.5 rounded text-amber-400/60 hover:text-amber-400 hover:bg-amber-400/10 transition-colors"
+                                                className="ml-0.5 rounded p-0.5 text-amber-400/60 transition-colors hover:bg-amber-400/10 hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                                 title="Atualizar preço manualmente"
+                                                aria-label={`Atualizar preço de ${asset.id}`}
                                               >
                                                 <Pencil className="h-2.5 w-2.5" />
                                               </button>
@@ -1036,6 +1201,17 @@ export default function Alocacao() {
                                           </div>
                                         </td>
                                       </tr>
+                                      {isExpanded && showBalances && (
+                                        <DesktopAssetDetails
+                                          asset={asset}
+                                          detailId={detailId}
+                                          colSpan={isFixedIncome ? 9 : 5}
+                                          daily={getDailyChange(asset.id)}
+                                          needsPriceUpdate={needsPriceUpdate}
+                                          priceFreshness={priceFreshness}
+                                        />
+                                      )}
+                                      </Fragment>
                                       );
                                     })}
                                   </tbody>
@@ -1110,14 +1286,26 @@ export default function Alocacao() {
                                   {filteredAssets.map((asset) => {
                                     const daily = getDailyChange(asset.id);
                                     const isUp = (daily?.changePct ?? 0) >= 0;
+                                    const priceFreshness = getManualPriceFreshness(asset.priceReferenceDate);
+                                    const needsPriceUpdate = priceFreshness.status === "desatualizado" || priceFreshness.status === "sem_data";
+                                    const detailId = `desktop-asset-details-${asset.dbId}`;
+                                    const isExpanded = expandedDesktopAssetId === asset.dbId;
                                     return (
-                                      <tr
-                                        key={asset.id}
-                                        className="hover:bg-secondary/20 transition-colors"
-                                      >
+                                      <Fragment key={asset.id}>
+                                      <tr className="hover:bg-secondary/20 transition-colors">
                                         {/* Ativo */}
                                         <td className="px-2 py-2.5 font-medium text-xs">
-                                          <span className="font-mono">{asset.id}</span>
+                                          <button
+                                            type="button"
+                                            onClick={() => setExpandedDesktopAssetId((current) => current === asset.dbId ? null : asset.dbId)}
+                                            aria-expanded={isExpanded}
+                                            aria-controls={detailId}
+                                            className="flex min-w-0 items-center gap-1 rounded-sm text-left font-mono hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                            aria-label={`${isExpanded ? "Ocultar" : "Ver"} detalhes de ${asset.name}`}
+                                          >
+                                            <ChevronRight className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`} aria-hidden="true" />
+                                            <span className="truncate">{asset.id}</span>
+                                          </button>
                                         </td>
                                         {/* Qtd */}
                                         <td className="px-1 py-2.5 text-right font-mono text-xs text-muted-foreground">
@@ -1172,6 +1360,17 @@ export default function Alocacao() {
                                           )}
                                         </td>
                                       </tr>
+                                      {isExpanded && showBalances && (
+                                        <DesktopAssetDetails
+                                          asset={asset}
+                                          detailId={detailId}
+                                          colSpan={7}
+                                          daily={daily}
+                                          needsPriceUpdate={needsPriceUpdate}
+                                          priceFreshness={priceFreshness}
+                                        />
+                                      )}
+                                      </Fragment>
                                     );
                                   })}
                                 </tbody>

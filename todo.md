@@ -833,3 +833,8 @@
 - [x] Atualizar preços automaticamente ao abrir a Visão Geral e a cada 15 minutos enquanto ela permanecer em primeiro plano
 - [x] Preservar cotações manuais de fundos e renda fixa, o câmbio-base conciliado e todos os registros financeiros
 - [x] Evitar notificações repetitivas e validar a regra com testes, TypeScript e suíte completa
+
+## Auditoria de Layout e Funcionalidades — 21/10/2026 — Em andamento
+- [x] Revisar arquitetura visual, responsividade e navegação das telas principais
+- [x] Revisar fluxos operacionais, integridade de dados e consistência de funcionalidades
+- [x] Consolidar melhorias priorizadas e gerar prompt de implementação por fases

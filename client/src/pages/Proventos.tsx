@@ -55,6 +55,7 @@ export default function Proventos() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [statementMonth, setStatementMonth] = useState<string>(new Date().toISOString().slice(0, 7));
   const [activeTab, setActiveTab] = useState<string>("dividendos");
+  const [chartCurrency, setChartCurrency] = useState<"BRL" | "USD">("BRL");
 
   // Form state
   const [assetId, setAssetId] = useState<string>("");
@@ -62,8 +63,8 @@ export default function Proventos() {
   const [valuePerShare, setValuePerShare] = useState("");
   const [quantity, setQuantity] = useState("");
   const [currency, setCurrency] = useState<"BRL" | "USD">("BRL");
-  const [exDate, setExDate] = useState(new Date().toISOString().split("T")[0]);
-  const [paymentDate, setPaymentDate] = useState("");
+  const [exDate, setExDate] = useState("");
+  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split("T")[0]);
   const [notes, setNotes] = useState("");
 
   // Queries
@@ -134,8 +135,8 @@ export default function Proventos() {
       valuePerShare: vps,
       quantity: qty,
       currency,
-      exDate: new Date(exDate + "T12:00:00Z"),
-      paymentDate: paymentDate ? new Date(paymentDate + "T12:00:00Z") : undefined,
+      exDate: exDate ? new Date(exDate + "T12:00:00Z") : undefined,
+      paymentDate: new Date(paymentDate + "T12:00:00Z"),
       notes: notes || undefined,
     });
   }
@@ -147,8 +148,8 @@ export default function Proventos() {
     return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
   }
 
-  function formatDate(date: Date | string) {
-    return new Date(date).toLocaleDateString("pt-BR");
+  function formatDate(date: Date | string | null | undefined) {
+    return date ? new Date(date).toLocaleDateString("pt-BR") : "Não informada";
   }
 
   function getAssetTicker(assetId: number) {
@@ -170,9 +171,9 @@ export default function Proventos() {
     if (!byMonth) return [];
     return byMonth.map((m) => ({
       month: formatMonth(m.month),
-      total: m.total,
+      total: m[chartCurrency],
     }));
-  }, [byMonth]);
+  }, [byMonth, chartCurrency]);
 
   return (
     <DashboardLayout>
@@ -211,8 +212,8 @@ export default function Proventos() {
 
         {/* Cards de resumo fixos */}
         <PrivacyMask>
-        <div className="flex-shrink-0 grid grid-cols-3 gap-2 md:gap-4">
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
+        <div className="flex-shrink-0 grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
+          <Card className="col-span-2 md:col-span-1 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3 md:px-6 md:pt-6 md:pb-2">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
                 Total Recebido
@@ -220,15 +221,15 @@ export default function Proventos() {
               <DollarSign className="h-3 w-3 md:h-4 md:w-4 text-emerald-500" />
             </CardHeader>
             <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <div className="text-base md:text-2xl font-bold font-mono text-emerald-500">
+              <div className="text-xl md:text-2xl font-bold font-mono text-emerald-500">
                 {summaryLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  formatCurrency(totals?.total || 0)
+                  formatCurrency(totals?.totalsByCurrency.BRL || 0, "BRL")
                 )}
               </div>
-              <p className="text-xs text-muted-foreground mt-1 hidden sm:block">
-                {totals?.count || 0} lançamentos
+              <p className="text-xs text-muted-foreground mt-1">
+                {formatCurrency(totals?.totalsByCurrency.USD || 0, "USD")} · {totals?.count || 0} lançamentos
               </p>
             </CardContent>
           </Card>
@@ -375,26 +376,27 @@ export default function Proventos() {
 
                 {/* Data COM */}
                 <div>
-                  <Label htmlFor="exDate">Data COM *</Label>
+                  <Label htmlFor="exDate">Data COM (se conhecida)</Label>
                   <Input
                     id="exDate"
                     type="date"
                     value={exDate}
                     onChange={(e) => setExDate(e.target.value)}
                     className="bg-secondary/50 border-border"
-                    required
                   />
+                  <p className="mt-1 text-xs text-muted-foreground">Não será inferida quando não constar no documento.</p>
                 </div>
 
                 {/* Data de pagamento */}
                 <div>
-                  <Label htmlFor="payDate">Data de Pagamento</Label>
+                  <Label htmlFor="payDate">Data de Pagamento *</Label>
                   <Input
                     id="payDate"
                     type="date"
                     value={paymentDate}
                     onChange={(e) => setPaymentDate(e.target.value)}
                     className="bg-secondary/50 border-border"
+                    required
                   />
                 </div>
 
@@ -432,10 +434,24 @@ export default function Proventos() {
             {chartData.length > 0 && (
               <Card className="flex-shrink-0 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
                 <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4" />
-                    Proventos por Mês
-                  </CardTitle>
+                  <div className="flex items-center justify-between gap-2">
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                      <Calendar className="w-4 h-4" />
+                      Proventos por Mês
+                    </CardTitle>
+                    <div className="flex rounded-md border border-border/70 p-0.5 text-xs" aria-label="Moeda do gráfico">
+                      {(["BRL", "USD"] as const).map((curr) => (
+                        <button
+                          key={curr}
+                          type="button"
+                          onClick={() => setChartCurrency(curr)}
+                          className={`rounded px-2 py-1 font-mono transition-colors ${chartCurrency === curr ? "bg-emerald-500/20 text-emerald-400" : "text-muted-foreground hover:text-foreground"}`}
+                        >
+                          {curr}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="pt-0">
                   <PrivacyMask className="h-[130px] w-full">
@@ -458,10 +474,10 @@ export default function Proventos() {
                           fontSize={11}
                           tickLine={false}
                           axisLine={false}
-                          tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+                          tickFormatter={(v) => `${chartCurrency === "USD" ? "US$" : "R$"}${(v / 1000).toFixed(0)}k`}
                         />
                         <Tooltip
-                          formatter={(value: number) => formatCurrency(value)}
+                          formatter={(value: number) => formatCurrency(value, chartCurrency)}
                           cursor={{ fill: "oklch(0.25 0.01 250 / 0.3)" }}
                           contentStyle={{
                             backgroundColor: "oklch(0.20 0.01 250)",
@@ -519,7 +535,7 @@ export default function Proventos() {
                         <tbody>
                           {summary.map((s) => (
                             <tr
-                              key={s.assetId}
+                              key={`${s.assetId}-${s.currency}`}
                               className="border-b border-border/30 hover:bg-secondary/20 transition-colors"
                             >
                               <td className="py-2 px-2 w-[22%]">
@@ -530,9 +546,11 @@ export default function Proventos() {
                                 {formatCurrency(s.totalDividends, s.currency)}
                               </td>
                               <td className="py-2 px-2 text-right font-mono w-[15%]">
-                                <span className={s.yieldOnCost > 0 ? "text-emerald-500" : "text-muted-foreground"}>
-                                  {s.yieldOnCost.toFixed(2)}%
-                                </span>
+                                {s.currencyMismatch ? <span className="text-amber-400">Moeda distinta</span> : (
+                                  <span className={s.yieldOnCost > 0 ? "text-emerald-500" : "text-muted-foreground"}>
+                                    {s.yieldOnCost.toFixed(2)}%
+                                  </span>
+                                )}
                               </td>
                               <td className="py-2 px-2 text-right font-mono w-[15%]">
                                 <span className={s.yieldOnCostAnnualized > 0 ? "text-emerald-500" : "text-muted-foreground"}>
@@ -576,6 +594,7 @@ export default function Proventos() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-border/50 text-muted-foreground">
+                          <th className="text-left py-2 px-2">Pagamento</th>
                           <th className="text-left py-2 px-2">Data COM</th>
                           <th className="text-left py-2 px-2">Ativo</th>
                           <th className="text-left py-2 px-2">Tipo</th>
@@ -587,13 +606,16 @@ export default function Proventos() {
                       </thead>
                       <tbody>
                         {dividends.map((div) => {
-                          const curr = getAssetCurrency(div.assetId);
+                          const curr = div.currency;
                           const typeLabel = DIVIDEND_TYPES.find((t) => t.value === div.type)?.label || div.type;
                           return (
                             <tr
                               key={div.id}
                               className="border-b border-border/30 hover:bg-secondary/20 transition-colors"
                             >
+                              <td className="py-2 px-2 text-xs text-muted-foreground">
+                                {formatDate(div.paymentDate)}
+                              </td>
                               <td className="py-2 px-2 text-xs text-muted-foreground">
                                 {formatDate(div.exDate)}
                               </td>

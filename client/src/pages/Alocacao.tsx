@@ -35,6 +35,7 @@ import {
 } from "@/lib/assetClasses";
 import { calculatePositionValuation } from "@shared/positionValuation";
 import { getManualPriceFreshness } from "@shared/manualPriceStatus";
+import { getPriceMetadataLabel } from "@shared/marketPriceMetadata";
 import { ALLOCATION_MOBILE_SORT_OPTIONS, parseAllocationMobileSort } from "@shared/allocationMobileControls";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import {
@@ -62,6 +63,9 @@ interface ClassGroup {
     issuer?: string | null;
     maturityLabel?: string | null;
     priceReferenceDate?: Date | string | null;
+    priceSource?: string | null;
+    priceState?: string | null;
+    priceAsOf?: Date | string | null;
   }[];
 }
 
@@ -249,6 +253,9 @@ export default function Alocacao() {
           issuer: asset.issuer,
           maturityLabel: asset.maturityLabel,
           priceReferenceDate: asset.priceReferenceDate,
+          priceSource: asset.priceSource,
+          priceState: asset.priceState,
+          priceAsOf: asset.priceAsOf,
         });
       }
 
@@ -836,6 +843,18 @@ export default function Alocacao() {
                                               </div>
                                             </div>
                                           )}
+                                          <div className="col-span-2 flex items-start justify-between gap-3 border-t border-border/40 pt-2 text-xs">
+                                            <span className="shrink-0 text-muted-foreground">Referência do preço</span>
+                                            <span className="max-w-[68%] text-right text-muted-foreground">
+                                              {getPriceMetadataLabel({
+                                                currency: asset.currency,
+                                                source: asset.priceSource,
+                                                state: asset.priceState,
+                                                asOf: asset.priceAsOf,
+                                                referenceDate: asset.priceReferenceDate,
+                                              })}
+                                            </span>
+                                          </div>
                                           {isFixedIncome && (
                                             <div className="col-span-2 flex items-center justify-between gap-3 border-t border-border/40 pt-2">
                                               <span className="text-muted-foreground">Base do preço</span>

@@ -8,6 +8,7 @@ import {
 } from "../services/snapshotService";
 import {
   getAssetsByUser,
+  getAssetCatalogByUser,
   getAssetById,
   getAssetByTicker,
   createAsset,
@@ -25,6 +26,7 @@ import {
   getUpcomingEvents,
 } from "../db";
 import { fetchQuotes, fetchUsdBrl } from "../quotes";
+import { normalizeAssetTicker } from "../../shared/assetTicker";
 import {
   captureDailyPerformanceSnapshot,
   getLiveDailyPerformance,
@@ -56,6 +58,24 @@ export const portfolioRouter = router({
     return getAssetsByUser(ctx.user.id);
   }),
 
+  /** Catálogo histórico: inclui ativos arquivados e posições encerradas, sem alterar a posição aberta. */
+  getAssetCatalog: protectedProcedure.query(async ({ ctx }) => {
+    return getAssetCatalogByUser(ctx.user.id);
+  }),
+
+  /** Diagnóstico apenas de leitura de possíveis colisões após normalizar tickers. */
+  getTickerDiagnostics: protectedProcedure.query(async ({ ctx }) => {
+    const catalog = await getAssetCatalogByUser(ctx.user.id);
+    const groups = new Map<string, typeof catalog>();
+    for (const asset of catalog) {
+      const ticker = normalizeAssetTicker(asset.ticker);
+      groups.set(ticker, [...(groups.get(ticker) ?? []), asset]);
+    }
+    return Array.from(groups.entries())
+      .filter(([, entries]) => entries.length > 1)
+      .map(([ticker, entries]) => ({ ticker, assetIds: entries.map((entry) => entry.id) }));
+  }),
+
   /** Cria um novo ativo */
   addAsset: protectedProcedure
     .input(
@@ -76,14 +96,16 @@ export const portfolioRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const ticker = normalizeAssetTicker(input.ticker);
       // Verifica se já existe
-      const existing = await getAssetByTicker(input.ticker, ctx.user.id);
+      const existing = await getAssetByTicker(ticker, ctx.user.id);
       if (existing) {
         return { id: existing.id, alreadyExists: true };
       }
       const id = await createAsset({
         userId: ctx.user.id,
-        ticker: input.ticker,
+        ticker,
+        normalizedTicker: ticker,
         name: input.name,
         assetClass: input.assetClass,
         currency: input.currency,
@@ -122,7 +144,11 @@ export const portfolioRouter = router({
         });
       }
       const priceReferenceDate = input.priceReferenceDate ?? new Date();
-      await updateAssetPrice(input.assetId, input.newPrice.toFixed(8), priceReferenceDate);
+      await updateAssetPrice(input.assetId, input.newPrice.toFixed(8), priceReferenceDate, {
+        source: "Manual",
+        state: "manual",
+        asOf: priceReferenceDate,
+      });
       return { success: true, assetId: input.assetId, newPrice: input.newPrice, priceReferenceDate };
     }),
 
@@ -216,7 +242,7 @@ export const portfolioRouter = router({
     // Buscar cotações apenas dos ativos desatualizados, em lotes de 10
     const BATCH_SIZE = 10;
     let updated = 0;
-    const updates: { id: number; lastPrice: string }[] = [];
+    const updates: { id: number; lastPrice: string; source: string; state: string; asOf: Date | null }[] = [];
 
     for (let i = 0; i < stale.length; i += BATCH_SIZE) {
       const batch = stale.slice(i, i + BATCH_SIZE);
@@ -231,7 +257,13 @@ export const portfolioRouter = router({
         for (const asset of batch) {
           const quote = quotes.get(asset.ticker);
           if (quote) {
-            updates.push({ id: asset.id, lastPrice: quote.price.toFixed(8) });
+            updates.push({
+              id: asset.id,
+              lastPrice: quote.price.toFixed(8),
+              source: quote.source,
+              state: quote.marketState,
+              asOf: quote.asOf,
+            });
             updated++;
           }
         }
@@ -251,7 +283,13 @@ export const portfolioRouter = router({
       const db = await getDb();
       if (db) {
         for (const update of updates) {
-          await db.update(assets).set({ lastPrice: update.lastPrice, lastPriceUpdatedAt: now }).where(eq(assets.id, update.id));
+          await db.update(assets).set({
+            lastPrice: update.lastPrice,
+            lastPriceUpdatedAt: now,
+            priceSource: update.source,
+            priceState: update.state,
+            priceAsOf: update.asOf,
+          }).where(eq(assets.id, update.id));
         }
       }
     }
@@ -481,7 +519,8 @@ export const portfolioRouter = router({
       let skipped = 0;
 
       for (const a of input.assets) {
-        const existing = await getAssetByTicker(a.ticker, ctx.user.id);
+        const ticker = normalizeAssetTicker(a.ticker);
+        const existing = await getAssetByTicker(ticker, ctx.user.id);
         if (existing) {
           skipped++;
           continue;
@@ -489,7 +528,8 @@ export const portfolioRouter = router({
 
         const assetId = await createAsset({
           userId: ctx.user.id,
-          ticker: a.ticker,
+          ticker,
+          normalizedTicker: ticker,
           name: a.name,
           assetClass: a.assetClass,
           currency: a.currency,

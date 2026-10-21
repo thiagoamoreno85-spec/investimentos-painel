@@ -17,7 +17,7 @@ export type CashProventRecord = {
   type: string;
   totalValue: string | number;
   paymentDate?: Date | string | null;
-  exDate: Date | string;
+  exDate?: Date | string | null;
 };
 
 export function isCashProvent(type: string): type is CashProventType {
@@ -38,7 +38,9 @@ export function groupCashProceedsByYear(records: CashProventRecord[]): AnnualCas
 
   for (const record of records) {
     if (!isCashProvent(record.type)) continue;
-    const date = new Date(record.paymentDate ?? record.exDate);
+    const referenceDate = record.paymentDate ?? record.exDate;
+    if (!referenceDate) continue;
+    const date = new Date(referenceDate);
     const total = Number(record.totalValue);
     if (Number.isNaN(date.getTime()) || !Number.isFinite(total)) continue;
 

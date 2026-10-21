@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { assets, transactions } from "../../drizzle/schema";
 import { getDb } from "../db";
 import { calculateTrackedPosition } from "../../shared/positionReconciliation";
+import { normalizeAssetTicker } from "../../shared/assetTicker";
 import type { ParsedTransaction } from "../lib/csvParser";
 
 const ASSET_CLASSES = [
@@ -50,9 +51,11 @@ function invalid(message: string): never {
 }
 
 function normalizeTicker(value: string) {
-  const ticker = value.trim().toUpperCase();
-  if (!ticker || ticker.length > 32) invalid("Ticker inválido");
-  return ticker;
+  try {
+    return normalizeAssetTicker(value);
+  } catch {
+    return invalid("Ticker inválido");
+  }
 }
 
 function assertFinitePositive(value: number, label: string) {
@@ -82,6 +85,7 @@ function assetInsertValues(input: {
   return {
     userId: input.userId,
     ticker: input.ticker,
+    normalizedTicker: input.ticker,
     name: input.name.trim().slice(0, 128) || input.ticker,
     assetClass: input.assetClass,
     currency: input.currency,
@@ -107,7 +111,7 @@ async function getOrCreateLockedAsset(
   let rows = await tx
     .select()
     .from(assets)
-    .where(and(eq(assets.userId, input.userId), eq(assets.ticker, input.ticker)))
+    .where(and(eq(assets.userId, input.userId), eq(assets.normalizedTicker, input.ticker)))
     .for("update")
     .limit(1);
 
@@ -122,7 +126,7 @@ async function getOrCreateLockedAsset(
   rows = await tx
     .select()
     .from(assets)
-    .where(and(eq(assets.userId, input.userId), eq(assets.ticker, input.ticker)))
+    .where(and(eq(assets.userId, input.userId), eq(assets.normalizedTicker, input.ticker)))
     .for("update")
     .limit(1);
 

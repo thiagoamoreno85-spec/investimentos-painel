@@ -28,6 +28,8 @@ function fromPdfDividend(dividend: ParsedDividend): ParsedStatementProvento {
     type: dividend.type,
     totalValue: dividend.totalValue,
     paymentDate: dividend.paymentDate,
+    exDate: null,
+    currency: "BRL",
     description: "Provento extraído do extrato PDF da XP",
     quantity: dividend.quantity,
     valuePerShare: dividend.valuePerShare,

@@ -17,6 +17,10 @@ export interface ParsedProvento {
   type: "dividendo" | "jcp" | "rendimento" | "outro";
   totalValue: number;
   paymentDate: Date;
+  /** Extratos de caixa não informam necessariamente a data COM. */
+  exDate?: Date | null;
+  /** A fonte XP deste parser é denominada em reais. */
+  currency: "BRL";
   description: string;
   isinCode?: string;
 }
@@ -242,6 +246,8 @@ export function parseXPStatementXLSX(buffer: Buffer): ParsedProvento[] {
         type: inferType(descricao),
         totalValue: valor,
         paymentDate,
+        exDate: null,
+        currency: "BRL",
         description: descricao,
         isinCode: extracted.isin,
       });
@@ -257,6 +263,8 @@ export function parseXPStatementXLSX(buffer: Buffer): ParsedProvento[] {
         type: "rendimento",
         totalValue: valor,
         paymentDate,
+        exDate: null,
+        currency: "BRL",
         description: descricao,
       });
       continue;
@@ -272,6 +280,8 @@ export function parseXPStatementXLSX(buffer: Buffer): ParsedProvento[] {
         type: inferType(descricao),
         totalValue: valor,
         paymentDate,
+        exDate: null,
+        currency: "BRL",
         description: descricao,
       });
     }

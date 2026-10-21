@@ -889,3 +889,14 @@
 - [x] Somar apenas fechamentos oficiais posteriores à data-base, sem reescrever o histórico
 - [x] Exibir a origem manual de modo distinto de retorno oficial totalmente auditado
 - [x] Testar, validar e salvar checkpoint sem alterar ativos, transações ou caixa
+
+
+## Fase 2 Complementar — Verdade dos Dados e Metodologia — Em andamento
+- [x] Auditar proventos, ativos, preços e triagem quantitativa sem alterar dados financeiros
+- [x] Separar totais e séries de proventos por moeda, usando pagamento como data de recebimento e preservando data COM
+- [x] Validar a moeda do provento contra a moeda do ativo em novos registros e sinalizar legado inconsistente sem reclassificação automática
+- [x] Expor origem, estado e data-base de preços de modo verificável nas posições e na triagem
+- [x] Formalizar consultas distintas para posição aberta, catálogo histórico e diagnóstico de ticker normalizado
+- [x] Corrigir a triagem quantitativa para tratar BRL/USD por câmbio identificado, invalidar preço não confiável e incluir contexto na chave de cache
+- [x] Renomear e rotular a triagem como assistida por IA, sem caracterizá-la como análise fundamentalista
+- [x] Criar testes, validar desktop/mobile, confirmar preservação de dados reais e salvar checkpoint

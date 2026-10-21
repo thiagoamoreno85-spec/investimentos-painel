@@ -7,6 +7,11 @@ import { parseXPDividendsPDF, deduplicateDividends } from "../lib/pdfDividendPar
 import { parseXPStatementFile } from "../lib/statementFileParser";
 import { TRPCError } from "@trpc/server";
 import { calculateYieldOnCost, groupCashProceedsByYear, isCashProvent } from "@shared/dividendReturn";
+import { buildDividendCurrencyMismatchMessage, isDividendCurrencyCompatible } from "@shared/dividendCurrency";
+
+function effectiveDividendDate(dividend: Pick<Dividend, "paymentDate" | "exDate">): Date | null {
+  return dividend.paymentDate ?? dividend.exDate ?? null;
+}
 
 export const dividendsRouter = router({
   /**
@@ -31,7 +36,7 @@ export const dividendsRouter = router({
           .select()
           .from(dividends)
           .where(eq(dividends.userId, userId))
-          .orderBy(desc(dividends.exDate));
+          .orderBy(desc(sql`COALESCE(${dividends.paymentDate}, ${dividends.exDate}, ${dividends.createdAt})`));
         const filtered = input?.assetId
           ? rows.filter((r: Dividend) => r.assetId === input.assetId)
           : rows;
@@ -45,7 +50,7 @@ export const dividendsRouter = router({
       const [rows, countResult] = await Promise.all([
         db.select().from(dividends)
           .where(eq(dividends.userId, userId))
-          .orderBy(desc(dividends.exDate))
+          .orderBy(desc(sql`COALESCE(${dividends.paymentDate}, ${dividends.exDate}, ${dividends.createdAt})`))
           .limit(limit)
           .offset(offset),
         db.select({ count: sql`COUNT(*)` }).from(dividends)
@@ -68,7 +73,7 @@ export const dividendsRouter = router({
       .select()
       .from(dividends)
       .where(eq(dividends.userId, userId))
-      .orderBy(desc(dividends.exDate));
+      .orderBy(desc(sql`COALESCE(${dividends.paymentDate}, ${dividends.exDate}, ${dividends.createdAt})`));
 
     const userAssets = await db
       .select()
@@ -93,9 +98,10 @@ export const dividendsRouter = router({
       lastPrice: number;
       currentYield: number;
       annualProceeds: { year: number; total: number }[];
+      currencyMismatch: boolean;
     };
 
-      const summaryMap = new Map<number, SummaryEntry>();
+      const summaryMap = new Map<string, SummaryEntry>();
 
       for (const div of divRows) {
         // Bonificações não são caixa recebido e, portanto, não entram no retorno de proventos sobre custo.
@@ -103,13 +109,14 @@ export const dividendsRouter = router({
         const asset = userAssets.find((a) => a.id === div.assetId);
       if (!asset) continue;
 
-      if (!summaryMap.has(div.assetId)) {
-        summaryMap.set(div.assetId, {
+      const key = `${div.assetId}:${div.currency}`;
+      if (!summaryMap.has(key)) {
+        summaryMap.set(key, {
           assetId: div.assetId,
           ticker: asset.ticker,
           name: asset.name,
           assetClass: asset.assetClass,
-          currency: asset.currency,
+          currency: div.currency,
           totalDividends: 0,
           dividendCount: 0,
           lastDividendPerShare: 0,
@@ -122,15 +129,17 @@ export const dividendsRouter = router({
           lastPrice: parseFloat(asset.lastPrice),
           currentYield: 0,
           annualProceeds: [],
+          currencyMismatch: asset.currency !== div.currency,
         });
       }
 
-      const entry = summaryMap.get(div.assetId)!;
+      const entry = summaryMap.get(key)!;
       entry.totalDividends += parseFloat(div.totalValue);
       entry.dividendCount += 1;
 
-      if (!entry.lastExDate || div.exDate > entry.lastExDate) {
-        entry.lastExDate = div.exDate;
+      const dividendDate = effectiveDividendDate(div);
+      if (dividendDate && (!entry.lastExDate || dividendDate > entry.lastExDate)) {
+        entry.lastExDate = dividendDate;
         entry.lastDividendPerShare = parseFloat(div.valuePerShare);
       }
     }
@@ -141,26 +150,27 @@ export const dividendsRouter = router({
     for (const [, entry] of Array.from(summaryMap.entries())) {
       const totalCost = entry.totalCost;
 
-      if (totalCost > 0) {
+      const matchingCurrencyRows = divRows.filter((d: Dividend) => d.assetId === entry.assetId && d.currency === entry.currency);
+      if (totalCost > 0 && !entry.currencyMismatch) {
         entry.yieldOnCost = calculateYieldOnCost(entry.totalDividends, totalCost);
 
-        const last12MonthsDivs = divRows
-          .filter((d: Dividend) => d.assetId === entry.assetId && isCashProvent(d.type) && d.exDate >= oneYearAgo)
+        const last12MonthsDivs = matchingCurrencyRows
+          .filter((d: Dividend) => isCashProvent(d.type) && (effectiveDividendDate(d)?.getTime() ?? 0) >= oneYearAgo.getTime())
           .reduce((sum: number, d: Dividend) => sum + parseFloat(d.totalValue), 0);
 
         entry.yieldOnCostAnnualized = calculateYieldOnCost(last12MonthsDivs, totalCost);
       }
 
-      if (entry.lastPrice > 0) {
-        const annualDivPerShare = divRows
-          .filter((d: Dividend) => d.assetId === entry.assetId && isCashProvent(d.type) && d.exDate >= oneYearAgo)
+      if (entry.lastPrice > 0 && !entry.currencyMismatch) {
+        const annualDivPerShare = matchingCurrencyRows
+          .filter((d: Dividend) => isCashProvent(d.type) && (effectiveDividendDate(d)?.getTime() ?? 0) >= oneYearAgo.getTime())
           .reduce((sum: number, d: Dividend) => sum + parseFloat(d.valuePerShare), 0);
 
         entry.currentYield = (annualDivPerShare / entry.lastPrice) * 100;
       }
 
       entry.annualProceeds = groupCashProceedsByYear(
-        divRows.filter((d: Dividend) => d.assetId === entry.assetId)
+        matchingCurrencyRows
       );
     }
 
@@ -180,8 +190,8 @@ export const dividendsRouter = router({
         valuePerShare: z.number().positive(),
         quantity: z.number().positive(),
         currency: z.enum(["BRL", "USD"]).default("BRL"),
-        exDate: z.date(),
-        paymentDate: z.date().optional(),
+        exDate: z.date().optional(),
+        paymentDate: z.date(),
         notes: z.string().optional(),
       })
     )
@@ -198,6 +208,12 @@ export const dividendsRouter = router({
 
       if (assetRows.length === 0) throw new Error("Ativo não encontrado");
       const asset = assetRows[0];
+      if (!isDividendCurrencyCompatible(asset.currency, input.currency)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: buildDividendCurrencyMismatchMessage(asset.ticker, asset.currency, input.currency),
+        });
+      }
 
       const totalValue = input.valuePerShare * input.quantity;
 
@@ -209,7 +225,7 @@ export const dividendsRouter = router({
         quantity: input.quantity.toString(),
         totalValue: totalValue.toFixed(2),
         currency: input.currency,
-        exDate: input.exDate,
+        exDate: input.exDate ?? null,
         paymentDate: input.paymentDate,
         notes: input.notes,
       });
@@ -262,7 +278,9 @@ export const dividendsRouter = router({
               if (d.assetId !== assetId) return false;
               if (d.type !== prov.type) return false;
               if (Math.abs(parseFloat(d.totalValue) - prov.totalValue) > 0.01) return false;
-              const existDate = new Date(d.exDate).getTime();
+              const existingDate = effectiveDividendDate(d);
+              if (!existingDate) return false;
+              const existDate = existingDate.getTime();
               const newDate = prov.paymentDate.getTime();
               return Math.abs(existDate - newDate) < 86400000 * 2; // 2 dias de tolerância
             })
@@ -324,6 +342,7 @@ export const dividendsRouter = router({
       let imported = 0;
       let skippedDuplicate = 0;
       let skippedNotFound = 0;
+      let skippedCurrencyMismatch = 0;
       const notFoundTickers: string[] = [];
       const errors: string[] = [];
 
@@ -339,12 +358,20 @@ export const dividendsRouter = router({
           continue;
         }
 
+        if (!isDividendCurrencyCompatible(asset.currency, prov.currency)) {
+          skippedCurrencyMismatch++;
+          errors.push(`${prov.ticker}: moeda do extrato (${prov.currency}) difere da moeda cadastrada do ativo (${asset.currency})`);
+          continue;
+        }
+
         // Verificar duplicata
         const isDuplicate = existingDividends.some((d) => {
           if (d.assetId !== asset.id) return false;
           if (d.type !== prov.type) return false;
           if (Math.abs(parseFloat(d.totalValue) - prov.totalValue) > 0.01) return false;
-          const existDate = new Date(d.exDate).getTime();
+          const existingDate = effectiveDividendDate(d);
+          if (!existingDate) return false;
+          const existDate = existingDate.getTime();
           const newDate = prov.paymentDate.getTime();
           return Math.abs(existDate - newDate) < 86400000 * 2;
         });
@@ -362,8 +389,8 @@ export const dividendsRouter = router({
             valuePerShare: (prov.valuePerShare ?? 0).toFixed(8),
             quantity: (prov.quantity ?? 0).toString(),
             totalValue: prov.totalValue.toFixed(2),
-            currency: "BRL",
-            exDate: prov.paymentDate,
+            currency: prov.currency,
+            exDate: prov.exDate ?? null,
             paymentDate: prov.paymentDate,
             notes: `Importado extrato XP ${prov.source === "pdf" ? "PDF" : "planilha"} - ${prov.description.substring(0, 80)}`,
           });
@@ -373,7 +400,7 @@ export const dividendsRouter = router({
         }
       }
 
-      return { imported, skippedDuplicate, skippedNotFound, notFoundTickers, errors };
+      return { imported, skippedDuplicate, skippedNotFound, skippedCurrencyMismatch, notFoundTickers, errors };
     }),
 
   /**
@@ -405,18 +432,23 @@ export const dividendsRouter = router({
       .select()
       .from(dividends)
       .where(eq(dividends.userId, userId))
-      .orderBy(dividends.exDate);
+      .orderBy(sql`COALESCE(${dividends.paymentDate}, ${dividends.exDate}, ${dividends.createdAt})`);
 
-    const monthMap = new Map<string, number>();
+    const monthMap = new Map<string, { BRL: number; USD: number }>();
 
     for (const div of rows) {
-      const date = new Date(div.exDate);
+      if (!isCashProvent(div.type)) continue;
+      const effectiveDate = effectiveDividendDate(div);
+      if (!effectiveDate) continue;
+      const date = effectiveDate;
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-      monthMap.set(key, (monthMap.get(key) || 0) + parseFloat(div.totalValue));
+      const entry = monthMap.get(key) ?? { BRL: 0, USD: 0 };
+      entry[div.currency] += parseFloat(div.totalValue);
+      monthMap.set(key, entry);
     }
 
     return Array.from(monthMap.entries())
-      .map(([month, total]) => ({ month, total }))
+      .map(([month, totals]) => ({ month, ...totals }))
       .sort((a, b) => a.month.localeCompare(b.month))
       .slice(-24);
   }),
@@ -426,7 +458,7 @@ export const dividendsRouter = router({
    */
   getTotalDividends: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) return { total: 0, count: 0 };
+    if (!db) return { totalsByCurrency: { BRL: 0, USD: 0 }, count: 0 };
     const userId = ctx.user.id;
 
     const rows = await db
@@ -434,8 +466,13 @@ export const dividendsRouter = router({
       .from(dividends)
       .where(eq(dividends.userId, userId));
 
-    const total = rows.reduce((sum: number, d: Dividend) => sum + parseFloat(d.totalValue), 0);
-    return { total, count: rows.length };
+    const totalsByCurrency = rows
+      .filter((d: Dividend) => isCashProvent(d.type))
+      .reduce((result, d: Dividend) => {
+        result[d.currency] += parseFloat(d.totalValue);
+        return result;
+      }, { BRL: 0, USD: 0 });
+    return { totalsByCurrency, count: rows.length };
   }),
 
   /**
@@ -506,6 +543,11 @@ export const dividendsRouter = router({
             errors.push(`${div.ticker}: ativo não encontrado`);
             continue;
           }
+          if (asset.currency !== "BRL") {
+            skipped++;
+            errors.push(`${div.ticker}: provento do extrato XP em BRL não coincide com a moeda cadastrada do ativo (${asset.currency})`);
+            continue;
+          }
           const existing = await db
             .select()
             .from(dividends)
@@ -514,7 +556,7 @@ export const dividendsRouter = router({
                 eq(dividends.userId, ctx.user.id),
                 eq(dividends.assetId, asset.id),
                 eq(dividends.type, div.type),
-                eq(dividends.exDate, div.paymentDate)
+                eq(dividends.paymentDate, div.paymentDate)
               )
             )
             .limit(1);
@@ -530,7 +572,7 @@ export const dividendsRouter = router({
             quantity: div.quantity.toString(),
             totalValue: div.totalValue.toFixed(2),
             currency: "BRL",
-            exDate: div.paymentDate,
+            exDate: null,
             paymentDate: div.paymentDate,
             notes: "Importado de PDF XP",
           });

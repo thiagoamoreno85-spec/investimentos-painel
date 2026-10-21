@@ -8,6 +8,7 @@ import { trpc } from "@/lib/trpc";
 import { filterMarketAssetsByClass, MARKET_ASSET_TABS, type MarketAssetTabId } from "@shared/marketAssetTabs";
 import { sortMarketQuotesByYield, type MarketQuoteSort } from "@shared/marketQuoteSorting";
 import { getMonthlyVariationHighlight } from "@shared/monthlyVariationHighlight";
+import { getPriceMetadataLabel } from "@shared/marketPriceMetadata";
 import {
   TrendingUp,
   TrendingDown,
@@ -450,6 +451,7 @@ function PortfolioQuotesSection() {
                           <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">L/P em valor</p><PrivacyMask as="span" className={`mt-1 block font-mono font-semibold ${profitValue > 0 ? "text-emerald-400" : profitValue < 0 ? "text-red-400" : "text-muted-foreground"}`}>{formatPrice(profitValue, q.currency)}</PrivacyMask></div>
                           <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Base do mês</p><PrivacyMask as="span" className="mt-1 block font-mono">{monthly?.referencePrice ? formatPrice(monthly.referencePrice, q.currency) : "—"}</PrivacyMask></div>
                           <div><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Data-base</p><p className="mt-1 flex items-center gap-1 text-muted-foreground"><CalendarDays className="h-3 w-3" />{formatShortDate(monthly?.referenceDate)}</p></div>
+                          <div className="col-span-2 sm:col-span-3"><p className="uppercase tracking-wide text-[10px] text-muted-foreground">Referência do preço</p><p className="mt-1 text-[11px] text-muted-foreground">{getPriceMetadataLabel({ currency: q.currency, source: q.priceSource, state: q.priceState, asOf: q.priceAsOf })}</p></div>
                           <div className={`col-span-2 flex items-center justify-between gap-3 rounded-md border px-2.5 py-2 sm:col-span-3 ${
                             isStrongMonthlyGain
                               ? "border-emerald-400/35 bg-emerald-500/10"

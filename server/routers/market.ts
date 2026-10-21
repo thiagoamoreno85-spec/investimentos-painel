@@ -378,6 +378,9 @@ export const marketRouter = router({
         qty,
         totalValue,
         profitPct,
+        priceSource: q?.source ?? a.priceSource ?? "Cadastro sem fonte",
+        priceState: q?.marketState ?? a.priceState ?? "referência legada",
+        priceAsOf: q?.asOf ?? a.priceAsOf ?? a.priceReferenceDate ?? a.lastPriceUpdatedAt ?? null,
       };
     });
 

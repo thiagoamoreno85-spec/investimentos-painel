@@ -1,13 +1,15 @@
 import axios from "axios";
 import { DEFAULT_USD_BRL_RATE } from "../shared/constants";
 
-interface QuoteResult {
+export interface QuoteResult {
   ticker: string;
   price: number;
   change: number;
   changePercent: number;
   currency: string;
   marketState: string;
+  source: "Yahoo Finance";
+  asOf: Date | null;
 }
 
 export interface FxQuote {
@@ -189,6 +191,10 @@ export async function fetchQuotes(
             changePercent,
             currency: meta.currency || "USD",
             marketState: meta.marketState || "CLOSED",
+            source: "Yahoo Finance",
+            asOf: Number.isFinite(Number(meta.regularMarketTime))
+              ? new Date(Number(meta.regularMarketTime) * 1000)
+              : null,
           });
         }
       } catch (error) {

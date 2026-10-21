@@ -29,6 +29,13 @@ describe("retorno de proventos sobre custo", () => {
     ]);
   });
 
+  it("aceita pagamento sem data COM e ignora com segurança registros sem data", () => {
+    expect(groupCashProceedsByYear([
+      { type: "dividendo", totalValue: 50, paymentDate: new Date("2026-04-15T12:00:00Z"), exDate: null },
+      { type: "jcp", totalValue: 25, paymentDate: null, exDate: null },
+    ])).toEqual([{ year: 2026, total: 50 }]);
+  });
+
   it("não soma bonificações à evolução anual de recebimentos", () => {
     expect(groupCashProceedsByYear([
       { type: "bonificacao", totalValue: 150, exDate: new Date("2026-01-01T12:00:00Z") },

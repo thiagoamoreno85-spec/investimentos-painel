@@ -25,6 +25,8 @@ export const assets = mysqlTable("assets", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   ticker: varchar("ticker", { length: 32 }).notNull(),
+  /** Chave técnica para impedir duplicidade por capitalização ou espaços laterais. */
+  normalizedTicker: varchar("normalizedTicker", { length: 32 }).notNull(),
   name: varchar("name", { length: 128 }).notNull(),
   assetClass: mysqlEnum("assetClass", [
     "rv_nacional",
@@ -61,6 +63,12 @@ export const assets = mysqlTable("assets", {
   lastPrice: decimal("lastPrice", { precision: 18, scale: 8 }).default("0").notNull(),
   /** Timestamp da última atualização de preço */
   lastPriceUpdatedAt: timestamp("lastPriceUpdatedAt"),
+  /** Origem declarada do preço atual; valores legados permanecem sem origem identificada. */
+  priceSource: varchar("priceSource", { length: 64 }),
+  /** Estado da referência na origem: regular, pós-mercado, fechado, manual ou fallback. */
+  priceState: varchar("priceState", { length: 32 }),
+  /** Momento de referência do preço na origem, distinto do momento de persistência. */
+  priceAsOf: timestamp("priceAsOf"),
   /** Instituição emissora do título, aplicável especialmente à renda fixa */
   issuer: varchar("issuer", { length: 128 }),
   /** Data de vencimento contratual do título */
@@ -75,6 +83,7 @@ export const assets = mysqlTable("assets", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => [
   uniqueIndex("assets_user_ticker_unique").on(table.userId, table.ticker),
+  uniqueIndex("assets_user_normalized_ticker_unique").on(table.userId, table.normalizedTicker),
 ]);
 
 export type Asset = typeof assets.$inferSelect;
@@ -127,13 +136,15 @@ export const dividends = mysqlTable("dividends", {
   totalValue: decimal("totalValue", { precision: 18, scale: 2 }).notNull(),
   /** Moeda do provento */
   currency: mysqlEnum("currency", ["BRL", "USD"]).default("BRL").notNull(),
-  /** Data COM (data de corte) */
-  exDate: timestamp("exDate").notNull(),
+  /** Data COM (data de corte); nula quando a fonte não a informa. */
+  exDate: timestamp("exDate"),
   /** Data de pagamento */
   paymentDate: timestamp("paymentDate"),
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => [
+  index("dividends_user_currency_payment_idx").on(table.userId, table.currency, table.paymentDate),
+]);
 
 export type Dividend = typeof dividends.$inferSelect;
 export type InsertDividend = typeof dividends.$inferInsert;
@@ -195,8 +206,14 @@ export const analysisHistory = mysqlTable("analysisHistory", {
   usdBrl: decimal("usdBrl", { precision: 10, scale: 4 }),
   /** Número de ativos analisados */
   assetsAnalyzed: int("assetsAnalyzed"),
+  /** Chave de contexto para impedir o reuso de análise com orçamento ou carteira distintos. */
+  cacheKey: varchar("cacheKey", { length: 64 }),
+  /** Versão do contrato quantitativo e dos dados usados na análise. */
+  dataVersion: varchar("dataVersion", { length: 64 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => [
+  index("analysis_history_user_cache_created_idx").on(table.userId, table.cacheKey, table.createdAt),
+]);
 
 export type AnalysisHistory = typeof analysisHistory.$inferSelect;
 export type InsertAnalysisHistory = typeof analysisHistory.$inferInsert;

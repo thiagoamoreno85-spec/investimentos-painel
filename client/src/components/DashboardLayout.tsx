@@ -93,7 +93,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     {
       label: "Inteligência",
       items: [
-        { href: "/melhor-compra", icon: Sparkles, label: "Melhor Compra", badge: 0, highlight: true },
+        { href: "/melhor-compra", icon: Sparkles, label: "Triagem de Compra", badge: 0, highlight: true },
       ],
     },
   ];

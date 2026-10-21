@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, assets, transactions, InsertAsset, InsertTransaction, analysisHistory, InsertAnalysisHistory, newsItems, InsertNewsItem, events, InsertEvent } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { calculateTrackedPosition } from "../shared/positionReconciliation";
+import { normalizeAssetTicker } from "../shared/assetTicker";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -110,11 +111,21 @@ export async function getAssetById(assetId: number, userId: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+/** Catálogo completo, inclusive ativos arquivados ou zerados, para consulta de histórico. */
+export async function getAssetCatalogByUser(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(assets)
+    .where(eq(assets.userId, userId))
+    .orderBy(assets.ticker);
+}
+
 export async function getAssetByTicker(ticker: string, userId: number) {
   const db = await getDb();
   if (!db) return undefined;
+  const normalizedTicker = normalizeAssetTicker(ticker);
   const result = await db.select().from(assets)
-    .where(and(eq(assets.ticker, ticker), eq(assets.userId, userId)))
+    .where(and(eq(assets.normalizedTicker, normalizedTicker), eq(assets.userId, userId)))
     .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
@@ -122,7 +133,8 @@ export async function getAssetByTicker(ticker: string, userId: number) {
 export async function createAsset(data: InsertAsset) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(assets).values(data);
+  const ticker = normalizeAssetTicker(data.ticker);
+  const result = await db.insert(assets).values({ ...data, ticker, normalizedTicker: ticker });
   return result[0].insertId;
 }
 
@@ -134,7 +146,12 @@ export async function updateAssetCalculations(assetId: number, totalQuantity: st
     .where(eq(assets.id, assetId));
 }
 
-export async function updateAssetPrice(assetId: number, lastPrice: string, priceReferenceDate?: Date) {
+export async function updateAssetPrice(
+  assetId: number,
+  lastPrice: string,
+  priceReferenceDate?: Date,
+  metadata?: { source: string; state: string; asOf?: Date | null },
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(assets)
@@ -142,16 +159,21 @@ export async function updateAssetPrice(assetId: number, lastPrice: string, price
       lastPrice,
       lastPriceUpdatedAt: new Date(),
       ...(priceReferenceDate ? { priceReferenceDate } : {}),
+      ...(metadata ? { priceSource: metadata.source, priceState: metadata.state, priceAsOf: metadata.asOf ?? null } : {}),
     })
     .where(eq(assets.id, assetId));
 }
 
-export async function updateAssetPricesBulk(updates: { id: number; lastPrice: string }[]) {
+export async function updateAssetPricesBulk(updates: { id: number; lastPrice: string; source?: string; state?: string; asOf?: Date | null }[]) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   for (const u of updates) {
     await db.update(assets)
-      .set({ lastPrice: u.lastPrice, lastPriceUpdatedAt: new Date() })
+      .set({
+        lastPrice: u.lastPrice,
+        lastPriceUpdatedAt: new Date(),
+        ...(u.source ? { priceSource: u.source, priceState: u.state ?? "regular", priceAsOf: u.asOf ?? null } : {}),
+      })
       .where(eq(assets.id, u.id));
   }
 }

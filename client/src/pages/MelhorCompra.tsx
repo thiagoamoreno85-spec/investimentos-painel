@@ -53,6 +53,19 @@ const FOCUS_LABELS: Record<string, string> = {
   todos: "🌎 Todos",
 };
 
+type QuoteSnapshotEntry = {
+  price: number;
+  changePercent: number;
+  currency?: "BRL" | "USD";
+  source?: string;
+  state?: string;
+  asOf?: string | null;
+};
+
+function formatQuotePrice(quote: QuoteSnapshotEntry) {
+  return `${quote.currency === "USD" ? "US$" : "R$"} ${quote.price.toFixed(2)}`;
+}
+
 export default function MelhorCompra() {
   const { showBalances } = useBalanceVisibility();
   const [amount, setAmount] = useState("1200");
@@ -66,13 +79,15 @@ export default function MelhorCompra() {
   const [result, setResult] = useState<{
     analysis: string;
     updatedAt: Date;
-    quotesSnapshot: Record<string, { price: number; changePercent: number }>;
+    quotesSnapshot: Record<string, QuoteSnapshotEntry>;
     usdBrl?: number;
     assetsAnalyzed?: number;
     recommendedTicker?: string | null;
     historyId?: number | null;
     fromCache?: boolean;
     message?: string;
+    eligibleTickers?: string[];
+    dataVersion?: string;
   } | null>(null);
 
   const utils = trpc.useUtils();
@@ -138,10 +153,10 @@ export default function MelhorCompra() {
         <div>
           <h2 className="text-xl md:text-3xl font-bold tracking-tight flex items-center gap-2 md:gap-3">
             <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-amber-400" />
-            Melhor Compra do Dia
+            Triagem Quantitativa Assistida
           </h2>
           <p className="text-muted-foreground mt-1">
-            IA analisa sua carteira com cotações em tempo real e recomenda o melhor ativo para comprar.
+            IA analisa sua carteira com cotação, moeda e data-base identificadas antes de sugerir um ativo elegível.
           </p>
         </div>
 
@@ -258,7 +273,7 @@ export default function MelhorCompra() {
                       ) : analyze.isPending ? (
                         <><Loader2 className="w-5 h-5 animate-spin" /> Analisando...</>
                       ) : (
-                        <><Sparkles className="w-5 h-5" /> Analisar Melhor Compra</>
+                        <><Sparkles className="w-5 h-5" /> Gerar Triagem de Compra</>
                       )}
                     </Button>
 
@@ -291,14 +306,19 @@ export default function MelhorCompra() {
                       {Object.entries(result.quotesSnapshot)
                         .sort((a, b) => a[0].localeCompare(b[0]))
                         .map(([ticker, q]) => (
-                          <div key={ticker} className="flex items-center justify-between py-1 border-b border-border/30 last:border-0">
-                            <span className="font-mono text-sm font-semibold">{ticker}</span>
-                            <div className="flex items-center gap-3">
-                              <span className="font-mono text-sm">R$ {q.price.toFixed(2)}</span>
-                              <span className={`text-xs font-mono ${q.changePercent >= 0 ? "text-emerald-500" : "text-red-500"}`}>
-                                {q.changePercent >= 0 ? "+" : ""}{q.changePercent.toFixed(2)}%
-                              </span>
+                          <div key={ticker} className="py-1 border-b border-border/30 last:border-0">
+                            <div className="flex items-center justify-between">
+                              <span className="font-mono text-sm font-semibold">{ticker}</span>
+                              <div className="flex items-center gap-3">
+                                <span className="font-mono text-sm">{formatQuotePrice(q)}</span>
+                                <span className={`text-xs font-mono ${q.changePercent >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+                                  {q.changePercent >= 0 ? "+" : ""}{q.changePercent.toFixed(2)}%
+                                </span>
+                              </div>
                             </div>
+                            <p className="text-[11px] text-muted-foreground">
+                              {q.source ?? "Fonte não registrada"} · {q.state ?? "estado não informado"} · {q.asOf ? new Date(q.asOf).toLocaleString("pt-BR") : "sem data-base"}
+                            </p>
                           </div>
                         ))}
                     </div>
@@ -406,14 +426,14 @@ export default function MelhorCompra() {
                     <div className="space-y-2">
                       <p className="font-semibold text-lg">Pronto para analisar</p>
                       <p className="text-muted-foreground text-sm max-w-sm">
-                        Informe o valor, escolha o foco e clique em <strong className="text-amber-400">Analisar Melhor Compra</strong>.
+                        Informe o valor, escolha o foco e clique em <strong className="text-amber-400">Gerar Triagem de Compra</strong>.
                       </p>
                     </div>
                     <div className="grid grid-cols-3 gap-3 mt-4 w-full max-w-sm">
                       {[
-                        { icon: TrendingUp, label: "Cotações em tempo real" },
-                        { icon: BarChart3, label: "Análise fundamentalista" },
-                        { icon: Sparkles, label: "Recomendação por IA" },
+                        { icon: TrendingUp, label: "Cotações com fonte" },
+                        { icon: BarChart3, label: "Critérios quantitativos" },
+                        { icon: Sparkles, label: "Síntese por IA" },
                       ].map(({ icon: Icon, label }) => (
                         <div key={label} className="flex flex-col items-center gap-2 p-3 rounded-lg bg-secondary/30 border border-border/30">
                           <Icon className="w-5 h-5 text-muted-foreground" />
@@ -653,7 +673,7 @@ export default function MelhorCompra() {
                       <div key={ticker} className="flex items-center justify-between px-2 py-1.5 rounded bg-background/50 border border-border/30">
                         <span className="font-mono text-xs font-semibold">{ticker}</span>
                         <div className="text-right">
-                          <span className="font-mono text-xs">R$ {q.price.toFixed(2)}</span>
+                          <span className="font-mono text-xs">{formatQuotePrice(q)}</span>
                           <span className={`ml-2 text-xs font-mono ${q.changePercent >= 0 ? "text-emerald-500" : "text-red-500"}`}>
                             {q.changePercent >= 0 ? "+" : ""}{q.changePercent.toFixed(2)}%
                           </span>

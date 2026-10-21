@@ -48,6 +48,9 @@ export default function PerformanceCard() {
   const isPositive = data.totalPct >= 0;
   const TrendIcon = isPositive ? TrendingUp : TrendingDown;
   const color = isPositive ? "text-emerald-500" : "text-red-400";
+  const dailyContributions = data.externalContributionsBRL ?? 0;
+  const dailyWithdrawals = data.externalWithdrawalsBRL ?? 0;
+  const hasDailyExternalFlow = dailyContributions > 0 || dailyWithdrawals > 0;
 
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-sm">
@@ -69,6 +72,13 @@ export default function PerformanceCard() {
           {isPositive ? "+" : ""}{formatCurrency(data.totalBRL)}
         </p>
         <p className="mt-1 text-[10px] text-muted-foreground">Estimativa antes do fechamento; caixa conciliado excluído.</p>
+        {hasDailyExternalFlow && (
+          <p className={`mt-1 text-[10px] text-sky-300/80 ${!showBalances ? "blur-sm" : ""}`}>
+            Fluxo externo fora do retorno: {dailyContributions > 0 ? `+${formatCurrency(dailyContributions)} de aporte` : ""}
+            {dailyContributions > 0 && dailyWithdrawals > 0 ? " · " : ""}
+            {dailyWithdrawals > 0 ? `-${formatCurrency(dailyWithdrawals)} de retirada` : ""}
+          </p>
+        )}
 
         {/* Toggle para mostrar/esconder breakdown por classe */}
         <button

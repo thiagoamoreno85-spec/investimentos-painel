@@ -1,11 +1,12 @@
 import { and, eq, gte, lt } from "drizzle-orm";
-import { dailyPerformanceSnapshots, dividends, transactions } from "../../drizzle/schema";
+import { cashMovements, dailyPerformanceSnapshots, dividends, transactions } from "../../drizzle/schema";
 import { getAssetsByUser, getDb } from "../db";
 import {
   fetchQuotes,
   fetchUsdBrlQuote,
 } from "../quotes";
 import { resolveValuationFxRateForUser } from "./valuationFxService";
+import { summarizeExternalCapitalFlows } from "../../shared/externalCapitalFlow";
 
 const BRT_TIME_ZONE = "America/Sao_Paulo";
 
@@ -40,6 +41,9 @@ export type DailyPerformanceResult = {
   totalBRL: number;
   marketPnlBRL: number;
   incomePnlBRL: number;
+  externalContributionsBRL: number;
+  externalWithdrawalsBRL: number;
+  netExternalFlowBRL: number;
   totalValueBRL: number;
   startValueBRL: number;
   byClass: DailyClassResult[];
@@ -54,6 +58,9 @@ export type DailyPerformanceResult = {
 export type MonthlyPerformanceResult = {
   total: { valueDiff: number; percentDiff: number };
   byClass: Record<string, { valueDiff: number; percentDiff: number }>;
+  externalContributionsBRL: number;
+  externalWithdrawalsBRL: number;
+  netExternalFlowBRL: number;
   snapshotCount: number;
   closedSnapshotCount: number;
   baseDate: string;
@@ -174,6 +181,8 @@ type MonthlyPoint = {
   date: string;
   returnPct: number;
   returnValue: number;
+  externalContributionsBRL?: number;
+  externalWithdrawalsBRL?: number;
   byClass: DailyClassResult[];
   byAsset?: DailyAssetResult[];
   source?: "ledger" | "live";
@@ -193,10 +202,14 @@ export function calculateMonthlyReturn(
     : [];
   let compounded = 1;
   let valueDiff = 0;
+  let externalContributionsBRL = 0;
+  let externalWithdrawalsBRL = 0;
   const classes = new Map<string, { compounded: number; valueDiff: number }>();
   for (const point of points) {
     compounded *= 1 + point.returnPct / 100;
     valueDiff += point.returnValue;
+    externalContributionsBRL += numberOrZero(point.externalContributionsBRL);
+    externalWithdrawalsBRL += numberOrZero(point.externalWithdrawalsBRL);
     for (const item of point.byClass) {
       const current = classes.get(item.classKey) ?? { compounded: 1, valueDiff: 0 };
       current.compounded *= 1 + item.changePct / 100;
@@ -211,6 +224,9 @@ export function calculateMonthlyReturn(
   return {
     total: { valueDiff, percentDiff: (compounded - 1) * 100 },
     byClass,
+    externalContributionsBRL,
+    externalWithdrawalsBRL,
+    netExternalFlowBRL: externalContributionsBRL - externalWithdrawalsBRL,
     snapshotCount: points.length,
     closedSnapshotCount: closedPoints.length,
     baseDate: points[0].date,
@@ -235,7 +251,7 @@ export async function getLiveDailyPerformance(
   if (!db) throw new Error("Banco de dados indisponível.");
 
   const { start, next } = dayBounds(referenceDate);
-  const [userAssets, dayTransactions, paidDividends, marketFxQuote] = await Promise.all([
+  const [userAssets, dayTransactions, paidDividends, dayCashMovements, marketFxQuote] = await Promise.all([
     getAssetsByUser(userId),
     db.select().from(transactions).where(and(
       eq(transactions.userId, userId),
@@ -246,6 +262,11 @@ export async function getLiveDailyPerformance(
       eq(dividends.userId, userId),
       gte(dividends.paymentDate, start),
       lt(dividends.paymentDate, next),
+    )),
+    db.select().from(cashMovements).where(and(
+      eq(cashMovements.userId, userId),
+      gte(cashMovements.date, start),
+      lt(cashMovements.date, next),
     )),
     fetchUsdBrlQuote(),
   ]);
@@ -356,6 +377,7 @@ export async function getLiveDailyPerformance(
   const marketPnlBRL = byClass.reduce((sum, item) => sum + item.marketPnlBRL, 0);
   const incomePnlBRL = byClass.reduce((sum, item) => sum + item.incomePnlBRL, 0);
   const totalBRL = marketPnlBRL + incomePnlBRL;
+  const externalCapital = summarizeExternalCapitalFlows(dayCashMovements);
 
   return {
     date: referenceDate,
@@ -363,6 +385,9 @@ export async function getLiveDailyPerformance(
     totalBRL,
     marketPnlBRL,
     incomePnlBRL,
+    externalContributionsBRL: externalCapital.contributionsBRL,
+    externalWithdrawalsBRL: externalCapital.withdrawalsBRL,
+    netExternalFlowBRL: externalCapital.netExternalFlowBRL,
     totalValueBRL,
     startValueBRL,
     byClass,
@@ -386,6 +411,8 @@ export async function captureDailyPerformanceSnapshot(userId: number) {
     endValue: performance.totalValueBRL.toFixed(2),
     marketPnl: performance.marketPnlBRL.toFixed(2),
     incomePnl: performance.incomePnlBRL.toFixed(2),
+    externalContributions: performance.externalContributionsBRL.toFixed(2),
+    externalWithdrawals: performance.externalWithdrawalsBRL.toFixed(2),
     returnValue: performance.totalBRL.toFixed(2),
     returnPct: performance.totalPct.toFixed(8),
     classBreakdown: JSON.stringify(performance.byClass),
@@ -411,20 +438,44 @@ async function getMonthlyPerformancePoints(userId: number) {
   if (!db) throw new Error("Banco de dados indisponível.");
   const today = brtDate();
   const monthStart = `${today.slice(0, 7)}-01`;
-  const stored = await db.select().from(dailyPerformanceSnapshots).where(and(
-    eq(dailyPerformanceSnapshots.userId, userId),
-    gte(dailyPerformanceSnapshots.snapshotDate, monthStart),
-    lt(dailyPerformanceSnapshots.snapshotDate, `${today.slice(0, 7)}-32`),
-  )).orderBy(dailyPerformanceSnapshots.snapshotDate);
+  const monthStartAt = dayBounds(monthStart).start;
+  const nextMonthStartAt = new Date(monthStartAt);
+  nextMonthStartAt.setMonth(nextMonthStartAt.getMonth() + 1);
+  const [stored, monthCashMovements] = await Promise.all([
+    db.select().from(dailyPerformanceSnapshots).where(and(
+      eq(dailyPerformanceSnapshots.userId, userId),
+      gte(dailyPerformanceSnapshots.snapshotDate, monthStart),
+      lt(dailyPerformanceSnapshots.snapshotDate, `${today.slice(0, 7)}-32`),
+    )).orderBy(dailyPerformanceSnapshots.snapshotDate),
+    db.select().from(cashMovements).where(and(
+      eq(cashMovements.userId, userId),
+      gte(cashMovements.date, monthStartAt),
+      lt(cashMovements.date, nextMonthStartAt),
+    )),
+  ]);
 
-  const points: MonthlyPoint[] = stored.map((row) => ({
-    date: row.snapshotDate,
-    returnPct: numberOrZero(row.returnPct),
-    returnValue: numberOrZero(row.returnValue),
-    byClass: row.classBreakdown ? JSON.parse(row.classBreakdown) as DailyClassResult[] : [],
-    byAsset: row.assetBreakdown ? JSON.parse(row.assetBreakdown) as DailyAssetResult[] : [],
-    source: "ledger",
-  }));
+  const cashMovementsByDate = new Map<string, typeof monthCashMovements>();
+  for (const movement of monthCashMovements) {
+    const date = brtDate(new Date(movement.date));
+    const entries = cashMovementsByDate.get(date) ?? [];
+    entries.push(movement);
+    cashMovementsByDate.set(date, entries);
+  }
+  const externalCapitalAt = (date: string) => summarizeExternalCapitalFlows(cashMovementsByDate.get(date) ?? []);
+
+  const points: MonthlyPoint[] = stored.map((row) => {
+    const externalCapital = externalCapitalAt(row.snapshotDate);
+    return {
+      date: row.snapshotDate,
+      returnPct: numberOrZero(row.returnPct),
+      returnValue: numberOrZero(row.returnValue),
+      externalContributionsBRL: externalCapital.contributionsBRL,
+      externalWithdrawalsBRL: externalCapital.withdrawalsBRL,
+      byClass: row.classBreakdown ? JSON.parse(row.classBreakdown) as DailyClassResult[] : [],
+      byAsset: row.assetBreakdown ? JSON.parse(row.assetBreakdown) as DailyAssetResult[] : [],
+      source: "ledger",
+    };
+  });
 
   let includesLiveDay = false;
   if (!points.some((point) => point.date === today)) {
@@ -433,6 +484,8 @@ async function getMonthlyPerformancePoints(userId: number) {
       date: today,
       returnPct: live.totalPct,
       returnValue: live.totalBRL,
+      externalContributionsBRL: live.externalContributionsBRL,
+      externalWithdrawalsBRL: live.externalWithdrawalsBRL,
       byClass: live.byClass,
       byAsset: live.byAsset,
       source: "live",

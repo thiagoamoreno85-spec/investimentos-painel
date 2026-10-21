@@ -547,6 +547,9 @@ export const portfolioRouter = router({
       usdBrl,
       daily: {
         total: { valueDiff: daily.totalBRL, percentDiff: daily.totalPct },
+        externalContributionsBRL: daily.externalContributionsBRL,
+        externalWithdrawalsBRL: daily.externalWithdrawalsBRL,
+        netExternalFlowBRL: daily.netExternalFlowBRL,
         byClass: Object.fromEntries(daily.byClass.map((item) => [item.classKey, {
           valueDiff: item.changeBRL,
           percentDiff: item.changePct,
@@ -556,6 +559,9 @@ export const portfolioRouter = router({
       monthly: {
         total: monthly?.total ?? null,
         byClass: monthly?.byClass ?? null,
+        externalContributionsBRL: monthly?.externalContributionsBRL ?? 0,
+        externalWithdrawalsBRL: monthly?.externalWithdrawalsBRL ?? 0,
+        netExternalFlowBRL: monthly?.netExternalFlowBRL ?? 0,
         snapshotDate: monthly?.baseDate ?? null,
         chainedReturn: monthly?.total.percentDiff ?? null,
         snapshotCount: monthly?.snapshotCount ?? null,

@@ -1,0 +1,3 @@
+ALTER TABLE `cash_movements` MODIFY COLUMN `category` enum('dividendo_recebido','vencimento_rf','aporte_externo','retirada_externa','compra_ativo','resgate','taxa','outro') NOT NULL;--> statement-breakpoint
+ALTER TABLE `daily_performance_snapshots` ADD `externalContributions` decimal(18,2) DEFAULT '0' NOT NULL;--> statement-breakpoint
+ALTER TABLE `daily_performance_snapshots` ADD `externalWithdrawals` decimal(18,2) DEFAULT '0' NOT NULL;

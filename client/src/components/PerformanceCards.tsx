@@ -148,6 +148,8 @@ export function PerformanceCards() {
   if (!performance) return null;
   const missingClosedDates = performance.monthly.missingClosedDates ?? [];
   const missingDatesPreview = missingClosedDates.slice(0, 3).join(", ");
+  const monthlyContributions = performance.monthly.externalContributionsBRL ?? 0;
+  const monthlyWithdrawals = performance.monthly.externalWithdrawalsBRL ?? 0;
 
   // Se não tem snapshots, mostrar card de ativação (ocupa 1 coluna)
   if (!performance.hasSnapshots) {
@@ -224,6 +226,15 @@ export function PerformanceCards() {
                 {performance.monthly.lastClosedDate ? ` · até ${performance.monthly.lastClosedDate}` : ""}
               </p>
             )}
+            <div className={`mt-2 rounded-md border border-sky-500/25 bg-sky-500/8 px-2 py-1.5 text-[11px] leading-snug text-sky-100 ${
+              !showBalances ? "blur-sm" : ""
+            }`}>
+              <p className="font-medium">Fluxos externos — fora do retorno de mercado</p>
+              <p className="text-sky-100/75">
+                Aportes: {formatCurrency(monthlyContributions)} · Retiradas: {formatCurrency(monthlyWithdrawals)}
+                {` · Líquido: ${monthlyContributions - monthlyWithdrawals >= 0 ? "+" : ""}${formatCurrency(monthlyContributions - monthlyWithdrawals)}`}
+              </p>
+            </div>
             {performance.monthly.hasClosedGaps && (
               <div
                 role="status"

@@ -56,6 +56,7 @@ export const cashRouter = router({
           "dividendo_recebido",
           "vencimento_rf",
           "aporte_externo",
+          "retirada_externa",
           "compra_ativo",
           "resgate",
           "taxa",
@@ -64,6 +65,13 @@ export const cashRouter = router({
         amount: z.number().positive(),
         description: z.string().optional(),
         date: z.string().optional(),
+      }).superRefine((input, ctx) => {
+        if (input.category === "aporte_externo" && input.type !== "entrada") {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Aporte externo deve ser registrado como entrada." });
+        }
+        if (input.category === "retirada_externa" && input.type !== "saida") {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Retirada externa deve ser registrada como saída." });
+        }
       })
     )
     .mutation(async ({ ctx, input }) => {

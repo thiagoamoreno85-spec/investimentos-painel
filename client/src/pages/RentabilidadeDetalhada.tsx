@@ -101,6 +101,8 @@ export default function RentabilidadeDetalhada() {
 
   const dayMarketPnl = selectedDay?.byAsset.reduce((sum, asset) => sum + asset.marketPnlBRL, 0) ?? 0;
   const dayIncomePnl = selectedDay?.byAsset.reduce((sum, asset) => sum + asset.incomePnlBRL, 0) ?? 0;
+  const dayContributions = selectedDay?.externalContributionsBRL ?? 0;
+  const dayWithdrawals = selectedDay?.externalWithdrawalsBRL ?? 0;
 
   return (
     <DashboardLayout>
@@ -112,7 +114,7 @@ export default function RentabilidadeDetalhada() {
               <h1 className="text-xl font-bold tracking-tight md:text-3xl">Rentabilidade Mensal Detalhada</h1>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Auditoria diária por ativo. Compras, vendas, corretagens e proventos são tratados separadamente do retorno de mercado.
+              Auditoria diária por ativo. Compras, vendas, corretagens, proventos e fluxos externos são tratados separadamente do retorno de mercado.
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={() => setLocation("/rentabilidade")} className="gap-2 self-start">
@@ -128,10 +130,12 @@ export default function RentabilidadeDetalhada() {
           <Card className="border-dashed"><CardContent className="p-8 text-center text-sm text-muted-foreground">Ainda não há dados de rentabilidade disponíveis para o mês.</CardContent></Card>
         ) : (
           <>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
               <Card className="bg-card/50"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Resultado do dia</p><ReturnText value={selectedDay.returnValue} percent={selectedDay.returnPct} blur={!showBalances} /></CardContent></Card>
               <Card className="bg-card/50"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Mercado</p><ReturnText value={dayMarketPnl} percent={selectedDay.returnPct} blur={!showBalances} /></CardContent></Card>
               <Card className="bg-card/50"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Proventos recebidos</p><ReturnText value={dayIncomePnl} percent={0} blur={!showBalances} /></CardContent></Card>
+              <Card className="border-sky-500/20 bg-sky-500/5"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Aportes externos</p><p className={`mt-1 font-mono text-sm font-semibold text-sky-300 ${!showBalances ? "blur-sm" : ""}`}>{formatCurrency(dayContributions)}</p><p className="mt-1 text-[10px] text-muted-foreground">Fora do retorno</p></CardContent></Card>
+              <Card className="border-violet-500/20 bg-violet-500/5"><CardContent className="p-4"><p className="text-xs text-muted-foreground">Retiradas externas</p><p className={`mt-1 font-mono text-sm font-semibold text-violet-300 ${!showBalances ? "blur-sm" : ""}`}>{formatCurrency(dayWithdrawals)}</p><p className="mt-1 text-[10px] text-muted-foreground">Fora do retorno</p></CardContent></Card>
             </div>
 
             <Card className="bg-card/50">

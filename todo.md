@@ -860,3 +860,10 @@
 - [x] Calcular cobertura e datas ausentes no contrato de rentabilidade
 - [x] Exibir alerta acessível no card mensal, distinguindo lacuna de fechamento intradiário
 - [x] Cobrir cenários de lacuna e fim de semana com testes, validar e salvar checkpoint
+
+## Separação de Aportes e Retiradas Externos — Em andamento
+- [x] Definir que aporte/retirada externa é fluxo de capital, não rentabilidade
+- [x] Mapear categorias e fontes de caixa já registradas sem reclassificar dados históricos
+- [x] Expor aportes, retiradas e fluxo líquido nos contratos diário e mensal
+- [x] Adicionar categoria explícita para retirada externa em novos lançamentos
+- [x] Validar cálculos, rótulos e testes sem alterar eventos financeiros existentes

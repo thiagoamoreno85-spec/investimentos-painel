@@ -322,6 +322,7 @@ export const cashMovements = mysqlTable("cash_movements", {
     "dividendo_recebido",
     "vencimento_rf",
     "aporte_externo",
+    "retirada_externa",
     "compra_ativo",
     "resgate",
     "taxa",
@@ -403,6 +404,10 @@ export const dailyPerformanceSnapshots = mysqlTable("daily_performance_snapshots
   endValue: decimal("endValue", { precision: 18, scale: 2 }).notNull(),
   marketPnl: decimal("marketPnl", { precision: 18, scale: 2 }).notNull(),
   incomePnl: decimal("incomePnl", { precision: 18, scale: 2 }).notNull(),
+  /** Capital aportado externamente no dia; não compõe retorno de mercado. */
+  externalContributions: decimal("externalContributions", { precision: 18, scale: 2 }).default("0").notNull(),
+  /** Capital retirado externamente no dia; não compõe retorno de mercado. */
+  externalWithdrawals: decimal("externalWithdrawals", { precision: 18, scale: 2 }).default("0").notNull(),
   returnValue: decimal("returnValue", { precision: 18, scale: 2 }).notNull(),
   returnPct: decimal("returnPct", { precision: 18, scale: 8 }).notNull(),
   classBreakdown: text("classBreakdown"),

@@ -95,12 +95,16 @@ describe("calculateMonthlyReturn", () => {
         date: "2026-09-01",
         returnPct: 1,
         returnValue: 100,
+        externalContributionsBRL: 5000,
+        externalWithdrawalsBRL: 0,
         byClass: [{ classKey: "rv_nacional", className: "RV Nacional", startValueBRL: 10000, valueBRL: 10100, marketPnlBRL: 100, incomePnlBRL: 0, changeBRL: 100, changePct: 1 }],
       },
       {
         date: "2026-09-02",
         returnPct: 2,
         returnValue: 202,
+        externalContributionsBRL: 0,
+        externalWithdrawalsBRL: 750,
         byClass: [{ classKey: "rv_nacional", className: "RV Nacional", startValueBRL: 10100, valueBRL: 10302, marketPnlBRL: 202, incomePnlBRL: 0, changeBRL: 202, changePct: 2 }],
       },
     ], "2026-09-01", false);
@@ -108,6 +112,9 @@ describe("calculateMonthlyReturn", () => {
     expect(result?.total.percentDiff).toBeCloseTo(3.02, 8);
     expect(result?.total.valueDiff).toBe(302);
     expect(result?.byClass.rv_nacional.percentDiff).toBeCloseTo(3.02, 8);
+    expect(result?.externalContributionsBRL).toBe(5000);
+    expect(result?.externalWithdrawalsBRL).toBe(750);
+    expect(result?.netExternalFlowBRL).toBe(4250);
     expect(result?.isPartial).toBe(false);
     expect(result?.lastClosedDate).toBe("2026-09-02");
   });

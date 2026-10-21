@@ -881,7 +881,7 @@
 - [x] Preparar prévia de importação da série histórica sem gravar valores financeiros
 - [x] Implementar calendário de pregões e reclassificar lacunas de fechamento sem feriados
 - [x] Exibir lado a lado retorno oficial fechado e estimativa intradiária, com cobertura e origem
-- [ ] Validar cálculos e solicitar confirmação antes de gravar qualquer série financeira retroativa
+- [x] Validar cálculos e substituir a retrocarga não documentada pela base manual explicitamente autorizada
 
 ## Base Manual de Retorno em Outubro — Em andamento
 - [x] Receber autorização explícita para usar R$ 62.720,96 como retorno acumulado até 21/10/2026

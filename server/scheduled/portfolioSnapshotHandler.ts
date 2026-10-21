@@ -34,7 +34,7 @@ export async function portfolioSnapshotHandler(req: Request, res: Response) {
     }
 
     const result = await captureSnapshot(owner.user.id);
-    const dailyPerformance = await captureDailyPerformanceSnapshot(owner.user.id);
+    const dailyPerformance = await captureDailyPerformanceSnapshot(owner.user.id, { mode: "official" });
 
     const elapsed = Date.now() - startTime;
     console.log(

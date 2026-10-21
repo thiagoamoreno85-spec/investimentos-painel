@@ -414,7 +414,8 @@ export const dailyPerformanceSnapshots = mysqlTable("daily_performance_snapshots
   assetBreakdown: text("assetBreakdown"),
   capturedAt: timestamp("capturedAt").defaultNow().notNull(),
   valuationAsOf: timestamp("valuationAsOf"),
-  status: mysqlEnum("status", ["final"]).default("final").notNull(),
+  /** `final` é reservado ao fechamento automático datado no próprio pregão. */
+  status: mysqlEnum("status", ["final", "intraday"]).default("intraday").notNull(),
   fxRate: decimal("fxRate", { precision: 10, scale: 4 }),
   fxSource: mysqlEnum("fxSource", ["conciliacao", "mercado"]),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

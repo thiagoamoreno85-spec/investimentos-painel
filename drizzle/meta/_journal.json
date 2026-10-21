@@ -169,6 +169,13 @@
       "when": 1792600599144,
       "tag": "0023_slow_surge",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1792601425562,
+      "tag": "0024_wooden_harrier",
+      "breakpoints": true
     }
   ]
 }

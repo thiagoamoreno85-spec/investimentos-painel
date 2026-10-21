@@ -45,6 +45,7 @@ import {
 } from "../services/portfolioMutationService";
 import { TRPCError } from "@trpc/server";
 import { buildClosedPerformanceHistory } from "../../shared/closedPerformanceHistory";
+import { isOfficialPerformanceClose } from "../../shared/closedPerformanceSnapshot";
 
 export const portfolioRouter = router({
   // ========== ASSETS ==========
@@ -281,10 +282,14 @@ export const portfolioRouter = router({
       const rows = await db.select({
         snapshotDate: dailyPerformanceSnapshots.snapshotDate,
         returnPct: dailyPerformanceSnapshots.returnPct,
+        status: dailyPerformanceSnapshots.status,
+        capturedAt: dailyPerformanceSnapshots.capturedAt,
+        valuationAsOf: dailyPerformanceSnapshots.valuationAsOf,
       }).from(dailyPerformanceSnapshots).where(eq(dailyPerformanceSnapshots.userId, ctx.user.id))
         .orderBy(asc(dailyPerformanceSnapshots.snapshotDate));
 
-      return { ...buildClosedPerformanceHistory(rows.map((row) => ({
+      const officialRows = rows.filter(isOfficialPerformanceClose);
+      return { ...buildClosedPerformanceHistory(officialRows.map((row) => ({
         date: row.snapshotDate,
         returnPct: Number(row.returnPct),
       }))), isOfficial: true };

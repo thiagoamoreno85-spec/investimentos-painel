@@ -5,14 +5,12 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Calendar,
-  Camera,
   ChevronDown,
   ChevronUp,
   AlertTriangle,
   Minus,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
 import { useState } from "react";
 import { useBalanceVisibility } from "@/contexts/BalanceVisibilityContext";
 import { useLocation } from "wouter";
@@ -123,16 +121,7 @@ export function PerformanceCards() {
       refetchIntervalInBackground: false,
     }
   );
-  const utils = trpc.useUtils();
   const [monthlyExpanded, setMonthlyExpanded] = useState(false);
-
-  const captureSnapshotMutation = trpc.portfolio.captureSnapshot.useMutation({
-    onSuccess: () => {
-      toast.success("Snapshot capturado com sucesso!");
-      utils.portfolio.getPerformance.invalidate();
-    },
-    onError: (err) => toast.error(`Erro ao capturar snapshot: ${err.message}`),
-  });
 
   if (isLoading) {
     return (
@@ -156,23 +145,13 @@ export function PerformanceCards() {
     return (
       <Card className="bg-card/50 backdrop-blur-sm border-dashed border-border/50 shadow-sm">
         <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
-          <Camera className="h-6 w-6 text-muted-foreground" />
+          <Calendar className="h-6 w-6 text-muted-foreground" />
           <div>
-            <p className="text-xs font-medium">Retorno do mês</p>
+            <p className="text-xs font-medium">Retorno mensal oficial indisponível</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Aguardando o primeiro fechamento para calcular o retorno ajustado.
+              Aguardando o primeiro fechamento automático válido. Capturas manuais são intradiárias e não entram no retorno oficial.
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => captureSnapshotMutation.mutate()}
-            disabled={captureSnapshotMutation.isPending}
-            className="gap-1 text-xs h-7"
-          >
-            <Camera className="h-3 w-3" />
-            Capturar Snapshot
-          </Button>
         </CardContent>
       </Card>
     );

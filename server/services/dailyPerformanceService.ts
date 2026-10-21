@@ -7,6 +7,7 @@ import {
 } from "../quotes";
 import { resolveValuationFxRateForUser } from "./valuationFxService";
 import { summarizeExternalCapitalFlows } from "../../shared/externalCapitalFlow";
+import { isOfficialPerformanceClose } from "../../shared/closedPerformanceSnapshot";
 
 const BRT_TIME_ZONE = "America/Sao_Paulo";
 
@@ -66,7 +67,7 @@ export type MonthlyPerformanceResult = {
   baseDate: string;
   includesLiveDay: boolean;
   isPartial: boolean;
-  lastClosedDate: string;
+  lastClosedDate: string | null;
   missingClosedDates: string[];
   hasClosedGaps: boolean;
 };
@@ -195,9 +196,9 @@ export function calculateMonthlyReturn(
 ): MonthlyPerformanceResult | null {
   if (points.length === 0) return null;
   const closedPoints = points.filter((point) => point.source !== "live");
-  const lastClosedDate = closedPoints.at(-1)?.date ?? points.at(-1)?.date ?? points[0].date;
+  const lastClosedDate = closedPoints.at(-1)?.date ?? null;
   const closedDates = new Set(closedPoints.map((point) => point.date));
-  const missingClosedDates = closedPoints.length > 0
+  const missingClosedDates = lastClosedDate
     ? calendarDates(monthStart, lastClosedDate).filter((date) => !closedDates.has(date))
     : [];
   let compounded = 1;
@@ -400,11 +401,18 @@ export async function getLiveDailyPerformance(
   };
 }
 
-/** Persiste ou atualiza o retorno de uma data, mantendo a operação idempotente. */
-export async function captureDailyPerformanceSnapshot(userId: number) {
+/**
+ * Persiste o retorno do dia. Capturas manuais são intradiárias por padrão;
+ * apenas o Heartbeat pós-mercado deve solicitar um fechamento oficial.
+ */
+export async function captureDailyPerformanceSnapshot(
+  userId: number,
+  options: { mode?: "manual" | "official" } = {}
+) {
   const performance = await getLiveDailyPerformance(userId);
   const db = await getDb();
   if (!db) throw new Error("Banco de dados indisponível.");
+  const mode = options.mode ?? "manual";
 
   const values = {
     startValue: performance.startValueBRL.toFixed(2),
@@ -419,7 +427,7 @@ export async function captureDailyPerformanceSnapshot(userId: number) {
     assetBreakdown: JSON.stringify(performance.byAsset),
     capturedAt: new Date(),
     valuationAsOf: performance.updatedAt,
-    status: "final" as const,
+    status: mode === "official" ? "final" as const : "intraday" as const,
     fxRate: performance.fxRate.toFixed(4),
     fxSource: performance.fxSource,
   };
@@ -428,9 +436,15 @@ export async function captureDailyPerformanceSnapshot(userId: number) {
     eq(dailyPerformanceSnapshots.snapshotDate, performance.date),
   )).limit(1);
 
+  // Uma atualização manual pode atualizar a estimativa exibida, mas não deve
+  // rebaixar nem substituir um fechamento do cron já validado no mesmo dia.
+  if (mode === "manual" && existing[0] && isOfficialPerformanceClose(existing[0])) {
+    return { ...performance, updated: true, preservedOfficialClose: true };
+  }
+
   await db.insert(dailyPerformanceSnapshots).values({ userId, snapshotDate: performance.date, ...values })
     .onDuplicateKeyUpdate({ set: values });
-  return { ...performance, updated: existing.length > 0 };
+  return { ...performance, updated: existing.length > 0, preservedOfficialClose: false };
 }
 
 async function getMonthlyPerformancePoints(userId: number) {
@@ -463,7 +477,7 @@ async function getMonthlyPerformancePoints(userId: number) {
   }
   const externalCapitalAt = (date: string) => summarizeExternalCapitalFlows(cashMovementsByDate.get(date) ?? []);
 
-  const points: MonthlyPoint[] = stored.map((row) => {
+  const points: MonthlyPoint[] = stored.filter(isOfficialPerformanceClose).map((row) => {
     const externalCapital = externalCapitalAt(row.snapshotDate);
     return {
       date: row.snapshotDate,
@@ -499,9 +513,10 @@ async function getMonthlyPerformancePoints(userId: number) {
 /** Encadeia retornos fechados do mês e inclui o retorno intradiário até o próximo fechamento. */
 export async function getMonthlyPerformance(userId: number): Promise<MonthlyPerformanceResult | null> {
   const { monthStart, includesLiveDay, points } = await getMonthlyPerformancePoints(userId);
+  if (!points.some((point) => point.source === "ledger")) return null;
   const result = calculateMonthlyReturn(points, monthStart, includesLiveDay);
   if (!result) return null;
-  return { ...result, lastClosedDate: points.filter((point) => point.source === "ledger").at(-1)?.date ?? result.baseDate };
+  return { ...result, lastClosedDate: points.filter((point) => point.source === "ledger").at(-1)?.date ?? null };
 }
 
 /** Retorna a auditoria mensal por dia e por ativo sem modificar a carteira. */

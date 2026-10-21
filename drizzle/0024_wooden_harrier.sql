@@ -1,0 +1,1 @@
+ALTER TABLE `daily_performance_snapshots` MODIFY COLUMN `status` enum('final','intraday') NOT NULL DEFAULT 'intraday';

@@ -150,4 +150,14 @@ describe("calculateMonthlyReturn", () => {
     expect(dailyPerformanceInternals.calendarDates("2026-09-01", "2026-09-04"))
       .toEqual(["2026-09-01", "2026-09-02", "2026-09-03", "2026-09-04"]);
   });
+
+  it("não rotula estimativa intradiária como fechamento oficial", () => {
+    const result = calculateMonthlyReturn([
+      { date: "2026-10-21", returnPct: 0.35, returnValue: 7000, byClass: [], source: "live" },
+    ], "2026-10-01", true);
+
+    expect(result?.closedSnapshotCount).toBe(0);
+    expect(result?.lastClosedDate).toBeNull();
+    expect(result?.hasClosedGaps).toBe(false);
+  });
 });

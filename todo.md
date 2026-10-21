@@ -867,3 +867,10 @@
 - [x] Expor aportes, retiradas e fluxo líquido nos contratos diário e mensal
 - [x] Adicionar categoria explícita para retirada externa em novos lançamentos
 - [x] Validar cálculos, rótulos e testes sem alterar eventos financeiros existentes
+
+## Correção do Retorno Mensal — 21/10/2026 — Em andamento
+- [x] Auditar snapshots, movimentos e composição diária do retorno exibido
+- [x] Identificar série retroativa de 12–20/10 capturada em 21/10, sem valoração contemporânea
+- [x] Aceitar somente fechamentos com carimbo de valoração/captura compatível com a data do snapshot
+- [x] Tratar captura manual como intradiária e impedir seu uso como retorno mensal fechado
+- [x] Atualizar interface e testes sem alterar dados financeiros

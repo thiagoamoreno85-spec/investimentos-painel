@@ -931,3 +931,10 @@
 - [x] Identificar que a tabela desktop não oferecia os detalhes expansíveis disponíveis no mobile
 - [x] Tornar cada ativo desktop clicável por botão semântico, com detalhes equivalentes e foco/ARIA
 - [x] Preservar filtros, ordenação, preço manual, privacidade, dados e fluxo mobile; validar TypeScript, build e 250 testes
+
+## Consultor Patrimonial Pontual — 22/10/2026 — Concluído
+- [x] Definir o escopo somente leitura: pergunta textual, áudio ou documento, sem gravar conversas/anexos nem executar operações
+- [x] Criar serviço protegido de análise com contexto mínimo da carteira, patrimônio e notícias disponíveis, indicando fonte, data-base e limitações
+- [x] Adicionar campo compacto na Visão Geral com texto, gravação de áudio e anexo temporário de PDF, TXT, CSV, XLSX, XLS ou DOCX
+- [x] Validar privacidade, tipos de arquivo, respostas, TypeScript, 254 testes, build e visual desktop/mobile sem alterar dados financeiros
+- [x] Limitações explícitas: nenhuma busca externa automática; transcrição e análise são efêmeras; valores ocultos descartam pergunta, anexo, áudio e resposta na interface

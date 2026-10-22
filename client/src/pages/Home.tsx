@@ -36,6 +36,7 @@ import { ConsolidatedNetWorthCard } from "@/components/ConsolidatedNetWorthCard"
 import { PrivacyMask } from "@/components/PrivacyMask";
 import { SensitiveContent } from "@/components/SensitiveContent";
 import { AccessibleChartAlternative, type AccessibleChartColumn } from "@/components/AccessibleChartAlternative";
+import { WealthAdvisorBox } from "@/components/WealthAdvisorBox";
 
 import { ASSET_CLASS_LABELS, CLASS_CURRENCY, classColor } from "@/lib/assetClasses";
 import { buildHomePortfolioSummary } from "@shared/homePortfolioSummary";
@@ -340,6 +341,8 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        <WealthAdvisorBox />
 
         {/* Summary Cards — linha 1: Net Worth (largo) + 3 cards */}
         <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-5">

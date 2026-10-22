@@ -57,17 +57,11 @@ export type ToolChoice =
 
 export type InvokeParams = {
   messages: Message[];
-  /** Modelo explícito. Quando omitido, preserva o modelo legado. */
-  model?: string;
   tools?: Tool[];
   toolChoice?: ToolChoice;
   tool_choice?: ToolChoice;
   maxTokens?: number;
   max_tokens?: number;
-  /** Limite de saída para modelos GPT com reasoning. */
-  maxCompletionTokens?: number;
-  /** Controle de reasoning encaminhado sem alteração ao provedor. */
-  reasoning?: { effort: string };
   outputSchema?: OutputSchema;
   output_schema?: OutputSchema;
   responseFormat?: ResponseFormat;
@@ -276,12 +270,9 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
 
   const {
     messages,
-    model,
     tools,
     toolChoice,
     tool_choice,
-    maxCompletionTokens,
-    reasoning,
     outputSchema,
     output_schema,
     responseFormat,
@@ -289,7 +280,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   } = params;
 
   const payload: Record<string, unknown> = {
-    model: model ?? "gemini-2.5-flash",
+    model: "gemini-2.5-flash",
     messages: messages.map(normalizeMessage),
   };
 
@@ -305,26 +296,9 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.tool_choice = normalizedToolChoice;
   }
 
-  // Preserve exactly the prior defaults for existing callers. Explicit model
-  // controls opt out of Gemini's legacy thinking payload, which GPT ignores.
-  if (maxCompletionTokens !== undefined) {
-    payload.max_completion_tokens = maxCompletionTokens;
-  } else {
-    payload.max_tokens = 32768;
-  }
-
-  if (reasoning !== undefined) {
-    payload.reasoning = reasoning;
-  }
-
-  if (
-    model === undefined &&
-    maxCompletionTokens === undefined &&
-    reasoning === undefined
-  ) {
-    payload.thinking = {
-      "budget_tokens": 128,
-    };
+  payload.max_tokens = 32768
+  payload.thinking = {
+    "budget_tokens": 128
   }
 
   const normalizedResponseFormat = normalizeResponseFormat({
